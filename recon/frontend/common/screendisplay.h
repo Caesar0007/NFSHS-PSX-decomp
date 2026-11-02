@@ -9,7 +9,9 @@ struct tScreenDisplay : public tScreen {
     void GetShapeInfo(short &, short &, char **, char **);
     void DrawBackground();
     tScreenDisplay();
+#line 41 "C:/nfs4/FRONTEND/COMMON/SCREENDISPLAY.H"
 };
+#line 13 "recon/frontend/common/screendisplay.h"
 
 /* Member functions are declared on the owner-specific tScreenDisplay type. */
 

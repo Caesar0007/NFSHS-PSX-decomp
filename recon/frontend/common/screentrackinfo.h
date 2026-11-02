@@ -14,7 +14,9 @@ struct tScreenTrackInfo : public tScreen {
     tTVConfig tvConfigs[10];
     tVideoWall fVideoWall;
     tScreenTrackInfo();
+#line 52 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKINFO.H"
 };
+#line 18 "recon/frontend/common/screentrackinfo.h"
 
 /* Member functions are declared on the owner-specific tScreenTrackInfo type. */
 

@@ -654,8 +654,8 @@ Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
   int racerLoop;
   for (racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop++) {
     int sliceDist;
-    sliceDist = AIWorld_ApxSplineDistance(
-        (int)(Cars_gHumanRaceCarList[racerLoop]->N).simRoadInfo.slice,slice);
+    sliceDist = (int)(Cars_gHumanRaceCarList[racerLoop]->N).simRoadInfo.slice;
+    sliceDist = AIWorld_ApxSplineDistance(sliceDist,slice);
     sliceDist = __builtin_abs(sliceDist);
     if (sliceDist <= 0xabffff) {
       return Cars_gHumanRaceCarList[racerLoop];
@@ -673,8 +673,8 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
   int copLoop;
   for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
     int sliceDist;
-    sliceDist = AIWorld_ApxSplineDistance(
-        (int)(Cars_gCopCarList[copLoop]->N).simRoadInfo.slice,slice);
+    sliceDist = (int)(Cars_gCopCarList[copLoop]->N).simRoadInfo.slice;
+    sliceDist = AIWorld_ApxSplineDistance(sliceDist,slice);
     sliceDist = __builtin_abs(sliceDist);
     if (sliceDist <= 0x31ffff) {
       return Cars_gCopCarList[copLoop];

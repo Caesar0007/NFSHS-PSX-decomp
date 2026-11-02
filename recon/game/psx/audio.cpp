@@ -157,8 +157,8 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 
 
 
-  gSndBnk[BankNum].pdata = ptemp; gSndBnk[BankNum].bnkID = bhandle;
-
+  gSndBnk[BankNum].bnkID = bhandle;
+  gSndBnk[BankNum].pdata = ptemp;
 
 
 

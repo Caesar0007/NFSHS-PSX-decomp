@@ -1209,9 +1209,9 @@ void AI_ChooseBestLane(Car_tObj *carObj)
   int best;
 
 
-  best = AI_Info.laneWeights[1]; AI_Info.desiredLane = carObj->laneIndex;
+  AI_Info.desiredLane = carObj->laneIndex;
   AI_Info.desiredLaneSide = 1;
-
+  best = AI_Info.laneWeights[1];
   if (AI_Info.laneWeights[1] < AI_Info.laneWeights[0]) {
 
     AI_Info.desiredLane = carObj->laneIndex + -1;

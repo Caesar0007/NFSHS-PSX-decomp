@@ -86,7 +86,9 @@ struct tScreenCongrats : public tScreen {
     short fCarX, fCarY;
     float fCarCX, fCarCY;
 
+#line 109 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 90 "recon/frontend/common/screencongrats_types.h"
 
 #ifndef NFS4_SCREENCONGRATS_FEMENUDEFS_SURFACE
 struct tScreenTournamentTrophy : public tScreenCongrats {
@@ -99,7 +101,9 @@ struct tScreenTournamentTrophy : public tScreenCongrats {
     char fDoUpdate;
 
     tScreenTournamentTrophy();
+#line 126 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 103 "recon/frontend/common/screencongrats_types.h"
 
 struct tScreenPinkSlipCongrats : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */
@@ -111,7 +115,9 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
     short fWinner;
 
     tScreenPinkSlipCongrats();
+#line 141 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 115 "recon/frontend/common/screencongrats_types.h"
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */
@@ -119,7 +125,9 @@ struct tScreenBeTheCopCongrats : public tScreenCongrats {
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
     tScreenBeTheCopCongrats();
+#line 151 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 123 "recon/frontend/common/screencongrats_types.h"
 
 struct tScreenTournamentCongrats : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */
@@ -127,7 +135,9 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
     tScreenTournamentCongrats();
+#line 161 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 131 "recon/frontend/common/screencongrats_types.h"
 #else
 struct tScreenTournamentTrophy;
 struct tScreenBeTheCopCongrats;
@@ -144,7 +154,9 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void Initialize();
     void Cleanup();
+#line 141 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
+#line 148 "recon/frontend/common/screencongrats_types.h"
 #endif
 
 #endif

@@ -10,6 +10,7 @@
 #endif
 #else
 #if NFS4_FEMENUOPTIONS_TYPE_PART == 1
+#line 13
 struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;
     bool fInTransition;
@@ -22,8 +23,11 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     void UpdateTransition(bool);
     void MyLeftRightDraw(int, int);
 #endif
+#line 46 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 26 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 2
+#line 27
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     bool fActive;
 #ifdef NFS4_FEMENUDEFS_SURFACE
@@ -39,8 +43,11 @@ struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     void UpdateTransition(bool);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
+#line 193 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 43 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 3
+#line 44
 struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d)
@@ -49,8 +56,11 @@ struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     void Draw(int, int, bool);
 #endif
+#line 206 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 53 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 4
+#line 54
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
     short fOnFade;
 #ifdef NFS4_FEMENUDEFS_SURFACE
@@ -61,8 +71,11 @@ struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
     void TransitionOn();
     void Draw(int, int, bool);
 #endif
+#line 217 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 65 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 5
+#line 66
 struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d)
@@ -71,8 +84,11 @@ struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     void Draw(int, int, bool);
 #endif
+#line 290 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 75 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 6
+#line 76
 struct tUserNameMenuItem : public tMenuItem {
     char *fData;
     short fMaxStringLength, fCurrentColumn, fCurrentRow;
@@ -104,8 +120,11 @@ struct tUserNameMenuItem : public tMenuItem {
     bool TransitionIsFinished();
     void UpdateTransition(bool);
 #endif
+#line 375 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 108 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 7
+#line 109
 struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     short fFadeVal, fFadeDir;
     bool fInTransition;
@@ -120,8 +139,11 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     bool TransitionIsFinished();
     void UpdateTransition(bool);
 #endif
+#line 396 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 124 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 8
+#line 125
 struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
@@ -131,8 +153,11 @@ struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     void Draw(bool);
 #endif
+#line 407 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 135 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 9
+#line 136
 struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d)
@@ -141,8 +166,11 @@ struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
+#line 428 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 145 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 10
+#line 146
 /* Retail SLD names FEMENUOPTIONS.H for these inline bodies and implicit
  * destructor. Keep the definition in that real owner, not a type-surface
  * header. The part selector only preserves the existing declaration order. */
@@ -152,11 +180,14 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
                                      void (*f)(tMenuCommand &), int ff, int nf)
         : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}
     /* in-class inlines are emitted in REVERSE declaration order (retail: TIF, Draw(iib), Draw(b), then the dtor) */
+#line 415 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
     void Draw(bool) {}
     void Draw(int, int, bool) {}
     bool TransitionIsFinished() { return true; }
 #endif
+#line 418 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 };
+#line 160 "recon/frontend/common/femenuoptions.h"
 #else
 #error Unknown FEMENUOPTIONS.H type part
 #endif

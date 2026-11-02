@@ -2695,10 +2695,11 @@ void AudioCmn_PlayPauseSound(int patch)
 }
 
 /* ---- quickSirenOn__Fi  [@0x8007971c] ---- */
-/* SOURCE-REVIEW-UNRESOLVED: patch names the real selected sample value;
- * retail retains no local row for it. Its separate selection/call SLD groups
- * do not uniquely prove the original object or spelling. Direct conditional
- * call arguments change code; that failure alone is not a necessity proof. */
+/* RETAIL-SYM: record193847 supplies patch as INT REG5 in quickSirenOn's
+ * root owner (+0..+32, relative lines1..3). It is the selected8/6 sample
+ * actually passed in a1. Its name/type/home/owner are supplied, not an
+ * unresolved source-only carrier. Literal initializer/macro text remains
+ * unproved; failed direct controls are not needed as object-existence proof. */
 
 
 #line 2411 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"

@@ -34,7 +34,9 @@ struct tDialogBase : public tScreen {
     inline tDialogBase *SetPosition(short, short);
     inline void SetSpecificPlayer(short);
 #endif
+#line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 38 "recon/frontend/common/fedialog.h"
 
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
@@ -47,7 +49,9 @@ struct tDialogHelp : public tDialogBase {
     void AddItem(short, short); inline void SetVariant(int);
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     tDialogHelp();
+#line 174 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 51 "recon/frontend/common/fedialog.h"
 
 struct tDialogMessageString : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
@@ -72,23 +76,31 @@ struct tDialogMessageString : public tDialogBase {
     inline void Display(int word);
 #endif
     tDialogMessageString();
+#line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 76 "recon/frontend/common/fedialog.h"
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
     tDialogMessageStringWithTimeout();
+#line 215 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 80 "recon/frontend/common/fedialog.h"
 
 struct tDialogBackUpOnly : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     tDialogBackUpOnly(int);
+#line 223 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 86 "recon/frontend/common/fedialog.h"
 
 struct tDialogNoInputMessage : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     tDialogNoInputMessage();
+#line 233 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 92 "recon/frontend/common/fedialog.h"
 
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
@@ -100,7 +112,9 @@ struct tDialogInteractive : public tDialogMessageString {
    /* defined inline in fedialog.cpp, after tDialogMessageString's inline ctor */
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
+#line 254 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 104 "recon/frontend/common/fedialog.h"
 
 struct tDialogYesNo : public tDialogInteractive {
     /* overrides (retail vtable), declared on every owner surface */
@@ -123,12 +137,16 @@ struct tDialogYesNo : public tDialogInteractive {
         fDefault = defaultValue;
         return this;
     }
+#line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 127 "recon/frontend/common/fedialog.h"
 
 struct tDialogYesNoMem : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#line 284 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 132 "recon/frontend/common/fedialog.h"
 
 struct tDialogYesNoTri : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */
@@ -140,6 +158,8 @@ struct tDialogYesNoTri : public tDialogYesNo {
 #ifndef NFS4_FEMENUDEFS_SURFACE
     inline tDialogYesNoTri() {}
 #endif
+#line 294 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
+#line 144 "recon/frontend/common/fedialog.h"
 
 #endif

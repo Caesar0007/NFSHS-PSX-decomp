@@ -96,14 +96,18 @@ struct tScreenTournamentStandings : public tScreen {
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
     tScreenTournamentStandings();
 #endif
+#line 64 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
 };
+#line 100 "screentournselect_types.h"
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #endif
+#line 72 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
 };
+#line 107 "screentournselect_types.h"
 
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
@@ -111,10 +115,14 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     void DrawBackground();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     tScreenPinkSlipStandings();
+#line 82 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
 };
+#line 115 "screentournselect_types.h"
 #else
+#line 116 "screentournselect_types.h"
 #include "screentournselect.h"
 #endif
+#line 118 "screentournselect_types.h"
 
 /* tGlobalMenuDefs is owned by FEMenuDefs.obj and has no completed tag here.
  * This exact-offset view exposes only the two iterators read by this owner. */

@@ -13,6 +13,7 @@ import re
 import sys
 from pathlib import Path
 from debug_inputs import select_debug_sources, full_debug_command
+from symbol_cpp import symbol_cpp_command
 
 ROOT = Path(__file__).resolve().parents[2]
 (ROOT / 'scratchpad' / 'psyq_pipe').mkdir(parents=True, exist_ok=True)   # local, git-ignored work area
@@ -23,10 +24,33 @@ GOUT = ROOT / 'build' / 'gdebug'
 build.OUT = GOUT
 build.CC1_FLAGS = ['-g' if f == '-g1' else f for f in build.CC1_FLAGS]
 _run = build.run
+_active_source = None
+_cpp_producers = {}
 
 
 def run(cmd, *a, **k):
-    return _run(full_debug_command(cmd), *a, **k)
+    # Original preprocessor input identity, not a compiler/debug output fix.
+    # Backup: build/tmp/v/source_round_ba_20261102/gdebug_compile.before.py.
+    import hashlib
+    actual = symbol_cpp_command(cmd, source=_active_source, root=ROOT,
+                                default_cpp=build.CPP, cc1pl=build.CC1PL)
+    changed = list(map(str, actual)) != list(map(str, cmd))
+    before_source_sha = (hashlib.sha256(_active_source.read_bytes()).hexdigest()
+                         if changed else None)
+    result = _run(full_debug_command(actual), *a, **k)
+    if changed and result.returncode == 0:
+        if hashlib.sha256(_active_source.read_bytes()).hexdigest() != before_source_sha:
+            raise ValueError('Source changed during native-symbol preprocessing')
+        output = Path(actual[-1])
+        value = dict(source=_active_source.relative_to(ROOT).as_posix(),
+                     source_sha256=before_source_sha,
+                     executable=str(actual[0]),
+                     executable_sha256=hashlib.sha256(Path(actual[0]).read_bytes()).hexdigest(),
+                     argv=list(map(str, actual)), output=str(output),
+                     cpp_output_before_origin_sha256=hashlib.sha256(output.read_bytes()).hexdigest())
+        _cpp_producers[value['source']] = value
+        output.with_suffix(output.suffix+'.cpp-producer.json').write_text(json.dumps(value, indent=2)+'\n')
+    return result
 
 
 build.run = run
@@ -48,6 +72,7 @@ except ValueError as error:
     sys.exit(str(error))
 report = {}
 for s in srcs:
+    _active_source = s
     rel = s.relative_to(ROOT).as_posix()
     try:
         if s.suffix == '.cpp':
@@ -66,6 +91,8 @@ for s in srcs:
         if not same:
             note += ' | CODE DIFFERS %d vs %d insns' % (len(a), len(b))
     report[rel] = {'s': g.is_file(), 'same_code': same, 'note': note}
+    if rel in _cpp_producers:
+        report[rel]['original_cpp_producer'] = _cpp_producers[rel]
     print('%-52s %s %s' % (rel[-52:], 'same' if same else ('DIFF' if same is False else '----'), note[:90]))
 (ROOT / 'scratchpad' / 'psyq_pipe' / 'gdebug_report.json').write_text(json.dumps(report, indent=1))
 print('TUs %d | .s produced %d | code identical %d | differs %d' % (len(report), sum(r['s'] for r in report.values()),

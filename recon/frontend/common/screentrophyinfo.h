@@ -10,7 +10,9 @@ struct tScreenTrophyInfo : public tScreen {
     void DrawBackground();
     int BannerCol;
     tScreenTrophyInfo();
+#line 30 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.H"
 };
+#line 14 "recon/frontend/common/screentrophyinfo.h"
 
 
 #endif

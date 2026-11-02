@@ -554,12 +554,12 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   this->ReleaseCops();
 
 
+  placementSide = 1;
 
 
 
 
-
-  randtemp = fastRandom * randSeed; placementSide = 1; fastRandom = randtemp & 0xffff; placementDirection = placementSide; this->carObj_->N.simRoadInfo.slice = 0 <= humanDirection * 0x10 ? (gNumSlices <= (short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 ? (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 - (u_short)gNumSlices) : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10)) : ((short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 < 0 ? (short)((u_short)gNumSlices + ((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10))
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; placementDirection = placementSide; this->carObj_->N.simRoadInfo.slice = 0 <= humanDirection * 0x10 ? (gNumSlices <= (short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 ? (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 - (u_short)gNumSlices) : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10)) : ((short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 < 0 ? (short)((u_short)gNumSlices + ((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10))
 
 
          : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10));
@@ -771,16 +771,16 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
 
 {
-  if (this->closestCopCarObj_ == (Car_tObj *)0x0 || (u_int)this->perpMode_ >= 2) { this->timeUntilContact_ = 64000; } else { int distance; int relVel; relVel = (this->carObj_)->currentSpeed -
+  if (this->closestCopCarObj_ == (Car_tObj *)0x0 || (u_int)this->perpMode_ >= 2) { this->timeUntilContact_ = 64000; } else
 
 
 
 
+  { int distance; int relVel;
 
+    distance = this->closestCopCarDistanceMeters_;
 
-
-
-        this->closestCopCarObj_->currentSpeed; distance = this->closestCopCarDistanceMeters_;
+    relVel = (this->carObj_)->currentSpeed - this->closestCopCarObj_->currentSpeed;
     if (0xfffe < relVel + 0x7fffU) {
 
 

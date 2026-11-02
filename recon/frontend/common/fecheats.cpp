@@ -28,16 +28,16 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 
 /* ---- FECheat_HandleActivation  [FECHEATS.CPP:89-152] SLD-VERIFIED ---- */
 
-    /* SYM-CARRIER: num=i.  SYM names this non-overlapping block lifetime
-       `short num` in $s0.
-       A separate C local prevents gcc from coalescing it with the earlier
-       `$s0` short `i` and regresses this PASS by 14 diffs (116/116).  Reusing
-       `i` is the byte-exact representation of that retail lifetime. */
+    /* SYM-CARRIER: supplied `short num` is REG16 in an outer inline-parameter
+       owner at +0x1b0, not a second caller local; root `short i` is separate.
+       Current `i` reuse preserves bytes but does not recover that producer.
+       The old separate-caller-local control FAIL14/116 does not prove an
+       original object or required reuse; genuine inline ownership is open. */
     /* SYM-CODEGEN-CARRIER: placement
      * SYM-CODEGEN-CARRIER: placements
-     * These preserve retail's placement=$a1 / manager-base=$v0 handout.  The
-     * direct `tournamentManager.fBestPlacement[i] = cheat - 0x1b` source form
-     * is instruction-count neutral but FAIL 10 / 116 versus PASS 116. */
+     * Unprovided placement is $a0, manager base $a1; $v0 is the HI scratch,
+     * then loop scratch. Neither capture is proved original or necessary.
+     * Direct-field FAIL10/116 is basin-specific; source removal stays open. */
   /* W65 PASS (57->0): preserve retail case-body order, pass the records array
      address directly, and keep the placement cases as a top-tested loop with
      their value and manager base prepared before the loop. */

@@ -7,6 +7,21 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 
 `sym_obj_order.json` is an input, not an output: the retail link order (the FILE records of `NFS4.SYM`).
 
+Native full-debug compilation has two measured original-preprocessor profiles
+in `symbol_cpp.py`: `aih_btccop.cpp` and `screencongrats.cpp` require PsyQ4.3 `CPPPSX.EXE` (GNU2.8.0
+SN32 Build4.0.0007, SHA256 `7becd3512121a037d6c413e35ec4d895c968ec2a52e84a24020e9e21e81a1919`).
+Place it beside the resolved CC1PLPSX or set `NFS4_CPPPSX`. A missing/wrong
+identity fails closed for that native-symbol compilation; no modern-CPP result
+is silently certified as EOF-exact. The real source's EOF coordinate controls
+two AIH_BTCCOP and five SCREENCONGRATS synthesized destructor ends, independently
+of their last real function ends. The second profile's backup and canonical
+all-native acceptance receipt are in `build/tmp/v/source_round_bi_20261102/`.
+The original footer is retained before the first retail source anchor; keep
+the documented trailing source gap/end comment intact. There is no generated
+input, assembly, object or SYM patch. Ordinary byte builds and all other
+full-debug TUs retain their existing preprocessing. A hash/argv/output witness
+is recorded beside the selected `.i` as `.i.cpp-producer.json`.
+
 | Group | Tools | Documented in |
 |---|---|---|
 | Native link: `NFS4.CPE` / `.SYM` / `.MAP`, then `NFS4.EXE` + `FRONT.BIN` | `psylink_lane.py`, `psylink_disc.py`, `cpe_dump.py`, `drift.py`, `drift_vt.py`, `layout_delta.py`, `obj_align.py`, `aspsx_ladder.py` | `BUILDING.md`, Route B |

@@ -9,10 +9,12 @@ struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
         : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
+#line 80 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
     void Draw(int, int, bool) {}
     bool TransitionIsFinished() { return true; }
 #endif
 };
+#line 16 "recon/frontend/common/femenuextended.h"
 #else
 #error Unknown FEMENUEXTENDED.H type part
 #endif

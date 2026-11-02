@@ -1119,9 +1119,9 @@ void tScreenControllerConfig::DrawBackground()
                indexed loop is FAIL 182 at 414/410 and shrinks the retail
                184-byte frame to 176.  These three value webs preserve the
                halfword-pointer loop emitted by the retail source expansion. */
-    /* SYM-CODEGEN-CARRIER: selectedConfig -- direct member assignment is
-       count-exact FAIL 2 because it moves the fFadeTextOut store ahead of the
-       frontend config-table load. */
+    /* The actual config store precedes fade clearing and return1699.
+       This source exit retains the retail tail tags without selectedConfig.
+       Receipt: build/tmp/v/controller_config_private_20261102/receipt.json. */
 #line 1656 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.CPP"
 void tScreenControllerConfig::DrawForeground()
 
@@ -1164,9 +1164,9 @@ void tScreenControllerConfig::DrawForeground()
     this->fArrowFade = 0x80;
     this->fTextController = this->fCurrentController;
     if (this->fTextController == '\x06') { this->fTextController = '\x05';
-    } char selectedConfig = frontEnd.controlConfig[this->player];
+    } this->fTextConfig = frontEnd.controlConfig[this->player];
     this->fFadeTextOut = 0;
-    this->fTextConfig = selectedConfig;
+    return;
   }
   else {
     if (this->fArrowFade == 0) { this->fTextTypeOn = this->fTextTypeOn + 1;

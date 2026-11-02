@@ -31,7 +31,9 @@ struct tScreenTrackSelect : public tScreen {
     void UpdateBrightness(tTrackInformation &);
     void UpdateVideoWall(tTrackInformation &);
     void DrawVideoWall();
+#line 89 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKS.H"
 };
+#line 35 "recon/frontend/common/screentracks.h"
 
 
 #endif

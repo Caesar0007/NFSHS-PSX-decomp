@@ -34,7 +34,9 @@ struct tScreenMain : public tScreen {
     void DrawDropShadow();
     void DrawVideoLines();
     tScreenMain();
+#line 162 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.H"
 };
+#line 38 "recon/frontend/common/screenmain.h"
 
 
 #endif

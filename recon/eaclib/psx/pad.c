@@ -213,10 +213,20 @@ void PAD_restore(void)
 #line 171 "D:/nfs4/EACLIB/PSX/PAD.C"
 u_short PAD_state(int padID)
 {
-  if (gPadinfo.initialized != 0 && (u_int)padID < 8) {
-    return PAD_convert(gPadinfo.buf + padID) & 0xffff;
-  }
-  return 0;
+  if (gPadinfo.initialized == 0)
+    return 0;
+
+
+
+
+  if ((u_int)padID >= 8)
+
+
+    return 0;
+
+
+
+  return PAD_convert(gPadinfo.buf + padID) & 0xffff;
 }
 
 /* lines 187-277: (static data / macros / comments - no emitted code) */

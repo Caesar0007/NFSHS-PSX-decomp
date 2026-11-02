@@ -76,7 +76,9 @@ struct tScreenControllerConfig : public tScreen {
     void DrawArrow(short *);
     int GetHelpText();
     tScreenControllerConfig();
+#line 177 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.H"
 };
+#line 80 "recon/frontend/common/screencontroller.h"
 
 /* Remaining foreign singleton views need owning-SYM source restoration. */
 struct ScreenController_FEApplicationCodegenView {

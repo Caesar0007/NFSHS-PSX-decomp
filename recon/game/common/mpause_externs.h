@@ -49,4 +49,11 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sstop.h"
 }
 
+/* gettick is the EA name in retail SYM/MAP at800E8220; its timer body and the
+ * matched NFS2 implementation read ticks. This local inline realization is
+ * reconstructed: the literal original inline header/call spelling is unproved.
+ * Header context preserves the supplied caller lines. The canonical vars.h
+ * declaration already makes the IRQ-updated ticks volatile. */
+static inline int gettick(void) { return ticks; }
+
 #endif /* MPAUSE_EXTERNS_H */

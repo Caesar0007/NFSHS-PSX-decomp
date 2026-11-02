@@ -429,12 +429,12 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
   }
   dsquare = dst / 0x10000;
   dsquare *= dsquare;
-  distSq = 0x1324;
+
   if (dsquare < 0x1324) {
     distSq = dsquare;
+  } else {
+    distSq = 0x1324;
   }
-
-
   if (AudioClc_gCameraVelocity != (coorddef *)0x0) {
     source->relVelocity = ((car->currentSpeed - AudioClc_gPlayer[playerIndex].source.car->currentSpeed) > 0) ? (car->currentSpeed - AudioClc_gPlayer[playerIndex].source.car->currentSpeed) : (AudioClc_gPlayer[playerIndex].source.car->currentSpeed - car->currentSpeed);
   }

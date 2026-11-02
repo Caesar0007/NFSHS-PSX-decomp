@@ -54,6 +54,79 @@ coorddef     AIH_BTCCop_chasePositions[3][6] = { { {0, 0, 720896}, {-524288, 0, 
 
 /* ---- __14AIHigh_BTC_CopP8Car_tObji  AIHigh_BTC_Cop::ctor  [AIH_BTCCOP.CPP:107-111] SLD-VERIFIED ---- */
 
+/* SYM (retail): fn-scope locals are only initSlice/copObj/blockadeType.  The accessor pairs
+     (humanCop->CarObj(), PerpTarget(), the spike belt's Set/Freshen), the SLICE_ADD wrap macro and
+     plain field stores reproduce the 340 retail instructions without the former carrier locals
+     (blockadeDirection, blockadeFlags, sliceOffset, blockadeSlice, perpDistance, slice, the
+     else-arm candidates) and without the identity asm fences. */
+/* a named bound (gcc propagates it away, so it leaves no record): the literal form is folded to
+       MIN_EXPR(x, K) and clamps in place, while retail computes MIN(K, x) in a temporary. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==== AIState vague-linkage tail (2026-08-03 name-fix): btccop's OWN compiled copies of the
+ * shared AIState helpers -- retail emitted one instance per .obj (SYM names them identically at
+ * distinct VAs; oracle vtable copies D_80054F24/D_80054F44 are this obj's NonActive/Base vtables,
+ * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
+ * aistate.cpp instances (100%-proven spellings). */
+
+/* ---- Execute__17AIState_NonActive @0x8005F624 : empty per-frame body (real method --
+ * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
+
+/* ---- ___17AIState_NonActive @0x8005F62C : deleting dtor (SYM _._17AIState_NonActive) ---- */
+
+/* ---- TestForRelease__12AIState_Base_8005F678 @0x8005F678 : shared default impl (real method) ---- */
+
+/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
+ * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
+
+/* ---- ___12AIState_Base_8005F680 @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
+
+/* end of aih_btccop.cpp */
 #line 107 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
@@ -2002,13 +2075,6 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
   Speech::Dispatch()->Ready(this->carObj_); return; }
-/* SYM (retail): fn-scope locals are only initSlice/copObj/blockadeType.  The accessor pairs
-     (humanCop->CarObj(), PerpTarget(), the spike belt's Set/Freshen), the SLICE_ADD wrap macro and
-     plain field stores reproduce the 340 retail instructions without the former carrier locals
-     (blockadeDirection, blockadeFlags, sliceOffset, blockadeSlice, perpDistance, slice, the
-     else-arm candidates) and without the identity asm fences. */
-/* a named bound (gcc propagates it away, so it leaves no record): the literal form is folded to
-       MIN_EXPR(x, K) and clamps in place, while retail computes MIN(K, x) in a temporary. */
 
 
 
@@ -2032,46 +2098,4 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==== AIState vague-linkage tail (2026-08-03 name-fix): btccop's OWN compiled copies of the
- * shared AIState helpers -- retail emitted one instance per .obj (SYM names them identically at
- * distinct VAs; oracle vtable copies D_80054F24/D_80054F44 are this obj's NonActive/Base vtables,
- * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
- * aistate.cpp instances (100%-proven spellings). */
-
-/* ---- Execute__17AIState_NonActive @0x8005F624 : empty per-frame body (real method --
- * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
-
-/* ---- ___17AIState_NonActive @0x8005F62C : deleting dtor (SYM _._17AIState_NonActive) ---- */
-
-/* ---- TestForRelease__12AIState_Base_8005F678 @0x8005F678 : shared default impl (real method) ---- */
-
-/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
- * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
-
-/* ---- ___12AIState_Base_8005F680 @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
-
-/* end of aih_btccop.cpp */
+/* EOF source layout is significant for synthesized destructor metadata. */

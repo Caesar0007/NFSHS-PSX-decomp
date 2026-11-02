@@ -543,10 +543,10 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
      player its 6th and 7th (14/214 = 0.0654, back on top).  Measured ladder:
      no scopes = FAIL 26; inner only = FAIL 12 (player fixed, the
      returnvalue/shapeFile pair still swapped); both = PASS 292/292. */
-  /* SYM-CODEGEN-CARRIER: wd -- CSE of &WarningDialog across the ctor/TextSys calls
-     (hold-addr, s0): the
-     oracle stores the three non-zero-constant fields through s0 and takes both call args
-     from it; zeros/vt stay sp-direct. */
+  /* Actual WarningDialog supplies the ctor/TextSys/Display address chain;
+     no separate wd source object is needed in this verified form. The
+     three non-zero-constant fields and both call args still use s0;
+     zeros/vtables remain sp-direct. Original literal spelling is unproved. */
   /* WarningDialog is declared after the loop at the oracle's `jal __7tScreen` position;
      declaration order matches the SYM stack layout.  Its header-inline constructor above
      emits the retail base/vtable/field chain. */
@@ -574,9 +574,9 @@ bool SaveGame(short player)
       } }
   }
   tDialogNoInputMessage WarningDialog;
-  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; tDialogNoInputMessage *wd = &WarningDialog; WarningDialog.string = TextSys_Word(player + 0x276);
+  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; WarningDialog.string = TextSys_Word(player + 0x276);
 
-  WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; Display((tDialogBase *)wd);
+  WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; Display((tDialogBase *)&WarningDialog);
   while (true) { if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz -- see Confirm */
     Redraw(FEApp);
   } finished = false; returnvalue = finished;   /* oracle: addu s6,s3,zero -- the false is a COPY of finished */ returnmessage = 0x28b; Redraw(FEApp);
@@ -783,7 +783,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   tMemCardData memCardData;
   char memorycardbuffer [256];
   short cardNum; bool finished; int result; int memCardResult; int count; int returnmessage;
-  int cardshifted; /* SYM-CODEGEN-CARRIER: s5 = (player*4|1) << 16; SYM exposes only cardNum (s3) */
+   /* Pass the actual short cardNum; call conversions supply its signed value. */
 
   CURRENTPLAYER = player;
 
@@ -814,13 +814,13 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   count = 0x2c; if (WithDialogs != 0) count = 0;
   returnmessage = 0x28d;
 
-  cardshifted = cardNum << 16; do
+  do
   {
   count = count + 1; MakeWayForMemoryCard();
 
 
-  Init_MemcardFile(memCardFile,(short)(cardshifted >> 0x10),true);
-  while (MCRD_handlecardevents(cardshifted >> 0x10) == 0x15) {
+  Init_MemcardFile(memCardFile,(short)(cardNum),true);
+  while (MCRD_handlecardevents(cardNum) == 0x15) {
 
 
 
@@ -833,7 +833,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
   while (true) { if (finished) break;
 
-    memCardResult = MCRD_handlecardevents(cardshifted >> 0x10);
+    memCardResult = MCRD_handlecardevents(cardNum);
     systemtask(0);
     VSync(0);
 
@@ -845,7 +845,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 
 
-      MCRD_loadfile(cardshifted >> 0x10,&memCardFile,0);
+      MCRD_loadfile(cardNum,&memCardFile,0);
       break;
     case 0xf:
 
@@ -946,7 +946,7 @@ finish_card_event:
     }
   }
 
-  while (MCRD_handlecardevents(cardshifted >> 0x10) != 0x16) {
+  while (MCRD_handlecardevents(cardNum) != 0x16) {
 
 
 

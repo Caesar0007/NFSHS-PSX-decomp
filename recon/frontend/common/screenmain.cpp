@@ -415,7 +415,7 @@ void tScreenMain::DrawVideoLines()
    their owning statements. P863 also folds the packed-tint component into
    its owning expression. The curMenu/startMovie/elapsedTicks aliases are now
    removed by real menu getter calls and one compound movie-start predicate.
-   SOURCE-REVIEW-UNRESOLVED: animationFrame/videoY, the shapeX/shapeY value
+   SOURCE-REVIEW-UNRESOLVED: videoY, the remaining shapeX/shapeY value
    roles and homes, missing application receivers and remaining scope bounds
    still need original-source recovery. Machine value webs do not prove that
    separate named objects existed in the lost source. */
@@ -461,9 +461,9 @@ void tScreenMain::DrawVideoLines()
        operand order".  Fully inlining the x/y reads into the call args measures
        EXACTLY the same 44, but drops both SYM 8c locals (shapeX $v0, shapeY $s0),
        so the split-temp form is kept. */
-    /* SYM-CODEGEN-CARRIER: animationFrame -- folding the divide/remainder
-       into DrawShapeExtended is count-exact FAIL 22 and interleaves its magic
-       constants with the animLocations address chain. */
+    /* Actual Draw arguments jointly compute the frame and assign supplied
+       shapeX/shapeY, removing animationFrame without dropping their records.
+       Earlier isolated-fold failures do not prove a separate source object. */
       /* SYM-CODEGEN-CARRIER: nextAnimation -- reusing the dead SYM
          `animFade` short is FAIL 3 at 823/822 because it adds an $s7 handoff;
          the separate block value remains in retail's caller-saved chain. */
@@ -702,7 +702,7 @@ credits_state_done:
 
   if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
     int drawAnimFade;
-    int animationFrame;
+
     drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
     drawFlags.custom_shapes = this->fSwapShapes.fShapes;
     drawAnimFade = (int)animFade;
@@ -712,7 +712,7 @@ credits_state_done:
     }
 
 
-    animationFrame = (deltaTicks / 0xf) % 10; shapeX = animLocations[this->fAnimLocation].x; shapeY = animLocations[this->fAnimLocation].y; DrawShapeExtended(animationFrame,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
+    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,(shapeX = animLocations[this->fAnimLocation].x),(shapeY = animLocations[this->fAnimLocation].y),drawAnimFade,1,&drawFlags);
   }
 
 

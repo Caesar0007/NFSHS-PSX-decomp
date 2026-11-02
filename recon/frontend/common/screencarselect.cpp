@@ -37,6 +37,16 @@ typedef struct tPsyQPrimTag {
    GCC-v2 `FRA4_iRA4_A4_iT0` decodes to the retail array-reference signature below;
    SYM REG I=$s3, J=$s0. */
 static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4]);
+/* (2026-09-20) The hand-transcribed __asm__ destructor(s) that stood here are GONE: with real virtual destructors the
+ * compiler emits the out-of-line copies the vtables need, at the same place (the deferred-inline tail). */
+
+/* ---- tScreenCarSelectDuel::dtor  [SCREENCARSELECT.CPP:285-2230] ---- */
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___16tScreenCarSelect the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+
+/* end of screencarselect.cpp */
 #line 48 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.CPP"
 static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4])
 
@@ -1319,10 +1329,10 @@ void tScreenCarSelect::DrawForeground()
 
 /* ---- tScreenCarSelectDuel::PreLoad  [SCREENCARSELECT.CPP:1272-1296] ---- */
   /* [SYM] 8c decl order: carInfo, buffer */
-  /* SYM-CODEGEN-CARRIER: useDefault -- folding `call == 1` into the following
-     guard is FAIL4 (74/74), replacing retail's xori/beqz with li/beq.  SYM
-     cannot recover an identifier for this optimized boolean; useDefault is
-     the semantic reconstruction of the required materialized predicate. */
+  /* Direct logical-not of the actual bool GetCar result removes useDefault
+     while preserving xori/beqz and all existing source/native facts. XOR1
+     instead changes the comparison form; opcode imitation is unnecessary.
+     Receipt: build/tmp/v/carselect_default_guard_20261102/proof.json. */
   /* SYM/PASS: retail records only carInfo and buffer.  Direct destination
      assignments and flattened slot 13 remove buf_or_path/str/vtbl exactly. */
 #line 1269 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.CPP"
@@ -1332,7 +1342,7 @@ void tScreenCarSelectDuel::PreLoad()
 {
   tCarInfo carInfo;
   char buffer [32];
-  bool useDefault;
+
   (this->fOpponentShapes).fShapes = (tTexture_ShapeInfo *)0x0;
 
   ::InitializeShapes((tScreen *)this,&this->fOpponentShapes,5);
@@ -1343,7 +1353,7 @@ void tScreenCarSelectDuel::PreLoad()
   this->fOpponentShapes.fDestFile = Platform_GetDCTBuffer(16000,"OpponentVid");
 
 
-  useDefault = this->GetCar(carInfo) == 1; if (!useDefault) {
+  if (!this->GetCar(carInfo)) {
     carManager.GetStockCar(0,carInfo);
   } sprintf(buffer,"z%s",carInfo.fSmallName);
   ::AsyncLoadShapeFile((tScreen *)this,buffer,&this->fSwapShapes);
@@ -2613,23 +2623,7 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
   *swapFileName = gSwapFileName[0]; return;
 }
 
-
-
-/* (2026-09-20) The hand-transcribed __asm__ destructor(s) that stood here are GONE: with real virtual destructors the
- * compiler emits the out-of-line copies the vtables need, at the same place (the deferred-inline tail). */
-
-
-
-/* ---- tScreenCarSelectDuel::dtor  [SCREENCARSELECT.CPP:285-2230] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___16tScreenCarSelect the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___16tScreenCarSelect(void *);
-
-
-
-/* end of screencarselect.cpp */
 
 PinkSlipsCarSelectState PinkSlipsScreenState[2];                 /* @0x80052034 */
 tScreenCarSelect *screenCarSelect;                               /* @0x8005203c */

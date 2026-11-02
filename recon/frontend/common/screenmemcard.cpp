@@ -107,25 +107,25 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
    i*192 buy that threshold without emitting instructions (PASS dump: GIV p305
    20 refs/25 live -> s0, i p83 23 refs/30 live -> s1).  Placing the existing
    i=0 immediately before the nonzero guard makes reorg select its move for the
-   branch delay slot instead of stealing li 900.  The block-local `one` makes
-   the two literal stores use retail's t0 lifetime, and the identity-laundered
-   bool-to-int `pulled` preserves retail's addu t0,s7 before the final word
-   store.  Falsified basins: for-loop 25 @216/215; direct icon/cardInfo removal
+   branch delay slot instead of stealing li 900. The old two-store reading
+   of block-local one is superseded by the source-use audit below. The error-field-to-done
+   chained assignment preserves retail's addu t0,s7 without a pulled local
+   or its old identity fence. Falsified basins: for-loop 25 @216/215; direct icon/cardInfo removal
    40 @219/215; one pointer-read fence 24 @215/215; early i=0 26 @213/215;
    post-loop i fence 44 @217/215; split induction fences 68 @215/215. */
-          /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
-             retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
-          /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
-             this shared value restores retail's two $t0 stores. */
-        /* Retail's +0x14c..+0x310 loop-body scope; the value itself is
-           optimized out of native SYM but holds the two $t0 stores. */
+          /* Source review (2026-11-02): actual flag/done chained assignment
+             removes pulled and its identity fence; original punctuation is unproved. */
+          /* SOURCE-REVIEW-UNRESOLVED: one has ONE source use, goticon; the
+             earlier same-register literal flag store is an independent value. */
+        /* Retail's +0x14c..+0x310 loop-body scope; one is debug-elided and
+           feeds goticon only, not the independent literal flag store. */
 #line 142 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::LoadIcon(int filenum)
 
 
 {
   bool done;
-  int clutx; int cluty; int i; bool pulled; if (AudioMus_Buffered() < AudioMus_Threshold()) {
+  int clutx; int cluty; int i; if (AudioMus_Buffered() < AudioMus_Threshold()) {
     return;
   }
   CURRENTLYUSINGMEMCARD = 1;
@@ -227,7 +227,7 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x10:
         case 0x13:
         case 0x17:
-          done = true; pulled = done; __asm__("" : "=r"(pulled) : "0"(pulled)); this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
+          done = this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = true;
           this->goticon[filenum] = '\0';
 
 
@@ -658,7 +658,7 @@ void tScreenMemcard::SetEnablings()
    not another staging wrapper. TextDefinitionColor supplies the retail
    +1d4 inline pair. All fifteen native regions and thirteen known local/
    parameter tuples agree, with410/410 PASS and complete TU bytes unchanged.
-   SOURCE-REVIEW-UNRESOLVED: gouraudX/gouraudY/startX/startY and the debug-elided
+   SOURCE-REVIEW-UNRESOLVED: gouraudX/gouraudY/startY and the debug-elided
    w/h source identities still need recovery; old failed removals do not prove
    original named objects. Getter spelling/full SLD remains unsealed. */
 /* W59-A9 2026-08-14 -- THIS FUNCTION IS BYTE-IDENTICAL TO RETAIL.  The former 2-diff
@@ -686,8 +686,9 @@ void tScreenMemcard::SetEnablings()
  * The verifier now resolves this relocation and reports PASS 410/410. */
   /* SYM-CODEGEN-CARRIER: startY -- direct `GRIDMEMCARD_STARTY` use is
      count-exact FAIL 2 and moves retail's `$s2` geometry load past its peer. */
-  /* SYM-CODEGEN-CARRIER: startX -- direct `GRIDMEMCARD_STARTX` use is
-     count-exact FAIL 4 and changes the retail HI16 materialization order. */
+  /* 2026-11-02: acquire the real border inside x's completed coordinate
+     expression. STARTX is expanded first without making x hold the raw
+     origin; startX is removed. Earlier direct-use failures were basin-specific. */
   /* SYM-CODEGEN-CARRIER: gouraudY -- direct constant use is FAIL 16 at
      412/410 and rematerializes/reorders the vertical geometry loads. */
   /* SYM-CODEGEN-CARRIER: gouraudX -- direct constant use is FAIL 28 at
@@ -708,7 +709,7 @@ void tScreenMemcard::DrawBackground()
 {
   short x;
   short y;
-  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; ushort gouraudX; ushort gouraudY; ushort startX; ushort startY; this->fMemCardMessageTextSys = -1;
+  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; ushort gouraudX; ushort gouraudY; ushort startY; this->fMemCardMessageTextSys = -1;
 
   if (this->goticon[this->theNFS4icon] == '\0') {
     this->theNFS4icon = -1;
@@ -781,8 +782,8 @@ void tScreenMemcard::DrawBackground()
 
   gray = 0x505050;
 
-  startX = GRIDMEMCARD_STARTX; gouraudX = GRIDMEMCARDGOURAUDBIT_X;
-  startY = GRIDMEMCARD_STARTY; gouraudY = GRIDMEMCARDGOURAUDBIT_Y; x = startX - gouraudX; y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
+  x = (ushort)GRIDMEMCARD_STARTX - (gouraudX = GRIDMEMCARDGOURAUDBIT_X);
+  startY = GRIDMEMCARD_STARTY; gouraudY = GRIDMEMCARDGOURAUDBIT_Y; y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
   w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT + gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
 

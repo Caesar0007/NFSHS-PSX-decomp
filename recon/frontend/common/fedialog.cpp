@@ -18,6 +18,89 @@ static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM 
 
 /* ---- tDialogBase::ShouldTimeOut  [FEDIALOG.CPP:73-76] SLD-VERIFIED ---- */
 
+
+
+
+/* ---- tDialogYesNoTri::dtor  [FEDIALOG.CPP:294 decl] SLD-FLAG:NO_SLD ---- */
+
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+
+
+
+/* ---- tDialogYesNoMem::dtor  [FEDIALOG.CPP:284 decl] SLD-FLAG:NO_SLD ---- */
+
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+
+
+
+/* ---- tDialogYesNo::dtor  [FEDIALOG.CPP:275 decl] SLD-FLAG:NO_SLD ---- */
+
+extern "C" { void ___7tScreen(void *); }
+
+
+
+
+extern "C" {
+void ___7tScreen(void *);
+}
+/* ---- tDialogNoInputMessage::dtor  [FEDIALOG.CPP:233 decl] SLD-FLAG:NO_SLD ---- */
+
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+
+
+
+/* ---- tDialogBackUpOnly::dtor  [FEDIALOG.CPP:223 decl] SLD-FLAG:NO_SLD ---- */
+
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+
+
+
+/* ---- tDialogMessageString::dtor  [FEDIALOG.CPP:204 decl] SLD-FLAG:NO_SLD ---- */
+
+
+
+
+/* ---- tDialogHelp::dtor  [FEDIALOG.CPP:174 decl] SLD-FLAG:NO_SLD ---- */
+
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+
+
+
+/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ----
+ * W65-A3 (calltarget): the class no longer DECLARES a dtor (see nfs4_types.h),
+ * so gcc synthesises + inlines it at every call site -- which is what makes
+ * ~tDialogHelp / ~tDialogMessageString etc. `jal ___7tScreen` like retail.
+ * gcc emits NO out-of-line copy for a synthesised dtor (probed: globals,
+ * delete, virtual, explicit ~C() call sites -- none emit one), so the
+ * standalone symbol is supplied here as a free function with C linkage, the
+ * device already in use two blocks up for ___18tDialogInteractive.  Body is
+ * byte-identical to the oracle's 8 insns: the arg passes through in $a0 and
+ * the ignored `__in_chrg` in $a1 costs nothing. */
+
+
+
+
+/* end of fedialog.cpp */
 #line 70 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 short tDialogBase::ShouldTimeOut()
 
@@ -1098,86 +1181,3 @@ void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
 
 
 }
-
-
-
-/* ---- tDialogYesNoTri::dtor  [FEDIALOG.CPP:294 decl] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tDialogYesNoMem::dtor  [FEDIALOG.CPP:284 decl] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tDialogYesNo::dtor  [FEDIALOG.CPP:275 decl] SLD-FLAG:NO_SLD ---- */
-
-extern "C" { void ___7tScreen(void *); }
-
-
-
-
-extern "C" {
-void ___7tScreen(void *);
-}
-/* ---- tDialogNoInputMessage::dtor  [FEDIALOG.CPP:233 decl] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tDialogBackUpOnly::dtor  [FEDIALOG.CPP:223 decl] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tDialogMessageString::dtor  [FEDIALOG.CPP:204 decl] SLD-FLAG:NO_SLD ---- */
-
-
-
-
-/* ---- tDialogHelp::dtor  [FEDIALOG.CPP:174 decl] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ----
- * W65-A3 (calltarget): the class no longer DECLARES a dtor (see nfs4_types.h),
- * so gcc synthesises + inlines it at every call site -- which is what makes
- * ~tDialogHelp / ~tDialogMessageString etc. `jal ___7tScreen` like retail.
- * gcc emits NO out-of-line copy for a synthesised dtor (probed: globals,
- * delete, virtual, explicit ~C() call sites -- none emit one), so the
- * standalone symbol is supplied here as a free function with C linkage, the
- * device already in use two blocks up for ___18tDialogInteractive.  Body is
- * byte-identical to the oracle's 8 insns: the arg passes through in $a0 and
- * the ignored `__in_chrg` in $a1 costs nothing. */
-
-
-
-
-/* end of fedialog.cpp */

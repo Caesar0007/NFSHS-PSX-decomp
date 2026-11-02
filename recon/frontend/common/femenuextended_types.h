@@ -66,7 +66,9 @@ struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     void TransitionOff();
     bool TransitionIsFinished();
     void UpdateTransition(bool);
+#line 46 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
     void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
+#line 70 "recon/frontend/common/femenuextended_types.h"
 };
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
@@ -83,14 +85,18 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
     void Draw(int, int, bool);
+#line 99 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+#line 87 "recon/frontend/common/femenuextended_types.h"
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
 
     void TransitionOn();
     void Draw(int, int, bool);
+#line 110 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+#line 94 "recon/frontend/common/femenuextended_types.h"
 
 struct tMenuNFS4 : public tMenu {
     bool fInItemTransition, fInMenuTransition;

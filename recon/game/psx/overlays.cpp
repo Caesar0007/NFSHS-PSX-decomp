@@ -15,16 +15,16 @@ extern short Hud_NextPerp[2];
  * (tools/psyq_pipe/simplemem_bysym.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-/* overlays.obj owns SYM's logical `StatsTimer[2]`.  Repeated -G4/-G8 probes
-   prove that an 8-byte owning symbol changes code generation in four PASS
-   functions; retain two adjacent 4-byte cells as an explicit storage carrier.
-   Consumer TUs continue to see the logical array. */
+/* overlays.obj owns original EXT INT StatsTimer[2], size8 (retail42e5e9).
+   The current declaration below is that real array, not two scalar cells.
+   Historical cell/view experiments are not current source declarations;
+   addressing or failed probes do not establish another original object. */
 short Hud_NextPerp[2];
 int StatsTimer[2];
-/* Zero-storage constant-element compiler views.  Retail SYM owns one
-   `StatsTimer[2]` object, but the retail code addresses the two constant cells
-   through independent gp-relative relocations.  The semantic C identifiers
-   keep that codegen fact out of the source's data model. */
+/* Both constant-element accesses below name the supplied array directly.
+   No StatsTimer_arr or constant-cell compiler-view declarations remain.
+   Keep the array's original name/type/storage model separate from historical
+   code-generation experiments; those old view names are not active debt. */
 /* retail overlays.obj .data: the BTC perp-info table (0x80120bc0, zero, deferred) */
 tBTCPerpInfo BTCPerpInfo[2][10];
 
@@ -684,8 +684,8 @@ void RaceSummary(void)
      barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
 
 /* W74-A12: the three head carriers (see the MATCH block at their assignments).
-     `one` and `pitch` are the two named constants retail held in locals (w63/w64
-     reading); `nh` is the numHumanRaceCars read hoisted ABOVE the `one` fence so
+     `one` and `pitch` are native extras, not named locals supplied by retail.
+     Their original source producers remain open; `nh` was hoisted ABOVE `one` so
      sched1 can still issue its load before the SIZE_H arithmetic, exactly like
      retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
 

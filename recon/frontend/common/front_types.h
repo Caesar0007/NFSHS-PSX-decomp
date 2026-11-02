@@ -186,7 +186,9 @@ struct tAllScreens {
     tScreenPinkSlips screenPinkSlips;
     tScreenBeTheCopCongrats screenBeTheCopCongrats;
     tScreenTournamentCongrats screenTournamentCongrats;
+#line 226 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 };
+#line 190 "front_types.h"
 
 struct tPerpModelList {
     tCarModels carModel;

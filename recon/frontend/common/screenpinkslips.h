@@ -22,7 +22,9 @@ struct tScreenPinkSlips : public tScreen {
     tScreenPinkSlips();
     void UpdateVideoWall(tTrackInformation &);
     void DrawVideoWall();
+#line 82 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.H"
 };
+#line 26 "recon/frontend/common/screenpinkslips.h"
 
 
 #endif

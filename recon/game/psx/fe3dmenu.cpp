@@ -34,12 +34,12 @@ int      gShowroomLights;                         /* 0x800514b4 */
  * shift after restoring this source ownership, without cos_raw. Reusing
  * angle_cos for the raw return then shifting in place was54/107 and reverted.
  * All five named local tuples and all eight scope boundary tuples agree.
- * Retail groups the three closing spot stores before the lighting phase on
- * one source line. The comma sequence preserves x/y/z store order; chained
- * assignment was four differences at107 words and was reverted. This restores
- * grouping/order, not a uniquely proved original macro or literal spelling.
- * SOURCE-REVIEW: literal original expression/macro spelling and complete SLD
- * are not uniquely proved by this native contract and byte-match receipt. */
+ * The real seam x store belongs to90 outside the existing lighting owner;
+ * y91/z92 belong inside it. Moving genuine work across that source boundary
+ * preserves all code and owners while restoring the supplied instruction tags.
+ * The earlier one-line grouping claim was wrong; chained assignment's four
+ * differences do not establish original macro or literal spelling.
+ * SOURCE-REVIEW: literal original expression/macro spelling remains unproved. */
 
 #line 73 "C:/nfs4/GAME/PSX/FE3DMENU.CPP"
 void Fe3D_InitShowroom(void)
@@ -59,9 +59,9 @@ void Fe3D_InitShowroom(void)
     angle = angle + 0x80;
     i = i + 1; } while (i < 0x20);
 
-  Fe3D_spotVertex[i].x = 0, Fe3D_spotVertex[i].y = 0, Fe3D_spotVertex[i].z = 0;
-  {
-    short iPlus;
+  Fe3D_spotVertex[i].x = 0;
+  { short iPlus; Fe3D_spotVertex[i].y = 0;
+    Fe3D_spotVertex[i].z = 0;
 
 
 

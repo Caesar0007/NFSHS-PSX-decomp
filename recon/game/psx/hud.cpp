@@ -4027,8 +4027,8 @@ void Hud_RenderMapView(void)
       HudFT4 = gHudFT4; if (j != 0) HudFT4 = HudFT4 + 5;
 
       Draw_StartRenderingView(Hud_gMapView[j]);
-      const int mapMode =
-        GameSetup_gData.carInfo[j].HudMap; if (mapMode == 1)
+      if (
+        GameSetup_gData.carInfo[j].HudMap == 1)
       {
 
         Hud_BuildMapMarkers(j);

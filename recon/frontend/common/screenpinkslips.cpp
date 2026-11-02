@@ -37,13 +37,13 @@ extern int A_ticks[] __asm__("ticks");
 #define ticks A_ticks[0]
 
 /* ---- tScreenPinkSlips::DrawBackground  [SCREENPINKSLIPS.CPP:71-194] ---- */
-    /* MATCH: the guard tests the CHAR local (unsigned char on this build),
-       not a fresh `currentItem & 0xff` - that is what makes the `andi` read
-       currentItem's copy ($a0) instead of the raw load ($v0). */
-    /* SYM-CODEGEN-CARRIER: trackIndex -- removing the char snapshot is the
-       same FAIL-5 basin; its guard must read the copied $a0 value. */
-    /* SYM-CODEGEN-CARRIER: currentItem -- folding this ushort snapshot into
-       trackIndex is FAIL 5 at 363/364 and loses retail's $v0->$a0 copy. */
+    /* 2026-11-02: guard and decrement the actual stored byte field. This
+       removes trackIndex while preserving the ushort-to-byte copy/value web;
+       the copy now has its supplied source tag. Old independent direct-form
+       failures did not establish an original char snapshot.
+       Receipt: build/tmp/v/pinkslips_track_field_20261102/. */
+    /* SYM-CODEGEN-CARRIER: currentItem -- this ushort snapshot remains
+       unresolved. No replacement object or guessed menu getter was added. */
         /* SYM-CODEGEN-CARRIER: ry -- paired coordinate snapshot in that
            receipt; retail keeps both values across Flare_2DHalo. */
         /* SYM-CODEGEN-CARRIER: rx -- direct RECT member use is FAIL 99 at
@@ -53,9 +53,9 @@ extern int A_ticks[] __asm__("ticks");
          `addu $v0,$v1,$v0` in the signed /2 idiom. */
     /* SYM-CODEGEN-CARRIER: selected -- folding the predicate into this branch
        is FAIL 7 at 361/364 instructions and removes retail's $a1 value web. */
-  /* SYM-CODEGEN-CARRIER: movieVramX -- the tpage x is a SHORT local (retail
-     rematerializes it as
-     `li $t2,0x200` then sign-extends `sll/sra` into $a2); an int/cast literal
+  /* SYM-CODEGEN-CARRIER: movieVramX -- this unprovided SHORT capture yields
+     the observed tpage-x value web;
+     `li $t2,0x200` then sign-extends `sll/sra` into $a2; an int/cast literal
      folds to a bare `li $a2,512`.  14 -> 10 diffs, count-exact 364/364. */
   /* W86-S4: SYM `8c` declaration order -- the fn-static `flareextra` (STAT) is
      recorded BETWEEN trackInfo and shapeY, not at the top.  Re-gated PASS. */
@@ -102,11 +102,11 @@ void tScreenPinkSlips::DrawBackground()
     DrawShape_NFS4RoundRectangle(-1,&r,1);
 
     i = i + 1; r.y = r.y + 0xe; } { u_short currentItem = (u_short)this->fMenu->fCurrentItem;
-    char trackIndex = (char)currentItem;
 
-    frontEnd.pinkSlipsTrackIndex = trackIndex;
-    if (trackIndex != 0) {
-      frontEnd.pinkSlipsTrackIndex = (char)(currentItem - 1);
+
+    frontEnd.pinkSlipsTrackIndex = (char)currentItem;
+    if (frontEnd.pinkSlipsTrackIndex != 0) {
+      frontEnd.pinkSlipsTrackIndex -= 1;
     }
   } GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo);
   this->UpdateVideoWall(trackInfo);

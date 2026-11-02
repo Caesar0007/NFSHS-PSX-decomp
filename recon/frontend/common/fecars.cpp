@@ -261,7 +261,7 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
   long result; result = this->CalcUsedPrice(garageNumber);
 
 
-  const int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128; *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
+  this->fCarGarage[playerNum][(int)garageNumber - (int)this->fNumCars].fCarID = -1;
 
 
 
@@ -275,10 +275,10 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
   }
   /* Keep the -4 outside the +8 displacement. */
   const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
-  /* The named player stride keeps `this` as the addu's first operand. */
-  int lastSlotOffset = playerNum * 128;
+  /* Clear the actual final garage slot, using its typed owner field. */
 
-  *(signed char *)(lastSlotOffset + (char *)this + 0x84) = -1;
+
+  this->fCarGarage[playerNum][31].fCarID = -1;
 
 
   const int selectedSlotOffset = ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4 + playerNum * 128; if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
@@ -378,19 +378,19 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
    `fill_slots_from_thread` moves garageCar-1 into the retail branch delay slot.  The SellCar
    twin reaches PASS with the identical source shape. */
 
-  /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
+  /* HISTORICAL MIXED-SNAPSHOT BASIN (W57-A7, 8 -> 6): the slot-31 store's `addu` order depended on whether
        `playerNum*128` is an EXPRESSION or a real INPUT OPERAND.  Written flat, gcc builds the
        whole sum fresh and emits `addu v0,<pn128>,this`; naming it (exactly as the three other
        address sites already do) makes `this` operand 0 -> retail's `addu v0,t1,a1`.  The w41
        "int-typed sum flips addu operand 0" spelling `(int)this + playerNum*128 + K` measured
-       IDENTICAL to the flat form -- statement granularity, not operand spelling, is the dial. */
+       IDENTICAL in that old basin; the current typed final-slot field needs no named stride object. */
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
   /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
      (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
-  /* Retail SYM records only i. Combined const address snapshots preserve
-     all 82 instructions without emitting extra debug locals; removing their
-     wrapper scopes reproduces retail's one lexical block. The exact source
+  /* Retail SYM records only i. The old combined address snapshots preserved
+     all 82 instructions without emitting extra debug locals. Their historical
+     wrapper scopes were removed to reproduce retail's one lexical block. The exact source
      spelling of these address expressions remains unproven. */
 #line 329 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
@@ -400,7 +400,7 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   short i;
 
 
-  const int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128; *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
+  this->fPinkSlipsCars[playerNum][(int)garageNumber - (int)this->fNumCars].fCarID = -1;
 
 
 
@@ -414,13 +414,13 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   }
   /* Keep the -4 outside the 0x108 displacement. */
   const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
-  int lastSlotOffset = playerNum * 128;
 
 
-  *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
+
+  this->fPinkSlipsCars[playerNum][31].fCarID = -1;
 
 
-  const int selectedSlotOffset = ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4 + playerNum * 128; if (*(signed char *)(selectedSlotOffset + (char *)this + 0x108) < 0) {
+  if (this->fPinkSlipsCars[playerNum][(u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars].fCarID < 0) {
     frontEnd.pinkSlipsCar[playerNum] = (u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= this->fNumCars ? '\0' : frontEnd.garageCar[playerNum] - 1; } return; }
 
 

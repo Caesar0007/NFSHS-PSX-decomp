@@ -590,12 +590,12 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
 /* SYM: REG $s5 */
 /* SYM: REG $s7 */
 /* SYM: REG $s6 */
-/* SYM-CODEGEN-CARRIER: t4 -- retains the original vertex byte
-               offset while n mutates.  Direct early `v4 = &r_div->v[n]`
-               with no n0/t4 pair is count-exact but FAIL 26 at 588/588. */
-/* SYM-CODEGEN-CARRIER: n0 -- paired snapshot for t4; the SYM
-                 has only the narrowed argument n, so this is an explicit
-                 reconstruction carrier rather than a claimed retail name. */
+/* SOURCE-REVIEW-UNRESOLVED: t4 retains the old-n vertex byte offset until
+   the late v4 address formation; its original source identity is not supplied.
+   Early v4 controls change that pointer's birth and do not prove t4 original.
+   The n0 snapshot is removed by actual postfix consumption, t4=(int)n++*16,
+   preserving the complete normal/debug objects and all metadata. Other
+   carriers remain open. Receipt: build/tmp/v/draww_n0_nov02/findings.md. */
 /* RESIDUAL (2026-07-11, re-verified not source-shapable): oracle computes
        v5/v6/v7/v8's indices as `n1=n+1` then `n1+1,n1+2,n1+3` (each independent
        off n1, not chained n+2-from-(n+1)) plus the new `n=n1+4` -- vs ours
@@ -924,8 +924,8 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
 
 
   if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3)) {
-    Draw_SVertex *v8; Draw_SVertex *v5; Draw_SVertex *v6; Draw_SVertex *v7; int t4; short n0; n0 = n;
-    n = n + 1; t4 = (int)n0 * 16;
+    Draw_SVertex *v8; Draw_SVertex *v5; Draw_SVertex *v6; Draw_SVertex *v7; int t4;
+    t4 = (int)n++ * 16;
     { short q = n + 1; short q1; short q2; v5 = &r_div->v[n];
       q1 = q + 1; v6 = &r_div->v[q];
       q2 = q + 2; v7 = &r_div->v[q1];
@@ -4043,9 +4043,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
           supplies ($s2 = objCollideBoomInstance).
      ---- w71-a1 (2026-08-21): 105 -> 28, count-EXACT 200/200.  The w46 plan above
      was right; it just needed all four pieces landed TOGETHER.  What landed, in the
-     order the receipts were taken. Current-source follow-up (2026-10-27) supersedes
-     the local transMat and t3 forms described in this historical receipt; both have
-     been removed with the full baseline object unchanged:
+     order the receipts were taken. The earlier transMat/t3 removal claim was
+     incorrect for current source: both declarations remain in this function.
+     Their source identities remain open; this historical receipt describes:
        (1) FULL rule-8 SYM REWRITE (105 -> 231, count 189 -> 199).  Deleted the ~20
            fabricated Ghidra locals and materialized the SYM's own set verbatim:
            `objInstance` (Trk_SimpleInst*, replacing the `groupBase_p` int),

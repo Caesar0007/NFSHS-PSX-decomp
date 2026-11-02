@@ -16,6 +16,8 @@ struct tScreenTrackRecords : public tScreen {
     tScreenTrackRecords();
     void DrawOneRecord(int, bool, int);
     void DrawRecords(short);
+#line 55 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.H"
 };
+#line 20 "recon/frontend/common/screentrackrecords.h"
 
 #endif

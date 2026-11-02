@@ -199,16 +199,16 @@ void Speech::Speaker::SetCar(Car_tObj *car)
 { int carcolour;
   carcolour = 1 << car->carInfo->SpeechColour;
 
-  if (this->GetCarBank(car->carIndex)->Full() == -1) {
+  if (this->GetCarBank(car->carIndex)->Full() == -1)
+  {
 
 
 
+    this->fCar = 0;
+    this->SetColour(0); } else
 
 
-    this->ClearCar(); } else {
-
-
-
+  {
 
 
 

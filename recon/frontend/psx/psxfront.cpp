@@ -1187,9 +1187,9 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
   i = 0;
   while (i < shp->width) {
     int addw;
-    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured FAIL 60 (247/245), duplicating loads and rotating divide operands */ int wsel; /* SYM-CODEGEN-CARRIER: wsel -- folding the clamp into SYM local w is measured FAIL 78 (245/245), rotating the callee-saved allocation */ int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured FAIL 39 (248/245), reassociating the four vertex expressions */ int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured FAIL 16 (243/245), changing issue order and deleting two instructions */ ibp = (i * bpp) / 16; texX = (uint)(ushort)shp->shapex + ibp;
+    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured FAIL 60 (247/245), duplicating loads and rotating divide operands */ int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured FAIL 39 (248/245), reassociating the four vertex expressions */ int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured FAIL 16 (243/245), changing issue order and deleting two instructions */ ibp = (i * bpp) / 16; texX = (uint)(ushort)shp->shapex + ibp;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
-    wsel = 0xff - u; if (shp->width - i < wsel) { wsel = shp->width - i; } w = wsel;
+    w = (shp->width - i < 0xff - u) ? shp->width - i : 0xff - u;
 
     prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */ ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
 

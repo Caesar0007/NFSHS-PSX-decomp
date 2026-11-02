@@ -21,7 +21,9 @@ struct tScreenAudio : public tScreen {
     AudioMus_tSongList *songlist;
     void PlaySound();
     tScreenAudio();
+#line 74 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.H"
 };
+#line 25 "recon/frontend/common/screenaudio.h"
 
 /* member fns declared in nfs4_types.h (tScreenAudio) */
 

@@ -697,9 +697,9 @@ void AIHigh_Cop::HighExecute()
           }
           break;
         case 1:
-
-
           {
+
+
           int direction;
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff;
 

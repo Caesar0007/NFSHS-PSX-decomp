@@ -1236,27 +1236,25 @@ void Front_InitGraphicsAndDisplayLoading(void)
    
    [ghidra-meta] section: front.text */
 
-/* MATCH: PASS (173/173).  The retail source is a switch with InitialLoad
-   falling through to GameSetup, followed by the PostGame case.  Its car-buy
-   guard materializes a zero-initialized condition accumulator, then assigns
-   the money comparison only when the owned-car test succeeds.  Compound
-   addition preserves the `extraMoney + one` expression tree, while storing
-   the loading-text literal before initializing the shared `one` value gives
-   retail's address-materialization order and s4 lifetime. */
-
-  /* SYM-CODEGEN-CARRIER: needCar -- retail materializes a zero-initialized
-     condition accumulator before the guarded money test.  The equivalent
-     short-circuit condition is FAIL 51 with 168/173 instructions. */
-  /* SYM-CODEGEN-CARRIER: one -- a shared value of one preserves retail's s4
-     lifetime and `extraMoney + one` evaluation tree.  Literal replacement is
-     FAIL 13 with 174/173 instructions. */
-  /* SYM SCOPE/ORDER (W86-S2): `result` is the only function-scope SYM row;
-     `extraMoney` is recorded at block depth 4, inside the guarded arm below. */
+/* MATCH: PASS (173/173). The switch retains InitialLoad fallthrough into
+   GameSetup before PostGame. The real existing GetMoney query in the car-buy
+   short-circuit guard removes the unprovided needCar object: its anonymous
+   machine Boolean still has retail's zero/guarded-comparison value chain.
+   The older raw-field && control was51diffs/168words, before restoring the
+   supplied money-read inline pair; it did not prove a named object necessary.
+   Compound addition and the existing loading-text/one order remain intact. */
+  /* SOURCE-REVIEW-UNRESOLVED: one remains a shared value with unprovided
+     source identity. Older literal replacement was13diffs/174words; that
+     failure is not original-object proof. Its producer remains open. */
+  /* Retail supplies root result and nested LONG REG2 extraMoney at depth4.
+     The current extraMoney producer and remaining owner/SLD differences are
+     not sealed merely because the car-buy Boolean object is now removed.
+     Existing GetMoney spelling is inferred, not uniquely retained source. */
 #line 931 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 int Front_Menu(tFront_ProcessingType role)
 
 
-{ int result; int one; int needCar; result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1;
+{ int result; int one; result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1;
   one = 1;
 
 
@@ -1284,7 +1282,7 @@ int Front_Menu(tFront_ProcessingType role)
 
 
 
-  needCar = 0; if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) { needCar = tournamentManager.fMoney < one; } if (needCar) {
+  if (((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) && (tournamentManager.GetMoney() < one)) {
     long extraMoney;
     extraMoney = carManager.CheapestCarStockPrice(); tournamentManager.fMoney += extraMoney + one;
   }

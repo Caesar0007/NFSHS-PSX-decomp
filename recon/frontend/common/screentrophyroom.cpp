@@ -132,14 +132,14 @@ void tScreenTrophyRoom::PreLoad()
 
 
 /* ---- tScreenTrophyRoom::Initialize  [SCREENTROPHYROOM.CPP:112-152] ---- */
-    /* SYM-CODEGEN-CARRIER: tourney -- direct indexed access is count-exact
-       FAIL 4 and reverses retail's pointer-add destination/operand order. */
+    /* Historical tourney trial: the old indexed-access failure is superseded;
+       no tourney declaration or active carrier remains in this source. */
     /* SYM-CODEGEN-CARRIER: place -- folding the clamp into the texture-call
        argument is FAIL 8 at 114/118; it removes retail's independent short
        result and its sign-extension/value-selection web. */
-    /* SYM-CODEGEN-CARRIER: tournIdx -- folding the tier offset into the
-       tournament pointer is FAIL 15 at 125/118 and decomposes the scaled
-       address into a longer shift/add web. */
+    /* Historical tournIdx trial: the old folded-offset failure is superseded;
+       no tournIdx declaration remains. That earlier result did not prove an
+       original source object or a requirement of the current expression. */
     /* SYM-CODEGEN-CARRIER: placement -- loading directly into `short place`
        and clamping the invalid case is FAIL 12 at 120/118; it changes signed
        load width and reverses the retail branch/value initialization. */
@@ -164,10 +164,10 @@ void tScreenTrophyRoom::PreLoad()
      cleanup (2026-08-26) found the simpler original-looking form: direct
      `FrontEnd().tier` reads plus `loopFe = &frontEnd` preserved that handoff at exact
      PASS, so the old `fe` alias and four-input opacity fence were unnecessary.
-     The load-poll result also feeds its condition directly.  The six remaining
-     SYM-omitted value webs have measured counterfactual receipts beside their
-     declarations; explicit `tournIdx`/`tourney`, in particular, retain retail's
-     address-add result and operand order.
+     The load-poll result also feeds its condition directly. Three unprovided
+     source objects remain: loopFe, placement and place. Failed isolated trials
+     do not establish original objects. The former indexed-pointer captures
+     are absent; supplied short i remains unchanged.
      2026-11-01: direct frontEnd.tier reads remove the two unexpected early
      inline pairs, preserve all code and seal118/118 word tags. The actual
      existing Definition getter now restores both actual loop pairs at+0x98

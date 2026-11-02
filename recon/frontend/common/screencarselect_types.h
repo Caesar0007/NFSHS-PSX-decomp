@@ -174,7 +174,9 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
 
     tScreenCarSelectDuel();
     void UpdateOpponentVideoWall(tCarInfo &);
+#line 285 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
+#line 178 "recon/frontend/common/screencarselect_types.h"
 #endif
 
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
@@ -195,7 +197,9 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     tDialogBackUpOnly CarDialog;
 
     tScreenCarSelectTwoPlayer();
+#line 313 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
+#line 199 "recon/frontend/common/screencarselect_types.h"
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
@@ -215,7 +219,9 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
 
     tScreenPinkSlipsCarSelect();
     void DoMemCardStuff();
+#line 348 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
+#line 219 "recon/frontend/common/screencarselect_types.h"
 #endif
 
 struct tScreenTournamentStandings : public tScreen {

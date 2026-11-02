@@ -160,7 +160,9 @@ struct tScreenMemcard : public tScreen {
     void SetEnablings();
     tScreenMemcard();
     void ReleaseIcons();
+#line 99 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.H"
 };
+#line 164 "recon/frontend/common/screenmemcard_types.h"
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \

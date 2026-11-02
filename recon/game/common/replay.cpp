@@ -397,19 +397,18 @@ void Replay_SaveInput(int car)
     Replay_StoringControllerData(controlData[car]); } return; }
 
 /* ---- Replay_GetInput__Fi  [REPLAY.CPP:371-441] SLD-VERIFIED ---- */
-  /* SYM has no counter pointer local.  Keeping the scaled index first in
-   * these direct lvalues retains retail's address setup without a carrier. */
-  /* SYM-CODEGEN-CARRIER: hasCameras
-     SYM retains no locals in this function.  Capturing this test before the
-     replay-counter increment keeps the retail gp-relative load in $a0 and
-     the shared branch shape; direct `numValidCams != 0` grows the body to
-     282/280 instructions and produces 34 diffs. */
+  /* SYM retains no locals here. The typed counter increment jointly restores
+   * the direct camera guard and removes hasCameras without changing code.
+   * The older 282/280 direct-guard failure applied to a raw-cast write graph,
+   * not an original-object requirement. The initial raw-index read remains
+   * source spelling work; this is no carrier exemption.
+   * Receipt: build/tmp/v/source_round_aj_20261102/proof.json. */
 #line 368 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_GetInput(int car)
 
 
 {
-  bool hasCameras;
+
   Input_Fetch(car);
 
   if (*(int *)((char *)Replay_ReplayCounter + (car << 2)) == 0) {
@@ -465,12 +464,12 @@ void Replay_GetInput(int car)
     Input_gSim.brake = '\0';
     Input_gSim.flags = '\0';
   }
-  hasCameras = numValidCams != 0;
-
-  *(int *)((car << 2) + (char *)Replay_ReplayCounter) += 1;
 
 
-  if (hasCameras) {
+  Replay_ReplayCounter[car] += 1;
+
+
+  if (numValidCams != 0) {
 
     if ((Replay_ReplayCamera[car].cameraMode == 0x13) && (simGlobal.gameStarted != 0)) {
       Replay_ReplayChooseCamera(car,(int)(Cars_gHumanRaceCarList[car]->N).simRoadInfo.slice);

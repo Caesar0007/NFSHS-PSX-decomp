@@ -28,6 +28,8 @@ struct tScreenUserName : public tScreen {
 
     void DrawVerticalLine(short, short, short);
     void DrawHorizontalLine(short, short, short);
+#line 97 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.H"
 };
+#line 32 "recon/frontend/common/screenusername_types.h"
 
 #endif

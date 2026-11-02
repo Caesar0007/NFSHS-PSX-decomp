@@ -6,9 +6,9 @@
 #include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return *(volatile int *)&ticks; }
+/* The tick-query inline is defined in the owner interface header: retail's
+   caller-context block lines must not inherit a source-local helper line. */
+
 
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FD0): the unused inline of the
@@ -186,17 +186,17 @@ void MPause_MusicLogic(char active)
       break;
   }
 
-  if (active != '\0') {
-
+  if (active != '\0')
+  {
     if (wasActive == '\0') {
 
 
       AudioMus_AutoVolume(500,AudioCmn_MusicLevel(gMasterMusicLevel));
     }
-    if ((gPauseCurrentMenu->CurrentItem() == 1) ||
 
 
-        (gPauseCurrentMenu->CurrentItem() == 2)) {
+
+    if ((gPauseCurrentMenu->CurrentItem() == 1) || (gPauseCurrentMenu->CurrentItem() == 2)) {
       AudioMus_Volume(AudioCmn_MusicLevel(gMasterMusicLevel));
     }
     testSFX = false;
@@ -209,15 +209,15 @@ void MPause_MusicLogic(char active)
     } if (gPauseCurrentMenu->CurrentItem() == 6) {
       samp = 0x10; vol = gMasterAmbientLevel; testSFX = true;
     }
-    if ((bool)testSFX != false) {
-
+    if ((bool)testSFX != false)
+    {
       if (playingSFX == '\0') {
         playingSFX = '\x01';
       }
       else { sndover = SNDover(SFXHandle);
-      } if ((sndover != 0) && (0xc0 < FE_Ticks() - lastplaytick)) {
-
-        lastplaytick = FE_Ticks();
+      } if ((sndover != 0) && (0xc0 < gettick() - lastplaytick))
+      {
+        lastplaytick = gettick();
         SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40) ;
       }
     }
@@ -264,19 +264,20 @@ void MPause_ControllerLogic(void)
   }
 }
 
-/* ---- MPause_Logic__Fv  [retail SLD MPAUSE.CPP:390-486; reconstruction SLD still differs] ---- */
-/* SYM-CODEGEN-CARRIER: oldItem -- the block-local const source shape is
-   debug-compatible: GCC 2.8.0 emits no .def for this immutable pre-call
-   snapshot, matching the retail SLD line-421..425 region.  Its spelling
-   is not retained by SYM and is not recovered by the checked NFS2,
-   NFS3, NFS4-PC, CPE/MAP, or split-decompiler references.
-   ORIGINAL-NAME-UNRESOLVED: oldItem is a descriptive reconstruction
-   placeholder, not an accepted original identifier. */
-/* SOURCE-REVIEW: newItem -- the earlier direct-reread trial produced
-   197/199 instructions and 18 diffs. This is a basin-specific receipt,
-   not proof that the original source declared a distinct object or
-   that ItemEnabledNum mutates the menu. Its spelling is absent from SYM.
-   ORIGINAL-NAME-UNRESOLVED: newItem remains source-name backlog. */
+/* ---- MPause_Logic__Fv  [MPAUSE.CPP:390-486; supplied SYM/SLD contract verified, snapshot source identities open] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: oldItem retains real pre-ProcessInput history:
+   Up from3 and Down from1 can both finish on2 but need opposite highlight
+   offsets. This proves the needed old value, NOT a unique source object,
+   local name or qualifier. Current const storage emits no .def and matches
+   the supplied binding, but debug elision is not an originality exemption.
+   ORIGINAL-NAME-UNRESOLVED: oldItem remains a descriptive reconstruction
+   placeholder; no exact original identifier is supplied by current references. */
+/* SOURCE-REVIEW-UNRESOLVED: newItem is not proved original by a failed
+   reread. ItemEnabledNum's immutable18-word leaf has NO stores or calls;
+   its advancing a0 is a register cursor, not selection mutation. The tested
+   genuine receiver/argument graph still gives197/199 and18differences.
+   ORIGINAL-NAME-UNRESOLVED: recover the actual value-binding producer/name.
+   Receipt: build/tmp/v/mpause_selection_20261102_agent/required-value-object-evidence.json. */
 #line 387 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 int MPause_Logic(void)
 
@@ -380,7 +381,16 @@ int MPause_Logic(void)
   return 0;
 }
 
-/* ---- MPause_Render__Fv  [MPAUSE.CPP:490-530] SLD-VERIFIED ---- */
+/* ---- MPause_Render__Fv  [MPAUSE.CPP:490-530] SLD-VERIFIED ----
+ * currentItem is supplied INT REG5 (retail2a14bc), not an unrecorded capture.
+ * SOURCE-REVIEW-UNRESOLVED: y computes the real highlight coordinate, but its
+ * original source object/name is not supplied. Combine folds it into the HUD
+ * argument and drops its debug row; the declaring binding remains. First
+ * scheduling makes the supplied31..33 region ZERO-LENGTH at+0xe4, not a
+ * call-spanning lifetime. This explains output, not original-object necessity.
+ * Existing APIs and same-owner NFS2 Render do not establish another producer.
+ * Keep that question open, not an exact-only exemption or a guessed helper.
+ * Receipt: build/tmp/v/mpause_render_review_20261102/receipt.md. */
 #line 487 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_Render(void)
 
@@ -416,7 +426,7 @@ void MPause_Render(void)
 
   if (kMovingHighlight != 0)
   {
-    int y;   /* DEVICE (exact-only): record-less block local = retail's empty {31 }33 scope (fn exact: bytes, SYM, SLD) */
+    int y;   /* Source-object identity remains open; see the producer receipt above. */
     y = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a + kMovingHighlight;
     Hud_FBuildF4(1,0x50,y,0xa0,0xd,0,0,0);
   }
@@ -428,19 +438,34 @@ void MPause_Render(void)
   Hud_RenderPauseBox(0x50,100,0xa0,(numItems + 1) * 0xd + 0x14);
 }
 
-/* ---- MPause_InitMPause__Fv  [MPAUSE.CPP:540-544] SLD-VERIFIED ---- */
+/* ---- MPause_InitMPause__Fv  [MPAUSE.CPP:540-544] ----
+ * The same function in NFS2 PC beta SYM records AUTO INT language, initialized
+ * from the same GameSetup field in its matched source. This is cross-version
+ * name/type evidence, not proof of NFS4's literal original declaration.
+ * Stock combine folds the language load into the real call argument on543
+ * while retaining the address HIGH note from541. Plain int is sufficient;
+ * no const/debug-row suppression is needed. Complete native acceptance:
+ * build/tmp/v/source_round_aq_20261102/proof.json. Literal syntax remains open. */
 #line 537 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_InitMPause(void)
 
 
 {
+  int language = GameSetup_gData.userSetting.language;
 
-
-  TextSys_LoadInGame(GameSetup_gData.userSetting.language);
+  TextSys_LoadInGame(language);
   gPauseMenuDefs = new tPauseMenuDefs;
 }
 
-/* ---- MPause_StartPauseMenu__Fv  [retail SLD MPAUSE.CPP:548-593; reconstruction SLD still differs] ---- */
+/* ---- MPause_StartPauseMenu__Fv  [MPAUSE.CPP:548-593; supplied SYM/SLD contract verified] ----
+ * SOURCE-REVIEW-UNRESOLVED: the music Enable caller contour supplies the
+ * main-file579 note before its two real inline contours. Removing it keeps
+ * bytes but loses two supplied region events and moves eleven work tags to
+ * the preceding569 context. The same void Enable with an early-out guard
+ * does not restore the ancestor and fails code matching. This demonstrates
+ * the current producer, not the original literal grouping/macro/control
+ * context. No fake predicate, declaration, scope-count helper or new API is
+ * justified. Receipt: build/tmp/v/mpause_enable_scope_20261102_agent/proof.json. */
 #line 545 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_StartPauseMenu(void)
 
@@ -476,7 +501,7 @@ void MPause_StartPauseMenu(void)
 
 
 
-  {   /* DEVICE (exact-only): plain scope = retail's record-less {32 .. }33 around the music Enable (fn exact) */
+  {   /* Supplied caller contour; its original source grouping remains open. */
     gPauseMenuDefs->itemAudioSettingsMusicVolume.Enable();
   }
 

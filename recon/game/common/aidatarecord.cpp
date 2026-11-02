@@ -312,8 +312,8 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  this->bSize_ = (this->numElements_ = gNumSlices) + 1;
-
+  this->numElements_ = gNumSlices;
+  this->bSize_ = this->numElements_ + 1;
   if (this->RecordMethod() == NORMAL_M) {
     sprintf(this->name_,"%sTr%02d.qcr", Paths_Paths[10],GameSetup_gData.track);
   } else {

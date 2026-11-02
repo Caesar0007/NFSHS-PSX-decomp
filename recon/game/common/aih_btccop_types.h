@@ -343,7 +343,9 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     virtual void FreezeAndEndChase();
     void HudOff();
     inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
+#line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+#line 347 "recon/game/common/aih_btccop_types.h"
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
@@ -383,7 +385,9 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     inline int RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
     inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
     inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
+#line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+#line 387 "recon/game/common/aih_btccop_types.h"
 
 
 
@@ -397,7 +401,9 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     int UpdateFreezeModeAndPullOverMode();
     void SetupWingman(AIHigh_BTC_HumanCop *humanCop);
     void SetupBlockader(AIHigh_BTC_HumanCop *humanCop, int spikeBeltRequest);
+#line 548 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+#line 401 "recon/game/common/aih_btccop_types.h"
 
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;

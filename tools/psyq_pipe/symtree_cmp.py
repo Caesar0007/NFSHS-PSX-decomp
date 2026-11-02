@@ -3,8 +3,8 @@ SYM (psylink_lane.py in NFS4_LANE_G mode) with the retail SYM, function by funct
 
   FRAME    fsize / register mask / mask offset
   LOCALS   every parameter and local: name, class (REG / REGPARM / AUTO / ARG / STAT), register number or sp offset, type, scope depth
-           -- EXTRA = a local retail does not have (an invented carrier), MISSING = a retail local we lack, MOVED = same
-           name, different home, TYPE = same name, different type
+           -- EXTRA/MISSING = source-name multiplicity surplus/deficit, not proof of an invented/missing source object.
+           MOVED/TYPE/SCOPE pair repeated names positionally in this legacy report; full owners require an independent check.
   BLOCKS   the scope tree: nesting + function-relative start/end addresses (a wrong scope, an extra brace level, a missing
            empty scope all show here)
 The current CLEAN classification covers the implemented checks above, NOT SLD
@@ -23,6 +23,13 @@ Def/Def2 stream while surviving as a compact type-6 name. Reconcile only when
 both compact streams prove the exact name and the same four-byte offset from
 a detailed, same-function INT STAT anchor; keep the evidence in the report.
 Backup: scratchpad/symtree_cmp_before_compact_static_20260930.py.
+2026-11-03: correct repeated-name EXTRA/MISSING diagnostic attribution only.
+A name-count deficit cannot identify the missing home/type/owner: SetMenu's
+root this REGPARM17 exists, while another inline this occurrence is missing.
+Keep ALL comparison predicates, issue classes and CLEAN/DIRTY behavior intact;
+only stop labeling an ambiguous occurrence with the first same-named home.
+Use tools/source_owner_queue.py for occurrence-preserving full owner records.
+Backup: build/tmp/v/symtree_count_diagnostics_20261103/symtree_cmp.before.py.
 """
 import json
 import re
@@ -132,6 +139,27 @@ def parse(path):
     return fns
 
 
+def name_count_issue(kind, name, ours_locals, retail_locals):
+    """Describe the existing name-count test without guessing a repeated home.
+
+    This is formatting only. It does not match records, suppress differences,
+    change owner/type/home comparisons, or establish object necessity.
+    """
+    if kind not in ('EXTRA', 'MISSING'):
+        raise ValueError('not a name-count issue class')
+    ours = [row for row in ours_locals if row[0] == name]
+    retail = [row for row in retail_locals if row[0] == name]
+    side, other = (ours, retail) if kind == 'EXTRA' else (retail, ours)
+    deficit = len(side) - len(other)
+    if deficit <= 0:
+        raise ValueError('name-count issue requires a positive surplus/deficit')
+    if len(side) == 1:
+        return '%s %s %s' % (kind, name, side[0][1])
+    return ('%s %s: %d name-count occurrence(s), native=%d retail=%d; '
+            'home/type/owner not determined by name counts' %
+            (kind, name, deficit, len(ours), len(retail)))
+
+
 ours_path = sys.argv[1]
 ours, retail = parse(ours_path), parse(RETAIL)
 ours_compact, retail_compact = compact_stat_symbols(ours_path), compact_stat_symbols(RETAIL)
@@ -150,9 +178,9 @@ for fn in common:
         if receipt:
             compact_evidence.append(receipt)
         else:
-            issues.append('EXTRA %s %s' % (n, next(h for x, h, *_ in o['locals'] if x == n)))
+            issues.append(name_count_issue('EXTRA', n, o['locals'], r['locals']))
     for n in sorted((rn - on)):
-        issues.append('MISSING %s %s' % (n, next(h for x, h, *_ in r['locals'] if x == n)))
+        issues.append(name_count_issue('MISSING', n, o['locals'], r['locals']))
     oh = {}
     for n, h, ty, d in o['locals']:
         oh.setdefault(n, []).append((h, ty, d))

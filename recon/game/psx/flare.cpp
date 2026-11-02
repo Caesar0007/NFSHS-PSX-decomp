@@ -923,7 +923,7 @@ gte_stszotz(&otz);
 
     if ((flags & 8U) != 0)
     {
-      const long result = sp.vx + sp.vy;
+      long result; result = sp.vx + sp.vy;
       angleZ = result * 4;
     }
 
@@ -1004,7 +1004,7 @@ gte_SetRotMatrix(&mtx);
       if ((flags & 1U) != 0) {
         VECTOR tvec;            /* @sp+0x60 */
         VECTOR tvec2;           /* @sp+0x70 */
-        long result; tvec.vx = diff.vx - diff2.vx;  /* v1 (the -600 clamp temp) */
+        tvec.vx = diff.vx - diff2.vx;
         tvec.vy = diff.vy - diff2.vy;
         tvec.vz = diff.vz - diff2.vz;
         VectorNormal((VECTOR *)&tvec,(VECTOR *)&tvec2);
@@ -1012,12 +1012,12 @@ gte_SetRotMatrix(&mtx);
         if ((flags & 2U) != 0) {
           tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
         }
-        result = tvec2.vz + -0x258; if (result < 0) { result = 0;
-        }
-        tvec2.vz = result; if (result == 0) {
+        tvec2.vz = 0 < tvec2.vz + -0x258 ? tvec2.vz + -0x258 : 0;
+
+        if (tvec2.vz == 0) {
           return;
         }
-        gscale = gscale * result >> 0xb;
+        gscale = gscale * tvec2.vz >> 0xb;
 
         if (type == 0x1e) { z = z / 4;
         }

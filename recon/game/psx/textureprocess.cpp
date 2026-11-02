@@ -354,9 +354,9 @@ void Fog_AddKey(int slice,int distance)
  * Use retail's final_dist quantity and chained key assignment; neither the
  * old start value nor the slot-pointer carrier is a retail named local.
  * nextkey dies after the initial reads; key->next is reloaded for interpolation.
- * The conditional's computation region and inner wrap region reproduce retail
- * binding scopes without extra declarations. Original macro spelling is unknown.
- * BYTE+SYM+SLD exact (GAME2): the conditional is a record-less const initializer (decl-line note). */
+ * The real unequal-distance guard acquires final_dist's fallback and owns the
+ * interpolation work; no unused fd or GNU value block is required. Existing
+ * full source/owner facts are preserved; literal original spelling is unknown. */
 
 #line 839 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_Update(int player)
@@ -367,7 +367,7 @@ void Fog_Update(int player)
 
 
 
-  { BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
+    BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
 
     currentslice = fogslicePos[player].slice;
 
@@ -381,10 +381,10 @@ void Fog_Update(int player)
 
 
 
-    const int fd = (final_dist = key->distance != nextkey->distance ? /* DEVICE (exact-only): unused record-less const; its initialized declaration puts the test on retail line 21 */
+    if ((final_dist = key->distance) != nextkey->distance)
 
 
-      ({
+      {
 
       if (nextslice < key->slice)
         { int numslices;
@@ -399,9 +399,9 @@ void Fog_Update(int player)
 
       diffdistance = key->next->distance - key->distance;
 
-      key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
-    }) : key->distance);
-  }
+      final_dist = key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
+    }
+
 
   ((CFogSpec *)(TrackSpec_gSpec + 4))->start = final_dist;
 }

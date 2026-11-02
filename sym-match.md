@@ -9,22 +9,22 @@ All retail function entries remain covered; Claude's six edits are untouched.
 
 | Measure | Latest available result | Scope / freshness |
 |---|---:|---|
-| Native SYM common-name CLEAN | 2423 / 2570 (94.28%) | Refreshed native comparison; 147 DIRTY |
+| Native SYM common-name CLEAN | 2425 / 2570 (94.36%) | Refreshed native comparison; 145 DIRTY |
 | Honest linked code | 299819 / 299819 words | Fresh real link/raw comparison; zero masked overlap mismatches |
 | Function byte board | 3494 / 3494 (100%) | Fresh pinned objdiff report; `MATCH_PROGRESS.txt` regenerated |
-| Header-relative SLD exact tags | 2359 / 2581 (91.40%) | Probe metric; absolute headers and filenames are separate |
-| Relative tags + reported block lines | 2199 / 2581 (85.20%) | Source-bound probe update; not a full native-contract seal |
-| Native absolute instruction-line tags | 2360 / 2581 (91.44%) | Fresh paired native/retail comparison; filenames checked separately |
+| Header-relative SLD exact tags | 2360 / 2581 (91.44%) | Probe metric; absolute headers and filenames are separate |
+| Relative tags + reported block lines | 2200 / 2581 (85.24%) | Source-bound probe update; not a full native-contract seal |
+| Native absolute instruction-line tags | 2361 / 2581 (91.48%) | Fresh paired native/retail comparison; filenames checked separately |
 | Native absolute function header line | 2581 / 2581 (100%) | All supplied header lines AND source filenames exact; not full source restoration |
 | Native function/TU provenance pairing | 2581 / 2581 (100%) | Every supplied function assigned to its owning TU; not whole-tree producer freshness |
 | Covered-TU CPP input freshness | 152 / 152 (100%) | 150 cached inputs byte-equal; two validated before-origin inputs equal; NOT CC1/object/native freshness |
 | Covered-TU raw compiler output | 152 / 152 (100%) | Fresh selected-stock full-debug assembly byte-equal; no postcompiler phases, skips or normalization; NOT object/native/source completion |
 
-Remaining HEADER-RELATIVE tag differences: **1495 / 207991 instruction words**.
-Direct current native ABSOLUTE line differences are1494/207991; these are
+Remaining HEADER-RELATIVE tag differences: **1494 / 207991 instruction words**.
+Direct current native ABSOLUTE line differences are1493/207991; these are
 different metrics, not interchangeable deltas. Rounds h-as
 repair174 genuine relative tags. With the later az/ba absolute-origin/EOF
-repairs and the later shared-header/footer corrections, seventy-four complete supplied
+repairs and the later shared-header/footer corrections, seventy-six complete supplied
 native contracts have been added, plus PAD_state's now-exact partial-retail
 supplied-record contract and
 partial source/type/control-flow improvements. The earlier round
@@ -41,7 +41,7 @@ function occurrences have different denominators; none is a whole-source seal.
 | Source directory | Exact tags | Exact tags + block lines | Remaining tag differences |
 |---|---:|---:|---:|
 | GAME/COMMON | 1191 / 1258 | 1118 / 1258 | 305 |
-| GAME/PSX | 376 / 395 | 353 / 395 | 59 |
+| GAME/PSX | 377 / 395 | 354 / 395 | 58 |
 | FRONTEND/COMMON | 717 / 838 | 662 / 838 | 987 |
 | FRONTEND/PSX | 74 / 85 | 65 / 85 | 46 |
 | EACLIB/PSX (partial retail coverage) | 1 / 5 | 1 / 5 | 98 |
@@ -81,6 +81,449 @@ Older snapshot tables and open-case lists later in this file are historical,
 not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
+
+2026-11-03cd Approved checkpoint scope.
+
+The user approved committing and pushing the BV-through-CC source-restoration
+and diagnostic checkpoint. Its scope is the five changed GAME/PSX source/header
+files, this ledger, the repeated-name diagnostic formatter and its eight focused
+tests. Generated evidence and unrelated work are excluded. Historical entries
+below describe their then-uncommitted state, not the final Git publication state.
+ValidTournament's subsequent private positive proposal remains separate and is
+NOT integrated or claimed in these checkpoint metrics; it still requires parent
+native acceptance. The full source-restoration goal remains open.
+
+Final publication gates: fresh NFS4_STRICT=1 whole-project build exits0 with
+no skipped TUs; pinned objdiff3494/3494 across466 units,100% code/data. Fresh
+real GNU link has no unresolved names; independent raw comparison retains
+RECON299819/299819,OTHER7195/7195,zero masked overlap mismatches/foreign labels
+and212 uncovered words. Vtable1473 and all8 focused diagnostic tests pass.
+Native3d1b4078/CPE060d48b6 and the complete Draww/HUD/Font normal ELF hashes
+remain unchanged from the source acceptance receipts. Final gate logs/report:
+source_round_cc_20261103/checkpoint-{strict-build,link,honest}.log and
+checkpoint-objdiff.json. These checks do not close the remaining SYM/SLD debt.
+
+2026-11-03cc Remove one unsupported subdivision owner wrapper.
+
+DrawW_SubdividFacet's GT3 prim REG4 already existed; the legacy name-count
+deficit did not identify the missing occurrence. Five supplied flag locals,
+that GT3 prim and otz instead had wrong sibling paths because an earlier
+unprovided q calculation wrapper emitted an empty region at+556,line29.
+Replace ONLY its two brace bytes with spaces. Keep q/q1/q2, their calculations,
+source coordinates, all GTE/templates and every other declaration/work item.
+This removes a needless source scope, not the q source objects or their open
+necessity question. The separate supplied GT4 prim REG19 remains missing.
+
+Canonical35 byte functions/312 branch words PASS; ENTIRE normal ELF and CPE
+are identical. Actual gdebug/ASPSX524/0/PSYLINK0errors and parent2581-function
+audit preserve EVERY old-correct full fact. Only the exact adjacent90/92 pair
+at+556,line29 disappears. Seven literal wrong full local owner paths become
+retail-correct: five flag sibling1..5->0..4 and GT3 prim/otz
+[0,0,0,6,0]->[0,0,0,5,0], with their types/homes/depth/ranges unchanged.
+Correct full local tuples12524->12531; complete regions9008->9014. WHOLE232740
+ordered Def/type/alias/LABEL values, including all35421 aliases, are identical.
+Headers/frames/native before-after bounds/files/tags/ends remain exact. DrawQuad's
+new covered contract and rejected Spike state are unchanged. No new complete
+contract/tag gain:2146/2581,absolute1493,relative1494 persist. Two target tags
+at+580/+1124 and GT4 ownership remain unresolved; no floor/exemption follows.
+
+Fresh pinned3494/3494; real GNU link RECON299819/299819,OTHER7195/7195,uncovered212,
+zero masked overlaps/foreign labels; vtable1473 PASS. Both protected witnesses
+validate. Current Draww8da814d6808e4dcede4eff22e180b9618a326d665e2a66b1ccedd4ccde975cbe;
+native3d1b407895a887d056c745f6a171fd2447aec3fc392255effd53f80b4266a13c;
+CPE060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1.
+Receipts:source_round_cc_20261103/{gates,proof,owners.frozen.before,owners.after,
+final-evidence}.json/source_queue/relative-refresh-proof.json; parent proof
+SHA1af6bfb72adf81847bc50412e4d9eff0af46a55dd562b244f8e77763806580ef.
+CC phase frontier uses only1dependencyCPP+1CPP+1CC1,0assembler/shared writes:
+three source/.i/.s bindings change,151 other rows/caches,851 dependency
+membership/850 nonprimary hashes,13producer bindings and both witnesses stay
+fixed. New diagnostic tool/test are explicitly outside those producer/dependency
+sets, not falsely compiler-policy-certified. Both raw phases remain152/152.
+Certificate:covered_frontier_epoch_cc_20261103/certificate.json,
+SHA4b1317329cf3f3672356fb94b6033ce09e6c73e55bf70418c6df90bcc794870c.
+Source/tool changes after71b693b9 remain verified but uncommitted; goal OPEN.
+
+2026-11-03cb Bounded role/inline research, no rejected fixture adoption.
+
+Front_Menu extraMoney is supplied LONG REG2 in an outer inline-parameter owner,
+not INT/caller depth. Naming the actual price+one delta recovers REG2 but yields
+10diffs/173words and wrong owner depth3vs4; manager-address production moves
+after the named addition. Rejected, no helper/scope invention or further form.
+Receipt:front_extra_money_delta_20261103_j/receipt.json,
+SHAafec39dc27db9f4a578719948dbe8a036381ccc06a3ddac93338cfd364135180.
+FECheat's num is SHORT/inline parameter; old setter/reference controls already
+recover it with12byte differences. No new actual interface was found or control
+run. Do not materialize a dummy caller local or borrow root i's separate role.
+
+Prim case9 role repair restores raw INT facet_flag REG4, but SHORT facetFlag
+takesREG25 rather than9 and rotates three indices:1389words/46diffs,79branch
+words CLEAN. Rejected. Actual selected-stock dumps show a GLOBAL priority gap,
+not local QTY or declaration-order tie: old INT mask18refs/live125/priority5760,
+new SHORT14refs/same125/priority3360; three16-ref indices now outrank it.
+Restricted model target handouts match actual dump; whole allocsim98/99 retains
+one unrelated s7 discrepancy, so no perfect-model claim. No ref dial is added.
+The real while body has retail address/line extent but an extra enclosing case
+binding still misplaces source declarations; source-owner restoration remains
+an active prerequisite, not an allocation-floor excuse. Reports:
+drawc_prim_case9_roles_20261103/{proof,order-allocation-review}.json.
+
+Private SetMenu inferred getter+nested-guard and brace-only follow-up both
+preserve65runtime words/6branches but produce10regions/receiver depth7 versus
+retail9/depth6; rejected with no live change. Those fixtures also inserted
+per-STATEMENT #line overrides: explicitly NOT admissible reconstruction under
+the one-per-function-anchor rule, and not integration candidates. Artifacts
+remain only failed private diagnostics; future source controls must use ordinary
+layout/blank lines and real source structure. Normal private ELF difference was
+the static UID spelling currentVideo.94->.96 at identical.data+4, not the first
+receipt's mistaken private-$L description; corrected proof retains that history.
+Grammar explains why deleting braces did not remove a binding: implicitly_scoped_
+stmt substitutes its own body binding. Combining guards is untested, not proven
+to restore exact contours; && creates no parser binding. No next variant ran.
+Reports:feapp_music_control_20261103/ and feapp_music_nocompound_20261103/.
+
+Paths console corroboration is stronger than a padding guess: NFS2_800690b8,
+NFS3_8008b634 both have13-word/24-byte-frame default-z initializers with no
+stack data access/call; NFS4_800a6e14 has19words/same frame. All retain unused
+install.psx strings. NFS4 disc INSTALL.PSX has44 nonempty three-prefix entries,
+matching the parser format, but no authentic inactive console parser body was
+recovered. Current selected input proves optimizer-dead string retention, not
+the original branch form. Do NOT add a dead parser/address use or replacement
+padding merely to force scanAUTO/frame; scanFrame remains unproved source debt.
+No source/compiler/native control was run for this read-only corroboration.
+
+2026-11-03ca Correct repeated-name diagnostic attribution, not source code.
+
+The legacy MISSINGthis REGPARM17 message for SetMenu is MISATTRIBUTED. The exact
+root receiver survives every inspected current producer stage: stock gdebug
+raw.s022d1ad0, prepared SN.s018f5f20, actual linked FEAPP object35daaa31 and
+authoritative native33678 record448c9c. Object's self-delimiting function/debug
+window independently contains value17/class17/type24/size896/tagtFEApplication.
+All94 actual CPP dependency bindings match; no compiler/host/source/native
+control was needed. Full-object decoding is NOT claimed: the existing reader
+stops15469/118494 and vendor DUMPOBJ launch failsWin216, both retained.
+Chain report/proof:feapp_setmenu_chain_20261103/,
+proof SHA18150aef88b61aa0d5293ab8995ae308438e3a3510df6a60afdc56f3583b9587.
+
+Native has two this occurrences; retail has three. symtree_cmp previously
+printed the FIRST retail home's name for any missing occurrence, incorrectly
+labeling already-correct rootthis17. The unmatched supplied receiver is a
+tMenu this16/depth6 in the music-mask branch. Four missing retail regions span
++0x3c..+0x60 and menu->fFlags acquisition+0x44, NOT the later IsSubMenu/GetScreen
+dispatch. Their instruction/SLD/owner mapping is in
+feapp_setmenu_inline_20261103/{report.txt,evidence.json}. Original inline name
+and full enclosing source structure are not uniquely supplied by those records;
+unrelated tMenuItem::GetFlags is not an owner-compatible API.
+
+The diagnostic tool now formats repeated-name EXTRA/MISSING as a multiplicity
+deficit/surplus with native/retail counts, explicitly WITHOUT a guessed home/
+type/owner. Unique-name wording is unchanged. Comparison predicates, compact
+static handling, all issue classes and CLEAN/DIRTY behavior are untouched.
+It still flags every previous mismatch; it does not manufacture a source fix.
+All2570 reports retain exactly their issue-class SEQUENCE and other fields;
+only39 ambiguous messages change. CLEAN2425/DIRTY145 and every class total stay
+fixed. All recon source/header hashes and native/CPE/build.py hashes match BZ.
+Eight focused tests pass, including exact root-this counterexample, duplicate
+EXTRA, multiple missing occurrences, no-difference failure and nonmutation.
+Backup, before/current report and proof:
+build/tmp/v/symtree_count_diagnostics_20261103/.
+New focused test:tools/psyq_pipe/test_symtree_name_diagnostics.py.
+The separate occurrence-preserving owner queue remains the source audit
+authority; repeated-name MOVED/TYPE/SCOPE positional legacy messages also require
+full-owner reconciliation before edits. No weakened verifier, reference change,
+compiler output rewrite or source/matching-status gain is claimed here.
+
+2026-11-03bz Actual replay-group pointer role and owner-proven Font bound.
+
+Hud_Init's spriteReplay is the REPLAY GROUP start at gSprite0+0x33, not the
+pool base or first drawn sprite0x37. Retail SLD proves the value: second-call
+a0+0x3fc at800d38ec retains declaration1115, while first-call+0x44c at800d38d4
+has call1123. Keep that provided local and use relative offsets4,0,1,2,5,3,6;
+all seven actual sprite addresses/IDs/coordinates/calls remain identical.
+No new alias/helper, name borrowing, qualification or object is introduced.
+baseX/baseY retain their full tuples; spriteReplay REG17->REG4 now matches
+its actual supplied pointer quantity. An anonymous retained pool base in s1
+does not require a source variable. Earlier first-sprite0x37 trials did not
+test this SLD-supported group-origin graph.
+
+The exact home repair also gives the previously wrong +0x8c0 word its real
+declaration tag1124->1115. All624 target instruction tags, full ordered locals,
+scope/address/line records, header/end/file/frame now agree with supplied retail
+contracts. One covered contract is added:2145->2146/2581, GAME/PSX340->341/395;
+declaration-owner PASS359->360, legacyCLEAN2424->2425/DIRTY146->145/MOVED10->9.
+Correct full tuples12523->12524 and correct word tags206497->206498; every
+prior-correct fact survives. Absolute tag differences1494->1493, relative
+1495->1494; relative exact maps2359->2360/both2199->2200. Native exact maps
+2360->2361. Header/file2581/end2528 and all35421 ordered aliases stay fixed.
+No new literal-original-text or absolute-link-placement seal is claimed:
+native Hud_Init800d2fe4 versus retail800d302c (+72) is pre-existing/unchanged.
+
+Separate bound-only Font correction: font_externs.h declares currentfont0xb8,
+not the inherited reconstructed0xa0. Primary NFS4.CPE records80135ba0..80135c58
+total184 zero bytes; the distinct CRC512-byte record begins at80135c58. ROM,
+existing textset.obj .data0xb8/definition[184] and raw +0xb4 store agree. History
+shows160 was a reconstruction import, not a documented prefix contract. There
+is no sizeof/bound-driven use; the other four consumers already use unsized
+declarations. Actual retained dependency evidence and fresh39-input CPP-M
+prove Font.cpp is the sole affected header consumer. No PC FONT180-byte type,
+padding, unknown PSX tail or new type/alias is invented. Font_Getcharacter's
+base-role/capture problem remains OPEN and separate.
+
+Canonical77 detailed functions/451 branch words PASS; both ENTIRE normal ELFs
+and CPE remain bit-identical. Font's only actual compiler-output delta is
+.extern currentfont160->184; EVERY Font native record remains exact. Actual
+ASPSX524/0,PSYLINK0errors and global2581 audit permit ONLY HUD's context-owned
+pointer-home correction and that one word-tag repair. All other ordered Def/
+type/alias/LABEL values, complete regions, filenames, headers, frames, ends and
+native before/after bounds stay exact. Both protected witnesses validate.
+Root independently reruns the native audit:source_round_bz_20261103/proof.json,
+SHAe93e8e69f878e08b4de7335f972ba3af6fc17cd3cb25cc5cc24ef425af43e059.
+Source/gate/queue/relative-board/real-link/vtable/final reports share that dir;
+private hud_replay33_20261103_a/ and font_bound_nov03/ retain primary evidence.
+
+COMMENT-ONLY HUD cleanup marks the old w67 output-rewrite experiment as
+historical/forbidden, removes its instruction to wire obsolete rows, and makes
+the dated mismatch wording historical. All5664 physical lines, actual CPP.i
+and complete g.s are BYTE-identical to the pointer-only ea97 proposal; this is
+not a hidden code/SLD change. Current HUD source4174d9d00881ef88e555f409efd869d6262c70609c2054f7135404d2b6fcffaf;
+Font header9dd149a60262e40d248eb37031b98cd49398d77d30072ddcbe8386a62661eee7;
+Font.cpp unchanged0d111b624f091c5740ebe3ebd4a1057da0abacbf018c0226a848bc5d20131987.
+Native33678b9400351f111bb29f67b92536ae073cf58001dff71eb877bee902be1c84,
+CPE060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1.
+
+Fresh pinned3494/3494, real GNU link RECON299819/299819,OTHER7195/7195,uncovered212,
+zero masked overlaps/foreign labels; vtable1473 PASS. BZ frontier rechecks only
+two consumers:2dependencyCPP+2CPP+2CC1,0assembler/shared writes. Six bindings
+change: HUD primary, INCLUDED Font header, two cached.i and two cached.s;
+Font primary source remains unchanged. Other150 rows/caches,851 dependency
+membership/849 unchanged members,13producer bindings and both witnesses stay
+fixed; both raw reproduction phases remain152/152 with no normalization.
+Certificate:covered_frontier_epoch_bz_20261103/certificate.json,
+SHA556cf80bf15ef93015da895cd56e8e3c175934eda31ce6eeb2b34914061633a7.
+Goal remains OPEN; post71b693b9 source/header changes are verified, uncommitted.
+
+2026-11-03by Declaration-route coverage audit and bounded negative follow-ups.
+
+The finite C++ source-route matrix now explicitly covers ordinary/for/condition
+declarators, parameters/implicit this, fields/static members, globals, typedefs/
+tags/enums, templates/deferred inlines, redeclarations, catch/labels/using.
+It proves why the present observer is NOT exhaustive. In particular class
+typedefs, enumerators, implicit params and copied template nodes can bypass
+start_decl/cp_finish; finish_file ENTRY is before pending-template processing.
+The missing suspension names were resolved, not guessed: suspend_binding_level's
+sole caller is under #if0 and actual pop_namespace is RET; resume_binding_level
+behavior is incorporated in surviving resume_level. Active push_namespace
+only calls sorry; this diagnostic host cannot certify namespace semantics.
+Live maybe_push_to_top_level/pop_from_top_level context transitions remain
+unobserved, and require context events without fake physical generations.
+The next minimal earlier witness is grokdeclarator entry/natural return before
+pushdecl merging; it still does not close tag/enum/template/copy/token coverage.
+Report:decl_route_audit_20261103/report.md,
+SHA2e8f74f2a827edc175e213802453ff283606713aadabe59b7eb2b37ab1465046;
+evidence.json binds10 primary sources, executable symbols and load-only dumps.
+
+One minimal extension was then calibrated on the SAME historical Group input,
+not a new TU/broad census. A new private observer captures grokdeclarator true
+entry/natural return with context enum, nested occurrence identity, raw result
+kind and pre-merge DECL/type/error/null evidence. All422 cp_finish events are
+now emitted UNFILTERED, preserving raw source IDs and deferring primary/header/
+global classification. The old GROUP-only filter and earlier ledgers are NOT
+silently retrofitted. There are556 paired entries/returns,140 nested occurrences,
+no unmatched/orphan/non-LIFO returns; source field m_type, an explicit prototype
+parameter and a definition parameter are positive witnesses, alongside the
+same12 user locals. Synthesized names such as _ctor_arg do NOT certify original
+source spelling; implicit/tag/enum/template/copy/context-transition and token/
+inactive-branch gaps remain. finish_file is still ENTRY, not completion.
+Standalone/control/observed all exit0 and reproduce the identical8381-byte
+bc68825c... assembly, with only the two explicitly known missing-hook errors.
+The parent inspected the observer diff and independently checked raw equality.
+Proof:group_grok_observer_20261103/proof.json,
+SHA8e7f93e1621b58ce273d33d3a9ffe8b73a1b4f22492435b65bf745edcec98928.
+This is a private diagnostic extension, not an installed complete declaration
+audit, selected-stock acceptance or a full-source coverage certificate.
+
+AngleOuter removal on the repaired Halo basin keeps code but loses six
+previously correct region lines142/143/146->141. The one coupled initialized
+difx/dify control produces EXACTLY the same rejected full-g assembly; neither
+lands. Original unmodified combine.c explains the precise cause: folding the
+call-result copy into a SAME-pseudo shift kills angleOuter's old value,
+synthesizes REG_DEAD87, finds no prior use and inserts USE87 after jump606,
+before the986 block notes. First scheduling then loses their ambient context.
+It is NOT a REG_LIBCALL/REG_RETVAL mechanism. This is a bounded source-note
+constraint, not original-object necessity or a compiler floor. Raw chains and
+primary-source evidence:flare_angleouter_stages_20261103/combine-forensics.json,
+SHA1127c8057e4cde4832b032431fe0638c4a1c26f162010431beb11bad91f8aa71;
+flare_angleouter_initialized_20261103/proof.json. Canonical d88 is unchanged.
+
+Fog_ReadFogKeys' one new natural while with an actual i-owned block removes
+unusedKey privately but loses the supplied test scope:70->68words/26diffs.
+Stock jump output changes three BLOCK regions/no LOOP_VTOP to two regions/
+LOOP_VTOP. Rejected; no replacement dummy or second form. Receipt:
+fog_read_scope_nov03/proof.json, SHA6003bed6bb054259e34c7c30051d309955e5a5df1a728d688b89fcf04d82a038.
+
+The current-basin digital-only newControl ownership control also fails:
+222words/78diffs, though strict22branches remain CLEAN. Combine deletes its
+digital-only user pseudo instead of recovering retail REG2, and direct analog
+returns rotate allocation. No full packet/source ownership conclusion or new
+helper follows. Receipt:front_digital_owner_20261103_i/receipt.json,
+SHAa961969f22340e739e7e952db1c93a82b63ebc837329afc416ebc5eb5ef59b9e.
+Other read-only findings/cross-version matches remain bounded, not new code:
+AILife mobile4CFEF9 genuinely matches four RNG phases, but no evidence supports
+relabeling earlier samples onto final offset; Paths scan is an AUTO parser
+cursor, not proven to be the surviving burnPath register alias. Those active
+producer questions require source evidence, not padding/qualification devices.
+
+2026-11-03bx DrawQuad provided declaration order restores one covered contract.
+
+Move only the eight actual root declarations into supplied order after
+geomVertices:dvxy0,dvxy1,dvxy2,dvxy3,vt0,vt1,vt2,vt3. Keep all initializers,
+work, anchors and nine declaration lines. All54 full parameter/local/type/home/
+owner tuples now agree with retail IN ORDER, including nonmonotonic
+dvxy2 AUTOsp-60/dvxy3 AUTOsp-64. No name/use swap or type-emission workaround
+is involved. Existing absorption/fence/source-origin debt is unchanged, not
+certified original by this source-order repair.
+
+Canonical35 detailed functions/312 branch words PASS. Whole normal ELF and
+CPE stay bit-identical; raw full-g assembly changes ONLY the same eight Def
+lines' exact permutation. Actual ASPSX524/0,PSYLINK0errors; all2581 old-correct
+complete facts are preserved. Entire232740 Def stream changes only that exact
+context-bound local permutation; all35421 ordered aliases and LABEL values
+remain exact. The previously rejected Spike remains entirely unchanged.
+One covered declaration/frame/scope/SLD contract is added:2144->2145/2581,
+GAME/PSX339->340/395; declaration-owner PASS358->359. Legacy common-name
+CLEAN2423->2424/2570,DIRTY147->146,ORDER3->2. Word-tag counts remain unchanged:
+absolute1494,relative1495; exact header/file2581,end2528,instruction maps2360.
+
+This is NOT an absolute retail-link-placement seal: the diagnostic native
+DrawQuad already starts800c64b0 versus retail800c64f8 (+72), both2368bytes.
+Before/after native absolute bounds and every existing correct address/LABEL
+fact are unchanged. Independent TU/name pairing and function-relative owners
+are explicitly used for source comparison, not to rewrite/rebase records.
+Source/SLD contract exactness, real normal GNU relink identity and literal
+native-vs-retail image placement are distinct claims; full goal stays open.
+
+Fresh pinned3494/3494, real GNU link RECON299819/299819,OTHER7195/7195,uncovered212,
+zero masked overlaps/foreign labels; vtable1473 PASS. Current Draww source
+d899ef30893df4d724251215977829fea549beec1f2bd09b3efb379aeb8bdef6;
+native3eb308ad472492ffab3b6549453be4dce8979f4ea997d29762504a66d3b75168.
+Receipts:source_round_bx_20261103/{gates,proof,owners.frozen.before,owners.after,
+final-evidence}.json/source_queue/. Parent proof SHA
+6ad7a057274ec762cc95c9518957f49b717e0ff3bfa749d2ed00aeccf67ec482.
+
+BX phase frontier rechecks ONLY Draww with1dependencyCPP+1CPP+1CC1,0assembler/
+shared writes. Three source/.i/.s bindings change; raw.s differs only by the
+same eight unchanged Def rows' permutation. Other151 rows/caches,851 dependency
+membership/850 nonprimary hashes,13producer bindings and both protected
+witnesses stay fixed;152/152 raw CPP/selected-stock output matches persist.
+Certificate:covered_frontier_epoch_bx_20261103/certificate.json,
+SHAf8664f81691a7dfc3087679cfe5f22dec2a4a791aa05d7515e3fc89d2b00fe67.
+No new ASM/volatile/pins/objects/fake scopes/work or generated-output rewrite.
+Goal remains OPEN; post71b693b9 BV/BX source changes are verified, uncommitted.
+
+2026-11-03bw Read-only pre-optimization declaration observer calibration.
+
+The existing symbol-bearing diagnostic C++ compiler f77868b1783bb5520a88682dca5c825e15b0e52c75df41ca3c2515d3e9d4ed84
+can expose source DECLs before optimization/debug elision without a rebuild.
+Primary cp/parse.y init/condition/for routes call start_decl/cp_finish_decl;
+cp/decl.c6354 entry precedes store_init_value/expand_decl. Actual Win64 entry
+disassembly and backend DWARF tree_node establish the read-only RCX decl/RDX
+initializer observation. Natural-return breakpoints only observe RAX; no
+inferior calls/assignments, forced returns or generated-output rewrites occur.
+
+First Group calibration: standalone, GDB control and observed runs all exit0
+and produce ENTIRE identical8381-byte assembly, SHA
+bc68825c2012ec3ba79f061d0e97fa4f38fb40d75b6b018f999f0fb04db330de.
+Twelve user locals are positive observations. groupFound is seen before
+expansion at source121 with null RTL/NE_EXPR, then USED1 at natural scope exit.
+Entry USED0 means not-yet-used, NOT unused. First raw class hooks duplicate
+physical lifecycle annotations; immutable raw data is retained and separate
+source-backed analysis maps129 physical pushes/128pops/global active. Two
+unavailable suspend/resume hook errors remain visible, not silently ignored.
+Receipts:group_decl_observer_20261103/{receipt,analysis}.json,events.jsonl,
+hook-plan.txt; receipt SHA36e3ab5c344cf4dcc9c37ba91b613942da624eb3c86b3929dc477fa8b71b423e.
+
+Second bounded calibration pins HISTORICAL textureprocess source0fbe0ed6 and
+fresh original CPP da810169e2285542ccb7ef1cc9d5d567243a01369a445dfd2f6b3a86d7bb26ab,
+with53 dependency snapshot copies before BV source integration. Corrected
+class lifecycle accounting is in a NEW observer, not a repaired old ledger.
+Actual -quiet -O2 -G8 standalone/control/observed runs all exit0 and produce
+ENTIRE identical33633-byte assembly, SHA
+195aec1c8442da2148b40e76650677ef403ba10de221fd3c9314304d15696c23.
+fd is a genuine unused-primary positive witness: event768 VAR_DECL/int32/
+readonly1 at Fog_Update861, null RTL/MODIFY_EXPR; natural pop769 has SAME
+UID/scope175/generation16, USED0 and nonnull RTL/SAVE_EXPR. There are274 physical
+pushes/273pops/global active,85class annotations and no identity anomalies.
+Both missing suspension hooks remain explicit errors. The primary-global
+emission filter still names GROUP.CPP; Fog globals are NOT covered by it.
+Receipts:fog_decl_observer_20261103/{freeze,receipt,proof}.json/events.jsonl;
+proof SHA5ff5f2c22ab0d163f6c1efdf86298d41d036a535c214f8f094ed47bf5318a779.
+The parent independently confirms both raw three-way equalities. These are
+diagnostic-host calibrations, NOT selected-stock byte/SYM acceptance or full
+declaration/source ownership coverage. Parameters/fields/templates, suspension,
+macro/inactive branches, repeated declarations and full source/token binding
+still require explicit instrumentation/coverage. No broad census was run.
+
+2026-11-03bv Fog source-device removal and Halo2 real result ownership.
+
+Fog_Update removes the actual unused fd declaration, GNU value expression and
+manual BWorld-work wrapper. The real unequal-distance guard acquires supplied
+final_dist's key-distance fallback; guarded ordinary work assigns interpolation.
+All81 target tags and the complete existing local/region/frame/header/end/file
+contract stay exact. No replacement object/helper, fake scope/use/work or new
+qualifier/asm is added. Older direct deletion/if-else failures did not include
+this real value-acquisition phase plus its genuine IF owner.
+
+Flare_Halo2's supplied LONG result is the early sp.vx+sp.vy sum in REG2 at
+depth3,path[0,2,0],+644..664, not the later clamp in REG3/depth5. Make that early
+sum a real nonconst result, remove the unprovided late result and let supplied
+tvec2.vz own the bound-first clamp/test/gscale multiplication. No new name or
+capture substitutes for it. The direct vector -=/if form stored too early and
+reloaded; the single real field assignment after value selection keeps code.
+GTE/template lines, source anchors and physical line counts are unchanged.
+
+Canonical43 detailed functions/177 branch words PASS; both whole normal ELFs
+and raw CPE remain bit-identical. Actual ASPSX524/0,PSYLINK0errors; full2581
+audit preserves EVERY old-correct local/frame/complete region/tag/file/header/
+end. The only ordered native Def change is Halo's exact context-owned late
+result3 deletion and supplied early result2 insertion. All35421 ordered aliases
+and every other global Def remain exact. Fog's compiler-private CVColor label
+$L143->$L142 is independently address-resolved; real native CVColor_emitFinal
+is STILL800e14a0. No label normalization/rewritten output is used or permitted.
+Correct full local tuples12522->12523; Halo ordered locals now equal retail,
+but its block lines still differ. No new full contract/tag gain is claimed.
+GAME/PSX declaration-owner PASS357->358; legacy MOVED11->10,SCOPE30->29,ORDER4->3,
+while common-name CLEAN2423/2570 and strict2144/2581 stay unchanged. Legacy
+review candidates64->63 reflects one actual unused fd removal, not a relabel.
+
+Fresh pinned3494/3494; real GNU link RECON299819/299819,OTHER7195/7195,uncovered212,
+zero masked overlaps/foreign labels; vtable1473 PASS. Both protected witnesses
+validate. Current Flare SHA d88be485d295b6edef7b2077981fab678beb1c9f6a0977bee4755d489c73dbc4;
+Textureprocess3bee5b4cc98152f9a9c1aea6e3e4d98cfa047b9eb80cb59b911b46b4a08095fd;
+native d0367de44ac83d3c799e59ae0ed16b6f37751f4749eaf9cbe7ffdc6713f1d79f.
+Receipts:source_round_bv_20261103/{gates,proof,owners.frozen.before,owners.after,
+final-evidence}.json and source_queue/. Parent native proof SHA
+4c36364deda9c1aa959adbfac141406604440b017b90dc8ebd0894d30e882554.
+Original3-unit freeze remains immutable; active2-source list excludes Spike.
+
+Spike declaration reorder is REJECTED and canonical Draww7cb76786 unchanged.
+Its35 byte gates/312 branch words and all21 ordered locals pass, but it loses
+the previously retail-matching FULL ordered alias subsequence Draw_DCache220,
+Draw_DCache220,Track_tMaterial4,coorddef12,coorddef12,coorddef12. The exact
+retail-bounded alias witness, raw IDs and failed DFA proof are retained in
+draww_spike_declorder_private_20261103/{rejected-proof,alias-guard}.json.
+No cardinality/LCS-only acceptance, dummy type-emission workaround or second
+permutation is used. A byte/local-order win cannot replace the full type gate.
+
+Current BV phase frontier rechecks only2 changed units with2dependencyCPP+
+2CPP+2CC1,0assembler/shared writes. Six source/input/raw-output bindings change;
+150 other rows/caches,851 dependency membership/849 nonprimary hashes,13actual
+producer bindings and both protected witnesses stay fixed. Current raw CPP/
+selected-stock assembly reproduction remains152/152 without normalization;
+rejected Draww source/.o/.i/.s is frozen. Certificate:
+covered_frontier_epoch_bv_20261103/certificate.json,
+SHA25cc9e9c403d2c282d78f6d573ffef711f6dc7c3ab65abdc482716833b161d47.
+The full original-source goal remains OPEN; these post71b693b9 source changes
+are verified but uncommitted/unpushed. No full literal original-text claim.
 
 2026-11-03bu Approved seven-file checkpoint verification.
 

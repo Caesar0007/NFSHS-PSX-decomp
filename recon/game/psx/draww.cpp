@@ -926,10 +926,10 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3)) {
     Draw_SVertex *v8; Draw_SVertex *v5; Draw_SVertex *v6; Draw_SVertex *v7; int t4;
     t4 = (int)n++ * 16;
-    { short q = n + 1; short q1; short q2; v5 = &r_div->v[n];
+      short q = n + 1; short q1; short q2; v5 = &r_div->v[n];
       q1 = q + 1; v6 = &r_div->v[q];
       q2 = q + 2; v7 = &r_div->v[q1];
-      v8 = &r_div->v[q2]; } n = n + 4; v4 = (Draw_SVertex *)(t4 + (int)r_div->v);
+      v8 = &r_div->v[q2];   n = n + 4; v4 = (Draw_SVertex *)(t4 + (int)r_div->v);
 
 
     DrawW_DivVertice(v4,v0,v1);
@@ -1962,14 +1962,14 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 {
 
   CCOORD16 *geomVertices = sd->vertices;
+  long dvxy0;
+  long dvxy1;
+  long dvxy2;
+  long dvxy3;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
   CCOORD16 vt3;
-  long dvxy0;
-  long dvxy1;
-  long dvxy3;
-  long dvxy2;
 
 
 

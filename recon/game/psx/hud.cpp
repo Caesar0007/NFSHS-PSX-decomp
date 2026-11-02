@@ -1072,7 +1072,7 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
  *   to its own statement BEFORE the base materialization at the 2376(t1) site, and re-order
  *   the two textcolour/`li` assignments to bracket the call they feed (the w40 "statement's
  *   luid decides sched1 issue order" row); measure each on posdiff, not the LCS.
- * ===== w67-a7 (2026-08-15): 8 -> PASS 624/624 via THREE PER_FN_TEXT_MOVES rows
+ * ===== w67-a7 HISTORICAL output-rewrite experiment (2026-08-15), NOT active:
  * (probe-verified 3x with tools/vprobe.py + W60_TEXT_MOVES_FILE; row file kept at
  * scratchpad/w67a7/tm_hudinit_v3.json; sibling fns re-gated under the rows, unchanged).
  * The residual 8 was THREE single-insn pure-schedule slides, each with disjoint def/use
@@ -1090,17 +1090,17 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
  * lookahead matches THREE sibling BuildF4 groups; the site-unique pin is the F4 pointer
  * line `addu $4,$9,72` deep in the lookahead.  First-match without it silently moved the
  * WRONG sibling's increment (4 diffs, symmetric li-pair artifact in the LCS).
- * ORCHESTRATOR: wire scratchpad/w67a7/tm_hudinit_v3.json into PER_FN_TEXT_MOVES verbatim. */
+ * HISTORICAL ONLY: those rows are forbidden and absent from the active source pipeline. */
 /* 2026-10-13: direct widened splitY+14/splitY+12 components remove sye/syc
  * at624/624,without replacement aliases or helpers. Ordinary main for loop
  * owns the drawing locals directly:all eight retail scope markers now
  * agree,including +b4..+888 parent and +e0..+85c child. No padding owner or
  * dummy declaration;actual iteration/initialization/bounds remain unchanged.
- * Sole native mismatch remains spriteReplay:current name labels saved base
- * s1,while retail names the a0 quantity. Per-call gSprite0+offset assignment
+ * Historical mismatch: spriteReplay named saved s1; the replay-group anchor
+ * now names the supplied a0 quantity. Per-call gSprite0+offset assignment
  * trial48dif/630 (six extra reloads and baseX rotation),fully restored.
  * Do not rename another base or reassign unrelated y merely to hide it.
- * Literal original widening/producer and full SLD remain unresolved;
+ * Literal original widening/macro spelling remains unresolved;
  * no new helper/name/asm/volatile/pin/qualifier or output rewrite. */
 
 /* 2026-10-13 replay-role review: sequential pointer mutations38dif/630;
@@ -1299,7 +1299,7 @@ void Hud_Init(void)
 
 
   { SPRT *spriteReplay; int baseX; int baseY;
-    spriteReplay = gSprite0;
+    spriteReplay = gSprite0 + 0x33;
     baseX = g1Player[0xd].x;
     baseY = g1Player[0xd].y;
 
@@ -1307,15 +1307,15 @@ void Hud_Init(void)
 
     currentSpriteColor = 0x808080;
     currentSpriteTransparent = 1;
-    Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
-    Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
-    Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
-    Hud_BuildSprite2(spriteReplay + 0x35,0x3f,baseX + 0x3a,baseY);
-    Hud_BuildSprite2(spriteReplay + 0x38,0x72,baseX + 0x4a,baseY);
-    Hud_BuildSprite2(spriteReplay + 0x36,0,baseX + 0x6d,baseY + -7);
+    Hud_BuildSprite2(spriteReplay + 4,0x6f,baseX,baseY);
+    Hud_BuildSprite2(spriteReplay,0x6c,baseX + 0x12,baseY);
+    Hud_BuildSprite2(spriteReplay + 1,0x6e,baseX + 0x25,baseY);
+    Hud_BuildSprite2(spriteReplay + 2,0x3f,baseX + 0x3a,baseY);
+    Hud_BuildSprite2(spriteReplay + 5,0x72,baseX + 0x4a,baseY);
+    Hud_BuildSprite2(spriteReplay + 3,0,baseX + 0x6d,baseY + -7);
 
 
-    Hud_BuildSprite2(spriteReplay + 0x39,3,0,baseY + 4);
+    Hud_BuildSprite2(spriteReplay + 6,3,0,baseY + 4);
   }
   currentSpriteTransparent = 0;
 

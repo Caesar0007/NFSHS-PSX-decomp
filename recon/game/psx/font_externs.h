@@ -16,7 +16,7 @@ extern u_char    gFontSpaceWidth;         /* 0x8013d866 */
 extern u_short   font_currentTPage;       /* 0x8013d868 */
 extern cluttbl   shpfontclut;             /* 0x8011fdb0  (48 bytes) */
 extern long      colourRGB[16];           /* 0x8011fd70  (ARY LONG, 64 bytes) */
-extern u_char    currentfont[0xa0];       /* 0x80135ba0  (active font header buffer) */
+extern u_char    currentfont[0xb8];       /* 0x80135ba0  (active font header buffer) */
 
 /* ---- render packet/palette ring (shared) ---- */
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)

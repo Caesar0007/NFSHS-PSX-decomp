@@ -167,9 +167,9 @@ void BringThatBeatBack(void)
     /* Reliable line-9 SYM records these inlined setup roles in the caller's
        original parameter registers ($s2/$s4); they are real uses, not
        declaration-only audit placeholders. */
-  /* MATCH: pointer-local for the NoInput dialog (SYM shows an inlined tDialogBase-`this` block
-     in $a0 here) -- oracle computes base+720 ONCE (addiu a0,v1,720), tests currentlyOn via
-     112(a0), and reuses a0 for Hide; a direct member test loads 832(base) then recomputes. */
+  /* Existing IsVisible supplies the recorded tDialogBase this in $a0;
+     its genuine IF owner replaces the obsolete caller pointer-declaration block.
+     Direct Hide reuses that receiver; no noInputDialog caller alias is needed. */
   /* (2026-09-20) tDialogYesNoMem is a real polymorphic class: its implicit ctor stores the derived table after the
      tDialogYesNo ctor returns -- the store the old manual `_vf` poke imitated. */
   /* [2026-07-11 RESTORE] the manual _vf poke was WRONGLY dropped in the wave-5 consolidation:
@@ -190,11 +190,11 @@ void BringThatBeatBack(void)
      undefined phantom extern (same class as the femenudefs.cpp sweep). */
   /* Reliable SYM records `MyDialog`, `putbackon`, `ret`, nested setup roles
      `num`/`yes`, the inlined Hide receiver, and the later message-string
-     receiver.  These optimized-away identities are retained only where the
-     exact oracle allocation requires a separate source value:
+     receiver. Existing IsVisible now recovers the supplied base receiver;
+     the remaining captures below are not proved original or necessary:
      SYM-CODEGEN-CARRIER: dialog
      SYM-CODEGEN-CARRIER: dialogVtable
-     SYM-CODEGEN-CARRIER: noInputDialog
+     The noInputDialog caller pointer is removed, not renamed to this.
      SYM-CODEGEN-CARRIER: messageDialog
      SYM-CODEGEN-CARRIER: messageText */
 #line 121 "C:/nfs4/FRONTEND/COMMON/FEMEMCARD.CPP"
@@ -202,14 +202,14 @@ static int Confirm(int Text,int yesText)
 
 
 {
-  bool putbackon;         /* SYM: REG BOOL $s3 */ int ret;                /* SYM: REG INT $s2 (reuses Text's reg) */ BringThatBeatBack();
+  BringThatBeatBack();
 
-  tDialogYesNoMem MyDialog; tDialogYesNoMem *dialog = &MyDialog; putbackon = false; { tDialogNoInputMessage *noInputDialog = &FEApp->NoInputMemCardDialog;
+  tDialogYesNoMem MyDialog; bool putbackon; /* SYM: REG BOOL $s3 */ int ret; /* SYM: REG INT $s2 (reuses Text's reg) */ tDialogYesNoMem *dialog = &MyDialog; putbackon = false;
 
-    if (noInputDialog->currentlyOn != 0) {
+    if (FEApp->NoInputMemCardDialog.IsVisible()) {
       /* SYM-INLINE-THIS: Hide */
-      ((tDialogBase *)noInputDialog)->Hide();
-      putbackon = true; } } { int num = Text; int yes = yesText; dialog->string = TextSys_Word(num); dialog->yesnowords[1] = 0x292;
+      FEApp->NoInputMemCardDialog.Hide();
+      putbackon = true; } { int num = Text; int yes = yesText; dialog->string = TextSys_Word(num); dialog->yesnowords[1] = 0x292;
 
 
 

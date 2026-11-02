@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-## Board status snapshot — 2026-11-02
+## Board status snapshot — 2026-11-03
 
 Initial refresh compiled all 522 main-tree probe TUs after Claude's work.
 Subsequent source/header rounds preserved every untouched source/reference;
@@ -20,8 +20,8 @@ All retail function entries remain covered; Claude's six edits are untouched.
 | Covered-TU CPP input freshness | 152 / 152 (100%) | 150 cached inputs byte-equal; two validated before-origin inputs equal; NOT CC1/object/native freshness |
 | Covered-TU raw compiler output | 152 / 152 (100%) | Fresh selected-stock full-debug assembly byte-equal; no postcompiler phases, skips or normalization; NOT object/native/source completion |
 
-Remaining HEADER-RELATIVE tag differences: **1496 / 207991 instruction words**.
-Direct current native ABSOLUTE line differences are1495/207991; these are
+Remaining HEADER-RELATIVE tag differences: **1495 / 207991 instruction words**.
+Direct current native ABSOLUTE line differences are1494/207991; these are
 different metrics, not interchangeable deltas. Rounds h-as
 repair174 genuine relative tags. With the later az/ba absolute-origin/EOF
 repairs and the later shared-header/footer corrections, seventy-four complete supplied
@@ -42,7 +42,7 @@ function occurrences have different denominators; none is a whole-source seal.
 |---|---:|---:|---:|
 | GAME/COMMON | 1191 / 1258 | 1118 / 1258 | 305 |
 | GAME/PSX | 376 / 395 | 353 / 395 | 59 |
-| FRONTEND/COMMON | 717 / 838 | 662 / 838 | 988 |
+| FRONTEND/COMMON | 717 / 838 | 662 / 838 | 987 |
 | FRONTEND/PSX | 74 / 85 | 65 / 85 | 46 |
 | EACLIB/PSX (partial retail coverage) | 1 / 5 | 1 / 5 | 98 |
 
@@ -81,6 +81,223 @@ Older snapshot tables and open-case lists later in this file are historical,
 not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
+
+2026-11-03bu Approved seven-file checkpoint verification.
+
+One final NFS4_STRICT=1 whole-project --skip-asm --no-link build exits0 with
+no failed/skipped TU. Fresh POST-build pinned board3494/3494, real GNU relink
+RECON299819/299819 and OTHER7195/7195,uncovered212,zero masked overlaps/foreign
+labels; vtable1473 PASS. Twenty-four focused reporting tests plus the inventory
+self-test pass, not the273-test broad suite. Both changed normal ELFs, native
+b965/CPE060d and the BQ/BR/BT full preservation proofs remain current.
+
+The approved scope is exactly7 reviewed paths: FECars,FEMemCard,sym-match.md,
+the two read-only reporting tools and their two test files. No shared compiler/
+build policy, original reference, generated object/report/binary or unrelated
+user file belongs in the commit. All typed source removals, real declaration
+sequencing and diagnostic changes have their separate bounded receipts above/
+below; the new diagnostic category does not certify full source coverage.
+Checkpoint proofs, staged blob/worktree hashes and actual git receipts are
+under build/tmp/v/checkpoint_20261103_after_bt/. Commit/push authorization is
+for this verified checkpoint; the larger source-restoration goal remains OPEN.
+
+2026-11-03bt Restore Confirm's genuine root declaration sequence.
+
+Keep BringThatBeatBack at125 and construct actual tDialogYesNoMem MyDialog at127,
+then declare the same bool putbackon/int ret before their existing uses. No
+operation, source object, value, scope, type or qualifier is added/removed. The
+old source declared bool/int before the call; retail records MyDialog first.
+Moving the object itself before the call would change construction order and
+is NOT the repair. The accepted source keeps all actual runtime work in place.
+
+Fresh canonical18 detailed functions/84 branch words PASS and whole normal ELF
+remain bit-identical. Raw full-g assembly differs ONLY by the exact unchanged
+three-Def group [putbackon,ret,MyDialog]->[MyDialog,putbackon,ret]. Source code,
+not generated output, supplies that permutation. Actual ASPSX524/0,PSYLINK0errors
+and unchanged raw CPE follow. The all2581 native audit preserves every complete
+local multiset, header/frame/region/tag/file/end and every prior-correct fact.
+All232740 raw Def rows remain, with only that one contiguous permutation at
+index172248; all35421 ordered aliases are exact. Both protected witnesses
+validate before/after; only Speech's proof-only whole-dump epoch hash rebinds.
+Native source/type/layout records are not repaired or normalized after compile.
+
+Fresh pinned3494/3494, real GNU link RECON299819/299819,OTHER7195/7195,uncovered212,
+zero masked overlaps/foreign labels; vtable1473 PASS. Covered contracts2144,
+absolute1494/relative1495 tag differences and every headline count are unchanged:
+this is a real source-order restoration, not another object/tag/full-seal gain.
+Confirm still has one132/137 tag and missing inline producers/extra captures.
+Current source8e7db8e11940587a53ef74fbe04de1768aafbc6270882a5fa46734a7713ec796;
+nativeb965c87e695448dcaacfa66b4faf536b9e386a0b598cf6f3ab7c79c40f2f1102;
+CPE060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1.
+Receipts:source_round_bt_20261103/{gates,proof,final-evidence}.json,
+private fememcard_confirm_declorder_20261103_g/{candidate,all-gates}.json.
+Native proof SHA1f7d080b903e4aa0464c6d2f20d7ca0f04afc7b8dd0b48961306fb150b23c42a.
+The private harness's absolute include is NOT part of the canonical source.
+
+BT phase frontier rechecks ONLY FEMemCard with1dependencyCPP+1CPP+1CC1 and no
+assembler/shared writes. Only its source/.i/.s bindings change; raw.s changes
+only the same three-Def permutation. Other151 rows/caches,851 dependency
+membership/850 nonprimary hashes,13 actual producer bindings and both protected
+witnesses are fixed. Both phases stay152/152. The reporting tools and two tests
+changed in BS are explicitly OUTSIDE those producer/dependency sets; their
+observed hashes are separately recorded, not falsely called compiler-policy
+identities. Certificate:covered_frontier_epoch_bt_20261103/certificate.json,
+SHAb93bb90659a4a124d8ebc8de0b40cba006bd97a04f8a1ec3acb83e2398c7d4bc.
+Its parent global-proof acceptance is bound; parent board/link aggregation
+finished separately in the actual final-evidence. Goal remains OPEN; uncommitted.
+
+2026-11-03bs Expose legacy source-review devices; declaration coverage pilot.
+
+The legacy DEVICE (exact-only) family was absent from BOTH reporting scans.
+It occurs64 times in31 current files: FRONTEND/COMMON26,GAME/COMMON30,GAME/PSX8.
+The two diagnostic tools now expose these as a separate legacy_codegen_device
+candidate kind, without altering native owner comparisons or old marker totals.
+Historical mentions can remain, so64 is NOT a count of live invented objects,
+and an annotation does not prove that its source object was original/necessary.
+All2581 complete per-function queue records, previous source locations, source/
+header hashes and old per-directory metrics remain exactly identical to BR.
+Native/CPE/retail/build.py hashes are fixed. Eight inventory tests,16 owner-queue
+tests and the inventory self-test pass. Only read-only reporting changes; no
+compiler/debug output, reference, game source or matching policy is rewritten.
+Tool comments identify exact backups of BOTH tools and their focused tests.
+Receipts/backups:build/tmp/v/source_inventory_legacy_devices_20261103/,
+including proof.json,review-inventory.json and source_queue/ per-directory reports.
+
+The three-TU Clang AST feasibility pilot independently finds158 positive local
+declarators across72 main-source definitions, including17 candidates missed by
+the old review-marker/native-name intersection. Examples include FECars' car/
+order and matchedCar, Confirm messageText, LoadGame dialogBase and Group's
+groupFound. These are actual source declarations with byte ranges, types, owning
+function, source coordinates and full supplied same-name candidates, not17
+proved invented objects. No retail local is inferred merely by matching a name.
+The older83a6 FECars snapshot and its two previousSlotOffset AST declarations
+are retained separately, not falsely reported in currentbc24 source.
+
+All three parses have Clang dialect/type-compatibility errors;16 recovery/
+mapping holes are explicit. Thus the pilot does NOT prove exhaustive source
+coverage, absence of unnamed objects or original-source identity. Header-inline,
+macro/inactive-branch coverage and reliable ABI/owner mapping remain required.
+The next instrument question is a compatible/pre-optimization declaration
+observer, not accepting error-recovered AST absence or renaming code to make
+Clang happy. Private pilot/freshness proof:source_decl_ast_pilot_20261103/,
+pilot.json SHAde8689975c423f65585a53d175bb24beedfdd89e1427b4c100569f6ec6f617e9.
+No full-tree inventory or goal completion is claimed; all3494 standing PASS
+seals and the active source-restoration goal remain unchanged.
+
+2026-11-03 Read-only and bounded negative follow-ups.
+
+BasicPerp's single new prior-slot guard control, (pos-1)<0 without the existing
+handwritten word/nop, gives91 words/48differences versus the fresh87-word PASS
+baseline; all six baseline branch words are CLEAN. Stock first jump duplicates
+loads/test into the preheader, CSE shares pos-1 with address work and combine
+retains LT/GE instead of the required BLEZ pos. The -da observer's output equals
+the ordinary candidate assembly. This distinct graph is rejected before native
+closure; no canonical change or claim that pure-C reconstruction is impossible.
+Receipt:basicperp_prior_slot_private_20261103/receipt.json,
+SHA12350858ff30e8e81fd20df4891aa92aa99552c0f9e6688b6daae7fa44a2fc8c.
+
+BQ covered CPP/raw-CC1 frontier refresh rechecks only its two changed units:
+2dependencyCPP+2CPP+2CC1,0assembler/shared writes. Other150 report rows are exact,
+all851 dependency members persist,849 nonprimary dependency hashes and13 tool/
+policy/executable bindings stay fixed. Five intentional source/cache bindings
+change, both protected witnesses validate, and the actual parent global proof
+is bound. Certificate:covered_frontier_epoch_bq_20261103/certificate.json,
+SHAd5974e8d9ec8205f7a060a00bf22c56b4e799a13841621f9961e53b639d5d8de.
+This is still phase-specific reproducibility, not literal source completion.
+
+2026-11-03br Both remaining FECars previous-slot captures removed.
+
+SellCar and RemoveFromPinkSlipsList now clear their actual typed previous
+garage/pink-slip element: [playerNum][(int)i-1].fCarID=-1. The supplied SHORT i
+remains the compaction loop's next slot; integer promotion precedes subtraction,
+without unsigned selected-index conversions or narrowing the difference to SHORT.
+Both previousSlotOffset declarations and raw byte-pointer stores disappear.
+Only the two real store lines change; no substitute object/helper/qualifier,
+scope or artificial work is introduced. The two bounded private controls were
+Pink then the exact garage counterpart, not a spelling/permutation sweep.
+
+The old alleged inevitable260 displacement is not a constraint on this source
+graph: stock initial RTL sign-extends i, subtracts1 and scales4; combine retains
+the actual264 field displacement and explicit addiu-4. Observed/unobserved stock
+assembly agrees. This recovers an ordinary typed representation, not uniquely
+the original literal expression text or a generic codegen lever.
+
+Fresh canonical46 detailed functions/176 branch words PASS. Whole normal ELF
+and entire full-g assembly are identical; actual ASPSX524/0 and PSYLINK0errors
+regenerate an ENTIRE byte-identical native dump and CPE. Consequently every
+prior-correct function/header/local/owner/region/type/alias/tag/end fact survives,
+not merely a normalized byte report. Both protected witnesses validate; current
+source queue and pinned3494/3494 board agree. No numerical SYM/SLD/full-contract
+gain is claimed for these two debug-elided source objects. Name-surplus136,
+markers202 and relative1495/absolute1494 remain unchanged from BQ.
+
+Current FECars source SHA
+bc24c9ef1bc0d836fd2239f2539d0ea1a46ee0f098f6d2f9b0758190bdb3cec6.
+Receipts:build/tmp/v/source_round_br_20261103/{gates,final-evidence}.json,
+private fecars_previousslot_20261103_a/{proof.json,receipt.md,production-proposal.diff}.
+FEMemCard remains3b4e0131; global native remains7345ae98/CPE060d48b6. Other
+FECars captures, the unnamed rodata producer and existing clobber remain explicit
+review work, not source-object exemptions. No new ASM/volatile/pin or output
+rewrite. Goal remains OPEN; this verified checkpoint is uncommitted/unpushed.
+
+Current phase frontier BR rechecks ONLY FECars:1dependencyCPP+1CPP+1CC1 and no
+assembler/shared writes. Exactly two source/cached-input bindings change;
+the other151 rows/inputs and all152 raw compiler outputs remain fixed. All851
+dependency members,850 nonprimary hashes,13 tool bindings and both protected
+witnesses survive. Both CPP/stock-CC1 phases remain152/152 raw-equal, with the
+actual parent BR final-evidence bound, not just an intended future acceptance.
+Certificate:covered_frontier_epoch_br_20261103/certificate.json,
+SHA3d032d17ded58766a41314bb46f05834013326614707c7ff1fbbd10925270c74.
+This does not certify literal original text, missing source objects or complete
+per-directory source declaration coverage; those wider obligations stay open.
+
+2026-11-03bq Typed SellCar selection and actual Confirm visibility receiver.
+
+SellCar removes the actual selectedSlotOffset source declaration/use through
+fCarGarage[playerNum][(u_int)(u_char)frontEnd.garageCar[playerNum]-fNumCars].fCarID.
+The supplied array[2][32], four-byte element and byte field at offset0 recover
+the old address8+playerNum*128+(selectedIndex-fNumCars)*4, retaining the same
+unsigned conversions and later selection update. Entire normal ELF and full-g
+assembly remain byte-identical. This debug-elided source-object removal has
+no numerical declaration/SLD gain; both previousSlotOffset captures remain open.
+
+Confirm uses the EXISTING IsVisible()/Hide API on NoInputMemCardDialog instead
+of noInputDialog. Removing only that pointer declaration's obsolete brace pair
+lets the genuine IF supply the preserved outer owner. Retail supplies Base
+this REG4/PTRSTRUCT144 at depth3,path[0,1,0],+0..0; that complete local returns,
+not a rename of the caller alias. One instruction tag+0x4c becomes127 instead
+of129, matching retail. One target tag and other missing/extra ownership facts
+remain unresolved; no full Confirm source/SLD seal or literal syntax claim.
+
+Canonical64 detailed functions/260 branch words PASS; both whole normal ELFs
+are identical. Actual gdebug/ASPSX524good/0bad,PSYLINK0errors and raw CPE identity
+hold. Fresh pinned board3494/3494; real GNU link RECON299819/299819,OTHER7195/7195,
+uncovered212, zero masked overlaps/foreign labels; vtable1473 PASS. Native
+common-name CLEAN2423/2570 and full supplied contracts2144/2581 are unchanged.
+Frontend name-surplus137->136 and review markers203->202 reflect one native
+extra removed; the second source-only capture was debug-elided. Absolute tag
+differences1495->1494 and relative1496->1495; exact-map counts unchanged.
+
+The parent global native audit covers all2581 occurrences, not just these two
+units. Correct full locals12521->12522, complete regions9006->9008, instruction
+tags206496->206497; all207991 correct filenames,2581 headers and2528 exact ends
+survive. The entire ordered Def stream changes only the exact unprovided
+noInputDialog row into the supplied Base this row; all35421 ordered aliases
+stay exact. Both before/current protected witnesses independently validate.
+Speech's155 proof-only native-dump epoch hashes rebind38e->7345 as required;
+every underlying source/include/policy/input/assembly/SN-object hash and every
+native function fact remains exact. This is not a debug-output correction.
+Formal audit:source_round_bq_20261103/proof.json,
+SHAa232ef98597bfbe0484a8e9e33cd4efe010f0ff57b16052fd3f74b05fcfb9d09.
+
+Current sources:FECars83a6eb258e5e6f8722514320dd434f78a3024f46ad1ad0b38dbbd99bc3577ae2,
+FEMemCard3b4e01316a79d9ce170a78f74211ae086cea81d0636f0816da64acb8cbc86e05.
+Native7345ae98349e078226d9a5b768ff5e71798b9740d11388fb4f9bfe5cf58e0fde;
+CPE060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1.
+Receipts:build/tmp/v/source_round_bq_20261103/ and private
+fecars_sell_selectedslot_20261102_2242/,fememcard_visible_receiver_20261103_f/.
+No new ASM/volatile/pins/helper/objects/artificial work/flags or generated-output
+rewrite. Goal remains OPEN; these post-e1b12000 changes are not committed.
 
 2026-11-02bp Reviewed source-restoration checkpoint verification.
 

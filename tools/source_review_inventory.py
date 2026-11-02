@@ -17,6 +17,13 @@ reporting: no source/compiler/SYM/reference or matching-policy rewrite.
 as well. Missing this variant hid explicit unresolved source obligations.
 Backup: build/nc12/track_animation_source_20261024/
 source_review_inventory_before_camel.py. This changes reporting only.
+
+2026-11-03: expose the older DEVICE (exact-only) annotations separately.
+These are unresolved source-review candidates, not original-object exemptions
+or a complete declaration inventory. Keep their counts distinct from native
+EXTRA rows and from the existing review-marker totals. Backup of this tool
+and its focused tests: build/tmp/v/source_inventory_legacy_devices_20261103/.
+No source, compiler output, comparator policy or retail input is changed.
 """
 import argparse
 from collections import Counter
@@ -37,6 +44,7 @@ REVIEW = re.compile(
     r'|SOURCE-RECOVERY-UNRESOLVED'
     r'|\bSourceRecoveryUnresolved\b'
     r'|ORIGINAL-NAME-UNRESOLVED|DEBUG-ELIDED SOURCE VALUE|SOURCE-RECOVERY REVIEW')
+LEGACY_DEVICE = re.compile(r'\bDEVICE\s*\(\s*exact-only\s*\)')
 # The legacy simplemem_* materializers generated this exact uncalled holder.
 # Flag its definition, not comments/strings, prototypes or invocations. This
 # known-producer check is deliberately not claimed to find every unnamed or
@@ -103,6 +111,7 @@ def inventory(native_path, sld_path):
         code = mask_trivia(text)
         for kind, pattern, content in [('synthetic_identifier', SYNTHETIC, code),
                                        ('review_marker', REVIEW, text),
+                                       ('legacy_codegen_device', LEGACY_DEVICE, text),
                                        ('unresolved_string_producer', UNRESOLVED_STRING_PRODUCER, code)]:
             for match in pattern.finditer(content):
                 locations.append({"kind": kind, "file": rel,
@@ -117,6 +126,7 @@ def inventory(native_path, sld_path):
             "This tool does not rebuild or refresh the input SYM dumps.",
             "Local contract excludes FRAME/BLOCKS/SLD and global/type-body records.",
             "Lexical candidates and review-marker occurrences are not distinct unresolved source objects.",
+            "Legacy DEVICE (exact-only) annotations remain review candidates, including historical mentions; their presence proves neither a surviving declaration nor its necessity.",
             "Const aliases, original macro spelling and unnamed producer mechanisms need independent inspection.",
             "Known string-producer hits are review candidates, not proof of original function/header identity or an exhaustive producer audit.",
             "eaclib/syslib lexical locations are included, but incomplete retail records are not whole-library coverage."],
@@ -144,6 +154,9 @@ def self_test():
         'SOURCE-RECOVERY-UNRESOLVED', 'SOURCE-REVIEW-UNRESOLVED']
     assert REVIEW.findall('SourceRecoveryUnresolved: original name unknown') == ['SourceRecoveryUnresolved']
     assert not REVIEW.search('SourceRecoveryResolved SourceRecoveryUnresolvedCount')
+    assert LEGACY_DEVICE.findall('DEVICE (exact-only) DEVICE( exact-only )') == [
+        'DEVICE (exact-only)', 'DEVICE( exact-only )']
+    assert not LEGACY_DEVICE.search('DEVICE (exact) SomeDEVICE (exact-only)')
     assert local_contract_clean(['BLOCKS 1 scopes != 2', 'FRAME fsize differs'])
     for kind in LOCAL_ISSUES:
         assert not local_contract_clean([kind + ' fixture'])

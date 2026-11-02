@@ -15,6 +15,37 @@ HOLDER = 'static inline const char *SimpleMem_ClassName(void)'
 
 
 class StringProducerReviewTests(unittest.TestCase):
+    def test_legacy_devices_are_separate_review_candidates(self):
+        text = ('/* DEVICE (exact-only): const snapshot, no SYM record. */\n'
+                '/* DEVICE( exact-only ): historical control, not object proof. */')
+        self.assertEqual(inventory.LEGACY_DEVICE.findall(text), [
+            'DEVICE (exact-only)', 'DEVICE( exact-only )'])
+        self.assertFalse(inventory.LEGACY_DEVICE.search('DEVICE (exact)'))
+        self.assertFalse(inventory.LEGACY_DEVICE.search('SomeDEVICE (exact-only)'))
+        self.assertFalse(inventory.REVIEW.search(text))
+
+    def test_report_keeps_legacy_annotations_separate_from_native_extras(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / 'recon/frontend/common/one.cpp'
+            source.parent.mkdir(parents=True)
+            source.write_text('void f(){ const int captured=1; } '
+                              '/* DEVICE (exact-only): unresolved. */\n', encoding='utf-8')
+            native = root / 'native.json'
+            sld = root / 'sld.json'
+            native.write_text(json.dumps({'f': {
+                'file': r'C:\nfs4\FRONTEND\COMMON\ONE.CPP', 'issues': []}}), encoding='utf-8')
+            sld.write_text(json.dumps({'functions': {'f': {'status': 'EXACT'}}}), encoding='utf-8')
+            before = {p: p.read_bytes() for p in (source, native, sld)}
+            with patch.object(inventory, 'ROOT', root):
+                report = inventory.inventory(native, sld)
+            self.assertEqual({p: p.read_bytes() for p in before}, before)
+            self.assertEqual(report['native_extra_rows'], [])
+            self.assertEqual(report['source_locations'], [{
+                'kind': 'legacy_codegen_device', 'file': 'recon/frontend/common/one.cpp',
+                'line': 1, 'text': 'DEVICE (exact-only)'}])
+            self.assertFalse(report['source_freshness_certified'])
+
     def test_camelcase_explicit_source_obligation_is_visible(self):
         text = '/* SourceRecoveryUnresolved: semantic name, original spelling absent. */'
         self.assertEqual(inventory.REVIEW.findall(text), ['SourceRecoveryUnresolved'])

@@ -1,6 +1,11 @@
 """Read-only queue invariants; no source/SYM/compiler fixtures are rewritten."""
 import copy
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
+
+import source_owner_queue as queue
 
 from source_owner_queue import pair_records, name_balance, canonical_file, attach_coordinates, REGISTER_ARTIFACT, ADDRESS_DERIVED
 from local_owner_cmp import compare
@@ -18,6 +23,33 @@ def local(name='i', home='REG:$2', path=None):
 
 
 class QueueTests(unittest.TestCase):
+    def test_legacy_device_candidates_do_not_change_owner_results_or_old_counts(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            src = root / 'recon/frontend/common/one.cpp'
+            src.parent.mkdir(parents=True)
+            src.write_text('void f(){} /* DEVICE (exact-only): historical control. */\n', encoding='utf-8')
+            native, retail = root / 'native.txt', root / 'retail.txt'
+            native.write_text('fixture', encoding='utf-8')
+            retail.write_text('fixture', encoding='utf-8')
+            before = {p: p.read_bytes() for p in (src, native, retail)}
+            with patch.object(queue, 'parse_owner_records', return_value=[]), \
+                 patch.object(queue, 'parse_dump_records', return_value=([], [], [])), \
+                 patch.object(queue.files, 'events', return_value=[]):
+                report = queue.audit(native, retail, root=root)
+            self.assertEqual({p: p.read_bytes() for p in before}, before)
+            self.assertEqual(report['functions'], [])
+            self.assertTrue(report['all_function_occurrences_accounted_for'])
+            self.assertFalse(report['full_goal_complete'])
+            self.assertFalse(report['source_freshness_certified'])
+            summary = report['directories']['FRONTEND/COMMON']
+            self.assertEqual(summary['lexical_legacy_codegen_device_locations'], 1)
+            self.assertEqual(summary['lexical_review_marker_locations'], 0)
+            self.assertEqual(summary['native_name_surplus_occurrences'], 0)
+            self.assertEqual(report['source_locations'], [{
+                'kind': 'legacy_codegen_device', 'file': 'recon/frontend/common/one.cpp',
+                'line': 1, 'text': 'DEVICE (exact-only)'}])
+
     def test_duplicate_symbols_pair_by_independent_unit_not_address_or_order(self):
         n = [function('two', start=100), function('one', start=200)]
         r = [function('one', start=100), function('two', start=200)]

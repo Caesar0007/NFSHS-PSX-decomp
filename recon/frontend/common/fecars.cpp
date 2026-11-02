@@ -248,9 +248,9 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
-  /* Retail SYM records only i and result. Combined const address snapshots
-     preserve all 96 instructions without emitting extra debug locals, and
-     the unwrapped statements reproduce retail's one lexical block. The
+  /* Retail SYM records only i and result. Older combined address snapshots
+     preserved all 96 instructions without extra debug locals; their wrapper
+     scopes were removed to retain retail's one lexical block. The
      original spelling of the address expressions remains unproven. */
 #line 259 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 long tCarManager::SellCar(short garageNumber,short playerNum)
@@ -274,14 +274,14 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
     this->fCarGarage[playerNum][i - 1].fCarColor = this->fCarGarage[playerNum][i].fCarColor;
   }
   /* Keep the -4 outside the +8 displacement. */
-  const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
+  this->fCarGarage[playerNum][(int)i - 1].fCarID = -1;
   /* Clear the actual final garage slot, using its typed owner field. */
 
 
   this->fCarGarage[playerNum][31].fCarID = -1;
 
 
-  const int selectedSlotOffset = ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4 + playerNum * 128; if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
+  if (this->fCarGarage[playerNum][(u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars].fCarID < 0) {
     frontEnd.garageCar[playerNum] = (u_int)(u_char)frontEnd.garageCar[playerNum] <= this->fNumCars ? '\0' : frontEnd.garageCar[playerNum] - 1;
   }
   return result;
@@ -413,7 +413,7 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
     this->fPinkSlipsCars[playerNum][i - 1].fCarColor = this->fPinkSlipsCars[playerNum][i].fCarColor;
   }
   /* Keep the -4 outside the 0x108 displacement. */
-  const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
+  this->fPinkSlipsCars[playerNum][(int)i - 1].fCarID = -1;
 
 
 

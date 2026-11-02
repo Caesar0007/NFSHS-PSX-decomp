@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / 'tools' / 'psyq_pipe'))
 from local_owner_cmp import parse_owner_records, compare
 from sldtree_cmp import parse_dump_records, directory_of, line_at
 import sld_file_events as files
-from source_review_inventory import mask_trivia, SYNTHETIC, REVIEW, source_group
+from source_review_inventory import mask_trivia, SYNTHETIC, REVIEW, LEGACY_DEVICE, source_group
 
 # Wider register/stack artifacts are kept separate from the legacy spelling
 # scan. A lexical hit is a review candidate, not proof of an invented object.
@@ -38,6 +38,11 @@ REGISTER_ARTIFACT = re.compile(
 # SYM/canonical-source review,not an automatic invented-object verdict.
 # Backup: build/nc12/aitriger_source_20261030/source_owner_queue.py.before.
 ADDRESS_DERIVED = re.compile(r'\b(?:LAB|lbl)_[0-9a-fA-F]{8}\b')
+
+# 2026-11-03: include legacy DEVICE (exact-only) annotations as a separate
+# review-candidate kind. Do not change pairing, owner comparison or old marker
+# totals. These annotations can describe historical controls, not live objects.
+# Backup: build/tmp/v/source_inventory_legacy_devices_20261103/.
 
 
 def sha(path):
@@ -114,6 +119,7 @@ def audit(native_path, retail_path, *, root=ROOT):
                       'Name surpluses are counts with full candidates, not inferred source objects.',
                       'Local tuples exclude STAT storage VAs and global/complete type-graph validation.',
                       'Lexical names and markers are review locations, not distinct source objects.',
+                      'Legacy DEVICE (exact-only) annotations are separate review candidates, not original-object exemptions or proof of current declarations.',
                       'Debug-elided source-only carriers need independent source/compiler review.',
                       'This tool does not build, verify bytes/branches, or certify original source text.',
                       'EACLIB/SYSLIB records are partial coverage, never whole-library certification.'],
@@ -207,7 +213,8 @@ def audit(native_path, retail_path, *, root=ROOT):
         for kind, regex, content in [('synthetic_identifier', SYNTHETIC, mask_trivia(text)),
                                      ('register_artifact_identifier', REGISTER_ARTIFACT, mask_trivia(text)),
                                      ('address_derived_identifier', ADDRESS_DERIVED, mask_trivia(text)),
-                                     ('review_marker', REVIEW, text)]:
+                                     ('review_marker', REVIEW, text),
+                                     ('legacy_codegen_device', LEGACY_DEVICE, text)]:
             for match in regex.finditer(content):
                 report['source_locations'].append(dict(kind=kind, file=rel,
                     line=content.count('\n', 0, match.start()) + 1, text=match.group()))
@@ -219,7 +226,7 @@ def audit(native_path, retail_path, *, root=ROOT):
                       'native_name_surplus_occurrences', 'retail_name_surplus_occurrences',
                       'lexical_synthetic_identifier_locations', 'lexical_register_artifact_identifier_locations',
                       'lexical_address_derived_identifier_locations',
-                      'lexical_review_marker_locations'):
+                      'lexical_review_marker_locations', 'lexical_legacy_codegen_device_locations'):
             c.setdefault(field, 0)
     report['directories'] = {k: dict(v) for k, v in sorted(counts.items())}
     for group, summary in report['directories'].items():

@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-## Board status snapshot — 2026-11-01
+## Board status snapshot — 2026-11-02
 
 Initial refresh compiled all 522 main-tree probe TUs after Claude's work.
 Subsequent source/header rounds preserved every untouched source/reference;
@@ -9,16 +9,16 @@ All retail function entries remain covered; Claude's six edits are untouched.
 
 | Measure | Latest available result | Scope / freshness |
 |---|---:|---|
-| Native SYM common-name CLEAN | 2422 / 2570 (94.24%) | Refreshed native comparison; 148 DIRTY |
+| Native SYM common-name CLEAN | 2423 / 2570 (94.28%) | Refreshed native comparison; 147 DIRTY |
 | Honest linked code | 299819 / 299819 words | Fresh real link/raw comparison; zero masked overlap mismatches |
 | Function byte board | 3494 / 3494 (100%) | Fresh pinned objdiff report; `MATCH_PROGRESS.txt` regenerated |
-| SLD exact tags | 2325 / 2581 (90.08%) | Full baseline plus affected-TU refreshes; includes corrected parser bounds |
-| SLD exact tags + reported block lines | 2170 / 2581 (84.08%) | Source-bound update; not a full native-contract seal |
+| SLD exact tags | 2344 / 2581 (90.82%) | Full baseline plus affected-TU refreshes; includes corrected parser bounds |
+| SLD exact tags + reported block lines | 2184 / 2581 (84.62%) | Source-bound update; not a full native-contract seal |
 | Absolute function header line | 2525 / 2581 (97.83%) | Filename equality separately verified for new absolute seals |
 | Independent TU provenance | 2581 / 2581 (100%) | Current hash-bound producer/include evidence; not source completion |
 
-Remaining tag differences: **1712 / 207991 instruction words**. Rounds h-u
-repair81 genuine tags and add twenty-one complete supplied native contracts, plus
+Remaining tag differences: **1633 / 207991 instruction words**. Rounds h-ad
+repair160 genuine tags and add thirty-five complete supplied native contracts, plus
 partial source/type/control-flow improvements. The earlier round
 repairs10 genuine source tags and removes45 false mismatches from51 foreign-
 section words previously appended to five functions. The earlier1848/208042
@@ -34,7 +34,7 @@ function occurrences have different denominators; none is a whole-source seal.
 |---|---:|---:|---:|
 | GAME/COMMON | 1181 / 1258 | 1108 / 1258 | 315 |
 | GAME/PSX | 373 / 395 | 350 / 395 | 63 |
-| FRONTEND/COMMON | 697 / 838 | 647 / 838 | 1178 |
+| FRONTEND/COMMON | 716 / 838 | 661 / 838 | 1099 |
 | FRONTEND/PSX | 74 / 85 | 65 / 85 | 46 |
 | EACLIB/PSX (partial retail coverage) | 0 / 5 | 0 / 5 | 110 |
 
@@ -65,14 +65,593 @@ The actual linked RECON stream remains 299819/299819 words, BLOB passthrough
 No new asm/volatile, retail edits, or new output-rewrite mechanisms were
 introduced. The pre-existing user edits remain in femenu.cpp, fescreen.cpp,
 screencongrats.cpp, ai.cpp, aih_cop.cpp and object.cpp. The additional
-source/header/tool changes below belong to these rounds. No commit or push
-was performed; the restoration goal remains active.
+source/header/tool changes below belong to these rounds. The restoration goal
+remains active; committing a verified checkpoint is not a whole-source seal.
 
 Newest dated receipts below are authoritative only for their verified scope.
 Older snapshot tables and open-case lists later in this file are historical,
 not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
+
+2026-11-02 main checkpoint verification.
+
+Strict full reconstruction rebuild (`NFS4_STRICT=1`, build.py --skip-asm
+--no-link) exits0 with no skipped TU. Fresh pinned objdiff remains3494/3494;
+fresh real relink has no unresolved names, RECON299819/299819, OTHER7195/7195,
+overlap43857bytes with zero masked mismatches and no foreign-label errors.
+Vtable1473-file audit PASS. All21 changed source/header hashes agree with
+their final scoped receipts. No273-test tooling suite or reference/output
+rewrite is involved; generated/unrelated files are excluded from the commit.
+Since78b0d8a1:79 instruction tags repaired (1712->1633), exact tag maps2325->2344,
+tag+reported-block maps2170->2184. Broader source/SYM/SLD goal remains open.
+
+2026-11-02ag review accuracy and new GAME/COMMON producer constraints.
+
+FETOURN's UpdateTrackFinishPoints review block no longer lists next as a live
+carrier: W85 already removed that object, and the current function contains no
+next declaration/use. Its unused comp is no longer described as an allocation
+device; the note records the exact unresolved late tCompetitor typedef producer
+and rejected deletion/completion guard. It explicitly does not prove an
+original named object. knockout/ranking/stats remain active source work, not
+byte-match exemptions. This is a review-comment correction: NO executable
+token/object, new function contract or SLD gain is claimed. Complete canonical
+stock normal assembly, full-debug assembly and normal ELF remain identical.
+Native77d6...6700/CPE and every previous contract remain current through that
+exact compiler-output identity. Receipt:source_round_ag_20261102/proof.json.
+
+MPause_InitMPause's remaining GameSetup language-address LUI tag is already543
+in selected-stock initial RTL (retail541), before scheduling; there is no541
+note. Genuine call-prefix and field-chain source spans541..543 do not alter
+the ordered Def/region/location stream or runtime sections/nondebug relocations.
+Selected-stock -da output equals its ordinary control assembly; baseline14PASS.
+Different private input paths move GNU .debug_line relocation offsets; they
+are disclosed diagnostics, not normalized into a native certificate. SHT_NOBITS
+has no file payload: its flags/size/alignment are checked, not the unrelated
+file bytes at sh_offset. No source alias, dummy read/assertion, qualifier,
+per-statement directive or debug rewrite is added. Recover the genuine pre-call
+address source/parser context rather than repeating layout or scheduler sweeps.
+Receipt:mpause_init_source_20261102/receipt.json.
+
+CopSpeak_Request's next-value basin has a concrete CSE2 cause. Its late Head
+reload survives first CSE, then CSE2 makes an old-head83 -> user-next81 copy.
+The successor lifetime of next81 overlaps old-head83, so their full global
+pseudos conflict and the copy survives allocation as a2->a1 (80vs79words).
+Stock and GCC cse.c observations separately explain cache validity: nonbyte
+struct/PLUS writes do not invalidate the scalar head, while the real32-byte
+BLK copy invalidates memory and preserves the later advancement reload. This
+is a source/value-graph constraint, not proof of an original snapshot object.
+All27 baseline functions/170 branches PASS; no failed source is adopted.
+Receipt:copspeak_oldhead_graph_20261102_a/findings.json.
+
+CheckForNewLevel's genuine duplicated escalation work in both force/timer arm
+polarities expands184->243words and duplicates the level inline parameter
+record1->2; stock does not merge it to the retail funnel. Fresh10-function byte/
+branch baseline PASS. Initial RTL explicitly produces the reconstruction doIt
+user pseudo0/1, not proof that this source object was original. Older direct
+predicate/force-reuse controls were not repeated; no new helper/name/device or
+failed rewrite lands. Receipt:player_level_flow_20261102/receipt.json.
+
+BasicPerp's for-owned next-index and real shared-swap/combined-guard controls
+both produce the same85-word/26-difference target versus87retail words; other
+eight functions retain exact words/relocations and byte/branch PASS. Stock
+initial jump242 GT reaches246, then crosses only BLOCK_END/LOOP_CONT notes
+to the continuation jump; the FIRST jump pass redirects it to loop60 and
+removes that chain. The required tail decision is therefore already different
+before CSE/loop/allocation/reorg. Do not repeat equivalent for/do/declaration
+or shared-label shapes: recover the genuine continuation-stage/exit producer
+without fake work. Baseline nine functions/92 branch words PASS; no source
+lands. Receipt:chaser_for_20261102_agent/proof.json.
+
+2026-11-02af ScreenMain mask capture removed through real acquisition order.
+
+DrawDropShadow now acquires prim, the existing palette value and the actual
+masked prim address before splicing the first tag. This paired source graph
+removes addrMask without replacing it with another object/fence/qualifier.
+The former two-LUI scheduling and earlier multi-register failures were basin-
+specific, not proof of an original mask object. Existing POLY_G4 r0/r1/r2/r3,
+code and tag members replace raw packet field displacements, without importing
+the retail-absent P_TAG graph. Ordinary relative includes remain unchanged.
+The historical mask-requirement comment is explicitly superseded in source.
+
+Parent canonical-path gate proves whole normal ELF identity for all13functions
+and116 branch words CLEAN. Full-debug output/native CPE is unchanged. Across
+all2581 occurrences, every old correct complete owner/frame/region/tag/file/
+header/end fact survives. The complete ordered raw Def/type stream differs
+ONLY by deletion of the unprovided REG7/UINT addrMask row. No new asm/volatile,
+register pin, dummy object, retail edit or postcompile rewrite is introduced.
+Native SHA256 now77d6aa4ad3b7b133337c232652d8d84546643290c5f4ebc34e539e3c88266700.
+
+DrawDropShadow declaration-owner status is now PASS, but its extra empty
++0x34..+0x34 region remains and both instruction-tag residuals remain. Thus no new
+complete function/SLD seal is claimed. FRONTEND/COMMON declaration-owner PASS
+is777/838 (was776), native name-surplus143 (was144), missing-name26 unchanged,
+review markers215 (was216), covered local/frame/SLD exact601 unchanged. Native
+common-name CLEAN stays2423/2570: BLOCKS still prevents this function's full
+native seal; functions with EXTRA locals fall104->103. addr_24 and pal_link
+remain explicit source-producer work, not const/debug-elision exemptions.
+
+Receipts:build/tmp/v/source_round_af_20261102/{gates,proof,owners.after,
+board.after}.json and source_queue/; private screenmain_members_nov02/
+{same-candidatefullmask,all-gates,mask-phase,phase-proof}.json. All numeric SLD
+totals and prior byte/link certificates survive through whole object/CPE
+identity. The earlier AE39-consumer certificate is a historical input snapshot;
+AF independently verifies this subsequent single-source change, not a claim
+that AE's318 input hashes remain current after it.
+
+FETOURN's unused comp cannot yet be removed: its deletion is134PASS and native
+CPE-equal, but loses a supplied tCompetitor16 typedef occurrence. A real typed
+first-field cast also fails to restore it. The ALL-common FULL ordered-language
+guard fails with [tTourneyInfo84,tTourneyInfo84,tCompetitor16,tCompetitor16];
+copy counts4/4->3/4 are not the only problem. No deletion or fabricated typedef
+padding is adopted. Receipt:fetourn_unused_owner_20261102/{receipt,alias-guard}.json.
+
+The upstream audit identifies genuine shared-header debt: fresh174-TU include
+census finds26 tCompetitor consumers;25 cached owner streams lack1–2 supplied
+copies. Shared completed-definition controls preserve fresh normal ELFs for
+FECars and NFS3 while adding one type copy; those are scoped fresh checks, not
+a26-consumer production certificate. FETOURN removal+completion restores count
+4/4 and preserves normal ELF/full native facts/CPE, but STILL fails that exact
+ordered-alias guard because the new definition copy is too early. Shared
+header and comp remain untouched. Original type producer recovery is active
+work, not proof an unused named source object existed or a compiler floor.
+Receipt:tcompetitor_type_private_20261102/receipt.json.
+
+FEMenuExtended's two Player getter residuals also remain: genuine provided-y
+initialization/selection controls preserve bytes but do not move the final
+load tag, despite a header-line initializer. Stock initial RTL/CSE retain the
+inline member load; the scheduled representation places it after caller581.
+Separate per-player draw calls expand82->99 and are rejected. Existing57
+functions remain byte/branch matched; no failed source lands. Receipt:
+extended_player_phase_20261102/{receipt,phase}.json.
+
+Post-AF pal_link controls are not accepted. Direct palette globals stay69words
+but fail4differences, change a loop branch and increase tag misses2->3. Moving
+the existing pointer declaration to root with its genuine loop assignment is
+69PASS and removes the empty+0x34 region, but introduces an unprovided PTR CHAR
+REG5 pal_link row. Do not trade an empty-region mismatch for a named object.
+The accepted AF source remains unchanged. Receipt:
+screenmain_palette_nov02/phase-proof.json.
+
+FEApp's next selector controls also remain private negatives. A genuine body
+conditional update supplies the missing single binding level and makes BOTH
+receiver owner tuples/all18 regions agree at65PASS, with full ordered-alias
+preservation. Its completed expression couples comparison430 to callback433,
+losing four previously correct tags; a body-extent control moves the callback
+to430 and loses two other correct tags. A real predicate switch is depth7/+96,
+not the supplied depth6/+68. Selected-stock initial RTL already carries that
+comparison/callback coupling, so scheduling/output changes cannot repair it.
+Next question is a genuine statement-producing source form with separately
+attributed predicate/callback, not scope padding, fake Boolean values or a
+new capture. Accepted AE source/header and Z/AD contracts remain unchanged.
+Receipt:feapp_selector_20261102_agent/proof.json.
+
+2026-11-02ae FEApp screen-accessor partial accepted after full header cohort.
+
+SetMenu now consumes menu->GetScreen(), returning the existing fScreen field,
+instead of flattening the supplied receiver-free body/REG16 receiver pair into
+a raw caller field read. The real enclosing menu-change body brace remains
+at426 so its prior correct +60/source5 owner is not dragged to the later call.
+No storage, virtual slot, fake scope/use, carrier, asm/volatile, compiler flag
+or postcompile rewrite is added. The nonvirtual GetScreen spelling is explicitly
+ORIGINAL-NAME-UNRESOLVED in the header: its operation/receiver is supported,
+but its unique original identifier is not supplied by retail debug records.
+
+This is PARTIAL operation/receiver recovery, not a complete SetMenu seal. The
+new this record has the supplied tMenu108/REG16/depth4/+216..216 identity, but
+its sibling path0 still differs from retail1 because the first music-selector
+producer is missing. SetMenu remains DIRTY,10/18 regions,3/65 tag differences.
+Do not add empty scopes to repair its path or claim a full declaration tuple.
+All numeric board totals remain unchanged; a source-operation improvement is
+not relabeled as a new SLD/full-contract score.
+
+Fresh dependency census runs the exact stock preprocessing invocations for
+all990 canonical TUs (523recon+467source scaffolds), proving the affected set
+is exactly39 consumers. Both baseline and candidate compile all39 canonical
+paths under their actual per-TU flags, redirecting ONLY OUT. All318 affected
+input hashes are frozen; a stronger1900-source/header census permits only the
+two actual source/header changes. Parent independently checks every current
+dependency and every private/current production canonical object. All38 other
+complete normal ELFs equal baseline; FEApp's sole raw ELF-symbol delta is
+currentVideo.92->.94. Its unique RunDemoVideo INT4 source static, .data+4 zero,
+flags3/alignment4, following FEApp+8 and all four relocation referents agree.
+No output normalization is used to accept a changed runtime object.
+
+Fresh full-debug compilation of all39 TUs reports same code for39/39. Vendor
+link has ASPSX524/0 and PSYLINK0; full CPE is unchanged. Whole-native audit
+preserves all2581 previous correct complete owners/frames/regions/tags/files/
+headers/ends and the entire ordered raw Def/type stream by insertion. Only two
+new records appear: the receiver and one tMenu typedef copy (3/retail16), not
+dummy alias padding. Native SHA256 is now
+bb143a5befcb472a59f1357a224ca59e04eaba15eb434d05cd127a963a73a527.
+Fresh pinned objdiff3494/3494, real linked RECON299819/299819, overlap43857
+bytes with zero masked differences, foreign-label0 and vtable1473-file PASS.
+No273-test suite rerun: no production tooling/comparison policy changed.
+
+Fresh per-directory queue still reports601/838 covered local/frame/SLD-exact
+and776/838 declaration-owner PASS in FRONTEND/COMMON. Missing-name occurrences
+fall27->26, while144 name-surplus occurrences remain. Its review-marker count
+increases215->216 because the new inferred accessor spelling is disclosed,
+not hidden; none of those counts is a new complete owner-path seal. All2581
+native/retail occurrences remain independently accounted for; library retail
+coverage remains partial. Fresh queue:source_round_ae_20261102/source_queue/.
+
+Receipts:build/tmp/v/source_round_ae_20261102/{gates,proof,cohort.acceptance,
+board.after,objdiff.final}.json; worker
+feapp_setmenu_20261102_agent/consumer_certificate/{dependency-census,baseline,
+candidate,AE-before-production-comparison}.json. Prior AD's unlanded status
+below is historical and superseded by these fresh integration certificates.
+
+Independent ScreenCongrats source review remains negative. Fresh stock phase
+evidence replaces a missing old prize_rtl receipt: typed FLOAT constants occupy
+v1/a0 in local allocation, forcing this into a1 and adding a receiver copy.
+That basin differs from the older first-fence two-LUI scheduling residual.
+The retail-grouped joint typed control still fails35differences/30vs29words,
+so no failed rewrite is adopted. Message reload/branch survives first CSE
+without asm/volatile in that basin, not proof that devices can yet be removed
+while matching. All28 baseline functions/105 branch words PASS; user source
+is unchanged. Receipt:congrats_prize_graph_20261102_a/findings.json.
+
+2026-11-02ad AdvanceToNextTrack complete supplied contract restored.
+
+Ordinary placement of the existing IF-body opening braces separately from
+their conditions fixes five block-event lines:8->9,33->34,62->63,89->90 and
+103->104. The last belongs to the real numGarageCars declaration body, not
+an added wrapper. Distinguish an IF condition's binding scope from its body:
+moving the nested award-car brace instead does not fix the parent body event;
+declaring numGarageCars with an initializer regresses five correct call tags.
+Those private controls are not adopted. No executable token, literal, local,
+scope, helper, asm/volatile, qualifier, flag or output rewrite is introduced.
+
+All273 word/file tags,26 native scope events, supplied declarations/owners/
+types/homes/frame and absolute filename/header569/end700 now agree. This is
+one new complete supplied contract, not proof of unique original literal text.
+All35 normal-TU functions retain exact whole ELF identity;118 branch words
+CLEAN. Whole-native audit preserves all2581 prior correct contracts and the
+entire ordered raw Def/type stream; raw CPE remains unchanged. Native SHA256
+a8fa73eb9a817cc8c2b4ce54430d47f2a43ac3cd0a7fb7f1de1c880ed207963f.
+Receipt:build/tmp/v/source_round_ad_20261102/{gates,proof,owners.after,
+board.after}.json and private fetourn_tier_phase_20261102/real_if_body/.
+The wider source-restoration goal and other FETOURN carriers remain open.
+
+The same round's FECheat_HandleActivation audit identifies missing num as an
+OUTER inline SHORT value parameter at REG16/depth6/+432, not a second caller
+loop local. Private real FOR/setter/reference/member controls recover that
+parameter and keep all116 tags, but retain12 code differences in the actual
+index/value/address handout. They are not adopted; placement/placements remain
+unresolved, not renamed or excused. No unique original API name is claimed.
+Other nine functions, including LoadBonus, remain unchanged. Receipt:
+build/tmp/v/cheats_activation_private_20261102/receipt.json.
+
+At the AD checkpoint, FEApp SetMenu's private screen-getter proposal was unlanded pending its
+fresh header-consumer/native integration checks. It adds a real tMenu receiver
+and one still-supplied typedef copy while preserving every old FULL ordered
+alias subsequence (793-state/19353-transition guard), accepted RunPostGame
+facts and all16 function bytes/173 branches. The first music-selector producer
+is still missing: the new second receiver has the correct type/home/depth/
+addresses but sibling path0 versus retail1. No complete owner-path or SetMenu
+seal is claimed. Its GetScreen spelling is inferred, not a recovered unique
+original API. The39 actual cached header consumers are enumerated but are NOT
+a fresh cohort certificate. Do not promote the two-file proposal solely from
+its isolated native CPE equality. Receipt:
+build/tmp/v/feapp_setmenu_20261102_agent/{proof.json,feapp.cpp.proposal.diff,
+fe_core_tmenu.h.proposal.diff}. Next integration work must check that full
+consumer set and actual canonical-header paths without weakening guards.
+
+2026-11-02ac tournament completion-store source phase and bounded reviews.
+
+AdvanceToNextTrack obtains currentTier at660 before storing fCompletedTier=1
+alongside the actual i initialization661. GCC still emits the flag store
+ahead of tier arithmetic, with the correct source661 instead of658. All273
+word/file tags now agree; the existing block-line/ownership differences remain,
+so this is NOT a new complete supplied contract or original-text certificate.
+The source introduces no executable work/object/scope/device/qualifier/helper.
+
+The private normal objects initially differed only in STT_FILE path strings
+because control/candidate lived under different directories. No normalization
+or output rewrite was used to accept them: parent recompiled the actual
+canonical source path and required exact whole normal ELF identity. All35
+functions retain that identity;118 branch words CLEAN. Native audit preserves
+every old correct fact across2581 occurrences and the entire ordered raw
+Def/type stream, with raw CPE unchanged. Native SHA256 now
+a4c26fda82c6d603798a58523a6ca0ef7a272444f148abbf4370d50fe993b3c4.
+Receipts:build/tmp/v/source_round_ac_20261102/{gates,proof,board.after}.json
+and private fetourn_tier_phase_20261102/. No273-test suite rerun.
+
+Other source reviews remain bounded negatives, not original-object exemptions:
+StatChk_SaveRecordLapTime's genuine cleanup-argument/return/transfer-RHS
+spellings retain the six address/value differences. Selected-stock initial RTL
+shows the named-int-to-BOOL conversion versus direct literal construction;
+local allocation gives the named value pseudo87/v1 then address164/v0, while
+the direct source gives address163/v1 and literal164/v0. Observed/unobserved
+stock assembly agrees for both. No invented replacement object is adopted.
+The transfer-argument control also changes publication ordering and is only
+diagnostic, not claimed equivalent. Receipt:
+build/tmp/v/statchk_cleanup_argument_20261102/receipt.json.
+
+FEDialog YesNo's unsupported dialog/item helper parameters originate in a
+different initial expression graph: direct selection folds to base+52/53,
+while the helper preserves anonymous1/2 then MEM+51. Four controls fail9/16/
+15/9differences; no helper/API is invented as a remedy. Existing X stays exact.
+AudioSlider Percentage's sole max-load1207->1206 transfer occurs specifically
+in first scheduling; real compound division and safe denominator-order controls
+produce identical whole-TU assembly, with no new tags/objects. Both diagnostic
+observers preserve stock output. Receipts:fedialog_yesno_source_20261102/
+receipt.md and options_percentage_private_20261102/{receipt,phase}.json.
+These findings refine the next source-producer questions; none proves a floor
+or completes the wider declaration/SLD/source-restoration obligations.
+
+2026-11-02ab VideoWall icon assignment restores its source producer.
+
+SetAvailableIcon assigns fIconShapes first at135, before icon136/frames137/
+x138/y139, despite GCC scheduling its physical store after the other fields.
+This repairs the lone tag139->135 without changing any of eight instructions.
+All supplied local/type/home/owner/frame/region/file/header/end facts agree;
+literal original syntax is not uniquely proved. Twelve whole-TU functions
+retain exact normal ELF identity;45 branch words CLEAN; all2581 previous
+correct native facts and the complete ordered raw Def/type stream survive.
+No new object/scope/helper/asm/volatile/flag or postcompile rewrite is added.
+
+Native SHA256 d9b5561599d8965a7436adbc1acc3d705bce740d3dea5a37382d3a06f6498d72;
+raw CPE unchanged. Receipts:build/tmp/v/source_round_ab_20261102/{gates,proof,
+owners.after,board.after}.json; private videowall_icon_private_20261102/.
+The FEDialog and fade-wrapper follow-ups remain negative, with no live edits:
+fedialog_remaining_20261102/receipt.md and
+fetextrender_fade_resume_20261102/receipt.json record exact stock producer
+evidence and failures, not exemptions or impossibility claims.
+
+2026-11-02aa FECheat_LoadBonus real loop source restores final tag.
+
+The recorded root INT i now initializes in the actual for loop at299, after
+the real global stores296/297, rather than at295 ahead of a do loop. Its
+ordinary increment replaces reconstruction-only cheat_Pony arithmetic.
+All30 tags, filename/header293/end305 and the complete supplied local/frame/
+region contract agree. No new object/region/type/helper, asm/volatile, flag
+or output rewrite is added; original literal loop spelling is not unique.
+
+Parent focused verification plus exact complete normal ELF preserves all10
+functions;21 branch words are CLEAN. Native audit preserves all2581 old correct
+owner/frame/region/tag/filename/header/end facts, and the entire ordered raw
+Def/type stream is identical. Native SHA256 now
+ca80b2d0f5be62760075740bc8f7cd70eba208a4d4f00f506a3d1302190e3ab9;
+raw CPE remains unchanged. Prior global byte/link checks remain applicable
+through exact whole-normal-ELF identity; no repeated broad test suite.
+
+Receipts:build/tmp/v/cheats_bonus_private_20261102/receipt.json and parent
+build/tmp/v/source_round_aa_20261102/{gates,proof,owners.after,board.after}.json.
+Main goal remains open, including HandleActivation's unrelated source debt.
+
+2026-11-02z source-phase repairs:23 tags and four supplied contracts.
+
+Real source phases restore RunPostGame's two result assignments before their
+tests; nested video eligibility guards in PinkSlips/TrackSelect; RECT y-before-w
+preparation; separate video creation/spooling; fTicksSet before tick acquisition;
+and FormatMoney's absolute-value calculation before its default sign. The
+positioned-text handled arm has a genuine early return. No new local/helper,
+asm/volatile, fake scope/use, compiler flag or output rewrite is introduced.
+
+Complete supplied contracts newly agree for ScreenDisplay DrawBackground,
+FeTools_FormatMoney, TrackSelect Initialize and TrackSelect DrawVideoWall.
+FEApp/PinkSlips still have owner/region gaps; TrackSelect ProcessInput and the
+text-rendering source questions remain open. Existing GetScreenFade replaces
+ScreenDisplay's invented menu-view helper, deleting only one retail-absent
+typedef copy. The complete remaining ordered raw definition/type stream is
+identical, including other occurrences of that still-unrecovered view type.
+
+Nine changed-function detailed gates plus exact six whole normal ELFs cover
+60functions;326 branch words are CLEAN. The native audit compares all2581
+occurrences and preserves every old correct complete owner/frame/region/tag/
+filename/header/end fact. Every changed instruction tag equals retail. Two
+fade-wrapper proposals are NOT adopted: FullTextFade+132 moved145->147 with
+retail146, and WordWrapTextFade+108 moved368->371 with retail369. Their other
+repairs do not excuse those wrong-to-wrong changes; the strict guard is kept.
+
+Native SHA256 a8a2b1ee5e7d4061ad16bd764c3bdcbb39238aaf58aa662494e4d1a2fb4ac4f2;
+raw CPE remains060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1.
+Fresh pinned objdiff3494/3494, real linked RECON299819/299819, zero masked
+overlap/foreign-label errors and vtable1473-file audit PASS. Native common-name
+CLEAN stays2423/2570; current frontend covered local/frame/SLD exact598/838
+is a different stricter denominator/contract than the fast board. The owner
+queue pairs all2581 occurrences and still records144 frontend name-surplus
+and27 missing-name occurrences, not whole-source completion. No273-test suite
+rerun: this round changes source only, not production tools or acceptance rules.
+
+Receipts:build/tmp/v/source_round_z_20261102/{gates,proof,board.after,
+owners.after,objdiff.final}.json and source_queue/. Source hashes bind every
+published affected-TU row. Prior untouched inputs are preserved, not claimed
+freshly recompiled; literal original text and the wider goal remain open.
+
+2026-11-02y FEApp proposal withheld by stronger type-order acceptance.
+
+The private RunPostGame four-file proposal is NOT integrated. It reproduces
+all194tags/receiver ownership in an isolated native link, but retaining one
+longest115-record supplied alias subsequence is insufficient. Parent required
+the validated ALL-common FULL alias-language guard (class/type/size/dims/tag/
+name); it fails with a lost prior sequence tFEApplication896 -> tOptionsMenu128.
+The same DFA machinery passes500 independent brute-force validation cases.
+No comparator/reference/output is weakened to admit the proposal.
+
+Its separate static-identity obligation passes: compiler-private currentVideo
+.92->.100 is the same unique source static int in RunDemoVideo, .data+4 with
+4zero bytes, same section/type/flags/all four text relocation referents.
+This does NOT excuse the alias loss. The18 cached actual header consumers
+are recorded, with freshness limitations. Production feapp.cpp/types/externs/
+femenuoptions.h remain unchanged; no broad suite or header-cohort promotion
+occurred. Existing member names/operations are reference-supported, but a
+genuine partial source/type producer must still satisfy full preservation.
+
+Receipts:build/tmp/v/feapp_source_20261102_agent/{proposal-proof,
+all-alias-acceptance,static-owner-acceptance}.json. The proposal-proof now
+explicitly says DO NOT INTEGRATE; earlier private positive summaries are
+superseded for acceptance. Native/byte/SLD totals remain the accepted X values.
+
+2026-11-02x seven supplied contracts and53 real source-tag repairs.
+
+TrackInfo ProcessInput now has its full39word/file tags and11complete region
+tuples (22boundaries), with existing CurrentTourney/SubtractMoney unchanged.
+Ordinary separate predicate/brace coordinates repair three116->115 tags and
+the outer region-start line. No new executable token or literal is added.
+FETRACKS Load11/Save10 restore actual root/loop source phases and implicit
+typed array assignments, all supplied locals/owners/regions/headers/ends.
+Both ordinary do/for controls reproduce the contracts; literal loop spelling
+is not uniquely recovered. Those two contracts repair21 tags.
+
+FEMenuExtended Initialize's actual fLastItem read belongs after transition
+zero stores468, repairing one tag without changing execution. Blank's handled
+Up/Down assignment693 followed by genuine early return694 repairs another;
+all17tags/header688/end700/regions now agree. Initialize44tags also agree but
+its old loop-region residual remains open: only Blank gains a full contract.
+The prior GoToMenuNFS4Button constructor contract is preserved.
+
+FEMenu ProcessInput uses genuine nested flag/key guards, existing IsEnabled
+member predicates and the real Triangle-arm return. All199tags, supplied
+locals/frame and full regions now agree, a new full contract. Three new
+receiver tuples are proven EXACT in home/type/size/depth/path/address, not
+just name/count: GoToMenuButton this REG4 depth3 at+0, Menu this REG2 depth4
+at+404 and+520. The GoToMenuButton source also repairs one tag but still has
+one remaining tag and its unprovided frameFiller is NOT certified original.
+No frame padding or new helper was added. Nine tags repaired across the TU.
+
+FEAudio StartPatch restores the genuine used bank-add result stage81 followed
+by its error==7 test84, repairing its last two tags and completing its73word
+supplied contract. error/int is supported independently by matched NFS2
+Feaudio_StartPatch and its local debug record; it is NOT a uniquely recovered
+NFS4 identifier. Selected stock combine removes the real result pseudo, so
+no extra error row naturally survives. This is an actual consumed result,
+not a dummy use, const disguise or padding; declaration elision alone is not
+an original-object exemption. Existing real exits/root119/end121 survive.
+
+FETourn comparator nested points/player/finishing-position guards replace
+the compound comma funnel. Four previously wrong tags become356/362 and
+the35word function gains a complete supplied contract, without new objects.
+FEDialog instead improves partial contracts: actual dimensions/tick/firstTick
+source phases and real base-draw calls followed by actual void exits repair
+12tags. Direct textDefinitions[8][4] removes the reconstruction-only palette
+getter at one site and its two unprovided inline regions. Help remains7tag
+misses; MessageString remains3, and neither is claimed fully restored.
+No old correct tag or full region is sacrificed; existing asm is unchanged.
+
+Focused parent validation runs11changed-function detailed gates, whole-TU
+strict branches495words, and exact normal-ELF identity across all7TUs/
+227functions. That byte-for-byte identity preserves every neighbor PASS,
+including data/import/relocation contents; it is not a normalized-only claim.
+No273-test suite, production tool edit, reference change, added asm/volatile,
+pin, fake use/object/scope or generated-output rewrite is involved.
+
+Fresh debug compilation/ASPSX524/0/PSYLINK0 and both origin witnesses pass.
+Hash-stable whole-native audit covers2581occurrences: all prior correct
+complete owner/frame/region/tag/file/header/end facts survive. ENTIRE old
+ordered raw Def/type stream remains a subsequence; ONLY the three supplied
+tMenuItem receiver records are added. Exactly53tags and seven full supplied
+contracts improve: TrackInfo ProcessInput, track Load/Save, Blank ProcessInput,
+Menu ProcessInput, StartPatch and points comparator. Seven normal ELFs and
+raw CPE stay identical (CPE060d48b6...); dump3db892e6...->5489ef8f... .
+
+Fresh objdiff3494/3494, real linked299819/299819, vtable1473 PASS,
+masked-overlap/foreign0. Native CLEAN2422->2423/2570,147DIRTY; MISSING20->19,
+BLOCKS94->93, EXTRA104/SCOPE30 unchanged. Native relative SLD2119 and
+native+SLD2090. FRONTEND/COMMON ownerPASS775->776/838,62DIFF, missing-name
+occurrences30->27, strict covered587->594/838; name-surplus144 unchanged.
+Review452marker/44address-derived locations remain source work, not original
+object counts. Fast tags2333/2581,tag+block2177/2581,1659differences/
+207991words; SDK/library coverage still partial and the goal incomplete.
+
+Receipts:build/tmp/v/source_round_x_20261102/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+trackinfo_exit_notes_20261102_0954/, fedialog_source_20261102/,
+fetracks_control_nov02/, menu_extended_private_20261102/,
+menu_predicates_private_20261102/, feaudio_result_origin_20261102_a/,
+fetourn_source_private_20261102/. Untouched TUs retain previous proof rather
+than a new whole-tree compile claim. No commit/push this round; goal ACTIVE.
+
+2026-11-02w resume: genuine array/value/control producers, focused validation.
+
+The user resumed the full goal and authorized up to ten workers. Ten isolated
+assignments were dispatched; an account usage-limit interruption stopped
+them before live edits. On explicit resume, retained contexts continued their
+mandatory reads/work rather than duplicating completed reads. No errored or
+unfinished proposal was treated as accepted. The tracked starting checkpoint
+was78b0d8a1. Unrelated untracked files remain untouched.
+
+Validation policy is now focused: changed-target/TU code and branch checks,
+complete native preservation and actual relink/raw comparison. The273-test
+unit suite is not routinely run for source-only changes; no tests are deleted,
+comparators weakened or PASS/SYM/SLD acceptance gates removed. This round uses
+66 detailed function gates/473 branch words across four affected TUs, with
+zero broad unit-suite invocations and no production tooling changes.
+
+AudioMus_SysStartUp removes the separate blocks capture through one genuine
+working-value pipeline: overhead first holds buffersize/0x400, then the actual
+SNDSTRM_overhead result. buffersize remains unchanged for allocation and later
+DriverStartUp. No new name, const disguise, argument side effect or object is
+introduced. All23functions/156branches and every1422word tag are preserved;
+the entire same-path normal/full-debug compiler streams are identical.
+The remaining working identifier/source-object identity is still unproved.
+Actual canonical normal ELF remains SHAe64c3f8f... byte-identical.
+
+ScreenController's real pad-present else owns its switch; the unsupported
+negcon-case declaring wrapper disappears, while existing idle/choice locals
+move into their actual guarded work. One early goto is removed. The coupled
+source ownership matters: else-only preserves code but loses a previously
+correct region and is rejected. Accepted source preserves all old correct
+facts and improves complete target regions6->11/33, with nine tag misses
+still open. All22functions/267branches pass; normal ELF SHA114cc8e6... is
+identical. No new object, declaration, helper or artificial region is added.
+
+ScreenUserName now initializes the real supplied array at the actual copy
+phase: char output[2]=" ". This removes ScreenUserName_Align1Copy2CodegenCarrier
+and its casted aggregate copy, not merely its name. Selected-stock string-to-
+array initialization emits the required size2/alignment1 block operation;
+the earlier root-declaration initializer is396vs394 and is rejected. All six
+functions/27branches, provided local homes/types/owners/order, entire regions
+and all source tags remain unchanged. Only the two unprovided fadeboxv/gridposv
+definitions move before output; all provided ordering is preserved. Four
+unprovided artificial-type records disappear. The generic member b is checked
+WITH its owning artificial STRTAG, never matched to an unrelated retail b.
+Actual normal ELF remains SHAd7548d3e... byte-identical. Existing fences,
+clamp captures, labels and source uncertainty remain explicit/open.
+
+Font_Blit and Font_GetUVWH replace raw packed-word extraction by the existing
+canonical signed12 shapetbl.shapey/shapex member reads. No helper, qualifier,
+object, header or type is added. All15functions/23branches and the entire
+ordered compiler type/local/region/tag stream survive; normal ELF remains
+SHA00cda74a... identical. SwitchFont/TextXY residuals are not claimed solved.
+
+Parent freshly compiles all four full-debug TUs, ASPSX524/0, PSYLINK0, and both
+compiler-origin witnesses remain valid. A hash-stable audit covers2581native
+occurrences: every previously correct complete owner/frame/region/tag/file/
+header/end survives. Exact raw Def delta is deletion of the four artificial
+type/body/typedef records, plus the two known-unprovided local row movements;
+all other ordered definitions/types are identical. All four entire normal
+ELFs and raw native CPE remain byte-identical (CPE SHA060d48b6...). Native
+dump6ae81c51...->3db892e6... . Fresh objdiff3494/3494, real linked
+RECON299819/299819, vtable1473 PASS, masked-overlap/foreign0. No numeric SLD
+or new full supplied-contract gain is claimed: totals stay1712worddifferences,
+2325/2581 exact tags and2170tag+block. Native CLEAN2422/2570/148DIRTY and
+all per-directory covered-source counts remain unchanged. Review452 markers/
+44address-derived locations are review locations, not original-object counts.
+
+Accepted receipts:build/tmp/v/source_round_w_20261102/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+audiomus_pipeline_audit_20261102_0937/preservation-proof.json;
+controller_source_20261102/receipt.md; username_init_private_20261102/receipt.json;
+font_fields_private_20261102/receipt.json. Parent comment-cleaned username
+source hash7abba95c... is freshly bound, not silently substituted for the
+child's historical570b87fb... proof.
+
+New rejected/bounded findings remain private, not floors or source-object
+necessity certificates: username_getter_private_20261102/receipt.json (a
+genuine RIGHT-rowOffset removal fixes receiver path but239words/7diffs;
+coupled field++ is240/24diffs); trophyinfo_typed_nov02/proof.json (actual
+ARRAY_REF path distributes conversion/scaling before allocation, not the
+earlier pointer_int_sum hypothesis); trophy_source_private_20261102/
+receipt.json (CurrentTourney keeps bytes but loses11correcttags/full alias
+subsequence); control_source_graph_20261102_a/ (QI lights disappears in first
+CSE, receiver note already237 in initial RTL); overlays_source_20261102_agent/
+proof.json and texture_argument_nov02/phase-proof.json (new genuine argument/
+value graphs fail, no discarded experiment lands). Goal ACTIVE/incomplete;
+no commit/push this round. Untouched TUs retain earlier certificates rather
+than a falsely claimed fresh whole-tree compile.
 
 2026-11-01v commit/push/pause finalization (user request).
 

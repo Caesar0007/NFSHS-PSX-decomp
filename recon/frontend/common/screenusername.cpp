@@ -5,12 +5,11 @@
  */
 #include "screenusername.h"
 
-/* W72-A7: alignment-1 two-byte block move.  gcc-2.8 lowers a struct
-   assignment at MIN(dst,src) alignment; a struct whose only member is
-   `char b[2]` has alignment 1, which is what retail's `strcpy(output," ")`
-   resolved to (byte lb/lb/sb/sb), where a plain `char[2]`<-string-literal
-   copy resolves to 2 (halfword lhu/sh). */
-struct ScreenUserName_Align1Copy2CodegenCarrier { char b[2]; };
+/* 2026-11-02: the real char-array string initializer at its copy phase
+ * supplies the two-byte alignment-one move without an invented aggregate.
+ * Its earlier declaration-site control does not match. No artificial type
+ * or alignment attribute is retained. Original literal spelling is unproved.
+ * Receipt: build/tmp/v/username_init_private_20261102/receipt.json. */
 
 
 /* ---- tScreenUserName::Initialize  (screenusername.cpp:33) ---- */
@@ -254,7 +253,7 @@ void tScreenUserName::DrawBackground()
   int gray;
   short fade;
   short fadebox;
-  short gridpos; short row; short col; char output[2]; short fadeboxv; short gridposv; fade = this->callingMenu->GetScreenFade();
+  short gridpos; short row; short col; short fadeboxv; short gridposv; fade = this->callingMenu->GetScreenFade();
 
   if ((short)((fade >> 1) - 0x80) < 0x80) { if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero; } if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal; fadeboxv = 0x80; goto DrawBgUser_fadeboxDone; DrawBgUser_fadeboxNormal: fadeboxv = (fade >> 1) - 0x80; goto DrawBgUser_fadeboxDone; DrawBgUser_fadeboxZero: fadeboxv = 0; DrawBgUser_fadeboxDone: fadebox = fadeboxv;
 
@@ -289,7 +288,7 @@ DrawBgUser_textFadeSkip:
 
 
   y = MENUUSERNAME_STARTY;
-  row = 0; *(struct ScreenUserName_Align1Copy2CodegenCarrier *)output = *(struct ScreenUserName_Align1Copy2CodegenCarrier *)(char *)" "; while (row < menu_kUserNameRows) {
+  row = 0; char output[2] = " "; while (row < menu_kUserNameRows) {
 
 
     x = 0x102;

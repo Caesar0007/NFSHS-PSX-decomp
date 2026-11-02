@@ -1349,7 +1349,7 @@ void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
 
 
 {
-  int frameFiller[2]; if ((this->fFlags & 1) != 0) {
+  int frameFiller[2]; if (!IsEnabled()) {
     return;
   }
   if (keyval != kInput_KeyType_Cross) {
@@ -1478,17 +1478,17 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 {
   int lastItem;
   
-  if (((this->fFlags & 4) != 0) && (keyval == kInput_KeyType_Start)) {
+  if ((this->fFlags & 4) != 0) {
 
-
+    if (keyval == kInput_KeyType_Start) {
     keyval = kInput_KeyType_Cross;
-  }
+  } }
 
-  if (((this->fFlags & 0x10000) != 0) && (keyval == kInput_KeyType_Cross)) {
+  if ((this->fFlags & 0x10000) != 0) {
 
-
+    if (keyval == kInput_KeyType_Cross) {
     keyval = kInput_KeyType_Start;
-  }
+  } }
 
 
   if (this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) {
@@ -1503,8 +1503,8 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 
 
 
-  switch (keyval) {
-    case kInput_KeyType_Up:
+  switch (keyval)
+  { case kInput_KeyType_Up:
 
       lastItem = this->fCurrentItem;
       do {
@@ -1517,7 +1517,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
             this->fCurrentItem++;
           }
         }
-      } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
+      } while (!this->fItemList[this->fCurrentItem]->IsEnabled());
 
       if (this->fCurrentItem != lastItem) {
         AudioCmn_PlayFESFX(3);
@@ -1534,7 +1534,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
         if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
           this->fCurrentItem = 0;
         }
-      } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
+      } while (!this->fItemList[this->fCurrentItem]->IsEnabled());
 
       if (this->fCurrentItem != lastItem) {
         AudioCmn_PlayFESFX(4);
@@ -1603,9 +1603,9 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 
       command.type = kMenu_Command_BackupMenu;
       keyval = kInput_KeyType_AlreadyProcessed;
-      break;
-  }
-  return; }
+
+
+      return; } }
 
 
 

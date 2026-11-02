@@ -38,13 +38,17 @@ void tTrackManager::LoadTracks(tSaveTrackInfo &load)
 {
   u_long i;
 
+
   i = 0;
   do {
-    this->fAvailableTracks[i] = (load.fTrackActivated[i] != 0);
-    i = i + 1;
-  } while (i < 0x10);
-  return;
-}
+
+
+
+
+
+
+    this->fAvailableTracks[i] = load.fTrackActivated[i];
+    i = i + 1; } while (i < 0x10); }
 
 /* ---- tTrackManager::SaveTracks  [FETRACKS.CPP:65-77] SLD-VERIFIED ---- */
 
@@ -53,13 +57,16 @@ void tTrackManager::SaveTracks(tSaveTrackInfo &save)
 {
   u_long i;
 
+
   i = 0;
   do {
-    save.fTrackActivated[i] = (u_char)this->fAvailableTracks[i];
-    i = i + 1;
-  } while (i < 0x10);
-  return;
-}
+
+
+
+
+
+    save.fTrackActivated[i] = this->fAvailableTracks[i];
+    i = i + 1; } while (i < 0x10); }
 
 /* ---- tTrackManager::GetTrack  [FETRACKS.CPP:84-86] SLD-VERIFIED ---- */
 

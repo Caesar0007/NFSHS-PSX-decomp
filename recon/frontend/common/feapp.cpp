@@ -733,8 +733,8 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 {
 
 
-  if (menu != this->fCurrentMenu[i]) {
-
+  if (menu != this->fCurrentMenu[i])
+  {
 
 
 
@@ -756,7 +756,7 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
       this->fTransitionToMenu[i] = menu;
     }
 
-    this->SetScreen(i,menu->fScreen); } return; }
+    this->SetScreen(i,menu->GetScreen()); } return; }
 
 
 
@@ -1443,9 +1443,9 @@ tAppCommand tFEApplication::RunPostGame()
 {
   tMenuCommand command;
   if ((frontEnd.raceType != RaceType_PinkSlips) &&
-     ((frontEnd.raceType != RaceType_SingleRace || (frontEnd.carListType != '\0')))) {
-    int ret;
-    Car_tStats *dummyCars;
+     ((frontEnd.raceType != RaceType_SingleRace || (frontEnd.carListType != '\0'))))
+  { int ret; Car_tStats *dummyCars;
+
     int i;
     short nBestCarIndex;
 
@@ -1468,8 +1468,8 @@ tAppCommand tFEApplication::RunPostGame()
 
 
 
-    if (StatChk_IsRecordLapTime(dummyCars,Cars_gNumRaceCars,&nBestCarIndex) != 0) {
-
+    ret = StatChk_IsRecordLapTime(dummyCars,Cars_gNumRaceCars,&nBestCarIndex);
+    if (ret != 0) {
 
       if (frontEnd.gameMode == '\x01') {
 
@@ -1483,8 +1483,8 @@ tAppCommand tFEApplication::RunPostGame()
       this->needName[nBestCarIndex] = 1;
     }
 
-    if ((ret = StatChk_IsTopTime(dummyCars,Cars_gNumRaceCars)) != 0) {
-
+    ret = StatChk_IsTopTime(dummyCars,Cars_gNumRaceCars);
+    if (ret != 0) {
 
 
       if (frontEnd.gameMode == '\x01') {
@@ -1550,15 +1550,15 @@ tAppCommand tFEApplication::RunPostGame()
         }
       }
     }
-    if (this->needName[0] != 0) {
-
+    if (this->needName[0] != 0)
+    {
 
 
 
       tUserNameMenuItem *item = &MenuDefs()->menuItemUserName1; tScreenUserName *screen = screenUserName; tOptionsMenu *m = &MenuDefs()->menuPostGamePlayer1Name; item->fData = frontEnd.playerNameList[0]; item->fPlayer = 0; item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screen->callingMenu = m; return this->MainLoop((tMenu *)m);
     }
-    if (this->needName[1] != 0) {
-
+    if (this->needName[1] != 0)
+    {
 
 
 

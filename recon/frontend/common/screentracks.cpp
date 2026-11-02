@@ -204,8 +204,8 @@ void tScreenTrackSelect::DrawBackground()
     int startTicks;
 
     r.x = shapeX;
-
-    r.w = 0xaa; r.y = 0;
+    r.y = 0;
+    r.w = 0xaa;
     r.h = 0x100;
     ClearImage(&r,'\0','\0','\0');
     DrawSync(0);
@@ -306,8 +306,8 @@ void tScreenTrackSelect::Initialize()
 
 
   r.x = 0x200;
-
-  r.w = 0xaa; r.y = 0;
+  r.y = 0;
+  r.w = 0xaa;
   r.h = 0x100;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
@@ -319,8 +319,8 @@ void tScreenTrackSelect::Initialize()
 
 
             (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)(signed char)trackInfo.fTrackID);
-  VIDEO_spoolfile(this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10),moviename);
-
+  this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10);
+  VIDEO_spoolfile(this->hVideo,moviename);
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
   ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,
@@ -403,9 +403,9 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 
     VIDEO_abortplayback(this->hVideo);
     if (this->fTicksSet == 0) {
-      elapsed = FE_Ticks();
+
       this->fTicksSet = 1;
-      this->fVideoTicks = elapsed;
+      this->fVideoTicks = elapsed = FE_Ticks();
       this->fMovieTrack = (short)(signed char)trackInfo.fTrackID; } } return; }
 
 
@@ -444,14 +444,14 @@ void tScreenTrackSelect::DrawVideoWall()
   PSXDrawTransSquare(0,0x140,0x1e,0xa0,10,1);
   FeDraw_SetABRMode(0);
 
-  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
 
-
+    if (this->fTVsInitialized == 0) {
 
     SetAvailable(&this->fVideoWall,(ushort)trackInfo.fAvailable);
     UpdateImages(&this->fVideoWall);
     this->fTVsInitialized = 1;
-  }
+  } }
 
 
   ::UpdateTransition(&this->fVideoWall);

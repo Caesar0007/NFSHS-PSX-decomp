@@ -483,17 +483,17 @@ void tDialogHelp::Draw()
      the stack-buffer address two instructions after retail. */
   char *bufferPtr;
   long firstTick;
-  CalculateDimensions();
-  firstTick = startTicks;
+
+
   {
 
 
-    long loadedTicks = ::ticks[0];
+    CalculateDimensions(); long loadedTicks = ::ticks[0];
 
 
 
 
-    ticks = loadedTicks; __asm__("" : "+r"(loadedTicks)); } if (firstTick + 0x32 <= ticks) {
+    firstTick = startTicks; ticks = loadedTicks; __asm__("" : "+r"(loadedTicks)); } if (firstTick + 0x32 <= ticks) {
 
 
 
@@ -557,9 +557,9 @@ DialogHelpDraw_buttonsDone:;
     }
   }
 
-
   tDialogBase::Draw();
-}
+  return; }
+
 
 
 
@@ -672,7 +672,7 @@ void tDialogMessageString::Draw()
     }
 
 
-    col = CalcFadeVal(kRGBVals[(u_char)DialogTextDefinitionsBase()[8 * 6 + 4]],fFadeText);
+    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
 
 
     r.x = left + 0x11; r.y = top + 10; r.w = width + -0x14; r.h = height - ((u_short)reservedheight + 8);
@@ -690,9 +690,9 @@ void tDialogMessageString::Draw()
     FETextRender_SetABR(0,false);
   }
 
-
   tDialogBase::Draw();
-}
+  return; }
+
 
 
 

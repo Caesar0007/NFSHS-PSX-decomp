@@ -268,8 +268,8 @@ void FeTools_FormatMoney(char *string,long amount)
 
 
 {
-  long absnum; char neg; neg = 0x20; absnum = __builtin_abs(amount);
-  if (amount < 0) { neg = 0x2d;
+  long absnum; char neg; absnum = __builtin_abs(amount);
+  neg = 0x20; if (amount < 0) { neg = 0x2d;
   } if (absnum < 1000) {
     sprintf(string,TextSys_Word(0x83),neg,absnum);
   } else if (absnum < 1000000) {

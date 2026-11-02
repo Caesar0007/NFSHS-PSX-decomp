@@ -183,7 +183,7 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
   if ((justify == 6) || (textType == textType_Title)) {
 
     FETextRender_Title(index);
-  }
+    return; }
   else {
 
     if (textType == textType_Default) {

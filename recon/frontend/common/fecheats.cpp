@@ -292,17 +292,17 @@ void FECheat_LoadBonus(u_long &cheat)
 
 {
   int i;
-  i = 0;
+
   gFEBonus = cheat;
   gFECheats = 0;
 
-  do {
+  for (i = 0; i < 0x1f; i++) {
 
     if ((gFEBonus & 1 << i) != 0) {
 
       FECheat_HandleActivation((tCheatCode)i);
     }
-    i = i + cheat_Pony; } while (i < 0x1f); return;
+  } return;
 }
 
 

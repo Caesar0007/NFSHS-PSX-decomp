@@ -296,16 +296,16 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
     if (0x7f < this->fArrowFade) {
       this->CurrentlyLoadedArt = 0;
-    } setmenutonull = true; goto SetCurCtrl_menuSetVertHelp;
-  }
+    } setmenutonull = true;
+  } else
 
 
+  {
+  switch (gPadinfo.buf[(this->player != 0) * 4].ID)
+  { case 0x23:
 
-  switch (gPadinfo.buf[(this->player != 0) * 4].ID) {
-  case 0x23:
-    {
-      bool dialogIsIdle;
-      int previousNegconChoice; this->fTimeOutStartTick = 0; if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01')) {
+
+      this->fTimeOutStartTick = 0; if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01')) { bool dialogIsIdle; int previousNegconChoice;
 
         dialogIsIdle = false; if (!this->negconPopUp.IsVisible()) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice != -1) {
             goto SetCurCtrl_noNegconDialog;
@@ -331,7 +331,7 @@ SetCurCtrl_noNegconDialog:
         fSetMenu = &menuDefs->menuControllerNegcon;
       }
       goto SetCurCtrl_menuSetVertHelp;
-    }
+
   case 0x41: { if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
         tGlobalMenuDefs *menuDefinitions;
 
@@ -371,7 +371,7 @@ SetCurCtrl_noNegconDialog:
 
     this->fCurrentController = '\x03';
     break;
-  }
+  } }
 SetCurCtrl_menuSetVertHelp:
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
     SetMenu(&menuDefs->itemControllerSettings,firsttime,fSetMenu);

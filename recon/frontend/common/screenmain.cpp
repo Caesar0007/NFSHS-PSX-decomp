@@ -333,7 +333,6 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 /* ---- tScreenMain::DrawDropShadow  [SCREENMAIN.CPP:417-437] ---- */
     /* MATCH (2026-08-11, 32 -> PASS, 69/69):
        SYM-CODEGEN-CARRIER: addr_24
-       SYM-CODEGEN-CARRIER: addrMask
        SOURCE-REVIEW-UNRESOLVED: pal_link (const at its loop use site)
        allocsim reproduced all seven
        allocnos and priced the 3-way rotation to exactly +2 weighted refs on
@@ -347,8 +346,14 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
   /* 2026-11-01t: the actual POLY_G4.tag accesses remove tagMask/palTag;
      whole normal/full-debug assembly and objects remain identical. No P_TAG
      import or new type records. SYM records only i/prim; addr_24,addrMask,
-     pal_link still need original producer recovery, not a const exemption.
+     pal_link still needed original producer recovery, not a const exemption.
      Receipt: build/tmp/v/screenmain_packet_private_20261101/ (agent ledger). */
+  /* 2026-11-02af supersedes the addrMask requirement above: actual packet,
+     palette and masked packet-address acquisition before the first tag splice
+     removes that unsigned capture with unchanged code and all supplied metadata.
+     Named POLY_G4 color/code/tag members replace raw field displacements.
+     addr_24 and pal_link remain source-review work; the two SLD misses remain.
+     Receipt: build/tmp/v/screenmain_members_nov02/same-candidatefullmask.json. */
 #line 414 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::DrawDropShadow()
 
@@ -357,13 +362,13 @@ void tScreenMain::DrawDropShadow()
   int i;
   POLY_G4 *prim;
   int addr_24;
-  uint addrMask;
+
   i = 0; do {
 
-    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addrMask = 0xffffff; prim->tag = (prim->tag & 0xff000000UL) | (((POLY_G4 *)pal_link)->tag & addrMask); addr_24 = (uint)prim & addrMask; Render_gPacketPtr = (u_char *)prim + 0x24; ((POLY_G4 *)pal_link)->tag = (((POLY_G4 *)pal_link)->tag & 0xff000000UL) | (addr_24 & addrMask);
-    *(u_int *)((u_char *)prim + 4) = 0x808080; ((u_char *)prim)[7] = 0x3a; *(u_int *)((u_char *)prim + 0xc) = 0x808080;
-    *(u_int *)((u_char *)prim + 0x1c) = 0; *(u_int *)((u_char *)prim + 0x14) = 0;
-    ((u_char *)prim)[3] = 8;
+    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addr_24 = (uint)prim & 0xffffffU; prim->tag = (prim->tag & 0xff000000UL) | (((POLY_G4 *)pal_link)->tag & 0xffffffU); Render_gPacketPtr = (u_char *)prim + 0x24; ((POLY_G4 *)pal_link)->tag = (((POLY_G4 *)pal_link)->tag & 0xff000000UL) | (addr_24 & 0xffffffU);
+    *(u_int *)&prim->r0 = 0x808080; prim->code = 0x3a; *(u_int *)&prim->r1 = 0x808080;
+    *(u_int *)&prim->r3 = 0; *(u_int *)&prim->r2 = 0;
+    ((u_char *)&prim->tag)[3] = 8;
     /* MATCH (W57, 69->28): the SYM 8c block lists ONLY `i` and `prim` --
        `src_walk` was a Ghidra-invented walk pointer, and gcc strength-reduced
        it into a SECOND induction giv (`addiu a3,v0,0` + `addiu a2,a3,14`)

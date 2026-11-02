@@ -622,10 +622,10 @@ tMenuNFS4::~tMenuNFS4() {}
 void tMenuNFS4::Initialize()
 {
   this->tMenu::Initialize();
-  this->fLastItem = (char)this->fCurrentItem;
+
   this->fInItemTransition = 0;
   this->fInMenuTransition = 0;
-
+  this->fLastItem = (char)this->fCurrentItem;
 
 
   this->fNumItems = '\0'; while (this->fItemList[this->fNumItems] != (tMenuItem *)0x0) { this->fNumItems++;
@@ -906,8 +906,8 @@ void tMenuBlank::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComm
 
 
 
-
     keyval = kInput_KeyType_AlreadyProcessed;
+    return;
   }
   else {
     this->fItemList[0] = (tMenuItem *)0x0;

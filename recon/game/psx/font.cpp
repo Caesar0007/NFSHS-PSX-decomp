@@ -149,7 +149,7 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
 
 
-  dv = ((*(int *)((u_char *)src + 0xc) << 4) >> 0x14) + v & 0xff;     /* SLD 136 */
+  dv = ((shapetbl *)src)->shapey + v & 0xff;     /* SLD 136 */
   sprt = (SPRT *)Render_gPacketPtr;                                   /* SLD 137 */ Render_gPacketPtr = (u_char *)sprt + 0x14; setaddr(sprt,getaddr(Render_gPalettePtr)); setaddr(Render_gPalettePtr,sprt);
 
 
@@ -626,7 +626,7 @@ void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff)
   ch = Font_Getcharacter((u_int)(u_char)code);
 
   *u = geti(ch->u,2);
-  *v = ((*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14) + geti(ch->v,2);
+  *v = (*(shapetbl **)(currentfont + 136))->shapex + geti(ch->v,2);
   *w = (u_int)ch->width;
   *h = (u_int)ch->height;
   *yoff = *(signed char *)&ch->yoffset;

@@ -694,10 +694,10 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 }
 
 /* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
-/* Source review (2026-11-01): plain integer block-count/overhead stages retain
- * every code/metadata/tag fact; const was not required for their debug elision.
- * Both captured identifiers and their original producer spelling remain
- * unprovided, not excused by the absent rows. No capture removal is claimed. */
+/* Source review (2026-11-02): one working value flows from block count to
+ * stream overhead; buffersize remains unchanged for allocation and driver use.
+ * The old separate blocks object is removed without a replacement alias.
+ * The remaining overhead object's original identity/spelling is unproved. */
 
 
 #line 700 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
@@ -720,8 +720,8 @@ void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 
 
 
-  int blocks = buffersize / 0x400; /* Actual block-count stage; original identifier remains unproved. */
-  int overhead = SNDSTRM_overhead(0x1,blocks); /* Actual overhead stage; no const disguise is needed. */
+  int overhead = buffersize / 0x400;
+  overhead = SNDSTRM_overhead(0x1,overhead);
   AudioMus_g->streambuffer = (char*)reservememadr("Music Buffer",buffersize + overhead,0);
 
 

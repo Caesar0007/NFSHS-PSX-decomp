@@ -4,8 +4,8 @@
 #include "screendisplay_types.h"
 #include "screendisplay_externs.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+/* Retail's empty inline pair belongs to the existing options-menu fade getter. */
+
 
 
 tScreenDisplay *screenDisplay;   /* global instance pointer owned by this TU (SYM EXT @0x800528d8) */
@@ -18,7 +18,7 @@ void tScreenDisplay::DrawBackground()
 {
   int i;
   short fade;
-  fade = (short)((MenuDefs()->menuDisplayOptions).fScreenFade >> 1);
+  fade = (short)(menuDefs->menuDisplayOptions.GetScreenFade() >> 1);
   i = 0; if (0x80 < fade) { fade = 0x80;
   }
 

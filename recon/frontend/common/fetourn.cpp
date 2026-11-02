@@ -317,15 +317,15 @@ static int tournPointsCompare(char *p1,char *p2)
   comps = Tournament_Competitors(tournamentManager);
   dummyCars = Cars_NewCarStatsList();
   result = (u_int)comps[(byte)*p2].fPoints - (u_int)comps[(byte)*p1].fPoints;
-  if ((result == 0) &&
-     (result = (int)comps[(byte)*p2].fIsPlayerCar -
-               (int)comps[(byte)*p1].fIsPlayerCar,
-      result == 0)) {
+  if (result == 0) {
 
 
-    result = dummyCars[(byte)*p1].finalPosition -
-             dummyCars[(byte)*p2].finalPosition;
-  }
+    result = (int)comps[(byte)*p2].fIsPlayerCar - (int)comps[(byte)*p1].fIsPlayerCar;
+
+
+    if (result == 0) {
+      result = dummyCars[(byte)*p1].finalPosition - dummyCars[(byte)*p2].finalPosition;
+    } }
   return result;
 }
 
@@ -533,13 +533,18 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
            retail reuses `v1` for the trailing `lbu 132(v1)` fPosition read; four separate
            `dummyCars[k].` spellings let gcc rematerialize the *160 index chain after the
            if/else join (6 extra insns). */
-  /* SYM-CODEGEN-CARRIER: comp
+  /* SOURCE-REVIEW-UNRESOLVED: comp is unused, but currently emits the fourth
+     supplied tCompetitor typedef copy. Deleting it, even with a completed
+     shared definition, loses a supplied ordered-alias sequence. This does NOT
+     prove an original named object: recover the actual late type producer.
+     The old `next` review entry was stale after W85 removed that object.
+     Receipts: build/tmp/v/fetourn_unused_owner_20261102/receipt.json and
+     build/tmp/v/tcompetitor_type_private_20261102/receipt.json.
      SYM-CODEGEN-CARRIER: knockout
-     SYM-CODEGEN-CARRIER: next
      SYM-CODEGEN-CARRIER: ranking
      SYM-CODEGEN-CARRIER: stats
-     These expression carriers implement the allocation/address-shape receipt
-     above; the retail SYM locals i, k, dummyCars, and numCompetitors remain. */
+     Their original source producers remain unresolved; byte matching is not
+     an exemption. Retail supplies only i, k, dummyCars and numCompetitors. */
 #line 478 "C:/nfs4/FRONTEND/COMMON/FETOURN.CPP"
 void tTournamentManager::UpdateTrackFinishPoints()
 
@@ -643,8 +648,8 @@ short tTournamentManager::AdvanceToNextTrack()
   tTierInfo *currentTier;
   short i;
   currentTourney = this->CurrentTourney();
-  if (this->fCurrentTrack <= (int)(currentTourney->fNumTracks - 1)) {
-
+  if (this->fCurrentTrack <= (int)(currentTourney->fNumTracks - 1))
+  {
     (this->fAwards).fMoney = 0;
     (this->fAwards).fTournMoney = 0;
     (this->fAwards).fActivateFlags = 0;
@@ -668,8 +673,8 @@ short tTournamentManager::AdvanceToNextTrack()
 
     this->fCurrentTrack = this->fCurrentTrack + 1;
 
-    if ((int)(uint)currentTourney->fNumTracks <= this->fCurrentTrack) {
-
+    if ((int)(uint)currentTourney->fNumTracks <= this->fCurrentTrack)
+    {
       (this->fAwards).fAwardCarGarageFull = 0;
       (this->fAwards).fCompletedGarageFull = 0;
 
@@ -697,8 +702,8 @@ short tTournamentManager::AdvanceToNextTrack()
         }
         (this->fAwards).fCompletedTier = 0;
       }
-      if (this->fCompetitors[0].fPosition < 2) {
-
+      if (this->fCompetitors[0].fPosition < 2)
+      {
         if (currentTourney->fAwardCar != '\0') {
 
           carInfo = carManager.GetCarFromID((ushort)currentTourney->fAwardCarModel);
@@ -724,11 +729,11 @@ short tTournamentManager::AdvanceToNextTrack()
         (this->fAwards).fCompletedTier = 0;
         this->fBestPlacement[(signed char)currentTourney->fTournamentID] = '\x01';
 
-        if (((int)(long)FECheat_IsCheatEnabled(this->fTier + cheat_FinishedTournament) ^ 1) != 0) {
-          (this->fAwards).fCompletedTier = 1;
+        if (((int)(long)FECheat_IsCheatEnabled(this->fTier + cheat_FinishedTournament) ^ 1) != 0)
+        {
 
           currentTier = this->fDefinition->fTiers + this->fTier;
-          i = 0;
+          (this->fAwards).fCompletedTier = 1; i = 0;
           if (currentTier->fNumTournaments != '\0') { do {
 
               tourn = this->fDefinition->fTournaments + ((uint)currentTier->fTournOffset + i);
@@ -738,8 +743,8 @@ short tTournamentManager::AdvanceToNextTrack()
                 (this->fAwards).fCompletedTier = 0;
               }
               i = i + 1; } while (i < (int)(uint)currentTier->fNumTournaments);
-          } if ((this->fAwards).fCompletedTier != 0) {
-            int numGarageCars;
+          } if ((this->fAwards).fCompletedTier != 0)
+          { int numGarageCars;
             numGarageCars = carManager.GetNumOwnedCars(0);
             if ((this->fAwards).fAwardCar != 0) {
               numGarageCars = numGarageCars + 1;

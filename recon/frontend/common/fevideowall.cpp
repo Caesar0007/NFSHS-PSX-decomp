@@ -97,11 +97,11 @@ void tVideoWall::SetAvailableIcon(short icon,short numFrames,short x,short y,
 
 
 {
-
+  this->fIconShapes = iconImages;
   this->fIcon = icon;
   this->fIconFrames = numFrames;
   this->fIconX = x;
-  this->fIconShapes = iconImages; this->fIconY = y; return;
+  this->fIconY = y; return;
 }
 
 

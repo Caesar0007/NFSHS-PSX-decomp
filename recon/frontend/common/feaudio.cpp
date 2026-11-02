@@ -54,8 +54,8 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
  * every instruction tag and all supplied owners, while placing the root
  * block end at119 (+51), not122 (+54). The function-end/epilogue stays121.
  * A lone terminal-return deletion loses four correct epilogue tags; the
- * coupled real exits avoid that regression. The bank-add call still has
- * two wrong tags (84 vs81); exact original expression spelling is open.
+ * coupled real exits avoid that regression. Canonical NFS2's used error stage
+ * recovers call81/test84; name/type are reference-supported NFS4 inference.
  * Receipt: build/tmp/v/feaudio_source_20261101/proof.json. */
 #line 65 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void Feaudio_StartPatch(SPEECHINFO *info)
@@ -63,7 +63,7 @@ void Feaudio_StartPatch(SPEECHINFO *info)
 
 {
   SNDPLAYOPTS playopts;
-  
+  int error;
 
 
 
@@ -74,10 +74,10 @@ void Feaudio_StartPatch(SPEECHINFO *info)
 
 
 
+    error = SNDbankadd(&info->nHandle,info->sSpeechData);
 
 
-
-    if (SNDbankadd(&info->nHandle,info->sSpeechData) == 7) {
+    if (error == 7) {
       info->pBankHeader = reservememadr("comHeader", /* retail rodata 80010104 */
                                        SNDbankheadersize(info->nHandle),0x10);
       SNDbankheadercopy(info->pBankHeader,info->nHandle);

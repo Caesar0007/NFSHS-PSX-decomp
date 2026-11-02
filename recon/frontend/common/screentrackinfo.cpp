@@ -92,8 +92,8 @@ void tScreenTrackInfo::Initialize()
 
 /* ---- tScreenTrackInfo::ProcessInput  (screentrackinfo.cpp:108) ---- */
 /* Native local/scope contract and 39 words verified. Getter/mutator spellings
-   remain inferred; full SLD attribution is not sealed. The negated fee passed
-   to the unsigned mutator preserves the retail fee-first/money-second loads. */
+   remain inferred; separate condition/brace lines restore the supplied SLD.
+   The unsigned negated fee preserves the retail fee-first/money-second loads. */
 #line 104 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKINFO.CPP"
 void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
@@ -102,12 +102,12 @@ void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 {
 
 
-  if (keyval == kInput_KeyType_Triangle) {
-
+  if (keyval == kInput_KeyType_Triangle)
+  {
     TurnOffInstant(&this->fVideoWall);
 
-
-    if (tournamentManager.CurrentTrack() == 0) {
+    if (tournamentManager.CurrentTrack() == 0)
+    {
 
       tournamentManager.SubtractMoney(-(u_long)tournamentManager.CurrentTourney()->fEntranceFee);
     }

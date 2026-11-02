@@ -338,16 +338,16 @@ void tScreenPinkSlips::DrawVideoWall()
     DrawShapeExtended(i,0,0,0,0,0,(tDrawShapeExtended *)0x0);
   }
 
-  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
 
-
+    if (this->fTVsInitialized == 0) {
 
     for (i = 0; i < 4; i = i + 1) {
 
       InitTV(&this->fImageTVs[i],this->fSwapShapes.fShapes,i);
     }
     this->fTVsInitialized = 1;
-  }
+  } }
 
 
   i = (short)((u_int)(FE_Ticks() - this->fTVTicks) >> 2);

@@ -50,6 +50,9 @@ struct tMenu {
     // FEDialog: retail tDialogHelp::CalculateDimensions records this receiver-only inline pair (line 71).
     inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
 #endif
+#ifdef NFS4_FE_CORE_FEAPP_METHODS
+    inline tScreen *GetScreen() { return fScreen; } // ORIGINAL-NAME-UNRESOLVED: supplied receiver/field producer; inferred accessor spelling.
+#endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     void tMenuConstructor(tMenuItem *firstItem, void *ap);
     tMenu(unsigned int, tScreen *, tMenu *, tMenu *,

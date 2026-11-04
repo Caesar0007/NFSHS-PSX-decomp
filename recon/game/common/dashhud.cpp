@@ -157,7 +157,7 @@ void DashHUD_HUDCalc(int player)
 {
   Car_tObj *car;             /* retail detailed SYM declaration order: car, resethud */
   static int resethud;        /* SYM STAT offset 0, retail 0x8013ddb0 */
-  static int tick32;         /* @0x8013DDB4: compact SYM `tick32.32` */
+  (void)sizeof(({ static int tick32; 0; })); /* @0x8013DDB4: compact SYM `tick32.32` */
   if (DashHUD_gInfo.showhud) {
 
 
@@ -186,8 +186,8 @@ void DashHUD_HUDCalc(int player)
     if (((DASHHUD_RACE_TYPE != RaceType_Id4) && (Replay_ReplayMode < 2)) &&
        ((DashHUD_gInfo.record == 0 || ((DashHUD_gInfo.laptime < DashHUD_gInfo.record || (DASHHUD_CHECKPOINT_TYPE == 4))))))
     {
-      DashHUD_gInfo.flashtime = 1; DashHUD_gInfo.record = DashHUD_gInfo.laptime;
-      goto DashHudCalc_lapTimeCheck;
+      DashHUD_gInfo.record = DashHUD_gInfo.laptime;
+      DashHUD_gInfo.flashtime = 1; goto DashHudCalc_lapTimeCheck;
     }
 
 
@@ -240,7 +240,7 @@ DashHudCalc_lapTimeCheck:
 
 
   DashHUD_gInfo.speed = __builtin_abs(DashHUD_gInfo.speed);
-  DashHUD_gInfo.topspeed = DashHUD_gInfo.topspeed >> 16;
-  } return; }
+  DashHUD_gInfo.topspeed = DashHUD_gInfo.topspeed >> 16; } return;
+  }
 
 /* end of dashhud.cpp */

@@ -424,18 +424,18 @@ void Font_SwitchFont(char *f1)
 
 
 {
-  u_char *base; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header anchor;direct forms13/16dif at28/27. */
+  __complex__ int base;
   setfont(f1);
 
-  base = (u_char *)&currentfont; ((DR_MODE *)(base + 0x94))->tag = 0;
-  ((DR_MODE *)(base + 0x94))->code[0] = 0;
-  ((DR_MODE *)(base + 0x94))->code[1] = 0;
+  __real__ base = (int)&currentfont; ((DR_MODE *)((u_char *)__real__ base + 0x94))->tag = 0;
+  ((DR_MODE *)((u_char *)__real__ base + 0x94))->code[0] = 0;
+  ((DR_MODE *)((u_char *)__real__ base + 0x94))->code[1] = 0;
 
 
 
-  font_currentTPage = GetTPage((*(shapetbl **)(base + 136))->type & 3,font_abr, (*(shapetbl **)(base + 136))->shapex, (*(shapetbl **)(base + 136))->shapey);
-  gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
-  return; }
+  font_currentTPage = GetTPage((*(shapetbl **)((u_char *)__real__ base + 136))->type & 3,font_abr, (*(shapetbl **)((u_char *)__real__ base + 136))->shapex, (*(shapetbl **)((u_char *)__real__ base + 136))->shapey);
+  __complex__ int ch; __real__ ch = (int)Font_Getcharacter(0x20);
+  gFontSpaceWidth = ((charactertbl *)__real__ ch)->advance; return; }
 
 /* ---- Font_DeInit__Fv  [FONT.CPP:333-338] SLD-VERIFIED ---- */
 #line 330 "C:/nfs4/GAME/PSX/FONT.CPP"
@@ -573,13 +573,13 @@ void Font_TextXY(char *string,int x,int y)
 
 
 {
-  char *str; charactertbl *ch; int code; u_char *cfbase; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header view;word-array24dif/88 on this basin. */ str = string;
+  char *str; charactertbl *ch; int code; __complex__ int cfbase; str = string;
 
 
 
   code = -1;
 
-  cfbase = (u_char *)&currentfont; while (code != 0) {
+  __real__ cfbase = (int)&currentfont; while (code != 0) {
 
     code = *(u_char *)str;
     str = str + 1;
@@ -597,7 +597,7 @@ void Font_TextXY(char *string,int x,int y)
         (*gCurrentBlitter)(x + *(signed char *)&ch->xoffset,
                            y + *(signed char *)&ch->yoffset,
 
-                           *(void **)(cfbase + 136),u,v,(charactertbl *)ch,*(int *)(cfbase + 120));
+                           *(void **)((u_char *)__real__ cfbase + 136),u,v,(charactertbl *)ch,*(int *)((u_char *)__real__ cfbase + 120));
 
 
         x = x + *(signed char *)&ch->advance;

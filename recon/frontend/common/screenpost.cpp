@@ -362,8 +362,8 @@ void tScreenTournamentStandings::DrawBackground()
 {
   int fade;
   int fadeline;
-  int i; int j; tTourneyInfo *tourneyInfo; char sBuildOutput[80]; tMenuTextState state; tMenuTextState statedull; tTrackInformation trackInfo; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; tDrawShapeExtended drawflags; int colf; int colb; int numRacers; int lastRacer; tMenuTextType type; i = 0; type = textType_TrackRecords; fade = this->fScreenFadeVal; fadeline = fade; shape = (tTexture_ShapeInfo *)Tournament_Definition(); tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[ ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
-  numRacers = (short)((short)Tournament_NumRacers() +
+  int i; int j; tTourneyInfo *tourneyInfo; char sBuildOutput[80]; tMenuTextState state; tMenuTextState statedull; tTrackInformation trackInfo; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; tDrawShapeExtended drawflags; int colf; int colb; __complex__ int numRacers; __complex__ int lastRacer; __complex__ int type; i = 0; __real__ type = textType_TrackRecords; fade = this->fScreenFadeVal; fadeline = fade; shape = (tTexture_ShapeInfo *)Tournament_Definition(); tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[ ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
+  __real__ numRacers = (short)((short)Tournament_NumRacers() +
 
 
 
@@ -378,7 +378,7 @@ void tScreenTournamentStandings::DrawBackground()
 
 
 
-  lastRacer = numRacers - 1; for (; i < numRacers; i++) {
+  __real__ lastRacer = __real__ numRacers - 1; for (; i < __real__ numRacers; i++) {
     short p;
     j = (short)tournamentManager.PlayerRanking((short)(i + 1));
     state = textState_Selected;
@@ -398,19 +398,19 @@ void tScreenTournamentStandings::DrawBackground()
 
 
 
-                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,statedull,0);
+                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),(tMenuTextType)__real__ type,statedull,0);
     FETextRender_FullTextFade(
         fade,
         j == 0 ? PlayerName(0) :
                  Stattool_GetAINameFromPersonality(Tournament_Personality(j)),
-        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)), type,state,0);
+        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)), (tMenuTextType)__real__ type,state,0);
 
 
 
     p = j;
     if (tourneyInfo->fKnockout != 0) {
 
-      sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
+      sprintf(sBuildOutput,TextSys_Word(i == __real__ lastRacer ? 0x31c : 0x31b));
     }
     else {
 
@@ -418,7 +418,7 @@ void tScreenTournamentStandings::DrawBackground()
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
 
-                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,state,1);
+                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),(tMenuTextType)__real__ type,state,1);
   }
 
 
@@ -427,14 +427,14 @@ void tScreenTournamentStandings::DrawBackground()
   trackManager.GetTrack(Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
 
-                           (short)TextSys_WordY(0x2fd),type,textState_Hilighted,2);
+                           (short)TextSys_WordY(0x2fd),(tMenuTextType)__real__ type,textState_Hilighted,2);
   i = (short)(frontEnd.tier != '\0' ?
-                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) : TextValue(&MenuDefs()->iteratorTournament,kPlayerBoth));
+                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) : TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
   i += 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
 
 
-                                             2,textState_Hilighted,type);
+                                             2,textState_Hilighted,(tMenuTextType)__real__ type);
 
 
 
@@ -485,17 +485,17 @@ void tScreenTournamentStandings::DrawBackground()
   if (this->fDrawMoney != 0) {
     FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x312),
-                             type,
+                             (tMenuTextType)__real__ type,
                              this->gotmoney ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,this->moneyAwarded,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x313),
 
-                             type,this->gotbilled ? 1 : 0,1);
+                             (tMenuTextType)__real__ type,this->gotbilled ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,this->moneyDamage,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x314),
-                             type,this->gotbonus ? 1 : 0,1);
+                             (tMenuTextType)__real__ type,this->gotbonus ? 1 : 0,1);
 
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,this->moneyBonus,colf,colb);
   }
@@ -503,7 +503,7 @@ void tScreenTournamentStandings::DrawBackground()
 
 
 
-                           type,textState_Hilighted,1);
+                           (tMenuTextType)__real__ type,textState_Hilighted,1);
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9, ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
 
 

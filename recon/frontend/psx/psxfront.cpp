@@ -137,25 +137,25 @@ void InitializeSpinningCars(void)
 
 
 
-    for (int i = 0; ; ) { Car_tObj *carObj; if (2 <= i) goto spinning_cars_initialized;
+    { int i = 0; for (; ; ) { __complex__ int carObj; if (2 <= i) goto spinning_cars_initialized;
 
-      carObj = (Car_tObj *)reservememadr("carObj",0x8dc,0);
-      gCarObj[i] = carObj; blockclear(carObj,0x8dc);
+      __real__ carObj = (int)reservememadr("carObj",0x8dc,0);
+      gCarObj[i] = (Car_tObj *)__real__ carObj; blockclear((void *)__real__ carObj,0x8dc);
 
-      carObj->carInfo = &GameSetup_gData.carInfo[i];
+      ((Car_tObj *)__real__ carObj)->carInfo = &GameSetup_gData.carInfo[i];
 
-      carObj->carInfo->carType = 1;
-      strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType]);
+      ((Car_tObj *)__real__ carObj)->carInfo->carType = 1;
+      strcpy(((Car_tObj *)__real__ carObj)->carName,GameSetup_gCarNames[((Car_tObj *)__real__ carObj)->carInfo->carType]);
 
-      carObj->N.objID = i | 0x100;
-
-
+      ((Car_tObj *)__real__ carObj)->N.objID = i | 0x100;
 
 
-      R3DCar_Instantiate3DCar(carObj,i);
-      carObj->N.active = '\x01';
 
-      i = i + 1; }
+
+      R3DCar_Instantiate3DCar((Car_tObj *)__real__ carObj,i);
+      ((Car_tObj *)__real__ carObj)->N.active = '\x01';
+
+      i = i + 1; } }
 spinning_cars_initialized:
 
     R3DCar_PostStartUp();
@@ -1178,17 +1178,17 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     height = -height;
   }
 
-  { int vraw; vraw = (byte)shp->shapey; v = vraw;
+  __complex__ int vraw; __real__ vraw = (byte)shp->shapey; v = __real__ vraw;
   vh = shp->height;
 
   if ((flags & 2) != 0)
-    v = vraw - 1; }
+    v = __real__ vraw - 1;
 
   i = 0;
   while (i < shp->width) {
     int addw;
-    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured FAIL 60 (247/245), duplicating loads and rotating divide operands */ int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured FAIL 39 (248/245), reassociating the four vertex expressions */ int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured FAIL 16 (243/245), changing issue order and deleting two instructions */ ibp = (i * bpp) / 16; texX = (uint)(ushort)shp->shapex + ibp;
-    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
+    __complex__ int texX; __complex__ unsigned int texXAligned; __complex__ int addwm1; __complex__ int ibp; __complex__ unsigned char vb; __real__ ibp = (i * bpp) / 16; __real__ texX = (uint)(ushort)shp->shapex + __real__ ibp; __real__ texXAligned = __real__ texX & 0xffffffc0U;
+    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)(__real__ texXAligned << 0x10) >> 0xc) / bpp;
     w = (shp->width - i < 0xff - u) ? shp->width - i : 0xff - u;
 
     prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */ ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
@@ -1202,7 +1202,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
 
 
     *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+    *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | (__real__ texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
 
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
@@ -1210,13 +1210,15 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
       u = u - 1;
       addw = 1;
     }
+#line 977 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
     w1 = w;
-    ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x18] = u + w1; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0x24] = u; PSXFRONT_STORE_BOTTOM_V(((u_char *)prim),vh,v); ((u_char *)prim)[0x30] = u + w1;
+#line 976 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+    ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x18] = u + w1; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0x24] = u; __real__ vb = v; ((u_char *)prim)[0x25] = vh + __real__ vb; ((u_char *)prim)[0x31] = vh + __real__ vb; ((u_char *)prim)[0x30] = u + w1;
     if (w1 <= 0) { w1 = 1;
     }
     if ((flags & 4) != 0) {
-      addwm1 = addw - 1;
-      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
+      __real__ addwm1 = addw - 1;
+      *(short *)((u_char *)prim + 8) = ((width + x) - i) + __real__ addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + __real__ addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + __real__ addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + __real__ addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
     }
     else { *(short *)((u_char *)prim + 8) = i + x; *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = w1 + (i + x); *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = i + x; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = w1 + (i + x); *(short *)((u_char *)prim + 0x2e) = y + height;
     }
@@ -1261,8 +1263,8 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
 
 
 {
-  tTexture_ShapeInfo *tShp; int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
-  } bright = 0x80 - fade;
+  tTexture_ShapeInfo *tShp; int color [4]; __complex__ int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } __real__ bright = 0x80 - fade;
 
 
 
@@ -1277,7 +1279,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,__real__ bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
 
@@ -1396,8 +1398,8 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
 {
   int scalex = 0x20000; int scaley = 0x10000;
   tTexture_ShapeInfo *tShp;
-  int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
-  } bright = 0x80 - fade;
+  int color [4]; __complex__ int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } __real__ bright = 0x80 - fade;
 
 
 
@@ -1412,7 +1414,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,__real__ bright * 0x10000 >> 0x10,color,extra);
 
 
   if ((flags & 0xc0U) != 0) {

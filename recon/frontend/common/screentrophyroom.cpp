@@ -46,7 +46,19 @@ static inline tTourneyInfo *TourneyInTier(uint tier, uint cur)
   return (tournamentManager.fDefinition)->fTournaments +
          ((uint)(tournamentManager.fDefinition)->fTiers[tier].fTournOffset + cur);
 }
+#line 245 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
+static inline tTourneyInfo *TourneyInTierSelf(__complex__ int self) {
+#line 50 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
+  __complex__ unsigned int tier; __real__ tier = (byte)frontEnd.tier; __complex__ unsigned int cur; __real__ cur = (byte)((tScreenTrophyRoom *)__real__ self)->fRealCurrentTourn[((tScreenTrophyRoom *)__real__ self)->tier]; return (tournamentManager.fDefinition)->fTournaments + ((uint)(tournamentManager.fDefinition)->fTiers[__real__ tier].fTournOffset + __real__ cur); }
+#if 0
+{
+  /* */
+  /* */
+  return (tournamentManager.fDefinition)->fTournaments +
+  /* */
+}
 
+#endif
 #line 50 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
 void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
@@ -181,7 +193,7 @@ void tScreenTrophyRoom::Initialize()
 {
   short i;
 
-  tfrontEnd *loopFe;
+  __complex__ int loopFe;
   this->tScreen::Initialize();
   do {
 
@@ -193,17 +205,17 @@ void tScreenTrophyRoom::Initialize()
   this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
 
-  i = 0; loopFe = &frontEnd; for (; i < this->fNumTrophies; i = i + 1) {
-    int placement;
-    short place; this->fTrophyList[i] = 1; placement = (signed char)tournamentManager.fBestPlacement[(signed char)((tournamentManager.Definition())->fTournaments + ((uint)(tournamentManager.Definition())->fTiers[(byte)loopFe->tier].fTournOffset + (uint)(byte)i))->fTournamentID];
-    place = 0;
+  i = 0; __real__ loopFe = (int)&frontEnd; for (; i < this->fNumTrophies; i = i + 1) {
+    __complex__ int placement;
+    __complex__ short place; this->fTrophyList[i] = 1; __real__ placement = (signed char)tournamentManager.fBestPlacement[(signed char)((tournamentManager.Definition())->fTournaments + ((uint)(tournamentManager.Definition())->fTiers[(byte)((tfrontEnd *)__real__ loopFe)->tier].fTournOffset + (uint)(byte)i))->fTournamentID];
+    __real__ place = 0;
 
 
 
 
-    if ((u_int)(placement - 1) < 3) { place = placement;
+    if ((u_int)(__real__ placement - 1) < 3) { __real__ place = __real__ placement;
     }
-    FETexture_LoadPmxAtOffset((this->fTrophyShapes).fFile,i * 4 + place, (this->fTrophyShapes).fShapes + i,0,0);
+    FETexture_LoadPmxAtOffset((this->fTrophyShapes).fFile,i * 4 + __real__ place, (this->fTrophyShapes).fShapes + i,0,0);
   }
 
 
@@ -285,17 +297,17 @@ void tScreenTrophyRoom::DrawBackground()
   this->LoadTrophy();
 
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if (this->fSwapShapes.fFile != (char *)0x0) {
-
+  if (this->fSwapShapes.fFile != (char *)0x0)
+  {
     ::UploadSwapShapes((tScreen *)this,0x20);
     this->startTicks = FE_Ticks();
   }
-  {
-    const uint feTier = (uint)(byte)frontEnd.tier; byte currentTourn; uint tourn; tTourneyInfo *selectedTourn; tourn = (currentTourn = (byte)this->fRealCurrentTourn[this->tier], (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset + currentTourn);
+  __complex__ unsigned int feTier; __complex__ unsigned char currentTourn; __complex__ unsigned int currentTournU; __complex__ unsigned int tourn; __complex__ int selectedTourn;
+  __real__ feTier = (uint)(byte)frontEnd.tier; __real__ currentTourn = (byte)this->fRealCurrentTourn[this->tier]; __real__ tourn = (uint)(tournamentManager.Definition())->fTiers[__real__ feTier].fTournOffset; __real__ currentTournU = __real__ currentTourn;
 
 
-    selectedTourn = (tournamentManager.fDefinition)->fTournaments + tourn; FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal, (signed char)selectedTourn->fTournamentID + 0x354,0x100,0x2f,2, textState_Hilighted,textType_ScreenInfo);
-  }
+  __real__ selectedTourn = (int)((tournamentManager.fDefinition)->fTournaments + (__real__ tourn + __real__ currentTournU)); FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal, (signed char)((tTourneyInfo *)__real__ selectedTourn)->fTournamentID + 0x354,0x100,0x2f,2, textState_Hilighted,textType_ScreenInfo);
+
   texttoshow = 0x3de;
   if (((gPadinfo.buf[0].ID == '#') &&
       ((gPadinfo.buf[4].ID == '#' || (gPadinfo.buf[4].nopad != '\0')))) ||
@@ -305,30 +317,30 @@ void tScreenTrophyRoom::DrawBackground()
   } else if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
     texttoshow = 0x3e0;
   }
-  i = 0;
-  FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200, CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
+
+  i = 0; FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200, CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
 
 
-  const tDrawShapeExtended * drawFlagsPtr = &drawFlags; while (true) { if ((int)i >= (int)this->fNumTrophies) break;
+  __complex__ int drawFlagsPtr; for (__real__ drawFlagsPtr = (int)&drawFlags; ; i = i + 1) { if ((int)i >= (int)this->fNumTrophies) break;
 
     x = TROPHY_LEFTOFFSET + (i % fModNumber) * 0x5f;
     y = (i / fModNumber) * 45 + 70;
-    if ((i == this->fRealCurrentTourn[this->tier]) && ((this->fSwapShapes.fFlags & 1) != 0)) {
-
+    if ((i == this->fRealCurrentTourn[this->tier]) && ((this->fSwapShapes.fFlags & 1) != 0))
+    {
       drawFlags.custom_shapes = this->fSwapShapes.fShapes;
 
 
-      texttoshow = ((FE_Ticks() - this->startTicks) / 12) % 32; ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,drawFlagsPtr);
+      texttoshow = ((FE_Ticks() - this->startTicks) / 12) % 32; ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,(tDrawShapeExtended *)__real__ drawFlagsPtr);
     }
     else {
 
       drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
 
-      texttoshow = i; ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,drawFlagsPtr);
+      texttoshow = i; ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,(tDrawShapeExtended *)__real__ drawFlagsPtr);
     }
 
 
-    i = i + 1; } return; }
+    } return; }
 
 
 
@@ -345,8 +357,10 @@ void tScreenTrophyRoom::LoadTrophy()
 
   if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy)
   {
-    tTourneyInfo *const tourn =
-      TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[this->tier]); GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
+    (void)0;
+#line 245 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
+    tTourneyInfo *const tourn = TourneyInTierSelf((__complex__ int)(int)this);
+    GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }

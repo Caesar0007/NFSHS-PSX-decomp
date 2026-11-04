@@ -280,11 +280,11 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 
 {
-  int innerHeight; short pos; int test; unsigned int shifted; shifted = (unsigned int)gridpos << 16; pos = gridpos; test = (int)shifted >> 16; if (0 < test) { __asm__("" : "+r"(shifted), "+r"(x)); if (0x40 <= test) goto VL_clampHi; } if (test < 0) { pos = 0; } goto VL_clamped; VL_clampHi: pos = 0x40;
+  __complex__ int innerHeight; __complex__ short pos; __complex__ int test; __complex__ unsigned int shifted; __real__ shifted = (unsigned int)gridpos << 16; __real__ pos = gridpos; __real__ test = (int)__real__ shifted >> 16; if (0 < __real__ test) { __asm__("" : "+r"(__real__ shifted), "+r"(x)); if (0x40 <= __real__ test) goto VL_clampHi; } if (__real__ test < 0) { __real__ pos = 0; } goto VL_clamped; VL_clampHi: __real__ pos = 0x40;
 VL_clamped:
-  gridpos = pos; innerHeight = (innerHeight = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2, (ushort)EXTRAYATTOP + innerHeight);
+  gridpos = __real__ pos; __real__ innerHeight = (__real__ innerHeight = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2, (ushort)EXTRAYATTOP + __real__ innerHeight);
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
-             (short)innerHeight, (uint)(dir == 0),(int)gridpos * 2,0);
+             (short)__real__ innerHeight, (uint)(dir == 0),(int)gridpos * 2,0);
 }
 
 /* ---- tScreenMemcard::DrawHorizontalLine  (screenmemcard.cpp:273) ---- */
@@ -320,10 +320,10 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 
 {
-  int width; short pos; int test; unsigned int shifted; shifted = (unsigned int)gridpos << 16; test = (int)shifted >> 16; pos = gridpos; if (0 < test) { __asm__("" : "+r"(shifted)); if (0x40 <= test) goto HL_clampHi; } if (test < 0) { pos = 0; } goto HL_clamped; HL_clampHi: pos = 0x40; HL_clamped: gridpos = pos;
+  __complex__ int width; __complex__ short pos; __complex__ int test; __complex__ unsigned int shifted; __real__ shifted = (unsigned int)gridpos << 16; __real__ test = (int)__real__ shifted >> 16; __real__ pos = gridpos; if (0 < __real__ test) { __asm__("" : "+r"(__real__ shifted)); if (0x40 <= __real__ test) goto HL_clampHi; } if (__real__ test < 0) { __real__ pos = 0; } goto HL_clamped; HL_clampHi: __real__ pos = 0x40; HL_clamped: gridpos = __real__ pos;
   /* MATCH (SLD 276 = ONE statement) */
-  width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width, 1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X); return;
+  __real__ width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)__real__ width, 1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X); return;
 }
 
 /* ---- tScreenMemcard::PlaceIcons  (screenmemcard.cpp:282) ---- */
@@ -709,7 +709,7 @@ void tScreenMemcard::DrawBackground()
 {
   short x;
   short y;
-  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; ushort gouraudX; ushort gouraudY; ushort startY; this->fMemCardMessageTextSys = -1;
+  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; __complex__ unsigned short gouraudX; __complex__ unsigned short gouraudY; __complex__ unsigned short startY; this->fMemCardMessageTextSys = -1;
 
   if (this->goticon[this->theNFS4icon] == '\0') {
     this->theNFS4icon = -1;
@@ -782,10 +782,10 @@ void tScreenMemcard::DrawBackground()
 
   gray = 0x505050;
 
-  x = (ushort)GRIDMEMCARD_STARTX - (gouraudX = GRIDMEMCARDGOURAUDBIT_X);
-  startY = GRIDMEMCARD_STARTY; gouraudY = GRIDMEMCARDGOURAUDBIT_Y; y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
-  w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
-  h = (short)((ushort)GRIDMEMCARD_HEIGHT + gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
+  x = (ushort)GRIDMEMCARD_STARTX - (__real__ gouraudX = GRIDMEMCARDGOURAUDBIT_X);
+  __real__ startY = GRIDMEMCARD_STARTY; __real__ gouraudY = GRIDMEMCARDGOURAUDBIT_Y; y = __real__ startY - __real__ gouraudY - ((ushort)EXTRAYATTOP + 4);
+  w = GRIDMEMCARD_WIDTH + __real__ gouraudX * 2 + 2;
+  h = (short)((ushort)GRIDMEMCARD_HEIGHT + __real__ gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
 
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
@@ -845,11 +845,11 @@ void tScreenMemcard::DrawForeground()
 
 
 {
-  int fade; fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
+  __complex__ int fade; __real__ fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
 
-  if ((short)fade < 0x80) { if ((short)fade < 1) goto DrawFg_setZero; } if ((short)fade < 0x81) goto DrawFg_join; fade = 0x80; goto DrawFg_join; DrawFg_setZero: fade = 0;
+  if ((short)__real__ fade < 0x80) { if ((short)__real__ fade < 1) goto DrawFg_setZero; } if ((short)__real__ fade < 0x81) goto DrawFg_join; __real__ fade = 0x80; goto DrawFg_join; DrawFg_setZero: __real__ fade = 0;
 DrawFg_join: { int k;   /* [SYM] REG $s0, block opened at SLD 5 */ k = 0; do {
-      DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
+      DrawShapeExtended(0x38 + k,0,0,0,(short)__real__ fade,0,
 
                  (tDrawShapeExtended *)0x0);
       k = k + 1; } while (k < 4); } return;

@@ -167,7 +167,7 @@ void tScreenTrackSelect::DrawBackground()
   tTrackInformation trackInfo;
   short shapeY;
   POLY_FT4 *prim;
-  VIDEOSTATE state; short shapeX; int videoY; r.x = 0x140;
+  VIDEOSTATE state; __complex__ short shapeX; __complex__ int videoY; r.x = 0x140;
   r.y = 200;
   r.w = 0xaa;
   r.h = 0xc;
@@ -184,46 +184,46 @@ void tScreenTrackSelect::DrawBackground()
   this->UpdateVideoWall(trackInfo);
 
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  { tVideoWall *videoWall = &this->fVideoWall; if (((this->fSwapShapes.fFile != (char *)0x0) && (videoWall->fTransitionDirection != -1)) && (this->fBrightness == 0)) {
+  if (((this->fSwapShapes.fFile != (char *)0x0) && (this->fVideoWall.GetTransitionDirection() != -1)) && (this->fBrightness == 0)) {
 
       ::UploadSwapShapes((tScreen *)this,10);
-      TurnOn(videoWall);
-    }
-  }
+      TurnOn(&this->fVideoWall); }
+    
+  
 
 
 
 
+  __real__ shapeX = 0x200;
+  __real__ videoY = ((this->fFrame & 1U) == 0) << 7;
 
-  videoY = ((this->fFrame & 1U) == 0) << 7;
-  shapeX = 0x200;
-  shapeY = (short)videoY; state = (VIDEOSTATE)VIDEO_state(this->hVideo);
+  shapeY = (short)__real__ videoY; state = (VIDEOSTATE)VIDEO_state(this->hVideo);
 
-  if (state == VIDEOSTATE_SPOOLING) {
+  if (state == VIDEOSTATE_SPOOLING)
+  {
     RECT r;
-    int startTicks;
-
-    r.x = shapeX;
+    __complex__ int startTicks;
+    r.x = __real__ shapeX;
     r.y = 0;
     r.w = 0xaa;
     r.h = 0x100;
     ClearImage(&r,'\0','\0','\0');
     DrawSync(0);
-    startTicks = FE_Ticks();
+    __real__ startTicks = FE_Ticks();
     this->fBrightness = 0;
-    this->fStartTicks = startTicks - 0x14;
+    this->fStartTicks = __real__ startTicks - 0x14;
   }
   else if (state == VIDEOSTATE_PLAYING) {
-    if (VIDEO_updateframexy(this->hVideo,shapeX,
-                            (u_int)(videoY << 0x10) >> 0x10) != 0) {
+    if (VIDEO_updateframexy(this->hVideo,__real__ shapeX,
+                            (u_int)(__real__ videoY << 0x10) >> 0x10) != 0) {
 
       this->fFrame = this->fFrame + 1;
-      videoY = ((this->fFrame & 1U) == 0) << 7; shapeY = (short)videoY;
+      __real__ videoY = ((this->fFrame & 1U) == 0) << 7; shapeY = (short)__real__ videoY;
     }
   }
-  else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) && ((uint)(FE_Ticks() - this->fVideoTicks) >= 0x101U)) {
+  else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) && ((uint)(FE_Ticks() - this->fVideoTicks) >= 0x101U))
+  {
     char moviename[80];
-
     if (this->fDestBrightness >= this->fBrightness) {
       this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
@@ -232,25 +232,25 @@ void tScreenTrackSelect::DrawBackground()
     VIDEO_startplayback(this->hVideo);
   }
 
-  if (0 < this->fBrightness) {
+  __complex__ int packetPtrSlot; if (0 < this->fBrightness) {
 
-    u_char **packetPtrSlot = &Render_gPacketPtr; (prim = (POLY_FT4 *)*packetPtrSlot, ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr, *packetPtrSlot = (u_char *)prim + sizeof(POLY_FT4), ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim & 0xffffff);
+    __real__ packetPtrSlot = (int)&Render_gPacketPtr; (prim = (POLY_FT4 *)*(u_char **)__real__ packetPtrSlot, ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr, *(u_char **)__real__ packetPtrSlot = (u_char *)prim + sizeof(POLY_FT4), ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim & 0xffffff);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 | this->fBrightness << 8 | this->fBrightness;
     (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);
     (prim->x0 = 0x99, prim->y0 = 0x69,
      prim->x1 = 0x139, prim->y1 = 0x69, prim->x2 = 0x99, prim->y2 = 0xe8, prim->x3 = 0x139, prim->y3 = 0xe8);
-    (prim->u0 = shapeX & 0x3f, prim->v0 = shapeY, prim->u1 = (shapeX & 0x3f) + 0x50, prim->v1 = shapeY, prim->u2 = shapeX & 0x3f, prim->v2 = shapeY | 0x7f, prim->u3 = (shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
-    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,shapeY & ~0xff);
+    (prim->u0 = __real__ shapeX & 0x3f, prim->v0 = shapeY, prim->u1 = (__real__ shapeX & 0x3f) + 0x50, prim->v1 = shapeY, prim->u2 = __real__ shapeX & 0x3f, prim->v2 = shapeY | 0x7f, prim->u3 = (__real__ shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,__real__ shapeX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
 
-    shapeX += 0x50;
+    __real__ shapeX += 0x50;
     (prim = (POLY_FT4 *)Render_gPacketPtr, ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr, Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4), ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 | this->fBrightness << 8 | this->fBrightness;
     (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);
     (prim->x0 = 0x139, prim->y0 = 0x69,
      prim->x1 = 0x1d9, prim->y1 = 0x69, prim->x2 = 0x139, prim->y2 = 0xe8, prim->x3 = 0x1d9, prim->y3 = 0xe8);
-    (prim->u0 = shapeX & 0x3f, prim->v0 = shapeY, prim->u1 = (shapeX & 0x3f) + 0x50, prim->v1 = shapeY, prim->u2 = shapeX & 0x3f, prim->v2 = shapeY | 0x7f, prim->u3 = (shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
-    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,shapeY & ~0xff);
+    (prim->u0 = __real__ shapeX & 0x3f, prim->v0 = shapeY, prim->u1 = (__real__ shapeX & 0x3f) + 0x50, prim->v1 = shapeY, prim->u2 = __real__ shapeX & 0x3f, prim->v2 = shapeY | 0x7f, prim->u3 = (__real__ shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,__real__ shapeX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
   }
 

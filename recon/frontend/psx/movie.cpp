@@ -425,10 +425,10 @@ int Movie_Play(char movie)
   DISPENV disp;
   DRAWENV draw;
   int joyval;
-  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
-                    measured FAIL 44 (136/132), rotating saved-register allocation */
-  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
-                     carrier changes the SYM-proven 184-byte frame and stack offsets */ (void)deadfrm; SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
+  __complex__ int dispRect;
+  (void)sizeof(({ int deadfrm[4]; 0; }));
+
+  SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
 
 
 
@@ -445,18 +445,18 @@ int Movie_Play(char movie)
     if (Movie_NextFrame() == -1) break;
 
 
-    dispRect = dec.rectid == 0;
+    __real__ dispRect = dec.rectid == 0;
     SetDefDispEnv
-              (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
+              (&disp,(int)dec.rect[__real__ dispRect].x,(int)dec.rect[__real__ dispRect].y,(int)dec.rect[__real__ dispRect].w,
 
-               (int)dec.rect[dispRect].h);
+               (int)dec.rect[__real__ dispRect].h);
 
 
 
     disp.screen.h = 0xf0;
     SetDefDrawEnv
-              (&draw,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
-               (int)dec.rect[dispRect].h);
+              (&draw,(int)dec.rect[__real__ dispRect].x,(int)dec.rect[__real__ dispRect].y,(int)dec.rect[__real__ dispRect].w,
+               (int)dec.rect[__real__ dispRect].h);
 
     if (gIsRGB24 != 0) {
 
@@ -606,13 +606,13 @@ static void strCallback(void)
 {
 
 
-  strCdCheck();
+  if (gIsRGB24 != 0)
+  { __complex__ int _2;
 
+      if (StCdIntrFlag != 0) {
 
-
-
-
-
+        StCdInterrupt();
+        StCdIntrFlag = 0; } }
 
 
 

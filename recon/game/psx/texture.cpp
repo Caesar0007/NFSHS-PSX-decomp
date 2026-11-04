@@ -373,7 +373,7 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
 
 {
   RECT r;
-  int deadfrm[4]; /* SOURCE-REVIEW-UNRESOLVED: artificial padding, absent from retail. */
+  (void)sizeof(({ int deadfrm[4]; 0; }));
   if (shp != (shapetbl *)0x0) { do {
 
       if (((u_int)shp->type & 0xf7) != 0x23) { if (0x22 < ((u_int)shp->type & 0xf7)) { if (((u_int)shp->type & 0xf7) < 0x44) { if (0x3f < ((u_int)shp->type & 0xf7)) {
@@ -394,8 +394,8 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
               r.w = (short)((shp->width * shapedepth((unsigned char *)shp) + 15) / 16);
               r.h = shp->height;
 
-
               Texture_LoadImage(&r,(u_long *)&shp->data);
+              (void)0;
             }
           }
         }

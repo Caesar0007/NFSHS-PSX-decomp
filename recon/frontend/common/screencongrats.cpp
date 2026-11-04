@@ -108,7 +108,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 
 {
   tTourneyInfo *tourneyInfo;
-  short numRanked;
+  __complex__ short numRanked;
   tourneyInfo = tournamentManager.CurrentTourney();
 
 
@@ -125,12 +125,12 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 
   if (2 <= (u_int)(this->trophy - kTrophyCar))
   {
-    int j; numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
+    int j; __real__ numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
     j = 900;
-    { int i; i = 1; if (0 < numRanked) { do {
+    { int i; i = 1; if (0 < __real__ numRanked) { do {
           if (tournamentManager.PlayerRanking((short)i) == 0) {
             j = i;
-          } i = i + 1; } while (i <= numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
+          } i = i + 1; } while (i <= __real__ numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
     *swapFileName = congratsSwapFileName;
     numSwapShapes = 0x20; this->fNumSpinShapes = 0x20;
   }
@@ -297,10 +297,10 @@ void tScreenCongrats::DrawBackground()
 
         if (0x13 < this->framenum)
         {
-          int spinTicks; __asm__("" : : "i"(0));
+          __complex__ int spinTicks; __asm__("" : : "i"(0));
           scale = true;
-          if (((spinTicks = FE_Ticks(), this->framenum = 0x14),
-               spinTicks - this->starttick / 4) % 0x5dc < 0x2d)
+          if (((__real__ spinTicks = FE_Ticks(), this->framenum = 0x14),
+               __real__ spinTicks - this->starttick / 4) % 0x5dc < 0x2d)
           {
             this->InExtraSpinTick = FE_Ticks();
             this->InExtraSpin = 1;
@@ -456,8 +456,8 @@ void tScreenCongrats::CalculatePrizes()
 
 
 {
-  const unsigned long carCXBits = 0x40800000;
-  __asm__("" : : "r"(carCXBits));
+  __complex__ unsigned long carCXBits; __real__ carCXBits = 0x40800000;
+  __asm__("" : : "r"(__real__ carCXBits));
   const unsigned long carCYBits = 0xc0eccccd;
 
   this->congratsMessage = kScreenCongrats_Congrats;
@@ -467,7 +467,7 @@ void tScreenCongrats::CalculatePrizes()
   this->TotalCash = 0;
   this->CashAwarded = -1;
   this->fCarX = 0x116;
-  *(unsigned long *)&this->fCarCX = carCXBits;
+  *(unsigned long *)&this->fCarCX = __real__ carCXBits;
   *(volatile short *)&this->fCarY = 0x3f;
   *(volatile unsigned long *)&this->fCarCY = carCYBits;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
@@ -475,7 +475,7 @@ void tScreenCongrats::CalculatePrizes()
     this->fCarY = 0x49;
     this->fCarCY = -8.2;
   }
-  __asm__("" : : "r"(carCXBits));
+  __asm__("" : : "r"(__real__ carCXBits));
   return;
 }
 
@@ -870,12 +870,12 @@ void tScreenTournamentTrophy::CalculatePrizes()
 
 
   j = 900;
-  tourneyInfo = tournamentManager.CurrentTourney(); i = 1; short numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0')); if (0 < numRanked) { do {
+  tourneyInfo = tournamentManager.CurrentTourney(); i = 1; __complex__ short numRanked; __real__ numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0')); if (0 < __real__ numRanked) { do {
       if (tournamentManager.PlayerRanking((short)i) == 0) {
         j = i;
       }
 
-      i = i + 1; } while (i <= numRanked);
+      i = i + 1; } while (i <= __real__ numRanked);
   }
 
   if (j == 1) goto first_place; if (j <= 0) goto eliminated; if (j >= 4) goto eliminated; goto ranked_finish;
@@ -924,12 +924,12 @@ prizes_done:
 
 
 
-  long cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney; __asm__("" : : "i"(0)); unsigned long carCXBits = 0x40800000; __asm__("" : "=r"(carCXBits) : "0"(carCXBits)); this->CashAwarded = cashAwarded;
+  __complex__ long cashAwarded; __real__ cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney; __asm__("" : : "i"(0)); __complex__ unsigned long carCXBits; __real__ carCXBits = 0x40800000; __asm__("" : "=r"(__real__ carCXBits) : "0"(__real__ carCXBits)); this->CashAwarded = __real__ cashAwarded;
 
 
   this->fCarX = 0x116; this->fCarY = 0x3f;
   this->fCarCY = -7.4;
-  *(unsigned long *)&this->fCarCX = carCXBits;
+  *(unsigned long *)&this->fCarCX = __real__ carCXBits;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
 
     this->fCarX = 0x120; this->fCarY = 0x49; this->fCarCY = -8.2; } return; }

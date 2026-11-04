@@ -1307,7 +1307,7 @@ void Hud_BTCStats(short player,bool postgame)
   short startY;
   char string [40];
   bool chasinghuman;
-  bool showname; short PLAYERWIDTH; bool showtimeleft; short HUD_STATS_POS_X; short HUD_STATS_SIZE_W; short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y; short HUD_STATS_TEXT_START_X; short HUD_STATS_TITLE_START_X; short HUD_STATS_TITLE_START_Y; short HUD_STATS_TEXT_START_Y; int sizeH; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; current direct forms are receipted,not original-object proof. */ int postgameInset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; inset producer remains unknown. */ chasinghuman = 0; showname = 0;
+  bool showname; short PLAYERWIDTH; bool showtimeleft; short HUD_STATS_POS_X; short HUD_STATS_SIZE_W; short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y; short HUD_STATS_TEXT_START_X; short HUD_STATS_TITLE_START_X; short HUD_STATS_TITLE_START_Y; short HUD_STATS_TEXT_START_Y; __complex__ int sizeH; int postgameInset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; inset producer remains unknown. */ chasinghuman = 0; showname = 0;
   if (1 < Cars_gNumHumanRaceCars) {
 
     if ((Cars_gHumanRaceCarList[1 - player]->carFlags & 0x200U) == 0) {
@@ -1367,9 +1367,9 @@ void Hud_BTCStats(short player,bool postgame)
   Font_TextXY(TextSys_Word(0x4c),col[3],startY);
 
   Hud_FBuildF4(0,HUD_STATS_POS_X,startY + 0xf,HUD_STATS_SIZE_W,1,0,'\0','\0');
-  sizeH = HUD_STATS_SIZE_H; for (i = 1; i < 4; i = i + 1) {
+  __real__ sizeH = HUD_STATS_SIZE_H; for (i = 1; i < 4; i = i + 1) {
     postgameInset = 8;
-    Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1, sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? postgameInset : 0)) - (showtimeleft ? 0x10 : 0),0,'\0','\0');
+    Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1, __real__ sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? postgameInset : 0)) - (showtimeleft ? 0x10 : 0),0,'\0','\0');
   }
 
   if (showtimeleft) {

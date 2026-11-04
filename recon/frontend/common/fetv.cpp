@@ -353,13 +353,13 @@ void DrawTV(tTVConfig &tv)
     DrawTVLines(tv);
   }
 
-  if ((tv.flags & 0x10) == 0) {
+  __complex__ int packetPtrSlot1; __complex__ unsigned int rgbMask1; __complex__ int packetPtrSlot2; __complex__ unsigned int rgbMask2; __complex__ int palette; __complex__ int primitive; __complex__ int linkSlot; __complex__ unsigned int linkMask; __complex__ unsigned int paletteTag; if ((tv.flags & 0x10) == 0) {
 
 
 
     if (tv.state != tv_StateOn) {
 
-      u_char **packetPtrSlot = (u_char **)0x1f800004; u_int rgbMask = 0xffffff; __asm__("" : : "r"(rgbMask), "r"(rgbMask)); texture = (POLY_FT4 *)*packetPtrSlot; addPrim(Render_gPalettePtr,texture); *packetPtrSlot = (u_char *)(texture + 1);
+      __real__ packetPtrSlot1 = 0x1f800004; __real__ rgbMask1 = 0xffffff; __asm__("" : : "r"(__real__ rgbMask1), "r"(__real__ rgbMask1)); texture = (POLY_FT4 *)*(u_char **)__real__ packetPtrSlot1; addPrim(Render_gPalettePtr,texture); *(u_char **)__real__ packetPtrSlot1 = (u_char *)(texture + 1);
       *(u_int *)&texture->r0 = (0x40 - (bright >> 1)) * 0x10000 | (0x40 - (bright >> 1)) * 0x100 | (0x40 - (bright >> 1));
 
       SetPolyFT4(texture);
@@ -389,8 +389,8 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        reflection = (POLY_GT4 *)*packetPtrSlot;
-        reflection--; reflection++; addPrim(Render_gPalettePtr,reflection); *packetPtrSlot = (u_char *)(reflection + 1);
+        reflection = (POLY_GT4 *)*(u_char **)__real__ packetPtrSlot1;
+        reflection--; reflection++; addPrim(Render_gPalettePtr,reflection); *(u_char **)__real__ packetPtrSlot1 = (u_char *)(reflection + 1);
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
@@ -417,12 +417,12 @@ void DrawTV(tTVConfig &tv)
 
     if (tv.state != tv_StateOff) {
 
-      u_char **packetPtrSlot = (u_char **)0x1f800004; u_int rgbMask = 0xffffff; __asm__("" : : "r"(rgbMask), "r"(rgbMask)); texture = (POLY_FT4 *)*packetPtrSlot; FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask); *(u_int *)&texture->r0 = tint; SetPolyFT4(texture);
+      __real__ packetPtrSlot2 = 0x1f800004; __real__ rgbMask2 = 0xffffff; __asm__("" : : "r"(__real__ rgbMask2), "r"(__real__ rgbMask2)); texture = (POLY_FT4 *)*(u_char **)__real__ packetPtrSlot2; __real__ palette = (int)(u_int *)Render_gPalettePtr; __real__ primitive = (int)texture; __real__ linkSlot = __real__ packetPtrSlot2; __real__ linkMask = __real__ rgbMask2; *(u_int *)__real__ primitive = *(u_int *)__real__ primitive & 0xff000000 | *(u_int *)__real__ palette & __real__ linkMask; __real__ paletteTag = *(u_int *)__real__ palette; *(u_char **)__real__ linkSlot = (u_char *)__real__ primitive + 0x28; *(u_int *)__real__ palette = __real__ paletteTag & 0xff000000 | (u_int)__real__ primitive & __real__ linkMask; *(u_int *)&texture->r0 = tint;
 
 
 
 
-
+      SetPolyFT4(texture);
       SetSemiTrans(texture,0);
       SetShadeTex(texture,do_tint ^ 1);
 
@@ -449,7 +449,7 @@ void DrawTV(tTVConfig &tv)
           fadeBottom = 0x80;
         }
 
-        texture = (POLY_FT4 *)*packetPtrSlot; addPrim(Render_gPalettePtr,(POLY_GT4 *)texture); *packetPtrSlot = (u_char *)((POLY_GT4 *)texture + 1);
+        texture = (POLY_FT4 *)*(u_char **)__real__ packetPtrSlot2; addPrim(Render_gPalettePtr,(POLY_GT4 *)texture); *(u_char **)__real__ packetPtrSlot2 = (u_char *)((POLY_GT4 *)texture + 1);
 
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
@@ -468,10 +468,10 @@ void DrawTV(tTVConfig &tv)
         ((POLY_GT4 *)texture)->x0 = videoX; ((POLY_GT4 *)texture)->y0 = tv.flip_axis * 2 - videoY; ((POLY_GT4 *)texture)->x1 = videoX + videoWidth; ((POLY_GT4 *)texture)->y1 = tv.flip_axis * 2 - videoY; ((POLY_GT4 *)texture)->x2 = videoX; ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight; ((POLY_GT4 *)texture)->x3 = videoX + videoWidth; ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->u0 = tv.u; ((POLY_GT4 *)texture)->v0 = tv.v - 1; ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw; ((POLY_GT4 *)texture)->v1 = tv.v - 1; ((POLY_GT4 *)texture)->u2 = tv.u; ((POLY_GT4 *)texture)->v2 = tv.v - 1 + tv.vh; ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw; ((POLY_GT4 *)texture)->v3 = tv.v - 1 + tv.vh;
         ((POLY_GT4 *)texture)->tpage = tv.tpage;
-        ((POLY_GT4 *)texture)->clut = tv.clut;
-      }
-    }
-  } return; }
+        ((POLY_GT4 *)texture)->clut = tv.clut; } } } return;
+
+
+  }
 
 
 

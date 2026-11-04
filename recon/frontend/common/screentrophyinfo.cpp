@@ -29,18 +29,29 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 
 {
   tTourneyInfo *tourn;
-  short placement;
+  __complex__ short placement;
+#line 47 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  __complex__ int pfn; __real__ pfn = (int)permFileName;
+#line 50 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
   byte feTier = (byte)frontEnd.tier; byte currentTourn; tourn = (currentTourn = (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier], tournamentManager.Definition()->fTournaments + ((uint)tournamentManager.Definition()->fTiers[feTier].fTournOffset + currentTourn));
-  placement = 0;
-  if ((u_int)((signed char)tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID] - 1) < 3) { placement = (signed char)tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID];
+#line 50 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+#line 50 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  __real__ placement = 0; __complex__ int tid; __real__ tid = (signed char)tourn->fTournamentID;
+#line 47 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  __complex__ int best; __real__ best = (signed char)tournamentManager.fBestPlacement[__real__ tid];
+#line 52 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  if ((u_int)(__real__ best - 1) < 3) { __real__ placement = __real__ best;
+  //
+  //
   }
-  this->BannerCol = kBannerColors[placement];
+#line 54 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  this->BannerCol = kBannerColors[__real__ placement];
   GetTrophyName(&tournamentManager,tourn,ts_Large,gSwapFileNameTI,-1);
 
   numSwapShapes = 0x20;
   *swapFileName = gSwapFileNameTI;
 
-  *permFileName = "zSTI";
+  *(char **)__real__ pfn = "zSTI";
   numPermShapes = 0xb; return;
 }
 
@@ -71,48 +82,63 @@ void tScreenTrophyInfo::DrawBackground()
   RECT r;
   int col; int yyy; tDrawShapeExtended drawFlags; tDrawShapeExtended drawFlags2; int i; FadePartI = (0 < (int)this->fScreenFadeVal - 0x40 ? (int)this->fScreenFadeVal - 0x40 : 0) << 1;
   FadePartIITheRevenge = (((int)this->fScreenFadeVal << 1) >? 0) <? 0x80;
-  int tournID;
+  __complex__ int tournID;
   tTourneyInfo *tourn;
 
   byte feTier;
   byte currentTourn;
 
 
-  feTier = (byte)frontEnd.tier; tourn = tournamentManager.Definition()->fTournaments + (currentTourn = (byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier], (uint)tournamentManager.Definition()->fTiers[feTier].fTournOffset + currentTourn); tournID = (signed char)tourn->fTournamentID; col = CalcFadeVal(kRGBVals[(byte)textDefinitions[4][5]],FadePartI);
+  feTier = (byte)frontEnd.tier; tourn = tournamentManager.Definition()->fTournaments + (currentTourn = (byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier], (uint)tournamentManager.Definition()->fTiers[feTier].fTournOffset + currentTourn);
+#line 81 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  __real__ tournID = (signed char)tourn->fTournamentID;
+#line 80 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  (void)*(int *)kRGBVals[(__imag__ tournID = 0, (byte)textDefinitions[4][5])];
+//
+//
+#line 84 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+  col = CalcFadeVal(kRGBVals[(byte)textDefinitions[4][5]],FadePartI);
+//
+#line 88 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
   yyy = 0xaf;
 
 
 
 
+#line 84 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+//
+#line 88 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
+#line 86 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
   FETextRender_FullTextRGB(TextSys_Word((signed char)tourn->fTournamentID + 0x341),0x1e,0x19,col,'\x03',3);
+#line 87 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.CPP"
 
 
-  if (strlen(TextSys_Word(tournID + 0x37a)) != 0) {
+  if (strlen(TextSys_Word(__real__ tournID + 0x37a)) != 0) {
 
 
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3db,0x8c,0xaf,1,textState_Hilighted,textType_ScreenInfo);
-    FETextRender_FullTextRGB(TextSys_Word(tournID + 0x37a),0x91,0xaf,
+    FETextRender_FullTextRGB(TextSys_Word(__real__ tournID + 0x37a),0x91,0xaf,
         CalcFadeVal(0x505050,FadePartI),'\0',0);
 
     yyy = 0xb7;
   }
-  if (strlen(TextSys_Word(tournID + 0x3a0)) != 0) {
+  if (strlen(TextSys_Word(__real__ tournID + 0x3a0)) != 0) {
 
 
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3dd,0x8c,yyy,1,textState_Hilighted,textType_ScreenInfo);
     r.x = 0x91; r.w = 0x15b; r.y = yyy; r.h = 100;
-    FETextRender_WordWrapTextRGB(TextSys_Word(tournID + 0x3a0),r, CalcFadeVal(0x505050,FadePartI));
+    FETextRender_WordWrapTextRGB(TextSys_Word(__real__ tournID + 0x3a0),r, CalcFadeVal(0x505050,FadePartI));
     yyy = yyy + FETextRender_WordWrapHeight(0x15b,
-        TextSys_Word(tournID + 0x3a0));
+        TextSys_Word(__real__ tournID + 0x3a0));
   }
-  if (strlen(TextSys_Word(tournID + 0x38d)) != 0) {
+  if (strlen(TextSys_Word(__real__ tournID + 0x38d)) != 0) {
 
 
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3dc,0x8c,yyy,1,textState_Hilighted,textType_ScreenInfo);
     r.x = 0x91; r.w = 0x15b; r.y = yyy; r.h = 100;
-    FETextRender_WordWrapTextRGB(TextSys_Word(tournID + 0x38d),r, CalcFadeVal(0x505050,FadePartI));
+    FETextRender_WordWrapTextRGB(TextSys_Word(__real__ tournID + 0x38d),r, CalcFadeVal(0x505050,FadePartI));
 
-    FETextRender_WordWrapHeight(0x15b,TextSys_Word(tournID + 0x38d));
+    FETextRender_WordWrapHeight(0x15b,TextSys_Word(__real__ tournID + 0x38d));
   }
 
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
@@ -120,7 +146,7 @@ void tScreenTrophyInfo::DrawBackground()
     ::UploadSwapShapes((tScreen *)this,0x20);
   }
   r.x = 0x23; r.y = 0x2d; r.w = 0x1c4; r.h = 100;
-  FETextRender_WordWrapTextRGBJustify(TextSys_Word(tournID + 0x367),r,
+  FETextRender_WordWrapTextRGBJustify(TextSys_Word(__real__ tournID + 0x367),r,
 
       CalcFadeVal(0x505050,FadePartI),3,0,false);
 

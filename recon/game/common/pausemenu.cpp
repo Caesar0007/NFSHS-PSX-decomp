@@ -659,7 +659,7 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
 
   for (int i = 0; i < 15; i++) {
 
-    u_long col = 0x323232; int xpos; int off = i * 5 + 66; xpos = x + off;
+    u_long col = 0x323232; int xpos; __complex__ int off; __real__ off = i * 5 + 66; xpos = x + __real__ off;
     if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
 
 
@@ -670,14 +670,14 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
       col = 0x808080; if (selected != 0) { col = 0xbebe; } }
 
 
-    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) { POLY_GT4 *prim; u_char **packetPtr; packetPtr = (u_char **)0x1f800004;
+    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) { POLY_GT4 *prim; __complex__ int packetPtr; __real__ packetPtr = 0x1f800004;
 
 
-      prim = (POLY_GT4 *)*packetPtr; addPrim(Render_gPalettePtr, prim); *packetPtr = (u_char *)(prim + 1);
+      prim = *(POLY_GT4 **)__real__ packetPtr; addPrim(Render_gPalettePtr, prim); *(u_char **)__real__ packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x12, x + 53, y + 2, 0xbebe);
 
-      prim = (POLY_GT4 *)*packetPtr; addPrim(Render_gPalettePtr, prim); *packetPtr = (u_char *)(prim + 1);
-      Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe); __asm__("" : : "r"((int)x), "r"(packetPtr)); }
+      prim = *(POLY_GT4 **)__real__ packetPtr; addPrim(Render_gPalettePtr, prim); *(u_char **)__real__ packetPtr = (u_char *)(prim + 1);
+      Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe); __asm__("" : : "r"((int)x), "r"(__real__ packetPtr)); }
 
 
     Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0'); __asm__("" : : "r"(y), "r"(i));

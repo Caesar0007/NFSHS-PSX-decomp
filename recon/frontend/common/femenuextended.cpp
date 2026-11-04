@@ -630,8 +630,8 @@ void tMenuNFS4::Initialize()
 
   this->fNumItems = '\0'; while (this->fItemList[this->fNumItems] != (tMenuItem *)0x0) { this->fNumItems++;
   }
-  if ((this->fFlags & 0x200) != 0) {
-
+  if ((this->fFlags & 0x200) != 0)
+  {
     for (short item = 0; this->fItemList[item] != 0; item++) {
       MenuItem_SetFlags(this->fItemList[item], 0x200); }
   }
@@ -748,8 +748,8 @@ void tMenuNFS4::Draw()
   const int image = this->fItemList[this->fCurrentItem]->ButtonImage();
   const int frames = MenuItem_NumFrames(this->fItemList[this->fCurrentItem]);
 
-  if (image >= 0 && frames > 0) {
-
+  if (image >= 0 && frames > 0)
+  {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10, FEApp->Player() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
   }
@@ -1182,29 +1182,6 @@ void tMenuBlank::UpdateTransition()
 
 { }
 
-
-
-/* ---- tMenuItemOptionsTwoItemChoice::dtor  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
+#line 909 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 extern "C" void ___24tMenuItemLeftRightChoice(void *);
-
-
-
-/* ---- tMenuItemOptionsLeftRightChoice::dtor  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___24tMenuItemLeftRightChoice(void *);
-
-
-
-/* tMenuItemGoToMenuNFS4Button::Draw(bool) is an in-class inline (femenuextended_types.h): retail emits it in the
- * deferred-inline batch, AFTER the two synthesized Options* destructors. */
-
 /* end of femenuextended.cpp */

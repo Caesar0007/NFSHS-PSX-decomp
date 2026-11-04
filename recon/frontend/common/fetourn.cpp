@@ -153,9 +153,9 @@ void tTournamentManager::UpdateTrackList(short tier,short tournament)
   tTourneyInfo *currentTourney;
   short numTracks;
   short trackOffset;
-  short i;
-  currentTourney = this->fDefinition->fTournaments +
-                   (this->fDefinition->fTiers[tier].fTournOffset + tournament);
+  short i; __complex__ int tierPtr;
+  __real__ tierPtr = (int)&this->fDefinition->fTiers[tier];
+  currentTourney = this->fDefinition->fTournaments + (((tTierInfo *)__real__ tierPtr)->fTournOffset + tournament);
   numTracks = currentTourney->fNumTracks;
   trackOffset = currentTourney->fTrackOffset;
   i = 0;
@@ -349,7 +349,7 @@ void tTournamentManager::UpdateTournFinishMoney()
   if (tourn->fKnockout != '\0') {
     (this->fAwards).fTournMoney +=
         this->GetTournamentFinishPrize(this->fCompetitors[0].fPosition - 1);
-  }
+    return; }
   else {
     for (i = 0; i < 6; i++) {
 
@@ -412,8 +412,8 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
   int damage;
   long totalcarprice;
   short mask;
-  if (recalculate != 0) {
-    dummyCars = Cars_NewCarStatsList();
+  if (recalculate != 0)
+  { dummyCars = Cars_NewCarStatsList();
 
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
 
@@ -553,7 +553,7 @@ void tTournamentManager::UpdateTrackFinishPoints()
   int i;
   short k;
   Car_tStats *dummyCars;
-  short numCompetitors; Car_tStats *stats; u_char *ranking; tCompetitor *comp; bool knockout; numCompetitors = this->GetNumCompetitors();
+  short numCompetitors; __complex__ int stats; __complex__ int ranking; tCompetitor *comp; bool knockout; numCompetitors = this->GetNumCompetitors();
 
 
 
@@ -568,18 +568,18 @@ void tTournamentManager::UpdateTrackFinishPoints()
 
       if (this->fCompetitors[i].fEliminated == 0) {
 
-        stats = (Car_tStats *)((int)k * (int)sizeof(Car_tStats) + (int)dummyCars); if ((stats->finalPosition - 1U < 6) && (stats->finalFinishType == 2)) {
+        __real__ stats = (int)k * (int)sizeof(Car_tStats) + (int)dummyCars; if ((((Car_tStats *)__real__ stats)->finalPosition - 1U < 6) && (((Car_tStats *)__real__ stats)->finalFinishType == 2)) {
 
-          if (stats->finalPosition >= this->fNumRacers) {
+          if (((Car_tStats *)__real__ stats)->finalPosition >= this->fNumRacers) {
             this->fCompetitors[i].fEliminated = 1;
 
 
-            this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
+            this->fCompetitors[i].fPosition = (uchar)((Car_tStats *)__real__ stats)->finalPosition;
           }
           else {
 
             this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
-            this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
+            this->fCompetitors[i].fPosition = (uchar)((Car_tStats *)__real__ stats)->finalPosition;
           }
         }
 
@@ -610,8 +610,8 @@ void tTournamentManager::UpdateTrackFinishPoints()
     }
 
 
-    i = 5; ranking = (u_char *)this + i;
-    do { ranking[567] = (uchar)i; i = i - 1; ranking = ranking - 1; } while (-1 < i);
+    i = 5; __real__ ranking = (int)((u_char *)this + i);
+    do { ((u_char *)__real__ ranking)[567] = (uchar)i; i = i - 1; __real__ ranking = __real__ ranking - 1; } while (-1 < i);
     qsort(this->fRanking,(int)numCompetitors,1,
 
 
@@ -1012,7 +1012,7 @@ void tTournamentManager::UpdateAwardInformation()
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read bonus, bill. */
   long bonus;
-  long bill;
+  long bill; __complex__ int car;
   this->CalcTrackFinishDamageBill(true,bill,bonus);   /* now takes long& */
   this->fMoney -= bill;
   this->fMoney += bonus;
@@ -1035,9 +1035,9 @@ void tTournamentManager::UpdateAwardInformation()
     FECheat_ActivateBonus((this->fAwards).fActivateCheat);
   }
   if (((this->fAwards).fAwardCar != 0) && ((this->fAwards).fAwardCarGarageFull == 0)) {
-    carManager.PurchaseCar((short)(this->fAwards).fAwardCarModel,
-               (short)(signed char)carManager.GetCarFromID(
-                   (short)(this->fAwards).fAwardCarModel)->fColorOrder[ (byte)(this->fAwards).fAwardCarColor],0);
+    
+    __real__ car = (int)carManager.GetCarFromID((short)(this->fAwards).fAwardCarModel);
+    carManager.PurchaseCar((short)(this->fAwards).fAwardCarModel,(short)(signed char)((tCarInfo *)__real__ car)->fColorOrder[(byte)(this->fAwards).fAwardCarColor],0);
     carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0], (ushort)(byte)(this->fAwards).fAwardCarUpgrades,0); } return; }
 
 
@@ -1107,15 +1107,15 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 
 
 {
-  int showplace;
+  int showplace; __complex__ short t;
   char trophySizeLetter [3] = { 'S', 'M', 'L' }; const int best = Tournament_BestPlacement(tournamentManager, (signed char)tourn->fTournamentID);
 
   char trophyPlacementLetter [4] = { 'W', 'G', 'S', 'B' };
 
 
   if (place == -1) {
-    const short t = (u_int)(best - 1U) < 3 ? best : 0;
-    showplace = t;
+    __real__ t = (u_int)(best - 1U) < 3 ? best : 0;
+    showplace = __real__ t;
 
   }
   else {
@@ -1283,11 +1283,11 @@ bool tListIteratorTournament::ValidTournament(char tourn)
 {
   tTierInfo *currentTier;
   tTourneyInfo *currentTourn;
-  bool result;
+  bool result = 1;
 
   currentTier = &this->fTournamentManager->fDefinition->fTiers[(u_char)frontEnd.tier];
   currentTourn = &this->fTournamentManager->fDefinition->fTournaments [(u_int)currentTier->fTournOffset + (u_int)(u_char)tourn];
-  result = 1;
+
   if ((currentTourn->fRequiredFlags & 1) != 0) { result = (signed char)this->fTournamentManager->fBestPlacement[ currentTourn->fRequiredTournamentID] < '\x04';
   }
   if (((currentTourn->fRequiredFlags & 2) != 0) &&

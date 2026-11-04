@@ -114,12 +114,12 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 {
   Skidmark_Chunk *returnsm;
   int NewChunk;
-  int nseg; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct sum4diff/107 after d removal,not original-object proof. */
+
 
   returnsm = gSm + gUseSm;
 
 
-  nseg = returnsm->n; nseg = nseg + newsegs; NewChunk = 0x18 < nseg;
+  NewChunk = 0x18 < (("\1"[0] ? 1 : NewChunk) ? returnsm->n + newsegs : returnsm->n);
   if ((0 < (returnsm->cp).x - skidpt->x) ?
       (0xfffff < (returnsm->cp).x - skidpt->x) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
     NewChunk = true; } else { if ((0 < (returnsm->cp).y - skidpt->y) ? (0xfffff < (returnsm->cp).y - skidpt->y) : (0xfffff < skidpt->y - (returnsm->cp).y)) {

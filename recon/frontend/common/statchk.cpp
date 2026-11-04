@@ -80,8 +80,8 @@ bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCa
 
     purgememadr(nBestLapTimes);
     purgememadr(nRankBestLapTimes);
-        goto InvalidCar;
-      }
+    purgememadr(TrackRecords);
+        return 0; }
 
 
 
@@ -158,10 +158,10 @@ bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCa
 
 
     goto PurgeRest;
-InvalidCar:
 
 
-    purgememadr(TrackRecords); return 0; CheckRecord: nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
+
+    CheckRecord: nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
 
 
 
@@ -200,13 +200,6 @@ PurgeRest: purgememadr(nRankBestLapTimes);
 }
 
 /* ---- StatChk_SaveRecordLapTime  (statchk.cpp:227) ---- */
-    /* SOURCE-REVIEW-UNRESOLVED: newBestLap is absent from retail locals.
-       With the corrected scalar BOOL declaration,direct true6dif/100 and
-       compound |=true8dif/102 were restored. Retail loads1 into v1 and
-       the address into v0;direct assignment reverses them. This is not
-       proof of a distinct source object or original spelling. */
-  /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
-     a `1 < x - 7` spelling emits the signed slti. */
 #line 224 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestCarIndex)
 
@@ -220,7 +213,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
   tRecordBuffer DummyRaceResult;
   tRecordBuffer *TrackRecords;
   tCarInfo *carInfo;
-  int newBestLap;
+
 
   carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
 
@@ -253,37 +246,20 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
     memcpy_call(TrackRecords,&DummyRaceResult,0x14);
 
 
-    newBestLap = 1;
+    carInfo = (tCarInfo *)(1 << (int)carInfo);
 
     blockmove(TrackRecords,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
-    NewBestLap = newBestLap;
+    NewBestLap = 1;
 
 
-    purgememadr(TrackRecords);
-  }
-  return;
+    purgememadr(TrackRecords); } return;
+
+
 
 
 }
 
 /* ---- StatChk_IsTopTime  (statchk.cpp:285) ---- */
-/* MATCH W68 (2026-08-13): SYM and the five VA-separated 0x80049D0C exports
-   prove that the second traversal uses `nCar` as its loop counter and reuses
-   `k = nRankCarTotalTimes[nCar]` for the ranked car.  Restoring those original
-   variable roles recovers the complete saved-register allocation.  The two
-   post-loop tie breakers use negated `car0 > car1` tests, which preserve the
-   retail load order and branch polarity.  Together with the explicit
-   `bDoRecordCheck == 1` comparison, this takes the authoritative function from
-   113 residual byte diffs to PASS at 299/299 instructions. */
-  /* MATCH W64-A17 -- REAL CFG FIX (11C branch-target audit; gate-invisible,
-     caught by tools/brdist.py + tools/psyqproof.py as REAL=1 on a PASSing
-     body).  Retail's chain is FLAT: from the LASTPLACE[0]!=0 / LASTPLACE[1]==0
-     / TOPLIST[1]==0 path it FALLS THROUGH into the third test
-     (`beqz $v0,.L8004A09C` at 0x8004A08C, offset 3), where our nested
-     `if (LASTPLACE[0]) {...} else if (...)` jumped straight to the join
-     (offset 12).  cse's record_jump_equiv deletes the repeated LASTPLACE[0]
-     guard, so the flat spelling is codegen-identical -- gate still PASS
-     299/299, and the branch word now matches. */
 #line 282 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
 
@@ -362,13 +338,13 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
 
 
     if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
-      if ((((byte)frontEnd.gameMode < 3) && ((dummyCars[k].carFlags & 4U) != 0)) &&
 
+      if ((byte)frontEnd.gameMode < 3) {
 
-         (dummyCars[k].finalFinishType == 2)) {
+        if (((dummyCars[k].carFlags & 4U) != 0) && (dummyCars[k].finalFinishType == 2)) {
 
-        bDoRecordCheck = 1;
-      }
+          bDoRecordCheck = 1;
+        } }
 
 
 
@@ -465,190 +441,14 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
   return retvalue;
 }
 
-/* ---- StatChk_SaveTopTime  (statchk.cpp:464) ----
- * REWRITE (w36-a10): SYM 8c gives fsize=176, mask=$c0ff0000, and the EXACT
- * 17-local set below (bTopTenFlag AUTO, bDoRecordCheck REG $17, nLapIndicator
- * AUTO, nPlace AUTO, nTopTenSort[8]/nTopTenIndex[8]/topPlacements[2] AUTO,
- * nCheckTotalTime REG $3, k REG $10, nCar REG $12, buffer/nCarTotalTimes
- * AUTO, nRankCarTotalTimes REG $15, DummyRaceResult AUTO, RecordHolders
- * REG $16, carInfo REG $6). The prior Ghidra recon fabricated 9 extra
- * locals (track/sortIdx/idx/playerName/recBase/rank/pSlot/slot/pRec) that
- * inflated the frame to 192 B vs the SYM's 176 B. Every fabricated temp
- * below folds into a real SYM local by tracing that its value is IDENTICAL
- * to an already-live real local at that point (e.g. Ghidra's "k=*pSlot"
- * reassignment always equals the already-computed "nCar"; "recBase"/"pRec"
- * are always "nLapIndicator" itself, never copied). Single flat SYM scope
- * (Block start line=1 .. Block end line=188) => k/nCar/nCheckTotalTime are
- * each ONE real C variable reused sequentially across the function's
- * several small loops (classic C89 "declare once at top, reuse" style),
- * matching the sibling StatChk_IsTopTime in this same file.
- *
- * MATCH W61 (2026-08-10): the duplicated finish-test arms recover retail's
- * saved-register allocation; keeping the initial record size opaque while
- * pricing the already-live nNumCars operand recovers the long exact middle;
- * memcpy_call prevents GCC's 20-byte builtin expansion; and a separate
- * loop-copy size plus its signed index input recovers retail's MULT shape.
- * Together with the explicit lap-count else, these reduce the authoritative
- * residual 199->62 at the exact 416/416 instruction count. Reusing uRecSz at
- * the tail, block-scoped size locals, declaration initializers, bulk-copy
- * identity fences, and explicit index temporaries measured neutral or worse
- * in that basin and were reverted.
- *
- * MATCH W66 (2026-08-11): model the first bulk-copy unit and its shifted byte
- * count as separate short-lived values before the expanded record assignment.
- * This recovers the retail calculation lifetime and reduces 62->59 diffs
- * (417/416 instructions); the two empty templates are identity/scheduling
- * fences only, with no register pinning or emitted instructions.
- *
- * MATCH W67 (2026-08-11): repeat the bulk unit as a read operand of its
- * zero-instruction identity fence.  The extra QTY reference changes GCC 2.8's
- * local-allocation priority and recovers the retail t2/t3/t0/t1 rotation for
- * the expanded five-word assignment, reducing 59->38 diffs (418/416).
- *
- * MATCH W68 (2026-08-14): retain strcpy's otherwise-dead return in the already
- * dead carInfo local and price that value in the bulk-unit identity fence.
- * This recovers retail's direct `li t1,20` plus the exact expanded-record word
- * rotation, reducing the authoritative residual 36->34 (418/416).  Direct
- * source-shape restoration, split first-size fences, and a distinct copy-call
- * size handoff all measured neutral or worse and were reverted.
- *
- * MATCH W69 (2026-08-15): in the W68 basin, a second identity only at the
- * final memcpy size handoff prevents uCopySz from coalescing directly into
- * hard argument $a2.  GCC now keeps the loop size in retail's $t0 and emits
- * the late `addu a2,t0,zero`, removing one instruction and reducing 34->33
- * (417/416).  Moving this fence before copyDst or duplicating it is neutral;
- * naming the source offset or reusing uBulkSz regresses to 79/62 diffs.
- *
- * W62-A16 (2026-08-15, re-gated baseline 33 @ 417/416 -- NOT the 34 the W69 note
- * implies; the basin moved, so every parked spelling below was re-priced here):
- * 🔑 NEW DEVICE FOUND for the receipted open question "what made retail's 20
- * OPAQUE without an asm" -- gcc-2.8 cse is BASIC-BLOCK-LOCAL, so a
- * `size = sizeof(T);` assignment placed on the FAR SIDE OF A LOOP from its use
- * cannot be constant-folded into the multiply expansion.  Hoisting
- * `uRecSz = sizeof(tRecordBuffer);` above the topPlacements zero-loop and
- * DELETING fence-1 keeps retail's `sll/addu/sll` *18 chain at ZERO instructions
- * and ZERO asm: 112 diffs @ 416 == the ORACLE COUNT (the fence basin is 417).
- * It is not landed because the pseudo is then live ACROSS the loop and takes
- * $a1 (forcing the nNumCars spill up 10 slots), where retail's is born AFTER
- * the loop in $t0 -- so retail's opacity is a THIRD mechanism (a REG_EQUIV
- * constant rematerialised at the use), not cross-BB and not an asm.
- * Re-gated from the 33 basin, all falsified: assign-before-loop no fence 112@416
- * / with fence 37@417 / fence-also-before-loop 120@416; assign INSIDE the loop
- * 112@416; decl-with-init 112@416; identity(no extra operand) at the use 114@416;
- * read-only at the use 112@416 (x2 operands 114); fence operand = uRecSz itself
- * 33@417 (the dead `lhu` is replaced by an equally dead `addu t0,v0,zero`),
- * = topPlacements[0] 33, = nCarTotalTimes 33, = "i"(0) 110@416, double identity
- * 110@416, = dummyCars (a ZERO-INSN operand, already in $fp) 110@416.
- * ⇒ 12E's law reproduced exactly: every operand that costs a real insn gives 33
- * (retail's REGISTERS, +1 count); every zero-insn operand gives 110-112
- * (retail's COUNT, wrong registers).  The device is priced, not free.
- * The cross-BB device does NOT transfer to the other two size sites: uBulkUnit
- * hoisted above the placement loop = 193@421 (no f2) / 235@421 (f2 kept), and
- * uCopySz hoisted above the copy loop = 248@424 / 327@423 -- both hoists escape
- * the outer per-car loop and buy a callee-saved home.  Dropping f3 alone = 60@416.
- *
- * W64-A17 (2026-08-15, re-gated baseline 33 @ 417/416 -- unchanged basin):
- * LANDED (scaffolding only, gate-neutral): fence-2 lost its INERT `uBulkSz`
- * operand (`"r"(uBulkUnit),"r"(uBulkSz)` -> `"r"(uBulkUnit)`), re-confirmed
- * EXACTLY 33 @ 417 -- one fewer artificial operand for the same result.
- * THE +1 IS NOW FULLY ITEMISED (three sites, read off tools/side_by_side.py):
- *   site 1 (uRecSz*18) ours `li v0,20; lhu t0,96(sp); ... sll s0,v0,3;
- *          addu a1,s0,v0` vs retail `li t0,20; sll s0,t0,3; addu a1,s0,t0`
- *          => +1 (the dead `lhu` = fence-1's `"r"(nNumCars)` price);
- *   site 2 (uBulkUnit*8) ours `li t1,20; addu v0,t1,zero; sll a2,v0,3` vs
- *          retail `li t1,20; sll a2,t1,3` => +1 (the identity fence's
- *          output copy: `"=r"/"0"` puts the asm result in a NEW pseudo);
- *   site 3 (memcpy size) ours `li a2,20 ... mult v0,a2` vs retail
- *          `li t0,20; mult v0,t0; addu a2,t0,zero` => -1 (retail's copy).
- *   +1 +1 -1 = +1 == 417-416.  QED.
- * NEW FALSIFICATIONS this wave (all re-gated from the 33 basin):
- *   - fence-2 DROPPED entirely 60 @416 (retail's COUNT, wrong registers --
- *     the 12E law again, and the SAME 60@416 basin as dropping f3);
- *   - site-2 identity fence -> READ-ONLY fence (the one shape that should
- *     delete its output copy) 35 @417 -- the copy is NOT the fence's output
- *     but the global-allocno price 13B names, so removing the output does
- *     not remove the copy;
- *   - read-only + fence-2 reduced 60 @416 (same basin);
- *   - fence-3 given a second read operand (`uCopySz` / `copyDst`) 33 @417
- *     both -- the site-3 missing `addu a2,t0,zero` is not ref-reachable.
- * => the residual stays the priced 12E certificate: EVERY zero-insn device
- * buys retail's COUNT (416) with the wrong registers (60-115 diffs), every
- * insn-costing operand buys retail's REGISTERS at +1 count (33).  The open
- * item is unchanged and is retail's THIRD opacity mechanism for the literal
- * 20 (a REG_EQUIV constant rematerialised at the use, born after the
- * topPlacements loop in $t0) -- an instrumented-cc1 job, not a spelling.
- *
- * W67-A8 (2026-08-15, re-gated baseline 33 @ 417/416): the do-while(0) DEPTH
- * WRAPPER probed as the NON-FENCE ref instrument at sites 1+2 -- it
- * reproduces the 12E law exactly like every other zero-insn device and does
- * NOT combine with the register half.  All re-gated, all reverted: wrapper
- * on the uBulkUnit assignment replacing the identity fence 60 @416 (retail
- * count, wrong regs = the fence-2-dropped basin) / at depth 2 60 @416 /
- * minus the RO fence 59 @415; wrapper around the uBulkSz multiply with the
- * identity fence KEPT 33 (inert) / with a RO carInfo fence instead 34 @416
- * -- count EXACT but structurally FALSE (cse folds 20*8 through the
- * stripped phony loop into `li a2,160`; the sll is gone, so NOT landed);
- * wrapper on the uRecSz assignment with a no-operand identity 110 @416 /
- * no fence 111 @413 / depth 2 111 @413 / RO fence 34 @414 (3 short) / full
- * fence kept 33 (inert); laundering uBulkSz instead of uBulkUnit 57 @417.
- * => the wrapper buys only the count half (59-111 basins); the 12E
- * certificate now stands on a second instrument family.
- * Harness: scratchpad/w67a8/stt_v{1,2}.json + probe.py.
- *
- * 🏆 W71-A18 (2026-08-21): 33 -> PASS 416/416, ALL THREE FENCES DELETED.
- * The "third opacity mechanism" the W62/W64 certificates named as an
- * instrumented-cc1 job was reachable from source after all, and it is the
- * ordinary 1998 shape: ONE record-size variable for the whole function.
- *   - `uRecSz = sizeof(tRecordBuffer);` is assigned ONCE, BEFORE the
- *     topPlacements zero-loop, and feeds every size site (uRecSz*18,
- *     uRecSz*8 twice, and the per-record copy size).  gcc-2.8's cse is
- *     BASIC-BLOCK-LOCAL, so with the loop between def and uses the constant
- *     can never be folded into the multiply expansions -- retail's
- *     `li 20; sll,3; addu; sll,1` (*18) and `li 20; sll,3` (*8) shift chains
- *     come out for free, with ZERO asm (the W62 cross-BB device, which was
- *     parked because a SHORT-lived hoisted pseudo takes $a1).
- *   - The reason it now works is the LIVE RANGE: one variable used at all
- *     three sites is CALL-CROSSING across the whole outer per-car loop, so
- *     it needs a callee-saved home; with mask $c0ff0000 the s-pool is full,
- *     it loses allocation, and reload REMATERIALIZES its REG_EQUIV constant
- *     at each use -- which is exactly retail's three independent `li 20`s in
- *     three different scratch registers (t0 / t1 / t0), including the late
- *     `addu a2,t0,zero` at the memcpy site that fence-3 used to buy at +1
- *     instruction.  The old three-short-lived-variables shape could never
- *     produce it: each got its own caller-saved register, and every device
- *     that made one opaque cost the instruction the 12E certificate priced.
- *   - The whole 12E "count XOR registers" certificate is therefore RETIRED
- *     for this function: the correct source shape buys BOTH.
- * Re-gated variants: the same single variable defined AFTER the loop (same
- * BB as its first use) = 87 @413 -- cse folds it and three insns vanish;
- * single variable + the old fence-1 kept = 187 @421.  Post-seal cleanup
- * (all re-gated PASS): uBulkUnit/uBulkSz/uCopySz decls dropped and both
- * derived sizes spelled inline (`uRecSz * 8`, `uRecSz`).
- * Harness: scratchpad/A18/stt_v1.json + stt_clean2.json + probe.py. */
-/* 2026-10-13 recorded-value recovery: discard strcpy's returned sName
- * pointer instead of assigning/casting it to the recorded tCarInfo* carInfo.
- * That overwritten value is never consumed before the next car lookup;
- * the compiler already deleted its assignment. Removing the false type/
- * value handoff is416/416 PASS with the original locals/homes/scopes intact.
- * No new object, qualifier, asm, helper or output rewrite. Source-only
- * record-size production and full SLD are still separate recovery work. */
-/* SOURCE-REVIEW-UNRESOLVED: uRecSz is an unrecorded record-size producer,
- * not an original-object/name exemption. Prior literal126dif/412, typed
- * copy-source indexing26/416 and widened byte-offset136/428 are restored.
- * Early declaration/init and an early explicit assignment both preserve
- *416/416, but worsen SLD374/416 to396/397; LI20 still follows later tags.
- * Those relocations are restored. Producer/name and full SLD remain open. */
-  /* SOURCE-REVIEW-UNRESOLVED: unrecorded record-size capture. Its known
-     sizeof(tRecordBuffer) value does not prove an original source object.
-     Prior literal-size trial126dif/412; typed copy-source indexing26/416,
-     widened byte-offset multiply136/428. All failures restored. */
+/* ---- StatChk_SaveTopTime  (statchk.cpp:464) ---- */
 #line 461 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 
 {
-  bool bTopTenFlag; bool bDoRecordCheck; short nLapIndicator; short nPlace; int nTopTenSort [8]; short nTopTenIndex [8]; int nCheckTotalTime; short k; short nCar; char *buffer; int *nCarTotalTimes; short *nRankCarTotalTimes; tRecordBuffer DummyRaceResult; tRecordBuffer *RecordHolders; tCarInfo *carInfo; int topPlacements [2]; unsigned int uRecSz; uRecSz = sizeof(tRecordBuffer); bDoRecordCheck = false; bTopTenFlag = false;
-
+  bool bTopTenFlag; bool bDoRecordCheck; short nLapIndicator; short nPlace; int nTopTenSort [8]; short nTopTenIndex [8]; int nCheckTotalTime; short k; short nCar; char *buffer; int *nCarTotalTimes; short *nRankCarTotalTimes; tRecordBuffer DummyRaceResult; tRecordBuffer *RecordHolders; tCarInfo *carInfo; int topPlacements [2]; unsigned int uRecSz; uRecSz = sizeof(tRecordBuffer); bTopTenFlag = false;
+  bDoRecordCheck = false;
 
   nPlace = 0;
 
@@ -749,11 +549,11 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
              ((RecordHolders[nLapIndicator + 7].nTime == 0) && (0 < nCheckTotalTime))) {
 
 
-
+            bTopTenFlag = true;
 
             DummyRaceResult.nTime = nCheckTotalTime;
             DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
-            bTopTenFlag = true; DummyRaceResult.nBestLap = dummyCars[nRankCarTotalTimes[nCar]].finalBestLap;
+            DummyRaceResult.nBestLap = dummyCars[nRankCarTotalTimes[nCar]].finalBestLap;
 
 
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;

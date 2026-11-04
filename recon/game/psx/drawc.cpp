@@ -5252,9 +5252,9 @@ void DrawC_SpotPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       *(u_char *)((int)prim + 7) = 0x32;
       *(u_char *)((int)prim + 3) = 6;
     } }
-  {
 
-    DR_MODE *prim = (DR_MODE *)(sd->head).cprim.PrimPtr; (sd->head).cprim.PrimPtr = (char *)(prim + 1); { u_long *ot = (sd->head).cprim.LastPrim + sd->otz; addPrim(ot, prim); } SetDrawMode(prim,0,1,0x120,(RECT *)0x0); } return;
+
+  { DR_MODE *prim = (DR_MODE *)(sd->head).cprim.PrimPtr; (sd->head).cprim.PrimPtr = (char *)(prim + 1); { u_long *ot = (sd->head).cprim.LastPrim + sd->otz; addPrim(ot, prim); } SetDrawMode(prim,0,1,0x120,(RECT *)0x0); } return;
 }
 
 /* ---- DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache [retail DRAWC.CPP:4260-4378; byte verified, fill-carrier/full SLD review open] ---- */

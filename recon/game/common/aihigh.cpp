@@ -211,7 +211,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
   this->stateType_ = 0; this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
 
-  this->schedulingOff_ = 0; this->lastTrafficTriggerCheckSlice_ = (int)(this->CarObj()->N).simRoadInfo.slice; }
+  this->ClearSchedulingOff(); this->lastTrafficTriggerCheckSlice_ = (int)(this->carObj_->N).simRoadInfo.slice; }
 
 
 
@@ -235,78 +235,5 @@ AIHigh_Base::~AIHigh_Base()
     this->state_ = (AIState_Base *)0x0; } }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ---- Execute__12AIState_None  AIState_None::Execute  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-
-
-
-
-
-
-
-
-/* ---- _._12AIState_None  AIState_None::dtor  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ---- TestForRelease__12AIState_Base  AIState_Base::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-
-
-
-
-
-
-
-
-/* ---- _._12AIState_Base  AIState_Base::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-
-
-
-
-
-
-
+class AIHigh_None;
 /* end of aihigh.cpp */

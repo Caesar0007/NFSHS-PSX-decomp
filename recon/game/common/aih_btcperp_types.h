@@ -13,9 +13,9 @@ typedef enum forceFocus_t {
 #include "shared/BW_tContext.h"
 
 
-
-
-
+#line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
+static inline void _btc_perp_dtor_ref(AIHigh_BTC_Perp *p) { p->~AIHigh_BTC_Perp(); }
+#line 19 "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp_types.h"
 
 #include "shared/Trk_ObjectDef.h"
 #include "shared/Trk_CollideBoomInst.h"

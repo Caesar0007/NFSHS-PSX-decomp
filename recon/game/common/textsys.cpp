@@ -41,16 +41,16 @@ void TextSys_LoadWordsGeneric(int language,char *path)
 {
   char string [250];
 
-  if (language < 7) {
+  if (language >= 7) return;
 
 
-    if (wordFile != (char *)0x0) {
-      purgememadr(wordFile); }
-    sprintf(string,"%s%s",path,langFileName[language]);
+  if (wordFile != (char *)0x0) {
+    purgememadr(wordFile); }
+  sprintf(string,"%s%s",path,langFileName[language]);
 
-    wordFile = (char *)loadfileadr(string,0);
-  }
+  wordFile = (char *)loadfileadr(string,0);
 }
+
 
 /* Textsys.obj: the language file names (.rodata 0x800565F0..) and their pointer table (.data).  Defined HERE, after
    the first function, because retail emits the "SimpleMem" tag ahead of these strings. */

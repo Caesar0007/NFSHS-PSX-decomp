@@ -550,8 +550,8 @@ void AIPhysic_Main(Car_tObj *carObj)
   useCoolPhysics = AIPhysics_UseCoolPhysics(carObj);
 
 
-
-
+  if (useCoolPhysics) {
+  }
 
 
   AIPhysic_CalculateRampedDesiredLatPos(carObj,(eRampType)(useCoolPhysics != 0));

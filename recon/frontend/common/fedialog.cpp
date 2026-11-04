@@ -3,6 +3,7 @@
  *   tMenuItemGoToMenuNFS4Button, tMenuItemNFS4LeftRightChoice, tMenuItemOptions{LeftRightChoice,
  *   TwoItemChoice}, + free MenuNFS4_DrawTextBox. Member defs; base ctors via init-lists; manual _vf.
  */
+#define NFS4_FEDIALOG_DIRECT
 #include "fedialog_types.h"
 #include "fedialog_externs.h"
 

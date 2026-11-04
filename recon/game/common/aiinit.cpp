@@ -390,9 +390,9 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
   carObj->max_aa = Udff_GetInt(handle);
 
 
-  if ((carObj->carFlags & 8U) != 0) {
-    int carType;
-    carType = carObj->carInfo->carType;
+  if ((carObj->carFlags & 8U) != 0)
+  {
+    int carType = carObj->carInfo->carType;
 
     accelerationScale = AITune_accelerationScale[carType].scale;
   }
@@ -562,7 +562,7 @@ int AIInit_IsNonStandardCarFile(int index)
 
 
 
-
-
-  return index < 0x32 ? nonStandardList[index] : 0;
+  if (index >= 0x32)
+    return 0;
+  return nonStandardList[index];
 }

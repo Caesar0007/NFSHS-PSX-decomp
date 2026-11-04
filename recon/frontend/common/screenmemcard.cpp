@@ -352,11 +352,11 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     else { xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * (2 - (short)((int)this->cursorPosition % 3));
     }
-    computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) + (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY); int tickFrame; tickFrame = (yy = computedY, FE_Ticks() >> 4);
+    computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) + (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY); int tickFrame; tickFrame = (yy = computedY, FE_Ticks());
 
-    animFrame = tickFrame % this->numicon[i];
-    if (i == this->theNFS4icon) {
-      tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
+    animFrame = (tickFrame >> 4) % this->numicon[i];
+    if (i == this->theNFS4icon)
+    { tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
 
       fFlags.tint[0] = 0xb55623;
       DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,computedY - 0x70,
@@ -899,7 +899,7 @@ void tScreenMemcard::Initialize()
 
 {
 
-
+  this->fScreenFadeReadyTick = 0;
 
 
 
@@ -924,7 +924,7 @@ void tScreenMemcard::Initialize()
   kMemCardMessage1Y = 0x33;
   kMemCardMessageX = 0x150;
   kMemCardMessage1X = 0x150;
-  this->fScreenFadeReadyTick = 0; kMemCardMessageY = 0xc6;
+  kMemCardMessageY = 0xc6;
 
 
 
@@ -1011,38 +1011,10 @@ void tScreenMemcard::Cleanup()
 
   this->tScreen::Cleanup();
 }
-
-/* ---- tScreenMemcard::~tScreenMemcard  (screenmemcard.cpp:99) ---- */
-/* WALL (methodology 3.23): oracle = simple base-forward (8 insns: jal ~tScreen; ret).
-   Composition modeling (tScreen _base_tScreen member w/ a dtor) forces gcc's DELETING
-   variant (__in_chrg arg + andi&1 + __builtin_delete), 18 insns. The fix is real
-   non-polymorphic inheritance (struct tScreenMemcard : public tScreen), a SHARED-HEADER
-   change in nfs4_types.h (forbidden here; would also rebuild every tScreenMemcard
-   accessor per gotcha #0). Left as a documented near-miss. */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
+extern "C" void ___7tScreen(void *); tScreenMemcard *screenMemcard; int GRIDMEMCARD_STARTX; int GRIDMEMCARD_STARTY;
+int MEMCARD_DELTAX; int MEMCARD_DELTAY; int kMemCardMessageH; int kMemCardMessageH1; int EXTRAYATTOP;
+int GRIDMEMCARD_WIDTH; int GRIDMEMCARD_HEIGHT; int GRIDMEMCARDGOURAUDBIT_X; int GRIDMEMCARDGOURAUDBIT_Y;
+int MEMCARDICONOFFX; int MEMCARDICONOFFY; int kMemCardMessage1X; int kMemCardMessage1Y;
+int kMemCardMessageX; int kMemCardMessageY;
+char (*fMemIcon)[15][3][192];
 /* end of screenmemcard.cpp */
-
-tScreenMemcard *screenMemcard;              /* @0x800528f0 */
-int GRIDMEMCARD_STARTX;                      /* @0x800528f4 */
-int GRIDMEMCARD_STARTY;                      /* @0x800528f8 */
-int MEMCARD_DELTAX;                          /* @0x800528fc */
-int MEMCARD_DELTAY;                          /* @0x80052900 */
-int kMemCardMessageH;                        /* @0x80052904 */
-int kMemCardMessageH1;                       /* @0x80052908 */
-int EXTRAYATTOP;                              /* @0x8005290c */
-int GRIDMEMCARD_WIDTH;                       /* @0x80052910 */
-int GRIDMEMCARD_HEIGHT;                      /* @0x80052914 */
-int GRIDMEMCARDGOURAUDBIT_X;                 /* @0x80052918 */
-int GRIDMEMCARDGOURAUDBIT_Y;                 /* @0x8005291c */
-int MEMCARDICONOFFX;                         /* @0x80052920 */
-int MEMCARDICONOFFY;                         /* @0x80052924 */
-int kMemCardMessage1X;                       /* @0x80052928 */
-int kMemCardMessage1Y;                       /* @0x8005292c */
-int kMemCardMessageX;                        /* @0x80052930 */
-int kMemCardMessageY;                        /* @0x80052934 */
-char (*fMemIcon)[15][3][192];                /* @0x80052938 */

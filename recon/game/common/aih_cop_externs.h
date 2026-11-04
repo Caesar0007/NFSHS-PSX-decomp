@@ -60,5 +60,34 @@ static inline int AI_Rand(void)
 /* HighExecute's trigger dispatch switches on this one-parameter inline (see aih_traf.cpp): its post-inline
    line note tags the dispatch with the switch's closing line, and its record sits after the case bodies. */
 static inline int TriggerType(trigger_t *trigger) { return trigger->any.type; }
+static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
+static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
+static inline int PerpChase_CopFreeTicks(AICop_PerpChaseInfo *info) { return info->copFreeTicks_; }
+static inline copLevel_t *PerpChase_ChaseLevel(AICop_PerpChaseInfo *info) { return info->chaseLevel_; }
+
+inline void AICop_PerpChaseInfo::ResetEngagementTime()
+{
+  int engagement;
+  int perTick;
+  int factor;
+
+  engagement = chaseLevel_->engagementLapFraction * AITune_gRoughLapTime;
+  if (engagement < 0) {
+    engagement += 0xffff;
+  }
+  perTick = 0x10000 / ((engagement >> 0x10) << 5);
+  engagementTime_ = (engagement >> 0x10) << 0x15;
+  engagementPercentIncreasePerTick_ = perTick;
+  if (GameSetup_gData.numLaps == 2) {
+    factor = 0x13333;
+  }
+  else if (GameSetup_gData.numLaps == 4) {
+    factor = 0xa8f5;
+  }
+  else {
+    return;
+  }
+  engagementPercentIncreasePerTick_ = fixedmult(perTick, factor);
+}
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

@@ -592,10 +592,10 @@ void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short wit
   if (withoutCarInGarageNumber != -1) {
 
     this->GetPinkSlipsCar(withoutCarInGarageNumber,carInfo,playerNum);
-    this->RemoveFromPinkSlipsList(withoutCarInGarageNumber,playerNum);
-  }
-  {
-    int i;
+    this->RemoveFromPinkSlipsList(withoutCarInGarageNumber,playerNum); } { int i;
+
+
+
 
 
 
@@ -1314,10 +1314,10 @@ adjusted_country:;
            ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] != oldCountry))) {
 
 
-        if ((((int)this->ValidCar(atIndex,this->fValue[i])) ^ 1) != 0) {
-          continue; } } break; } while (true);
-  }
+        if ((((int)this->ValidCar(atIndex,this->fValue[i])) ^ 1) != 0) { continue; } } break; } while (true); } return;
 }
+
+
 
 
 
@@ -1370,79 +1370,79 @@ bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
       if ((signed char)this->fCarManager->fPinkSlipsCars[i][(u_char)carNumber].fCarID >= 0) {
         result = 1; } return result;
     }
-    if ((this->fCarListFilter & 0x42U) == 0) {
-      goto ValidCar_returnResult;
-    } carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID; if (carID >= 0) {
-      result = 1;
-    }
-    carInfo = this->fCarManager->GetCarFromID(carID);
+    if ((this->fCarListFilter & 0x42U) != 0) {
 
-
-    if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
-      return 0;
-    }
-    if (!result) { goto ValidCar_returnResult; } if ((this->fCarListFilter & 0x40U) == 0) {
-      return result;
-    } this->fCarManager->GetGarageCar((short)((u_char)carNumber + (u_short)this->fCarManager->fNumCars),garageCar,0);
-    result = tournamentManager.ValidCar(garageCar); goto ValidCar_returnResult;
-  }
-
-
-
-
-  carID = (signed char)this->fCarManager->fCars[(u_char)carNumber].fCarID;
-
-  if (carID < 0) { goto ValidCar_returnResult; } if (this->fCarManager->fViewableCars[carID] == 0) {
-    goto ValidCar_returnResult;
-  }
-  if ((frontEnd.raceType == RaceType_HotPursuit) && (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
-    return 0;
-  }
-  switch (this->fCarManager->fCars[(u_char)carNumber].fCarClass) { case 0: case 1: case 2: case 3: case 4: case 5: case 6: goto ValidCar_classNormal; case 7: goto ValidCar_classCop; case 8: goto ValidCar_classTraffic; default: break; } goto ValidCar_classDone;
-
-ValidCar_classNormal:
-  {
-
-
-
-
-
-    if ((this->fCarListFilter & 0x81U) != 0) {
-      result = 1;
-    } if (carID == 0x1c) {
-      if ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
-
-
-          (frontEnd.raceType != RaceType_SingleRace)) {
-        result = 0;
-    } }
-  } goto ValidCar_classDone;
-
-ValidCar_classCop:
-    if ((this->fCarListFilter & 0xcU) != 0) {
-      if ((this->fCarManager->fCars[(u_char)carNumber].fCountries >>
-           (signed char)frontEnd.carCountry[i][carID] & 1U) != 0) {
-        tTrackInformation trackInfo;
-
-        trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
-
-
-        if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid; if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
-          result = 1;
-        }
+      carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID; if (carID >= 0) {
+        result = 1;
       }
-    } goto ValidCar_classDone;
+      carInfo = this->fCarManager->GetCarFromID(carID);
 
-ValidCar_classTraffic:
-  if ((this->fCarListFilter & 0x10U) != 0) {
-ValidCar_setValid: result = 1;
-  }
-ValidCar_classDone:
 
-  if (!result) { goto ValidCar_returnResult; } if ((this->fCarListFilter & 1U) == 0) { return result; } if (frontEnd.raceType != RaceType_Tournament) {
-    return result;
-  } result = tournamentManager.ValidCar( this->fCarManager->fCars[(u_char)carNumber]);
-ValidCar_returnResult:
+      if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
+        return 0;
+      }
+      if (result) { if ((this->fCarListFilter & 0x40U) == 0) {
+        return result;
+      } this->fCarManager->GetGarageCar((short)((u_char)carNumber + (u_short)this->fCarManager->fNumCars),garageCar,0);
+      result = tournamentManager.ValidCar(garageCar); } } } else {
+
+
+
+
+
+    carID = (signed char)this->fCarManager->fCars[(u_char)carNumber].fCarID;
+
+    if ((carID >= 0) && (this->fCarManager->fViewableCars[carID] != 0))
+    {
+
+      if ((frontEnd.raceType == RaceType_HotPursuit) && (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
+        return 0;
+      }
+      switch (this->fCarManager->fCars[(u_char)carNumber].fCarClass)
+      {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6:
+
+
+
+
+
+
+        if ((this->fCarListFilter & 0x81U) != 0) {
+          result = 1;
+        } if (carID == 0x1c) {
+          if ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
+
+
+              (frontEnd.raceType != RaceType_SingleRace)) {
+
+            result = 0;
+        } } break;
+
+      case 7:
+        if ((this->fCarListFilter & 0xcU) != 0)
+        {
+          if ((this->fCarManager->fCars[(u_char)carNumber].fCountries >> (signed char)frontEnd.carCountry[i][carID] & 1U) != 0)
+          {
+            tTrackInformation trackInfo;
+            trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
+
+
+            if (FECheat_IsCheatEnabled(cheat_AllCops)) result = 1; else if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
+              result = 1;
+            }
+          }
+        } break;
+
+      case 8:
+        if ((this->fCarListFilter & 0x10U) != 0) {
+          result = 1;
+        } break;
+      }
+
+      if ((result) && ((this->fCarListFilter & 1U) != 0) && (frontEnd.raceType == RaceType_Tournament)) {
+
+        result = tournamentManager.ValidCar( this->fCarManager->fCars[(u_char)carNumber]); } } }
+
 
 
 

@@ -287,13 +287,6 @@ void tScreenTrackRecords::DrawBackground()
   ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0); return;
 }
 
-/* ---- tScreenTrackRecords::~tScreenTrackRecords  (screentrackrec.cpp:55) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
 /* end of screentrackrec.cpp */
 
-tScreenTrackRecords *screenTrackRecords;   /* @0x800520d0; SYM EXT */
+extern "C" void ___7tScreen(void *); tScreenTrackRecords *screenTrackRecords;   /* @0x800520d0; SYM EXT */

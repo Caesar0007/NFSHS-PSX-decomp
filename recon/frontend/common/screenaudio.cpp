@@ -3,7 +3,7 @@
  */
 #include "screenaudio_types.h"
 #include "screenaudio_externs.h"
-
+#line 1 "screenaudio_externs.h"
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
@@ -33,13 +33,13 @@ void tScreenAudio::PlaySound()
 
 
 {
-  if (menuDefs->itemSlidingPlayList.IsActive() &&
 
 
 
 
+  if (menuDefs->itemSlidingPlayList.IsActive())
 
-     (this->fPrevSelectedSong != this->fSelectedSong)) {
+    if (this->fPrevSelectedSong != this->fSelectedSong) {
 
     AudioMus_StopSong(10);
     AudioMus_PlaySong(this->songlist->song[this->fSelectedSong].filename);
@@ -60,8 +60,8 @@ void tScreenAudio::PlaySound()
 
 
 
-  if (frontEnd.audioMode != this->prevAudioMode) {
-    SNDSYSOPTS opts;
+  if (frontEnd.audioMode != this->prevAudioMode)
+  { SNDSYSOPTS opts;
 
     gStereoMode = 1;
     Audio_direct3davail = 0;
@@ -94,16 +94,16 @@ void tScreenAudio::PlaySound()
 
     this->prevAudioMode = frontEnd.audioMode;
   }
-  if (menuDefs->menuAudio.CurrentItem() > 0 &&
 
 
-      menuDefs->menuAudio.CurrentItem() < 6) {
-    int sndover;
-    int vol;
-    int RepresentativeSound;
 
-    sndover = 1;
-    switch (menuDefs->menuAudio.CurrentItem()) {
+  if (menuDefs->menuAudio.CurrentItem() > 0 && menuDefs->menuAudio.CurrentItem() < 6)
+  { int sndover; int vol; int RepresentativeSound;
+    sndover = 1; switch (menuDefs->menuAudio.CurrentItem()) {
+
+
+
+
     case 1:
 
 
@@ -124,8 +124,8 @@ void tScreenAudio::PlaySound()
       break;
     default:
       vol = (uint)(byte)frontEnd.sfxVolume;
-      RepresentativeSound = rand() % 6 + 0x29;
-      break; }
+      RepresentativeSound = rand() % 6 + 0x29; break;
+    }
 
     gMasterSFXLevel = vol;
 
@@ -134,8 +134,8 @@ void tScreenAudio::PlaySound()
     }
     else { sndover = SNDover(this->audioTestHandle);
     }
-    if ((sndover != 0) && !FeAudio_SpeechIsBusy() && (RepresentativeSound != 0)) {
-      int azimuth = 0;
+    if ((sndover != 0) && !FeAudio_SpeechIsBusy() && (RepresentativeSound != 0))
+    { int azimuth = 0;
 
 
 
@@ -199,10 +199,10 @@ void tScreenAudio::DrawForeground()
 
 
 {
-  short fade; int fadeCalc; fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
-  if ((short)fadeCalc < 0x80) { if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero; } if ((short)fadeCalc < 0x81) goto DrawFgAudio_fadeDone; fadeCalc = 0x80; goto DrawFgAudio_fadeDone; DrawFgAudio_fadeZero: fadeCalc = 0; DrawFgAudio_fadeDone: { int i = 0; fade = (short)fadeCalc;
+  short fade; __complex__ int fadeCalc; __real__ fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
+  if ((short)__real__ fadeCalc < 0x80) { if ((short)__real__ fadeCalc <= 0) goto DrawFgAudio_fadeZero; } if ((short)__real__ fadeCalc < 0x81) goto DrawFgAudio_fadeDone; __real__ fadeCalc = 0x80; goto DrawFgAudio_fadeDone; DrawFgAudio_fadeZero: __real__ fadeCalc = 0; DrawFgAudio_fadeDone: { int i = 0; fade = (short)__real__ fadeCalc;
 
-    short savedFadeCalc = (short)fadeCalc; fadeCalc = 0; fadeCalc = savedFadeCalc; /* C-only CSE boundary. */ do {
+    short savedFadeCalc = (short)__real__ fadeCalc; __real__ fadeCalc = 0; __real__ fadeCalc = savedFadeCalc; /* C-only CSE boundary. */ do {
       DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
                  (tDrawShapeExtended *)0x0);
       i = i + 1; } while (i < 4);
@@ -239,9 +239,9 @@ void tScreenAudio::DrawBackground()
 
   if (0x80 < fade) { fade = 0x80;
   }
-  percent = -1;
-  switch(menuDefs->menuAudio.CurrentItem()) {
-  case 0:
+
+
+  percent = -1; switch(menuDefs->menuAudio.CurrentItem()) { case 0:
 
 
 
@@ -259,14 +259,14 @@ void tScreenAudio::DrawBackground()
     break;
   case 4:
     percent = menuDefs->itemAmbientVolume.Percentage();
-    break;
-  default:
-    goto DrawBg_noSlider; }
+    break; default: goto DrawBg_noSlider;
+
+  }
 DrawBg_noSlider:
-  if (-1 < percent) {
-    lastpercentage = percent;
-  } if ((-1 < percent) || (-1 < lastpercentage)) {
-    int ColText;
+  if (-1 < percent) { lastpercentage = percent;
+  }
+  if ((-1 < percent) || (-1 < lastpercentage))
+  { int ColText;
     char sBuildOutput [255]; if ((percent == -1) || (!::TransitionIsFinished(&menuDefs->menuAudio))) {
       perfade = perfade + 4;
     }
@@ -368,10 +368,6 @@ void tScreenAudio::Cleanup()
   while (SpeechLoading(&ginfo)) { FeAudio_systemtask(0); } return; }
 
 /* ---- tScreenAudio::~tScreenAudio  (screenaudio.cpp:74) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
 
 /* end of screenaudio.cpp */

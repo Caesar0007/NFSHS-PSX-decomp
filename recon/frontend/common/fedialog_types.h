@@ -49,6 +49,13 @@ struct tHelpData {
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 #include "fedialog.h"
+#ifdef NFS4_FEDIALOG_DIRECT
+#line 161 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
+static inline void _fedialog_dtor_base(tDialogBase *p) { p->~tDialogBase(); }
+#line 212 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
+static inline void _fedialog_dtor_msg(tDialogMessageString *p) { p->~tDialogMessageString(); }
+#line 53 "recon/frontend/common/fedialog_types.h"
+#endif
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

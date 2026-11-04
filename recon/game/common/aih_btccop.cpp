@@ -238,10 +238,10 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
     thisPerpCarIndex = testPerpCarObj->carIndex;
     thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex];
 
-    if (thisPerpHigh->basicPerpInfo_.Crime() != 0) {
-      int copToTargetDistanceMeters;
-      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj);
-      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
+    if (thisPerpHigh->basicPerpInfo_.Crime() != 0)
+    { int copToTargetDistanceMeters;
+      const int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj);
+      copToTargetDistanceMeters = __builtin_abs(distanceMeters);
       if (copToTargetDistanceMeters < newTargetDistance) {
 
         newTargetDistance = copToTargetDistanceMeters;
@@ -1310,208 +1310,6 @@ AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_B
 
 /* ---- HighExecute__18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::HighExecute  [AIH_BTCCOP.CPP:976-1266] SLD-VERIFIED ---- */
 
-
-/* NEAR-MISS 4 diffs (675/675): two of the three `Newton_SetInitial...` arms
-   reuse memset's return (v0=&trafficOffset) as arg a2 where retail
-   rematerializes `addiu a2,sp,N`.  W56-A16 FALSIFIED: changing arms 2/3 to pass
-   `&trafficOffset` (matching arm 1 which PASSES) regresses frame -104->-112
-   (489 diffs) -- the `offset=memset(...)` capture is frame-layout load-bearing.
-   The remat-vs-reuse is coupled to where `carObj->carIndex*0xa0000`'s multiply
-   result lands (clobber of v0 forces remat in arm 1); coloring, -fno-builtin
-   inert.
-   W61-A12 mapped the two basins.  The 4 diffs are exactly the two arms that PASS
-   `offset` (the memset return) to Newton; the two arms that pass `&trafficOffset`
-   already remat and PASS.  EVERY spelling that stops feeding the call the returned
-   pointer lands in the SAME wrong basin -- frame -112 (vs retail -104), `this`
-   rotated $s1->$s2 and one extra callee-saved $s3, ~489 diffs of pure rotation:
-   drop the capture + pass &trafficOffset (both arms) 489/698; keep the capture,
-   change only the arg 489/698; ONE arm only 506/697 resp. 497/716; `offset =
-   &trafficOffset;` assigned before, between or after the memset 489/698.  So the
-   `offset` pseudo (which coalesces into the call's $v0 and costs no allocno) is
-   what holds the retail frame; any address-valued pseudo costs one.
-   ALSO FALSIFIED: this build has NO memset builtin to exploit -- giving libfns.h a
-   TYPED prototype (void*,int,int / unsigned int / unsigned long) or even a
-   `#define memset(a,b,c) __builtin_memset(...)` shim leaves the gate at exactly
-   4 diffs (gcc-2.8 has no BUILT_IN_MEMSET; the dest/return equivalence in retail
-   therefore came from the SOURCE, not from builtin knowledge).
-   Next lens: reach retail's remat WITHOUT minting an allocno -- i.e. the arg must
-   be an address expression whose reload rematerializes, while the other three arms
-   keep their current allocation.  That is a reload/REG_EQUIV question, not a
-   spelling one.
-   W62-A10 REFUTED THE "OFFSET MUST STAY LIVE" READING (3 new falsifications, each
-   re-gated, baseline 4 diffs / 675 insns).  The hypothesis was that the 489/698 basin
-   came from `offset` going DEAD once the call stops using it, so `offset` was kept
-   alive by a zero-byte fence while the arg became `&trafficOffset`:
-     read-only fence on offset BEFORE the .y store   -> 489 diffs / 698 insns
-     read-only fence on offset AFTER  the .y store   -> 500 diffs / 699 insns
-     identity fence ("" : "=r"(offset) : "0"(offset)) -> 489 diffs / 698 insns
-   The first and third land on EXACTLY the same 489/698 as simply dropping the capture,
-   W63-A12 re-gated (4 @ 675/675) and adds TWO measurements.  (i) NEW FALSIFICATION:
-   reordering all three arms to `offset = &X; memset((u_char *)offset,'\0',0xc);` (so the
-   address pseudo is BORN before the call and must survive it, the classic REG_EQUIV
-   remat trigger) is INERT -- 4 diffs, byte-identical.  (ii) THE RESIDUAL IS SHARPENED
-   TO AN ALLOCATION FACT, not a remat one: the oracle sets the arg IN THE ARM
-   (`addiu $a2,$sp,0x48` @0x8005E904 and `addiu $a2,$sp,0x38` @0x8005EBF8, both several
-   insns BEFORE the `j` to the shared Newton block), i.e. retail's `offset` pseudo is
-   simply ALLOCATED TO $a2, so each arm's `offset = &X` IS the arg setup and no copy
-   exists.  Ours allocates it elsewhere and copies (`addu a2,v0,zero`) at the call.
-   Note the THIRD arm (sp+0x28, three sites) already matches -- so the ask is a
-   per-pseudo handout (offset -> $a2), and allocsim reports MATCH 45/45 on this fn with
-   NO pseudo homed in $v0, i.e. the losing address pseudo is a LOCAL-ALLOC qty, outside
-   allocsim/reqdelta's model.  Next lens = qtytrace, exactly as for CheckDesiredDirection.
-   so `offset`'s liveness is IRRELEVANT: the basin flip is caused solely by the CALL ARG
-   being an address-valued expression.  That sharpens the standing verdict -- the device
-   needed is one that makes reload rematerialize `addiu a2,sp,N` from a REG_EQUIV
-   without the address ever becoming an allocno; no fence in the toolkit does that
-   (a fence can add refs or opacity, never remove an allocno).
-   W64-A12 re-gated (4 @ 675/675) and re-confirmed the standing basin fact on TODAY's
-   tree: passing `&trafficOffset` at BOTH remaining arms is still exactly 489 @698
-   (frame -104 -> -112, `this` $s1->$s2, one extra callee-saved) -- unchanged across
-   two more waves of surrounding edits, so it is basin-independent.
-   THE NAMED NEXT LENS IS NOW AVAILABLE: w64-a10 built the 12A local-alloc instrument,
-   and it RUNS on this TU --
-     python scratchpad/w64a10/dump.py recon/game/common/aih_btccop.cpp -dl
-     python scratchpad/w64a10/copypref.py <dump>.lreg "AIHigh_BTC_Wingman::HighExecute"
-   (my table is saved at scratchpad/w64a12/wing_qty.txt).  It prints, per block-local
-   qty: refs / birth / death / QTY_CMP_PRI / copy_sugg / arith sugg / predicted vs
-   ACTUAL hard reg, plus `--why <pseudo>` (the find_free_reg window + the BLOCKED and
-   FREE sets) and `--want <pseudo>=<reg>`.  That is exactly the "per-pseudo handout
-   (offset -> $a2)" question this receipt has been parked on since w63.  ONE caution
-   from my pass: do NOT start from the pseudos whose copy_sugg merely CONTAINS a2
-   (p198 block 23, p212 block 27) -- `--why 198` shows those CROSS A CALL, so the
-   whole caller-saved bank is excluded from their window by construction and $a2 was
-   never reachable for them.  The offset pseudo to chase is the 2-ref one BORN at the
-   memset return and DYING at the `addu a2,v0,zero`.
-   W71-A19 re-gated 4 @675/675 and CLOSED the 12A/20B PREFERENCE-KILLER angle on it --
-   the one device invented since w64 that is aimed exactly at this ask (deny local-alloc's
-   $v0 copy-preference on the memset-return pseudo at ZERO insns, non-volatile so it is
-   not a sched barrier).  Applied to BOTH failing arms, each re-gated from 4:
-     __asm__("" : "=r"(offset) : "0"(offset) : "$2")        -> 8 @675
-     ... : "$2","$3"                                         -> 8 @675
-     ... : "v0"   (ABI spelling of the same clobber)          -> 8 @675
-     identity launder with NO clobber                          -> 8 @675
-     read-only fence  __asm__("" : : "r"(offset))            -> 4 @675 (inert)
-   So the clobber DOES move the pseudo off $v0 but never onto $a2 -- consistent with the
-   w63 reading that this is a local-alloc QTY handout outside allocsim/reqdelta's model,
-   and with the 20B LIMIT (the killer cannot beat an availability/eviction constraint).
-   The qtytrace/copypref lane named in w64 is still the only untried lens.
-   ==== W72-A11 re-gated 4 @675/675 and CORRECTED THE MECHANISM RECORD (two errors in
-   this receipt, both falsifiable from primary sources):
-   (1) 🔴 "this build has NO memset builtin to exploit" is WRONG.  gcc-2.8.1 expr.c:9042
-       has BUILT_IN_MEMSET, and its expansion ENDS `dest_addr = clear_storage (...); if
-       (dest_addr == 0) dest_addr = force_operand (dest_rtx, NULL_RTX); return dest_addr;`
-       (expr.c:9099-9104).  For a 12-byte clear that clear_storage lowers to the LIBCALL,
-       dest_addr IS the libcall's value register -- so `offset = (coorddef *)memset(...)`
-       is not "a capture that costs no allocno", it is literally the call's $v0, which is
-       exactly the `move a2,v0` we emit.  Any future reasoning here must start from that.
-       The pair-with-it: because clear_storage's OTHER exit (an inlined movstrsi) returns
-       0 and gcc then emits `force_operand(dest_rtx)` = a real `addiu` with a REG_EQUIV,
-       the rematerialization retail shows is the NON-libcall exit of this same code path.
-       Retail still emits `jal memset`, so it took the libcall exit too -- i.e. retail's
-       source did NOT feed the call's value to Newton.
-   (2) 🔴 THE DEAD-CODE TRAP: lines 1847-2448 of this file are inside `#if 0`, and they
-       contain a SECOND, older copy of AIHigh_BTC_Wingman::HighExecute (def at 1848) whose
-       arms spell the same statements differently (`memset(...); offset = &X;`).  Three of
-       W72's first four probe ladders edited THAT copy and read as "inert" -- the live
-       definition is at 2535.  ALWAYS resolve the definition line before anchoring
-       (`awk '/^#if|^#endif/{print NR": "$0}'`), and treat a whole ladder that measures
-       byte-identical as a MISSED-ANCHOR alarm, not a result.
-   RE-MEASURED ON THE LIVE FUNCTION (all three sites, each re-gated from 4): the 20B/12A
-   clobber walk UP the ascending find_free_reg scan -- identity launder with clobber sets
-   {$2}, {$2,$3}, {$2,$3,$4}, {$2,$3,$4,$5} -- is 8 @675 for EVERY set, identical to the
-   identity launder with NO clobber (8 @675); the read-only fence with the same clobber
-   sets is 9 @676.  So the pseudo leaves $v0 on the launder alone and the clobber walk
-   buys nothing: $a2 is not merely "later in the scan", it is UNAVAILABLE in this qty's
-   window.  That is an availability/eviction fact (20B LIMIT), and it is the reason the
-   preference-killer family cannot finish this fn.  NEXT LENS unchanged and now sharper:
-   dump the qty's find_free_reg window and read WHY $a2 is in `used` -- either
-   regs_live_at over [birth,death) (the arm sets $a1 before the copy; if $a2's live range
-   already starts at the arm's own `j` the whole caller-saved bank above $a1 is barred) or
-   a nonzero qty_n_calls making local-alloc OR in call_used_reg_set.  copypref.py --why
-   answers exactly that; the instrumented cc1plus ICEs on aih_cop but should be re-tried
-   on THIS TU (scratchpad/W72_A11/A11_trace.py prints the per-fn fidelity table first).
-   Probe files: scratchpad/W72_A11/v_wing4.py (live), v_wing{,2,3}.py (the dead-copy
-   ladders, kept only as the anchor-trap record).
-   ==== W74-A11 re-gated (4 @675/675) and CORRECTED THE MECHANISM RECORD AGAIN, then
-   closed the address-passing axis at ARM granularity.
-   (1) 🔴 THE BUILTIN IS NOT INVOLVED AT ALL.  W72's correction (1) above assumed
-       BUILT_IN_MEMSET expands here and that its clear_storage/TARGET_MEM_FUNCTIONS exit
-       is what puts the address in $v0.  MEASURED: routing all four arms through a cast
-       function POINTER -- `#define EA_memset ((void *(*)(u_char *,int,int))memset)`,
-       which cannot be builtin-expanded and emits the identical `jal memset` -- is
-       BYTE-IDENTICAL (4 @675).  libfns.h declares `void * memset(...)`, whose type does
-       not match the builtin's, so gcc never treated our calls as BUILT_IN_MEMSET in the
-       first place.  The `addu a2,v0,zero` is therefore NOT a cse/builtin artifact: it is
-       simply our source PASSING `offset`, the call's return value, at those two arms.
-   (2) THE ORACLE, READ PROPERLY, SAYS ALL FOUR ARMS REMATERIALIZE.  The .s has four
-       `jal memset` (idx 46/202/394/595) and each is followed by
-       `addiu $a2,$sp,{0x28,0x28,0x48,0x38}`; three of the four then `j .L8005EC0C`, one
-       shared Newton tail.  Our two PASSING arms are the 0x28 pair (they pass
-       `&trafficOffset`); the two FAILING arms are 0x48/0x38 -- the ones whose source
-       passes `offset`.  Frame slots already agree, so the ONLY question is the a2 value.
-   (3) THE ADDRESS-PASSING AXIS IS CLOSED, at arm granularity and across six spellings.
-       Each re-gated from 4, live definition only (line-scoped harness so the dead copy
-       cannot absorb an anchor): both arms -> `&trafficOffset` 489 @698; the same with the
-       capture removed 489 @698; the same with the calls de-builtined 489 @698; arm D
-       ALONE -> `&trafficOffset` 497 @716; arm D alone -> `(coorddef *)&trafficOffset.x`
-       497 @716; arm D alone -> `(coorddef *)(int)&trafficOffset` 497 @716; arm D alone ->
-       an identity-laundered address local 491 @716.  EVERY one of them adds a callee-saved
-       register (s3 appears, frame -104 -> -112, `this` s1 -> s2) and 23-41 insns.  So it
-       is not a spelling axis: passing the call's VALUE register is what holds the arms'
-       tails textually identical (they cross-jump-merge) and keeps the conflict set at four
-       saved regs.  Retail merges too, but merges BELOW its per-arm `addiu a2` + per-arm
-       `sw v0,off(sp)` -- our build cannot reach that merge point without paying the extra
-       allocno.  NEXT LENS: the extra saved register is the thing to explain, not the
-       address spelling -- dump -dg for the 698 variant and read which allocno s3 carries
-       (the receipt's own qtytrace/copypref ask, now with a concrete control pair to diff:
-       the 4-diff build vs the 489 build differ by ONE source token per arm).
-       Probe files: scratchpad/W74_A11_wing{,2,3}.py.
-   ==== W75-A9 re-gated (4 @675/675, posmis 4) and CLOSED THE ADDRESS-ARG AXIS FOR GOOD
-   with four MORE spellings, including the one the W75 orchestrator handed down from the
-   A20 tree sweep ("ctor-return-vs-address remat: re-take &obj after the call / hold the
-   address in a named local, 3.12 #16").  Every one of them lands in the SAME 489 basin:
-     Y1 both arms -> &trafficOffset (the A20 shape, control)          489 @698
-     Y3 offset = &trafficOffset re-assigned right BEFORE the call     489 @698
-     Y5 memset(...); offset = &trafficOffset;  (3.12 #16 proper)      489 @698
-     Y8 offset = &X; memset((u_char *)offset,...); pass offset        489 @698
-     Y9 arg spelled (coorddef *)((char *)&trafficOffset)              489 @698
-     Y2 store via offset->y AND pass &trafficOffset                   503 @684
-     Y7 offset = &X; memset(offset); offset->y; pass offset           497 @684
-   ONE NEW DATUM worth keeping: Y6 (keep the capture, store via offset->y, still PASS
-   offset) is 19 @662 -- the FIRST basin this function has ever had that is SHORTER than
-   the oracle (-13), i.e. `trafficOffset.y = ...` vs `offset->y = ...` at the two arms is
-   worth 13 insns.  Not a landing, but it is a different direction from every 489/497/503
-   measurement and is the only under-count base on record.
-   CORRECTION TO THE W63 RECEIPT ABOVE: its "(i) NEW FALSIFICATION: reordering all three
-   arms to `offset = &X; memset((u_char *)offset,0,0xc);` is INERT -- 4 diffs, byte-
-   identical" is VOID.  W63 predates the W72 dead-copy discovery; re-measured on the LIVE
-   definition only (compound 4-line anchor, count asserted == 2) that shape is 489 @698,
-   not inert.  Treat any pre-W72 "inert" on this function as a missed-anchor alarm.
-   STANDING VERDICT unchanged and now six-spelling-strong: passing the CALL RETURN VALUE
-   is what keeps the two arms textually identical so they cross-jump-merge; any
-   address-valued arg de-merges them, costs one callee-saved register (s3 appears, frame
-   -104 -> -112, this s1 -> s2) and +9..23 insns.  W74 NEXT LENS still stands and is the
-   right one: -dg the 489 variant and read WHICH allocno s3 carries; the 4-diff and 489
-   builds differ by ONE source token per arm, so it is a clean control pair.
-   Probe: scratchpad/w75/A9_v7.py, A9_v8.py (A9_probe.py harness, multi-count anchors). ==== */
-/* ==== W76-A9 SEALED CLEAN (PASS 675/675, posmis 0) -- THE 7-WAVE a2 WALL WAS AN
-   INLINED TU-LOCAL DERIVED-STATE CTOR, proven from the NFSU2-mobile x86 twin
-   (nfsu2_x86_1.1.5/nfsu2.dll: AIHigh_BTC_Wingman::HighExecute @0x1015fa??
-   calls ctor 0x10161850 = base-ctor + vf store + {coorddef local; zero-init;
-   .y = carIndex*0xa0000; Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,
-   0,&local,1);} + carObj_->N.active=0, then this->SetState(p,7) @0x101619b0).
-   EA wrote a file-local class (its own D_80054F24 NonActive-vtable copy) whose
-   INLINE CTOR holds the memset/Newton payload; integrate.c inline expansion is
-   why retail rematerializes `addiu a2,sp,OFF` per arm with NO shared address
-   pseudo (every flattened-source spelling either copies the memset return --
-   addu a2,v0 -- or CSEs (plus fp K) across the call into a callee-saved = the
-   489 basin; W74/W75 receipts above).  The two flattened freeze arms are now
-   placement-new of this class; their leftover `coorddef *offset;` and shadow
-   `coorddef trafficOffset;` decls MUST stay deleted (each unused decl re-grows
-   the frame 104->120 and shifts every traffic slot +16).  The case-0 and case-2
-   arms stay open-coded (they already gate PASS; W75 falsification history kept
-   above).  Probe: scratchpad/w76/A9_btc_I4.variant, A9_btc_I4_posmis.txt. ==== */
-
 #line 975 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Wingman::HighExecute()
 {
@@ -1544,8 +1342,8 @@ void AIHigh_BTC_Wingman::HighExecute()
           Speech::Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
-          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3); } }
-      else
+          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3);
+          (void)0; } } else
 
 
 
@@ -1559,8 +1357,8 @@ void AIHigh_BTC_Wingman::HighExecute()
           this->GetCheckChasePosition(&pos); this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&pos,
 
 
-                                           0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); } }
-
+                                           0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
+          (void)0; } }
 
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0)
@@ -1598,8 +1396,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       {
         int endSlice = chaseState->FindBarrierEndSlice();
 
-        this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9); }
-
+        this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9);
+        (void)0; }
 
 
 
@@ -1623,8 +1421,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       {
 
         this->AssignToPlayer(0);
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
-
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+        (void)0; }
 
 
       if (this->newRole_ != this->currentRole_)
@@ -1660,12 +1458,12 @@ void AIHigh_BTC_Wingman::HighExecute()
     { int rbDistanceMeters; int rbAbsDistanceMeters; int release; coorddef newPos;
 
 
-
+      release = 0;
 
 
       this->carObj_->AIFlags |= 2;
 
-      this->CheckForNewTarget(); release = 0;
+      this->CheckForNewTarget();
 
 
       if (this->perpTarget_ == 0)
@@ -1730,8 +1528,8 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); }
-
+                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
+        (void)0; }
 
 
 
@@ -1739,8 +1537,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       {
 
         this->currentRole_ = 1;
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
-
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+        (void)0; }
 
 
 
@@ -1771,8 +1569,8 @@ void AIHigh_BTC_Wingman::HighExecute()
 
           this->currentRole_ = 1;
           this->SetupWingman(this->newHumanBoss_);
-
-          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } else
+          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+          (void)0; } else
 
         { if ((u_int)(this->newRole_ - 2) < 2)
           {
@@ -1794,11 +1592,11 @@ void AIHigh_BTC_Wingman::HighExecute()
       this->AssignToPlayer(0);
       if (gotoState->InTargetSliceRange(0xa0000) != 0)
       {
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } } break; case 10: default: break; }
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+        (void)0; } } break;
 
 
-
-
+    case 10: default: break; }
 
 
 

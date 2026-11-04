@@ -406,6 +406,8 @@ DrawBgUser_textFadeSkip:
  * nfs4_types.h) so every derived dtor and every scope-exit collapses to
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
+
+
 extern "C" void ___7tScreen(void *);
 
 /* end of screenusername.cpp */

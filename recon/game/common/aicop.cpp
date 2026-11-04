@@ -45,6 +45,7 @@ int AICop_NoCopsInArea(int slice,int sliceDistance);
 
 
 /* spike-belt helper: retail records a variable-free inline pair for it */
+#line 48 "C:/nfs4/GAME/COMMON/AICOP.CPP"
 static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
 
 /* ---- AICop_StartUp__Fv  [@0x800669ac] ---- */
@@ -66,8 +67,8 @@ void AICop_StartUp(void)
     }
     else { triggerManagerCops->Init((char *)0x0);
     }
-  }
-  SpikeBelt_SetActive(0);
+
+    (void)0; } SpikeBelt_SetActive(0);
 
 
 
@@ -94,7 +95,7 @@ void AICop_Restart(void)
   if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
     triggerManagerCops->Init((char *)AICop_rawTriggers);
   }
-  SpikeBelt_SetActive(0);
+  (void)0; SpikeBelt_SetActive(0);
 
 
 

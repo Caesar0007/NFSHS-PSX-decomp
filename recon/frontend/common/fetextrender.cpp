@@ -97,20 +97,15 @@ void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,
 
 
 
-/* ---- FETextRender_FullText  [FETEXTRENDER.CPP:136-139] SLD-FLAG:NONMONO ----
-   SYM-CONFORM (2026-08-16, PASS retained): restored the original `textcol`
-   local.  The same audit restored `x`/`y` in MenuTextFade and the exact
-   `RECT r` + `short offset` stack/register declarations in Title; all three
-   remain byte-identical to retail. */
 #line 132 "C:/nfs4/FRONTEND/COMMON/FETEXTRENDER.CPP"
 void FETextRender_FullText(char *sMenuText,short x,short y,tMenuTextType textType,tMenuTextState textState,
                short justify)
 
 
 {
-  int textcol = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]];
-
-  FETextRender_FullTextRGB(sMenuText,x,y,textcol,textDefinitions[textType][0],justify);
+  int textcol = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]]; u_char font;
+  font = textDefinitions[textType][0];
+  FETextRender_FullTextRGB(sMenuText,x,y,textcol,font,justify);
 }
 
 
@@ -122,9 +117,9 @@ void FETextRender_FullTextFade(int fade,char *sMenuText,short x,short y,tMenuTex
 
 
 {
-  FETextRender_FullTextRGB( sMenuText,x,y, CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade), textDefinitions[textType][0],justify);
-
-  return;
+  int col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade); u_char font;
+  font = textDefinitions[textType][0];
+  FETextRender_FullTextRGB(sMenuText,x,y,col,font,justify);
 }
 
 
@@ -178,7 +173,7 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
 
 
 {
-
+  char *word;
 
   if ((justify == 6) || (textType == textType_Title)) {
 
@@ -189,24 +184,19 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
     if (textType == textType_Default) {
       textType = (tMenuTextType)TextSys_WordFlags((int)index);
     }
-    FETextRender_FullTextFade(
+    word = TextSys_Word((int)index);
 
-        fade,TextSys_Word((int)index),x,y,textType,textState,justify);
-  } return; }
+    FETextRender_FullTextFade(fade,word,x,y,textType,textState,justify);
+  } }
 
 
 
-/* ---- FETextRender_WordWrapTextRGBJustify  [FETEXTRENDER.CPP:216-355] SLD-VERIFIED ---- */
-
-        /* SYM-CODEGEN-CARRIER: pixels -- collapsing this value into `x`
-         * changes the whole-function register handout (FAIL 64 / 289 versus
-         * PASS 285), while this scoped carrier preserves retail allocation. */
 #line 213 "C:/nfs4/FRONTEND/COMMON/FETEXTRENDER.CPP"
 int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,int size,bool JustGrabHeight)
 
 
 {
-  int OriginalY; short x; unsigned short index1; unsigned short index2; long strLength; char buffer [128]; char source [512]; short spacing; OriginalY = r.y;
+  int OriginalY; short x; unsigned short index1; unsigned short index2; long strLength; char buffer [128]; char source [512]; short spacing; short pixels; OriginalY = r.y;
 
 
 
@@ -310,7 +300,7 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
       }
 
       buffer[index2 - index1] = '\0';
-      { short pixels = textpixels(buffer);
+        pixels = textpixels(buffer);
 
         index1 = index2;
         x = r.x;
@@ -319,7 +309,7 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
         } else if ((justify == 2) || (justify == 5)) {
           x -= pixels >> 1;
         }
-      }
+
 
 
       if (JustGrabHeight == 0) {
@@ -367,13 +357,13 @@ void FETextRender_WordWrapTextFade(int fade,char *str,RECT &r,tMenuTextState tex
 
 
 {
-  
-  FETextRender_WordWrapTextRGBJustify(str,r,
-            CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade),
-            (u_int)(u_char)textDefinitions[textType][1],(u_int)(u_char)textDefinitions[textType][0],false);
+  int col; u_char font; u_char just;
 
 
-  return;
+  col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade);
+  just = textDefinitions[textType][1]; font = textDefinitions[textType][0];
+
+  FETextRender_WordWrapTextRGBJustify(str,r,col,just,font,false);
 }
 
 
@@ -395,9 +385,9 @@ void FETextRender_WordWrapFade(int fade,short index,RECT &r,tMenuTextState state
 
 
 {
+  char *word = TextSys_Word((int)index);
 
-
-  FETextRender_WordWrapTextFade(fade,TextSys_Word((int)index),r,state,type);
+  FETextRender_WordWrapTextFade(fade,word,r,state,type);
 }
 
 
@@ -436,14 +426,14 @@ void FETextRender_Title(short index)
 {
   char upstr [80];
   RECT r;
-  short offset;
+  short offset; char *word;
   offset = 0;
   if (FEApp->GetPlayer() == 1) {
     offset = 0x69;
   }
-  strcpy(upstr,TextSys_Word((int)index));
+  word = TextSys_Word((int)index);
 
-
+  strcpy(upstr,word);
   s_lower(upstr);
 
   FETextRender_FullText(upstr,0x30,offset | 0x10,textType_Title,textState_Selected,0);

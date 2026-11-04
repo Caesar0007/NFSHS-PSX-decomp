@@ -230,7 +230,7 @@ struct AIHigh_Base {
         state_ = newState;
         stateType_ = newStateType;
     }
-    inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
+    inline Car_tObj *CarObj() { return carObj_; } inline void ClearSchedulingOff() { schedulingOff_ = 0; }
     /* Inferred inline spelling: retail HighExecute records Base receivers at
        both schedulingOff_ stores; no standalone name survives in SYM. */
     void SetSchedulingOff(int off);

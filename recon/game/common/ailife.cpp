@@ -260,8 +260,8 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
   else { AILife_SetInitialSlicePositionOrientationEtc(carObj);
   }
 
-  if (carObj->currentSpeed != 0) {
-    coorddef targetDirection;
+  if (carObj->currentSpeed != 0)
+  { coorddef targetDirection;
     int speed;
 
     targetDirection = *(coorddef *)&(carObj->N).orientMat.m[6];
@@ -269,9 +269,9 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
     targetDirection.x = fixedmult(speed,targetDirection.x); targetDirection.y = fixedmult(speed,targetDirection.y); targetDirection.z = fixedmult(speed,targetDirection.z);
     (carObj->N).linearVel = targetDirection;
   }
-  else {
-    coorddef zero;
+  else
 
+  { coorddef zero;
     memset((u_char *)&zero,'\0',0xc);
     (carObj->N).linearVel = zero;
   }
@@ -288,14 +288,14 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 
 
     (carObj->N).shadowMat = (carObj->N).orientMat;
-  }
-  AIInit_ClearAICar(carObj);
-  carObj->roadPosition =
-      carObj->desiredLatPos = carObj->rampDesiredLatPos = Cars_CalculateRoadPosition(carObj);
 
-  carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
-  AIWorld_CalculateLaneInfo(carObj); return;
-}
+    AIInit_ClearAICar(carObj);
+    carObj->roadPosition =
+        carObj->desiredLatPos = carObj->rampDesiredLatPos = Cars_CalculateRoadPosition(carObj);
+
+    carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
+    AIWorld_CalculateLaneInfo(carObj); return;
+  } }
 
 /* ---- AILife_ReencarnateTraffic__FP8Car_tObj  [@0x80067ee4] ---- */
 
@@ -442,15 +442,15 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
     }
   }
   else {
-    if ((carObj->direction == 1) || ((AILIFE_SLICE_LANE_COUNT(slice) >> 4) == 0)) {
-      int width;
-      int numLanes; width = AILIFE_SLICE_WIDTH_RT(slice) << 15;
+    if ((carObj->direction == 1) || ((AILIFE_SLICE_LANE_COUNT(slice) >> 4) == 0))
+    {
+      int width; int numLanes; width = AILIFE_SLICE_WIDTH_RT(slice) << 15;
       numLanes = AILIFE_SLICE_LANE_COUNT(slice) & 0xf;
       carObj->desiredLatPos = width * numLanes - ((u_int)width >> 1);
     }
-    else {
-      int width;
-      width = AILIFE_SLICE_WIDTH_LF(slice) << 15;
+    else
+    {
+      int width; width = AILIFE_SLICE_WIDTH_LF(slice) << 15;
       carObj->desiredLatPos =
           -width * (AILIFE_SLICE_LANE_COUNT(slice) >> 4) + ((u_int)width >> 1);
     }

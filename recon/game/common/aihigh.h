@@ -69,7 +69,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     void CleanupBlockaders(int a);
     void HandlePullOver();
     inline copLevel_t *ChaseLevel() { return perpChaseInfo_.chaseLevel_; }   /* retail pairs (this typed AIHigh_Player) */
-    inline int LastPullOverTime() { return lastPullOverTime_; }
+    inline int LastPullOverTime() { return lastPullOverTime_; } inline int NewTriggerProb() { return newTriggerProb_; }
     int ExchangeLastTriggerCheckSlice(int newSlice); /* inferred exchange name; supplied inline newSlice/temp records */
 };
 

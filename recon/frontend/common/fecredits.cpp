@@ -526,8 +526,8 @@ void tCreditManager::DrawCurrCredit()
     p = p2;
 
     if (p2 != 0) {
-
       p = p2 + 1;
+      {}
     }
   }
   FETextRender_SetABR(0,false);

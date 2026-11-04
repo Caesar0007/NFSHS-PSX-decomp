@@ -70,7 +70,7 @@ static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1
 
 static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
 
-static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
+static inline unsigned char ListIterator_Max(tListIterator *it) { return it->fMaxValue; }
 
 static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
 

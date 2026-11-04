@@ -1861,7 +1861,7 @@ void Cars_InitCar(Car_tObj *carObj,int index)
 
 
 
-      sprintf(carFile,"%s%s.qda",Paths_Paths[4],(char *)carObj + 0x240);
+      sprintf(carFile,"%s%s.qda",Paths_Paths[4],carObj->carName);
     (void)0; /* DEVICE (exact-only): zero-code statement = retail line note of the j-over-else on this line */ }
     else {
 

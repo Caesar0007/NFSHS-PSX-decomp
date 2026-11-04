@@ -117,8 +117,8 @@ void AIHigh_BasicPerp::CheckForCrimes()
     crime = CRIME_NONE;
 
 
-  if (crime != CRIME_NONE) { int carLoop;
-
+  if (crime != CRIME_NONE)
+  { int carLoop;
 
 
 
@@ -132,7 +132,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
     } }
 
-
+  return;
 }
 
 
@@ -297,15 +297,15 @@ void AIHigh_BasicPerp::RemoveCloseCops()
     distance = AIWorld_ApxSplineDistance(cop,this->carObj_);
     distance = __builtin_abs(distance);
 
-    if (distance < 0x960000) {
-
+    if (distance < 0x960000)
+    {
       AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
 
       cop->desiredDirection = cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1; cop->driveDirection = 1;
 
 
-      if (distance < 0x1e0000) {
-        thisCop->SetDriveAway(DRIVEAWAY_RESET); }
+      if (distance < 0x1e0000)
+      { thisCop->SetDriveAway(DRIVEAWAY_RESET); }
 
       else { thisCop->SetDriveAway(DRIVEAWAY_NORESET); }
 
@@ -313,7 +313,7 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
 
 
-
+    else {}
 
 
   } }

@@ -999,10 +999,10 @@ gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte
 gte_SetRotMatrix(&mtx);
       }
     }
-    else {
-
-      if ((flags & 1U) != 0) {
-        VECTOR tvec;            /* @sp+0x60 */
+    else
+    {
+      if ((flags & 1U) != 0)
+      { VECTOR tvec;            /* @sp+0x60 */
         VECTOR tvec2;           /* @sp+0x70 */
         tvec.vx = diff.vx - diff2.vx;
         tvec.vy = diff.vy - diff2.vy;
@@ -1022,8 +1022,8 @@ gte_SetRotMatrix(&mtx);
         if (type == 0x1e) { z = z / 4;
         }
       }
-      {
-        MATRIX mtx;             /* @sp+0x60 */
+
+      { MATRIX mtx;             /* @sp+0x60 */
         MATRIX scalemat;        /* @sp+0x80 */
 
 
@@ -1062,10 +1062,10 @@ gte_SetRotMatrix(&mtx);
 
       Flare_QuadFlare((long *)&sp,otz);
     }
-    {
-      DR_MODE *aprim;           /* a0 */
-      aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); { const u_int dtd = flags & 0x40U; SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
-      } } }
+
+
+    { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); const u_int dtd = flags & 0x40U; SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+    } }
 
 /* ---- Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache  [FLARE.CPP:1097-1098] SLD-VERIFIED ---- */
 #line 1094 "C:/nfs4/GAME/PSX/FLARE.CPP"
@@ -1453,10 +1453,10 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 {
   POLY_G4 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_G4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff; const int innerColor = *(int *)color; Render_gPacketPtr = (u_char *)prim + 0x24;
-  *(int *)((u_char *)prim + 4) = innerColor;
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_G4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff; Render_gPacketPtr = (u_char *)prim + 0x24;
+  *(u_int *)((u_char *)prim + 4) = ((Flare_tInfo *)color)->chalo;
   *(u_int *)((u_char *)prim + 0xc) = 0;
-  const int outerColor = *(int *)color; *(int *)((u_char *)prim + 0x14) = outerColor;
+  *(u_int *)((u_char *)prim + 0x14) = ((Flare_tInfo *)color)->chalo;
   *(u_int *)((u_char *)prim + 0x1c) = 0;
 
 

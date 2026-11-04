@@ -426,7 +426,7 @@ void Init_Memcard(bool redraw,bool pinkslips)
 
   padinit();
   timedwait(0x14);
-  return;
+
 
 
 
@@ -439,10 +439,10 @@ void DeInit_Memcard(void)
 {
   int padrestorestarttick;
 
-  if (MEMCARD_INITIALIZED == 0) {
-    return;
-  }
+  if (MEMCARD_INITIALIZED == 0) return;
   MEMCARD_INITIALIZED = 0;
+
+
 
 
 
@@ -462,7 +462,7 @@ void DeInit_Memcard(void)
 
     UpdateMusic(FEApp);
   }
-  return;
+
 
 
 

@@ -218,7 +218,7 @@ void AI_ClearLaneMerits(void)
     CarLogic_gObs[0][2] = 0; CarLogic_gObs[0][1] = 0; CarLogic_gObs[0][0] = 0; }
 }
 
-/* ---- AI_DoReactions__FP8Car_tObj  [@0x80057b94] SOURCE-RESTORED-PARTIAL-SLD ---- */ /* 2026-10-27: real horn/switch guards remove three unprovided labels; seconds holds the signed quotient and metersDistance the directed product (retail REG $ffffffff/LO). All144 words and supplied owners preserved. SOURCE-REVIEW-UNRESOLVED: six lookup/call tags and two region-start coordinates still differ; no original literal/macro spelling claim. Receipt: build/nc12/ai_reactions_20261027/. */
+/* ---- AI_DoReactions__FP8Car_tObj  [@0x80057b94] COVERED-SLD-PASS ---- */
 
 
 #line 356 "C:/nfs4/GAME/COMMON/AI.CPP"
@@ -257,11 +257,11 @@ void AI_DoReactions(Car_tObj *carObj)
 
   target = AIScript_DoReAction(&carObj->script,0x200); if (target != -1)
   {
-    int absDistance;
+    int absDistance; Car_tObj *otherCarObj; int distance;
+    otherCarObj = Cars_gList[target];
 
-
-
-    absDistance = __builtin_abs(AIWorld_ApxSplineDistance(carObj,Cars_gList[target]));
+    distance = AIWorld_ApxSplineDistance(carObj,otherCarObj);
+    absDistance = __builtin_abs(distance);
 
 
     if (0xc0000 < absDistance)
@@ -280,12 +280,12 @@ void AI_DoReactions(Car_tObj *carObj)
 
 
   target = AIScript_DoReAction(&carObj->script,0x20); if (target != -1)
-  { Car_tObj *otherCarObj; int metersDistance;
-    otherCarObj = Cars_gList[target];
+  {
+    Car_tObj *otherCarObj; int metersDistance; int distance; otherCarObj = Cars_gList[target];
 
 
-    metersDistance = AIWorld_SplineDistance(carObj,otherCarObj);
-    metersDistance = metersDistance * carObj->direction;
+    distance = AIWorld_SplineDistance(carObj,otherCarObj);
+    metersDistance = distance * carObj->direction;
 
     if (metersDistance < 0x40000)
 
@@ -355,22 +355,22 @@ void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 
 
     Car_tObj *otherCarObj = Cars_gList[t];
-    if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
-        ((otherCarObj->carFlags & 4U) != 0)) {
+    if ((carObj != otherCarObj) &&
+        ((otherCarObj->N).active != '\0')) {
 
 
 
 
 
 
+      if ((otherCarObj->carFlags & 4U) != 0) {
 
+        AI_CheckForPlayerActions(carObj,otherCarObj);
 
-      AI_CheckForPlayerActions(carObj,otherCarObj);
-
-      if ((carObj->carFlags & 8U) != 0) {
-        AI_OpponentBlockPlayer(carObj,otherCarObj);
-      }
-    }
+        if ((carObj->carFlags & 8U) != 0) {
+          AI_OpponentBlockPlayer(carObj,otherCarObj);
+        }
+      } }
   }
 }
 
@@ -458,8 +458,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   dir = carObj->direction;
   speed = carObj->currentSpeed / 0x10000;
   speed = __builtin_abs(speed);
-
-  slicesAhead = (speed << 0x12) / 0x60000;
+  const int s = speed << 0x12;
+  slicesAhead = s / 0x60000;
   forwardSlice0 = WRAP_SLICE(slicesAhead * dir,slice);
   forwardSlice1 = WRAP_SLICE((slicesAhead + 1) * dir,slice);
   profileHere = BWorldSm_slices[slice].pavedProfile;
@@ -713,7 +713,7 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       return;
     }
 
-    const int sortedIndex = (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) % Cars_gNumCars; /* DEVICE (exact-only): record-less const temp: index on retail line 895, load on 896 */
+    const int sortedIndex = (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) % Cars_gNumCars;
     otherCarObj = Cars_gSortedList[sortedIndex];
 
 
@@ -862,7 +862,7 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
         CarLogic_gObs[0][i] += fixedmult(AI_Info.laneSpeedsAhead[i] - dSpeed,-0x1999);
       i = i + 1; } while (i < 3); } return; }
 
-/* ---- AI_CheckForClearLanes__FP8Car_tObj  [@0x80059434] SOURCE-RESTORED-PARTIAL-SLD ---- */ /* 2026-10-27: real for/continue removes unprovided NEXT_CAR. All156 words, supplied owners and block/end coordinates preserved/restored. SOURCE-REVIEW-UNRESOLVED: remainder1096/retail1095 and distance-call1105/retail1101 leave13 tag differences; no original statement/macro spelling claimed. Receipt: build/nc12/ai_clear_20261027/. */
+/* ---- AI_CheckForClearLanes__FP8Car_tObj  [@0x80059434] COVERED-SLD-PASS ---- */
 
 
 #line 1074 "C:/nfs4/GAME/COMMON/AI.CPP"
@@ -870,7 +870,7 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
 {
   int lanesFilled; int dir; int carsFound;
   int ci; Car_tObj *otherCarObj;
-  int carObjIndexInSortedList; int clearAheadMerits[3];
+  int carObjIndexInSortedList; int clearAheadMerits[3]; int sortIndex; int distance;
   carObjIndexInSortedList = carObj->sortIndex;
   lanesFilled = 0;
 
@@ -887,17 +887,17 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
 
       for (carsFound = lanesFilled, dir = ci; (carsFound != 3) && (ci < Cars_gNumCars); ci = ci + 1)
       {
-      otherCarObj = Cars_gSortedList[ (carObjIndexInSortedList + ci * dir + Cars_gNumCars) % Cars_gNumCars];
-
+      sortIndex = (carObjIndexInSortedList + ci * dir + Cars_gNumCars) % Cars_gNumCars;
+      otherCarObj = Cars_gSortedList[sortIndex];
 
       if ((carObj == otherCarObj) || ((otherCarObj->N).active == '\0')) continue;
 
 
-      if (AIWorld_SplineDistance(otherCarObj,carObj)
+      distance = AIWorld_SplineDistance(otherCarObj,carObj);
 
 
 
-          + 0x40000U >= 0x6e0000) continue;
+      if (distance + 0x40000U >= 0x6e0000) continue;
 
 
         if (((otherCarObj->carInLane >> carObj->laneIndex & 1U) != 0) && ((lanesFilled >> carObj->laneIndex & 1U) == 0))
@@ -978,10 +978,6 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
 }
 
 /* ---- AI_AddCollidableObjects__FP8Car_tObjP5Group  [@0x8005972c] ---- */
-      /* Native SLD1271 loads and scales radius together. Two assignments keep
-         its native debug home; a single multiplied initializer loses it. */
-      /* Native SLD1261 groups this vector subtraction as one source operation.
-         The original macro spelling, if any, is not established. */
 
 
 #line 1230 "C:/nfs4/GAME/COMMON/AI.CPP"
@@ -1000,32 +996,32 @@ static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
   }
 
   for (int objectIndex = 0; objectIndex < groupSimObjs->m_num_elements; objectIndex++) {
-    coorddef pt;
+    coorddef pt; int distance;
 
     pt.x = simObjs[objectIndex].point[0];
     pt.y = simObjs[objectIndex].point[1];
     pt.z = simObjs[objectIndex].point[2];
 
     BWorldSm_FindClosestSlice(&pt,(BWorldSm_Pos *)&spos);
-    if ((u_int)(AIWorld_ApxSplineDistance(spos.slice,carObj) *
 
+    distance = AIWorld_ApxSplineDistance(spos.slice,carObj);
 
-                carObj->direction - 1) < 0x63ffff) {
-      coorddef centerSlice;
-      coorddef centerToPt;
+    if ((u_int)(distance * carObj->direction - 1) < 0x63ffff)
+    {
+      coorddef centerSlice; coorddef centerToPt;
       int latPos;
       int avoidance;
       int radius; centerSlice = *(coorddef *) BWorldSm_slices[(carObj->N).simRoadInfo.slice].center;
       centerToPt.x = pt.x - centerSlice.x, centerToPt.y = pt.y - centerSlice.y, centerToPt.z = pt.z - centerSlice.z;
       latPos =
           (carObj->N).roadMatrix.m[0] / 0x100 * (centerToPt.x / 0x100) + (carObj->N).roadMatrix.m[1] / 0x100 * (centerToPt.y / 0x100) + (carObj->N).roadMatrix.m[2] / 0x100 * (centerToPt.z / 0x100);
-      avoidance = -0xd0000;
+
 
       if (simObjs[objectIndex].type == 1) {
         avoidance = -0x280000;
-      }
+      } else {
+        avoidance = -0xd0000; }
       radius = simObjs[objectIndex].radius,
-
       radius = radius * 0x200;
       AI_SubmitObstacle(carObj,avoidance,latPos - radius,latPos + radius,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
     }
@@ -1053,12 +1049,12 @@ void AI_AvoidSpikeBelt(Car_tObj *carObj)
   int leftLatPos;
   int width;
 
-  if (BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width) != 0) {
-    int distance;   /* unused: retail emits this then-block with no record, which an unused local reproduces */
+  if (BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width) != 0)
+  { int distance;
+    distance = AIWorld_ApxSplineDistance(spikeSlice,carObj);
 
 
-
-    if (AIWorld_ApxSplineDistance(spikeSlice,carObj) * carObj->direction - 1U < 0x63ffff) {
+    if (distance * carObj->direction - 1U < 0x63ffff) {
 
       AI_SubmitObstacle(carObj,-0x280000,leftLatPos,leftLatPos + width,spikeSlice);
     }
@@ -1146,21 +1142,21 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
   int ci;
   int absDistance;
   int blockDistance;
-  if ((carObj->carFlags & 0x10U) == 0) {
-    blockDistance =
+  if ((carObj->carFlags & 0x10U) != 0) return;
+  blockDistance =
 
-        (carObj->N).dimension.z * 2 + (carObj->N).dimension.z / 2;
+      (carObj->N).dimension.z * 2 + (carObj->N).dimension.z / 2;
 
-    for (ci = 0; ci < Cars_gNumCars; ci++) {
+  for (ci = 0; ci < Cars_gNumCars; ci++) {
 
-      otherCarObj = Cars_gList[ci];
-      if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
+    otherCarObj = Cars_gList[ci];
+    if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
 
+      absDistance = AIWorld_SplineDistance(otherCarObj,carObj);
+      absDistance = __builtin_abs(absDistance);
+      if (absDistance < 0xa0001) {
 
-        absDistance = __builtin_abs(AIWorld_SplineDistance(otherCarObj,carObj));
-        if ((absDistance < 0xa0001) && (absDistance < blockDistance)) {
-
-
+        if (absDistance < blockDistance) {
 
           if (otherCarObj->laneIndex == carObj->laneIndex + -1) {
 
@@ -1170,9 +1166,9 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
 
             CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x60000;
           }
-        }
-      } }
-  } return; }
+        } }
+    } }
+}
 
 /* ---- AI_ProcessObservationsAndChooseLane__FP8Car_tObj  [@0x80059ddc] ---- */
 
@@ -1249,7 +1245,6 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
   int leftBestLane;
   int rightBestLane;
 
-  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
 
 
 
@@ -1309,9 +1304,10 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
 
 
 
-                     (carObj->preferredLateralPosition - (carObj->N).dimension.x) + -0x4000);
 
+  carSideLane = (carObj->preferredLateralPosition - (carObj->N).dimension.x) + -0x4000;
 
+  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice, carSideLane);
   if (carSideLane == carObj->laneIndex) {
     carLeftSideLaneWRTcurrent = 1;
   } else { carLeftSideLaneWRTcurrent = (carSideLane < carObj->laneIndex ^ 1) << 1;
@@ -1339,9 +1335,9 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
 
     leftBestLane = 2;
   }
-  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
-                     carObj->preferredLateralPosition + (carObj->N).dimension.x + 0x4000);
 
+  carSideLane = carObj->preferredLateralPosition + (carObj->N).dimension.x + 0x4000;
+  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice, carSideLane);
   if (carSideLane == carObj->laneIndex) {
     carRightSideLaneWRTcurrent = 1;
   } else { carRightSideLaneWRTcurrent = (carSideLane < carObj->laneIndex ^ 1) << 1;
@@ -1730,7 +1726,7 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 
   range = *(int *)((char *)carObj->personality + 0x1c);
 
-  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int roll = range * (randtemp >> 8 & 0xffff) >> 0x10; /* DEVICE (exact-only): record-less const temp: roll on retail line 2057, compare on 2059 */
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int roll = range * (randtemp >> 8 & 0xffff) >> 0x10;
 
   if (roll == 1) {
 
@@ -1744,8 +1740,8 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 #line 2068 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_ChooseNewLaneSlack(Car_tObj *carObj)
 {
-  carObj->laneSlack = *(int *)((char *)carObj->personality +
 
-      ((fastRandom * randSeed) >> 6 & 0xc) + 0xc); randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff;
-  return;
+
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int r = (randtemp >> 8 & 0xffff) & 3;
+  carObj->laneSlack = carObj->personality->laneSwerve[r];
 }

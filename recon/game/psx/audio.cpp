@@ -72,7 +72,7 @@ void Audio_DeInitDriver(void)
   {
     SNDSYS_restore();
     void *const heap = Audio_gHeap; purgememadr(heap);
-  } return; }
+    (void)0; } return; }
 
 /* ---- Audio_CleanUp__Fv  [AUDIO.CPP:133-144] SLD-VERIFIED ---- */
 /* The unreferenced "game*" string belongs to audio.obj's data. A constant

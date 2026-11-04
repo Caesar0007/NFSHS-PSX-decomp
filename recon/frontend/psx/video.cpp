@@ -68,7 +68,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   STREAM_setfilter(vid->videotap,1,0xffff,0x4353,2);
   extern int screenbpp[];
   extern int timerhz[];
-  int *hzp = timerhz;
+
 
 
 
@@ -76,7 +76,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 
   vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
-  vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
+  int *hzp = timerhz; vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
 
   vid->state = VIDEOSTATE_IDLE;
 
@@ -104,9 +104,9 @@ void VIDEO_destroy(int handle)
     restoremdec(((VIDEOSTRUCT *)handle)->mdechandle);
 
     STREAM_destroy(((VIDEOSTRUCT *)handle)->videotap);
-    purgememadr(((VIDEOSTRUCT *)handle)->streambuffer);
+    purgememadr(((VIDEOSTRUCT *)handle)->streambuffer); } return;
+
   }
-  return; }
 
 /* lines 137-138: (static data / macros / comments - no emitted code) */
 
@@ -182,8 +182,8 @@ void VIDEO_abortplayback(int handle)
 
     STREAM_kill(((VIDEOSTRUCT *)handle)->videotap);
 
-    ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_IDLE;
-  } return; }
+    ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_IDLE; } return;
+  }
 
 /* lines 196-197: (static data / macros / comments - no emitted code) */
 
@@ -385,6 +385,7 @@ int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y
       return 0;
     }
   }
+
   return 1;
 }
 

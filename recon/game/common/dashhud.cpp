@@ -28,10 +28,10 @@ void DashHUD_InitHUD(void)
 
 {
   int i;
-  i = 0;
+
   DashHUD_gInfo.splitscreen = (int)(DASHHUD_COMMMODE == 1);
 
-  while (i <= DashHUD_gInfo.splitscreen) {
+  i = 0; while (i <= DashHUD_gInfo.splitscreen) {
 
 
     if (DASHHUD_HUD_SPEED(i) == 0) {
@@ -65,12 +65,12 @@ void DashHUD_InitHUD(void)
   }
   else { DashHUD_gInfo.record = 0;
   }
+  DashHUD_gInfo.maxlaps = DASHHUD_NUM_LAPS;
+
   DashHUD_gInfo.tutor = 0;
-
-
   DashHUD_gInfo.warning[0] = 0;
   DashHUD_gInfo.warning[1] = 0;
-  DashHUD_gInfo.maxlaps = DASHHUD_NUM_LAPS;
+
 
   HudPmx_InitTextures();
 
@@ -132,9 +132,9 @@ void DashHUD_CheckWrongWay(int player)
   int wrongway;
   Car_tObj * car; car = (Car_tObj *)DASHHUD_CAMERA_ANCHOR(player);
   wrongway = 0;
-  if ((0x3f < car->wrongway) && (wrongway = 2, car->wrongway < 0x94)) {
+  if (0x3f < car->wrongway) {
 
-
+    wrongway = 2; if (car->wrongway < 0x94)
     wrongway = 1;
   }
 

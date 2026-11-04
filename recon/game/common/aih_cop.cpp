@@ -11,17 +11,6 @@
 #include "../../link_stripped.h"
 
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
-
-
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
-/* accessor on the player's embedded chase info (retail pair with a computed receiver: no row) */
-static inline int PerpChase_CopFreeTicks(AICop_PerpChaseInfo *info) { return info->copFreeTicks_; }
-static inline copLevel_t *PerpChase_ChaseLevel(AICop_PerpChaseInfo *info) { return info->chaseLevel_; }
-
-
 /* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -33,36 +22,6 @@ extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's extern
                               and computes `AI_elapsedTime * 89` inside the loop; gcc's LICM
                               hoists all but the LAST insn of the synth-multiply chain
                               (`addu $v1,$t1,$a2`), which is what the retail body shows. */
-
-/* SYM-INLINE-NAME-UNRECOVERABLE: HighExecute's SLD records four nested
-   AICop_PerpChaseInfo `this` scopes on caller line 502 and no caller locals for
-   this exact expansion.  That proves an inline member boundary, but optimized
-   debug data does not retain the helper's linkage name.  ResetEngagementTime
-   is the narrowest semantic spelling supported by the body. */
-inline void AICop_PerpChaseInfo::ResetEngagementTime()
-{
-  int engagement;
-  int perTick;
-  int factor;
-
-  engagement = chaseLevel_->engagementLapFraction * AITune_gRoughLapTime;
-  if (engagement < 0) {
-    engagement += 0xffff;
-  }
-  perTick = 0x10000 / ((engagement >> 0x10) << 5);
-  engagementTime_ = (engagement >> 0x10) << 0x15;
-  engagementPercentIncreasePerTick_ = perTick;
-  if (GameSetup_gData.numLaps == 2) {
-    factor = 0x13333;
-  }
-  else if (GameSetup_gData.numLaps == 4) {
-    factor = 0xa8f5;
-  }
-  else {
-    return;
-  }
-  engagementPercentIncreasePerTick_ = fixedmult(perTick, factor);
-}
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 /* @0x8005516c jtbl: gcc now emits its own jump table for HighExecute's switch (11 cases,
@@ -1349,10 +1308,10 @@ int AIHigh_Cop::CheckForNewTarget()
     if (this->perpTarget_ != (AIHigh_Player *)0x0 && this->perpTarget_ == thisPlayer)
       got = got - 1;
 
-    if (got < needs) {
-      int copToTargetDistanceMeters =
-          __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
-
+    if (got < needs)
+    { {};
+      int rawDist = AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj());
+      int copToTargetDistanceMeters = __builtin_abs(rawDist);
 
       if (copToTargetDistanceMeters < newTargetDistance) {
 
@@ -1370,9 +1329,9 @@ int AIHigh_Cop::CheckForNewTarget()
     for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
 
       int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
-      AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
-      int copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
-
+      AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex]; {};
+      int rawDist = AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj());
+      int copToTargetDistanceMeters = __builtin_abs(rawDist);
 
       if (copToTargetDistanceMeters < newTargetDistance && thisPlayer->basicPerpInfo_.GetCrime() != 0) {
 
@@ -1540,10 +1499,10 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
   for (int sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop;
        sortedLoop = sortedLoop - 1) {
     Car_tObj *testCar; testCar = Cars_gTotalSortedList[sortedLoop];
-    if ((testCar->carFlags & 1U) != 0) {
-      int dir;
+    if ((testCar->carFlags & 1U) != 0)
+    { int dir;
       AIHigh_Player *thisPlayer;
-      int needs; int got; copLevel_t *pLevel; int thisSlice; int startSlice; int endSlice; int fRandomChance; thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex]; pLevel = thisPlayer->ChaseLevel(); fRandomChance = thisPlayer->newTriggerProb_;
+      int needs; int got; copLevel_t *pLevel; int thisSlice; int startSlice; int endSlice; int fRandomChance; thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex]; fRandomChance = thisPlayer->NewTriggerProb(); pLevel = thisPlayer->perpChaseInfo_.GetChaseLevel();
       got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
 
 
@@ -1556,11 +1515,11 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
 
 
-      if (thisPlayer->basicPerpInfo_.GetCrime() == 0) {
+      if (thisPlayer->basicPerpInfo_.GetCrime() == 0)
+      { {};
+
         fRandomChance = fRandomChance * 2;
         if ((0 < pLevel->copChasers[this->type_]) &&
-
-
 
             (AICop_NoCopsInArea((int)(thisPlayer->CarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
           needs = 1;
@@ -1616,8 +1575,8 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         int triggerHere;
 
 
-        triggerHere = triggerManagerCops->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop); if (triggerHere != -1) {
-          int iRandomChance;
+        triggerHere = triggerManagerCops->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop); if (triggerHere != -1)
+        { int iRandomChance;
           int randomValue; iRandomChance = (fRandomChance * 100) / 0x10000;
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randomValue = (int)(((randtemp >> 8) & 0xffff) * 0x19 >> 0xe);
 
@@ -1641,33 +1600,56 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
 
 
-          if ((got != 0) || (randomValue < iRandomChance)) {
-              int unused;
+          if ((got != 0) || (randomValue < iRandomChance))
+
+          { int unused;
+
+
+
+
+              trigger_t *trigger = triggerManagerCops->GetTrigger(triggerHere, &unused);
+              return trigger; }
 
 
 
 
 
-              return triggerManagerCops->GetTrigger(triggerHere, &unused);
-          }
+
+          else {}
+
         }
-
-
-
-
-
-
-
-
       }
     }
   }
-  return (trigger_t *)0x0;
-}
+  return (trigger_t *)0x0; }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class AIHigh_Cop;
 /* end of aih_cop.cpp */
-
-/* The empty source destructor naturally emits retail's base-forward
-   `___10AIHigh_Cop` and supplies implicit `this`; no free-function receiver
-   name is needed. */

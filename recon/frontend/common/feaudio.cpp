@@ -332,7 +332,7 @@ void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *
         }
         info = (FILEINFO *)(tempChar + 1); } while (i++ < bigfileHeader->num);
     }
-  } return; }
+  } }
 
 
 
@@ -348,7 +348,7 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
      NFS2 PC implementation; the former carrier/fence reconstruction did not. */
   int vivHandle;
   LUMPYHEAD lumpHead;
-  LUMPYHEAD *bigfileHeader;
+  LUMPYHEAD *bigfileHeader; int status1, status2;
   setasyncfile(fname);
   vivHandle = asyncloadsegment((char *)0x0,&lumpHead,0x10);
   do {
@@ -356,11 +356,11 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 
 
     systemtask(0);
-  } while (getasyncreadstatus(vivHandle) == 0);
-  lumpHead.type = ((lumpHead.type & 0xff) << 24) |
-                  ((lumpHead.type & 0xff00) << 8) |
-                  ((lumpHead.type & 0xff0000) >> 8) |
-                  ((lumpHead.type & 0xff000000) >> 24);
+    status1 = getasyncreadstatus(vivHandle);
+  } while (status1 == 0);
+
+
+  lumpHead.type = ((lumpHead.type & 0xff) << 24) | ((lumpHead.type & 0xff00) << 8) | ((lumpHead.type & 0xff0000) >> 8) | ((lumpHead.type & 0xff000000) >> 24);
   lumpHead.hlen = ((lumpHead.hlen & 0xff) << 24) | ((lumpHead.hlen & 0xff00) << 8) | ((lumpHead.hlen & 0xff0000) >> 8) | ((lumpHead.hlen & 0xff000000) >> 24);
   lumpHead.num = ((lumpHead.num & 0xff) << 24) | ((lumpHead.num & 0xff00) << 8) | ((lumpHead.num & 0xff0000) >> 8) | ((lumpHead.num & 0xff000000) >> 24);
 
@@ -376,11 +376,11 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 
 
     systemtask(0);
-  } while (getasyncreadstatus(vivHandle) == 0);
-  bigfileHeader->type = ((bigfileHeader->type & 0xff) << 24) |
-                        ((bigfileHeader->type & 0xff00) << 8) |
-                        ((bigfileHeader->type & 0xff0000) >> 8) |
-                        ((bigfileHeader->type & 0xff000000) >> 24);
+    status2 = getasyncreadstatus(vivHandle);
+  } while (status2 == 0);
+
+
+  bigfileHeader->type = ((bigfileHeader->type & 0xff) << 24) | ((bigfileHeader->type & 0xff00) << 8) | ((bigfileHeader->type & 0xff0000) >> 8) | ((bigfileHeader->type & 0xff000000) >> 24);
   bigfileHeader->hlen = ((bigfileHeader->hlen & 0xff) << 24) | ((bigfileHeader->hlen & 0xff00) << 8) | ((bigfileHeader->hlen & 0xff0000) >> 8) | ((bigfileHeader->hlen & 0xff000000) >> 24);
   bigfileHeader->num = ((bigfileHeader->num & 0xff) << 24) | ((bigfileHeader->num & 0xff00) << 8) | ((bigfileHeader->num & 0xff0000) >> 8) | ((bigfileHeader->num & 0xff000000) >> 24);
 

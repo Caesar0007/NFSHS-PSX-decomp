@@ -130,7 +130,7 @@ void HudPmx_InitTextures(void)
 
 
   sprintf(name,"%sfont.pfn",Paths_Paths[0x1a]);
-  i = 0;
+
   gHudFont = loadfileadrz(name,0);
 
 
@@ -143,7 +143,7 @@ void HudPmx_InitTextures(void)
 
   Font_LoadFont(gHudFont,0x80,0x80,1);
   {
-    for (; i < 10; i = i + 1) {
+    for (i = 0; i < 10; i = i + 1) {
       int u;
       int v;
       int w; int h; int yo; Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);

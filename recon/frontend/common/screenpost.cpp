@@ -83,8 +83,8 @@ void tScreenTournamentStandings::Initialize()
   this->gotmoney = 0;
   this->gotbonus = 0;
   this->gotbilled = 0;
-  if (this->fDrawMoney != 0) {
-
+  if (this->fDrawMoney != 0)
+  {
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
@@ -625,33 +625,6 @@ void tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 { tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command); return;
 }
 
-
-
-/* ---- tScreenPinkSlipStandings::dtor  [SCREENPOST.CPP:82-406] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
+#line 406 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tScreenTournamentStandings3item::dtor  [SCREENPOST.CPP:72-406] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
-/* ---- tScreenTournamentStandings::dtor  [SCREENPOST.CPP:64-406] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
 /* end of screenpost.cpp */

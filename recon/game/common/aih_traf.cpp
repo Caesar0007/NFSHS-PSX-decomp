@@ -307,7 +307,7 @@ void AIHigh_Traffic::HighExecute()
 
 
               this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
-            }
+            {} }
 
             else if (cRand < 8)
             {
@@ -344,7 +344,7 @@ void AIHigh_Traffic::HighExecute()
       if (AILife_EvaluateLife(carObj_) != 0)
       {
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
-      }
+      {} }
 
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) && ((carObj_->carFlags & 0x400U) == 0))
       {
@@ -360,7 +360,7 @@ void AIHigh_Traffic::HighExecute()
       if (AILife_EvaluateLife(carObj_) != 0)
       {
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
-      }
+      {} }
 
       else if (this->ForcePurgatory() != 0)
       {
@@ -370,7 +370,7 @@ void AIHigh_Traffic::HighExecute()
       else if (state_->TestForRelease() != 0)
       {
         this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
-      }
+      {} }
     }
     break;
   case STATE_CHASE:
@@ -515,10 +515,5 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
 
 
-
-
-/* end of aistate.cpp */
-
-/* The empty source destructor naturally emits retail's base-forward
-   `___14AIHigh_Traffic` and supplies implicit `this`; no free-function receiver
-   name is needed. */
+class AIHigh_Traffic;
+/* end of aih_traf.cpp */

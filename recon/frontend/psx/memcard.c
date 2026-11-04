@@ -699,7 +699,7 @@ int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 
 {
-  MCRDFILEINFO *pMFI; int nIcons; int i; pMFI = &gMemCardInfo.fileinfo;
+  MCRDFILEINFO *pMFI; int nIcons; int i; char *clut; pMFI = &gMemCardInfo.fileinfo;
 
 
 
@@ -768,8 +768,8 @@ MCRDsave_errorDefault:
 
 
 
-
-      blockmove(getshapeclut(pFILE->icon[0]) + 0x10,pMFI->header.iconclut,0x20);
+      clut = getshapeclut(pFILE->icon[0]);
+      blockmove(clut + 0x10,pMFI->header.iconclut,0x20);
       blockmove(&pFILE->icon[0]->data,pMFI->header.icon1,0x80);
       if (1 < nIcons) {
 
@@ -1529,11 +1529,11 @@ int iMCRD_HandleError(int func,int opResult,int card)
 
     if (func == 2) {
 
-      if (gMemCardInfo.ConfirmFormatProc() != 0) {
-        int numberoftries;
+      if (gMemCardInfo.ConfirmFormatProc() != 0)
+
+      { int numberoftries;
         int result;
         numberoftries = 0;
-
         opResult = -1;
 
         result = iMCRD_FormatCard(card);
@@ -1552,9 +1552,9 @@ iMCRDError_formatOK:
         pCI->lasterror = 7;
         gMemCardInfo.bReady = 1;
         goto iMCRDError_return;
+
       }
     }
-
 
 
 

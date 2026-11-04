@@ -90,5 +90,10 @@ struct FeMenuOptions_GlobalMenuDefsCodegenView {
     tInsideBoxSongMenu menuPlayListMenu;
 };
 #define tGlobalMenuDefs FeMenuOptions_GlobalMenuDefsCodegenView
+#line 204 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
+static inline void _femenuoptions_dtor_fade(tMenuItemLeftRightFade *p) { p->~tMenuItemLeftRightFade(); }
+#line 404 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
+static inline void _femenuoptions_dtor_btnfade(tMenuItemGoToMenuButtonFade *p) { p->~tMenuItemGoToMenuButtonFade(); }
+#line 93 "recon/frontend/common/femenuoptions_types.h"
 
 #endif

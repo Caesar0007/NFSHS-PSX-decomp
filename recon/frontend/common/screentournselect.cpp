@@ -5,8 +5,8 @@
 #include "screentournselect_types.h"
 #include "screentournselect_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
+/* retail SYM inline getter */
+#line 10 "feticks.h"
 static inline int FE_Ticks(void) { return ticks; }
 
 /* Explicit frontend selection, not the manager's cached tier/tournament.
@@ -18,7 +18,7 @@ static inline int FE_Ticks(void) { return ticks; }
    Restores the second empty pair at +84 without new records or code.
    The original inline name/signature is not supplied by retail SYM. */
 static inline long TourneyMoney(void) { return tournamentManager.fMoney; }
-
+#line 22 "C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect.cpp"
 
 /* Retail screentournselect.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -159,17 +159,17 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 
 
 {
-  if (tourn->fTrophyID != (signed char)this->fPreviousTrophy) {
-
+  if (tourn->fTrophyID != (signed char)this->fPreviousTrophy)
+  {
     GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
 
     this->fPreviousTrophy = tourn->fTrophyID;
-    if (-1 < this->fTransitionDirection) {
-      this->fTransitionDirection = -1;
-      this->fTVTicks = FE_Ticks(); } } return; }
-
+    if (-1 < this->fTransitionDirection)
+    { this->fTVTicks = FE_Ticks()
+      ;
+      this->fTransitionDirection = -1; } } }
 
 
 /* ---- tScreenTournSelect::DrawVideoWall  [SCREENTOURNSELECT.CPP:168-229] ---- */

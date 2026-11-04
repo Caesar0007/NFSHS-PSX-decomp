@@ -74,10 +74,10 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
   glintFade = 0x80 - fSelFade;
 
   if (0x80 - fSelFade < fFadeVal) { glintFade = fFadeVal;
-  } if (0 < flare_intensity) {
-    /* SYM SCOPE (W86-S2): `x` is declared inside this `if` -- its SYM row sits
-       in the depth-3 block that opens with the intensity test, while
-       flare_intensity/glintFade are the only function-scope locals. */
+  } if (0 < flare_intensity)
+  {
+
+
     int x;
 
     x = TextSys_WordX(0x1de);
@@ -328,7 +328,7 @@ long tOptionsMenu::DebounceKeys()
 {
   if (this->fItemList[this->fCurrentItem] != 0 && MenuItem_Enabled(this->fItemList[this->fCurrentItem])) {
     return this->fItemList[this->fCurrentItem]->DebounceKeys();
-  } return 0;
+  } else return 0;
 }
 
 
@@ -572,8 +572,8 @@ void tOptionsMenu::Draw()
     this->fCurrentItem = this->fCurrentItem + -1;
   }
 
-  if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
-
+  if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames))
+  {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(this->fFirstFrame + ((int)(FE_Ticks() >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
@@ -758,7 +758,7 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
     }
 
     j = j + 1; } while (j * 0x10000 >> 0x10 < 5);
-  return;
+
 
 }
 
@@ -1716,9 +1716,9 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         }
         this->DrawOneSong(song,x, (u_short)slideOffset + ((u_int)(u_short)this->fMoving + (drawY + (j * 0x15 - 0x28))), w,this->fOnOffFade[j],this->fSelFade[j]);
       }
-      j = j + 1; } while (j < 5);
+      j = j + 1; } while (j < 5); } return;
+
   }
-  return; }
 
 
 
@@ -1854,7 +1854,7 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer,tInputKeyType &keyval,
 
 
 
-}
+  return; }
 
 
 
@@ -1894,8 +1894,8 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
                      (int)this->fSelFade, (int)this->fFadeVal);
   ColText = CalcTextFadeSelToHi(textType_Options, this->fSelFade,this->fFadeVal);
 
-  if (this->fFadeVal != 0x80) {
-    tDrawShapeExtended tCol;
+  if (this->fFadeVal != 0x80)
+  { tDrawShapeExtended tCol;
 
 
 
@@ -2954,63 +2954,10 @@ void tMemoryCardMenuItem::Draw(bool)
 void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 {
-  if (keyval == kInput_KeyType_Left || keyval == kInput_KeyType_Right) {
-    if (keyval != kInput_KeyType_Right ||
-        (u_char)this->fData->Value((tPlayer)-1) != this->fData->MaxValue()) {
-      screenControllerConfig[0]->ResetShakeTimeOut();
+  if (keyval == kInput_KeyType_Left || keyval == kInput_KeyType_Right)
+  {
+    if (keyval != kInput_KeyType_Right || (u_char)this->fData->Value((tPlayer)-1) != this->fData->MaxValue())
+    { screenControllerConfig[0]->ResetShakeTimeOut();
     }
   } this->tMenuItemLeftRightSlider::ProcessInput(fromPlayer,keyval,command);
-}
-
-
-
-/* end of femenuoptions.cpp */
-
-extern "C" {
-void ___25tInsideBoxLeftRightSlider(void *);
-}
-
-/* tMemoryCardMenuItem dtor is a delegating thunk to ___23tMenuItemGoToMenuButton
- * (oracle @0x80020BD8: jal ___23tMenuItemGoToMenuButton) -- was missing entirely
- * (gate "NOT IN OBJECT").  Same form as ___27tMenuItemGoToMenuButtonFade. */
-extern "C" {
-void ___23tMenuItemGoToMenuButton(void *);
-}
-
-extern "C" {
-void ___23tMenuItemGoToMenuButton(void *);
-}
-
-extern "C" {
-void ___9tMenuItem(void *);
-}
-
-extern "C" {
-void ___24tMenuItemLeftRightChoice(void *);
-}
-
-extern "C" {
-void ___24tMenuItemLeftRightChoice(void *);
-}
-
-extern "C" {
-void ___24tMenuItemLeftRightChoice(void *);
-}
-
-extern "C" {
-void ___20tMenuItemSlidingMenu(void *);
-}
-
-extern "C" {
-void ___24tMenuItemLeftRightChoice(void *);
-}
-
-/* W60-A10: the tMenuItemGoToMenuNFS4Button::Draw(bool) nullsub USED to be defined here
-   (cont.34 re-attribution from front.c).  It is a DUPLICATE -- femenuextended.cpp also
-   defines it, so both objects emitted a global Draw__27tMenuItemGoToMenuNFS4Buttonb
-   (multiply-defined at link; invisible to verify_asm, which gates per-fn).
-   OWNER = FEMenuExtended.obj, proven from the SYM: the SLD run covering $8001bf40 is
-   "Set SLD to line 215 of file C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H" and ends at
-   $8001bf48, where FEMenuOptions.obj's first fn (CalcPulsateYellow__Fv) starts.
-   0x8001BF40 is also FAR below this TU's own VA range, i.e. an inversion here.
-   Definition removed; femenuextended.cpp keeps it as its last emitted fn. */
+} extern "C" { void ___25tInsideBoxLeftRightSlider(void *); void ___23tMenuItemGoToMenuButton(void *); void ___9tMenuItem(void *); void ___24tMenuItemLeftRightChoice(void *); void ___20tMenuItemSlidingMenu(void *); }

@@ -67,15 +67,15 @@ static inline void SpikeBelt_SetFreshenTime(int timeNow) { AICop_spikeBelt.fresh
 void AIHigh_BasicCop::CheckSpikeBelt()
 {
 
-  if (SpikeBelt_IsActive() && !SpikeBelt_IsFresh(simGlobal.gameTicks)) {
-    int slice = SpikeBelt_Slice();
+  if (SpikeBelt_IsActive() && !SpikeBelt_IsFresh(simGlobal.gameTicks))
+  { int slice = SpikeBelt_Slice();
 
 
-    if (AILife_IsSliceInAnyVisibleArea(slice) == 0) {
+    int visible = AILife_IsSliceInAnyVisibleArea(slice);
 
 
-
-
+    if (visible == 0)
+    {
 
       BWorld_InitSpikeBelt();
       SpikeBelt_SetActive(0);
@@ -86,21 +86,18 @@ void AIHigh_BasicCop::CheckSpikeBelt()
       SpikeBelt_SetFreshenTime(simGlobal.gameTicks);
     }
   }
-  if (AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed) {
-    int slice = Object_customSliceNum;
+  if (AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed)
+  { int slice = Object_customSliceNum;
 
 
-    if (AILife_IsSliceInAnyVisibleArea(slice) == 0) {
+    int visible = AILife_IsSliceInAnyVisibleArea(slice);
 
 
-
-
+    if (visible == 0)
+    {
 
       Object_ClearCustomObjects();
-      AICop_gRoadBlockState = kAICop_RoadBlockState_None;
-    }
-  }
-}
+      AICop_gRoadBlockState = kAICop_RoadBlockState_None; } } }
 
 
 
@@ -109,7 +106,7 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
 
 
-/* ---- ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj  AIHigh_BasicCop::ShouldIPerformCutOffBlock  [AIH_BASICCOP.CPP:83-193] SLD-VERIFIED ---- */
+/* ---- ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj  AIHigh_BasicCop::ShouldIPerformCutOffBlock  [AIH_BASICCOP.CPP:83-113] one instruction tag still unresolved ---- */
 
 
 #line 82 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
@@ -128,20 +125,20 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
 
   if (random1000 < chanceOutOf1000)
   {
-    int relLatPosition = *(int *)((char *)this->carObj_ + 1396) - *(int *)((char *)target + 1396);
+    int relLatPosition = this->carObj_->roadPosition - target->roadPosition;
     int absRelLatPosition = __builtin_abs(relLatPosition);
-    if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition && absRelLatPosition <= 0x3FFFF)
+    if ((target->N.dimension.x + 0x10000) < absRelLatPosition && absRelLatPosition <= 0x3FFFF)
     {
-      int metersBetween = AIWorld_SplineDistance(this->carObj_, target) * *(int *)((char *)this->carObj_ + 1364);
-
-      int carLength = *(int *)((char *)target + 316) * 2 + 0x20000; if (carLength < metersBetween && metersBetween < 0xC0000) {
+      int metersBetween = AIWorld_SplineDistance(this->carObj_, target) * this->carObj_->direction;
+      const int z = target->N.dimension.z;
+      int carLength = z * 2 + 0x20000; if (carLength < metersBetween && metersBetween < 0xC0000) {
         return 1;
       }
+
+
+      return 0;
     }
   }
-
-
-
 
 
   return 0;
@@ -191,7 +188,7 @@ static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 {
   SceneElem theObj;
   BWorldSm_Pos slicePos;
-  coorddef *rotx = (coorddef *)&theObj.orient.m[0]; coorddef *roty = (coorddef *)&theObj.orient.m[3]; coorddef *rotz = (coorddef *)&theObj.orient.m[6]; theObj.type = 0;
+  coorddef *rotx; coorddef *roty; coorddef *rotz; theObj.type = 0;
   theObj.subType = 1;
   theObj.scalar1 = Object_GetObjDefID(objectID);
   theObj.scalar2 = 0x23916;
@@ -203,9 +200,9 @@ static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
   BWorldSm_SetSlice(slice,&slicePos);
   BWorldSm_FindClosestQuadRez(pos,&slicePos,1);
 
-
-
-
+  rotx = (coorddef *)&theObj.orient.m[0];
+  roty = (coorddef *)&theObj.orient.m[3];
+  rotz = (coorddef *)&theObj.orient.m[6];
 
   *roty = *(coorddef *)BWorldSm_UNormal(&slicePos);
   *rotz = *(coorddef *)BWorldSm_UForward(&slicePos);
@@ -239,7 +236,7 @@ static void PlacePointOnRoad(int slice,coorddef *offset)
   coorddef slicecenter;
   BWorldSm_Pos testSimRoadInfo;
   coorddef ioff;
-  int vecXz;
+  int vecXx; int vecXz;
   int vecZx; int vecZz; ioff = *offset;
 
 
@@ -250,13 +247,13 @@ static void PlacePointOnRoad(int slice,coorddef *offset)
 
   slicecenter = *(coorddef *)BWorldSm_slices[slice].center;
 
+  vecXx = (int)((signed char *)BWorldSm_slices[slice].right)[0] << 9;
   vecXz = (int)((signed char *)BWorldSm_slices[slice].right)[2] << 9;
-
   vecZx = (int)((signed char *)BWorldSm_slices[slice].forward)[0] << 9;
   vecZz = (int)((signed char *)BWorldSm_slices[slice].forward)[2] << 9;
-  offset->x =
-      slicecenter.x +
-      fixedmult((int)((signed char *)BWorldSm_slices[slice].right)[0] << 9, ioff.x) + fixedmult(vecZx,ioff.z);
+
+
+  offset->x = slicecenter.x + fixedmult(vecXx, ioff.x) + fixedmult(vecZx,ioff.z);
   offset->y = slicecenter.y;
   offset->z = slicecenter.z + fixedmult(vecXz,ioff.x) + fixedmult(vecZz,ioff.z);
 
@@ -282,8 +279,8 @@ static void PlacePointOnRoad(int slice,coorddef *offset)
 #line 197 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 {
-  if (blockade->flags != 0) {
-    int slice;
+  if (blockade->flags != 0)
+  { int slice;
     Object_ClearCustomObjects();
 
 
@@ -296,9 +293,9 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
     {
       coorddef pt;
 
-      {
-        int i;
-        for (i = 0; i < 5; i = i + 1) {
+
+
+      { int i; for (i = 0; i < 5; i = i + 1) {
 
           pt.x = i * 0x20000;
           pt.y = 0;
@@ -322,10 +319,10 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
     {
       coorddef pt;
 
-      {
-        int i;
 
-        for (i = 0; i < 7; i = i + 1) {
+
+
+      { int i; for (i = 0; i < 7; i = i + 1) {
 
           pt.x = i * 0x20000 - 0x60000;
           pt.y = 0;
@@ -347,8 +344,8 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
     }
 
 
-    if ((blockade->flags & 4U) != 0) {
-      int objId;
+    if ((blockade->flags & 4U) != 0)
+    { int objId;
       coorddef pt; objId = Object_FindDefWithThisID(3);
 
 
@@ -395,16 +392,16 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
   if (theCar == (Car_tObj *)0x0) {
     (this->blockade_).blockadeSpeechFlags = 0;
   }
-  else {
-    int carSlice;
-    int sliceDiff;
+  else
+
+  { int carSlice; int sliceDiff;
     carSlice = (theCar->stats).slice;
     sliceDiff = carSlice - (this->blockade_).slice;
 
     if (theCar->blowout != 0) {
       (this->blockade_).blockadeSpeechFlags = 0;
-    } else { if (__builtin_abs(sliceDiff) < 0x21) {
-        int checkSlice;
+    } else { if (__builtin_abs(sliceDiff) < 0x21)
+      { int checkSlice;
         checkSlice =
             (Cars_topSpeedCap[(theCar->render).currentCarType] * 0x1c) /
             0x640000;

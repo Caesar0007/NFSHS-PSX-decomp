@@ -979,17 +979,17 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
 
 
 
-    if (carObj->carInfo->RampBrake != 0) {
-
-
+    if (carObj->carInfo->RampBrake != 0)
+    {
+      int rampIn = 0x10;
 
       diff = carObj->control.desiredBrakeLevel - carObj->control.brakeLevel;
-      if (diff >= 0) {
-        if (diff < 0x10) carObj->control.brakeLevel += diff; else carObj->control.brakeLevel += 0x10;
-      } else {
-        diff = -diff; if (diff < 0x10) carObj->control.brakeLevel -= diff; else carObj->control.brakeLevel -= 0x10;
-      }
-    } else
+      if (diff >= 0)
+        carObj->control.brakeLevel += MIN(rampIn,diff);
+      else
+        carObj->control.brakeLevel -= MIN(rampIn,-diff);
+    }
+    else
       carObj->control.brakeLevel = carObj->control.desiredBrakeLevel;
 
 

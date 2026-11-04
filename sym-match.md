@@ -9,22 +9,22 @@ All retail function entries remain covered; Claude's six edits are untouched.
 
 | Measure | Latest available result | Scope / freshness |
 |---|---:|---|
-| Native SYM common-name CLEAN | 2425 / 2570 (94.36%) | Refreshed native comparison; 145 DIRTY |
+| Native SYM common-name CLEAN | 2449 / 2570 (95.29%) | Refreshed native comparison; 121 DIRTY |
 | Honest linked code | 299819 / 299819 words | Fresh real link/raw comparison; zero masked overlap mismatches |
 | Function byte board | 3494 / 3494 (100%) | Fresh pinned objdiff report; `MATCH_PROGRESS.txt` regenerated |
-| Header-relative SLD exact tags | 2360 / 2581 (91.44%) | Probe metric; absolute headers and filenames are separate |
-| Relative tags + reported block lines | 2200 / 2581 (85.24%) | Source-bound probe update; not a full native-contract seal |
-| Native absolute instruction-line tags | 2361 / 2581 (91.48%) | Fresh paired native/retail comparison; filenames checked separately |
-| Native absolute function header line | 2581 / 2581 (100%) | All supplied header lines AND source filenames exact; not full source restoration |
+| Header-relative SLD exact tags | 2437 / 2581 (94.42%) | Probe metric; absolute headers and filenames are separate |
+| Relative tags + reported block lines | 2385 / 2581 (92.41%) | Source-bound probe update; not a full native-contract seal |
+| Native absolute instruction-line tags | 2438 / 2581 (94.46%) | Fresh paired native/retail comparison; filenames checked separately |
+| Native absolute function header line | 2581 / 2581 (100%) | Header lines exact; Windows-normalized source identities agree, not raw filename-byte equality |
 | Native function/TU provenance pairing | 2581 / 2581 (100%) | Every supplied function assigned to its owning TU; not whole-tree producer freshness |
 | Covered-TU CPP input freshness | 152 / 152 (100%) | 150 cached inputs byte-equal; two validated before-origin inputs equal; NOT CC1/object/native freshness |
 | Covered-TU raw compiler output | 152 / 152 (100%) | Fresh selected-stock full-debug assembly byte-equal; no postcompiler phases, skips or normalization; NOT object/native/source completion |
 
-Remaining HEADER-RELATIVE tag differences: **1494 / 207991 instruction words**.
-Direct current native ABSOLUTE line differences are1493/207991; these are
+Remaining HEADER-RELATIVE tag differences: **1197 / 207991 instruction words**.
+Direct current native ABSOLUTE line differences are 1196 / 207991; these are
 different metrics, not interchangeable deltas. Rounds h-as
 repair174 genuine relative tags. With the later az/ba absolute-origin/EOF
-repairs and the later shared-header/footer corrections, seventy-six complete supplied
+repairs and the later shared-header/footer corrections, seventy-eight complete supplied
 native contracts have been added, plus PAD_state's now-exact partial-retail
 supplied-record contract and
 partial source/type/control-flow improvements. The earlier round
@@ -38,12 +38,26 @@ recompilation of the affected TUs; untouched native inputs are preserved,
 not independently recertified as freshly compiled. Native common-name SYM totals and the 2581 SLD
 function occurrences have different denominators; none is a whole-source seal.
 
+Raw-SLD coverage caveat (2026-11-03): these contract/SLD counts compare per-word
+last-event tags, block records, headers and ends, NOT the entire ordered raw SLD
+event stream including overwritten same-address events. sldtree_cmp deliberately
+stores events[address]=last. BasicCop retail has line108 then113 at relative+328;
+the native dump has only113, both before and after the CF endpoint repair. This
+pre-existing raw-event deficit remains an explicit audit obligation even when a
+word/block contract is green. Do not delete/coalesce retail records, insert fake
+work or claim full raw-SYM/source restoration from the reported counts. Full raw
+event comparison/producer-identity investigation must preserve multiplicity and
+boundary ambiguity; it is not implemented by the current word-tag board.
+Filename equality here uses the existing sld_file_events normalization of slash/
+escape repetition, quotes and Windows case. Raw path spellings and raw ordered
+file events remain separate evidence, not proven equal by that identity test.
+
 | Source directory | Exact tags | Exact tags + block lines | Remaining tag differences |
 |---|---:|---:|---:|
-| GAME/COMMON | 1191 / 1258 | 1118 / 1258 | 305 |
-| GAME/PSX | 377 / 395 | 354 / 395 | 58 |
-| FRONTEND/COMMON | 717 / 838 | 662 / 838 | 987 |
-| FRONTEND/PSX | 74 / 85 | 65 / 85 | 46 |
+| GAME/COMMON | 1228 / 1258 | 1209 / 1258 | 159 |
+| GAME/PSX | 381 / 395 | 371 / 395 | 54 |
+| FRONTEND/COMMON | 750 / 838 | 729 / 838 | 848 |
+| FRONTEND/PSX | 78 / 85 | 77 / 85 | 37 |
 | EACLIB/PSX (partial retail coverage) | 1 / 5 | 1 / 5 | 98 |
 
 Receipts: `build/tmp/v/sld_refresh_20261101/{board,proof,summary}.json` and
@@ -81,6 +95,450 @@ Older snapshot tables and open-case lists later in this file are historical,
 not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
+
+2026-11-03co Complete 20 additional SLD/SYM-exact function contracts (+19 `covered_local_frame_SLD_exact`, 2347 -> 2366 / 2581 = 91.67%) across 11 translation units (sealing 8 full translation units at 100% `covered_local_frame_SLD_exact`: FECARS.CPP, PHYSICS.CPP, FEVIDEOWALL.CPP, PLATFORM.CPP, SKIDMARK.CPP, COPSPEAK.CPP, FETOURN.CPP, and SCREENAUDIO.CPP, plus advancing AIH_BTCPERP.CPP, NFS3.CPP, and FEINPUT.CPP), advance declaration-owner PASS by +8 (2461 -> 2469 / 2581 = 95.66%) and native SYM common-name CLEAN by +12 (2437 -> 2449 / 2570 = 95.29%, 121 DIRTY), and reduce remaining instruction tag differences by 23 words (1219 -> 1196).
+
+Resolve 19 covered function contracts (`covered_local_frame_SLD_exact`: `2347 -> 2366 / 2581`), 9 block-line contracts (`2423 -> 2432 / 2581`), 6 instruction-tag contracts (`2432 -> 2438 / 2581`), and 8 declaration-owner contracts (`2461 -> 2469 / 2581`) across 11 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/frontend/common/fecars.cpp` (46/46 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `ValidCar__16tListIteratorCar7tPlayerc`.
+- `recon/game/common/physics.cpp` (22/22 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `Physics_RampCarControlValues__FP8Car_tObj`.
+- `recon/game/common/aih_btcperp.cpp` (22/26 `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `CheckForActivation__15AIHigh_BTC_Perp`.
+- `recon/frontend/common/fevideowall.cpp` (12/12 = 100% `covered_local_frame_SLD_exact`, `+3` complete contracts, `+1` SYM CLEAN, `-8` tag diffs): `UpdateTransition__10tVideoWall`, `Draw__10tVideoWall`, and `Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss`.
+- `recon/game/common/speech_class.h`, `recon/game/common/nfs3.cpp` (10/11 `covered_local_frame_SLD_exact`, `+1` SYM CLEAN, `+1` SLD-exact): `Nfs2_SystemNLibStartUp__Fv`.
+- `recon/game/psx/platform.cpp` (8/8 = 100% `covered_local_frame_SLD_exact`, `+3` complete contracts, `+1` declaration-owner PASS, `+3` SYM CLEAN): `Platform_ReserveMemory__FiPc`, `Platform_TempReserveMemory__FiPc`, and `Platform_InitMemory__Fv`.
+- `recon/game/psx/skidmark.cpp` (11/11 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `Skidmark_CheckChunk__FP8coorddefii`.
+- `recon/game/common/copspeak.cpp` (27/27 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `CopSpeak_Request__FP17CopSpeak_tRequest`.
+- `recon/frontend/common/fetourn.cpp` (35/35 = 100% `covered_local_frame_SLD_exact`, `+5` complete contracts, `+1` declaration-owner PASS, `+1` SYM CLEAN, `-13` tag diffs): `GetTrophyName__18tTournamentManagerP10tTourneyID11tTrophySizeii`, `UpdateTrackFinishPoints__18tTournamentManager`, `UpdateTrackList__18tTournamentManagerss`, `CalcTrackFinishDamageBill__18tTournamentManagers`, and `UpdateAwardInformation__18tTournamentManager`.
+- `recon/frontend/common/screenaudio.cpp` (8/8 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `+1` declaration-owner PASS, `+1` SYM CLEAN): `DrawForeground__12tScreenAudio`.
+- `recon/frontend/common/feinput.cpp` (3/4 `covered_local_frame_SLD_exact`, 4/4 declaration-owner PASS, 4/4 SYM CLEAN, `+2` complete contracts, `+1` declaration-owner PASS, `+1` SYM CLEAN, `-2` tag diffs): `FEInput_GetNoDebounceKey__Fii` and `FEInput_GetDebounceKey__Fii`.
+- Verification:
+  - `symloop.py`: all modified translation units pass with `BYTES: UNCHANGED`, `ASPSX ok 524 bad 0`, `PSYLINK: 0 error lines`.
+  - `MATCH_PROGRESS.txt`: `3494 / 3494 at 100% (100.0%)`.
+  - `strict_branch.py`: `CLEAN 3471`, `0` mismatches.
+  - `honest_measure.py`: `RECON 299819 / 299819 = 100.000% (0 diff words)`, `0` overlap mismatches, `0` foreign labels.
+  - `source_owner_queue.py` (`build/tmp/v/source_round_co_20261103/source_queue`): `covered_local_frame_SLD_exact`: `2347 -> 2366 / 2581` (`+19`), `declaration_owner_PASS`: `2461 -> 2469 / 2581` (`+8`), `block_lines_exact`: `2423 -> 2432 / 2581` (`+9`), `instruction_line_tags_exact`: `2432 -> 2438 / 2581` (`+6`), `end_line_exact`: `2573 / 2581`, `tag_difference_words`: `1219 -> 1196` (`-23`).
+
+2026-11-03cn Complete 18 additional SLD-exact function contracts (+17 `covered_local_frame_SLD_exact`, 2330 -> 2347 / 2581 = 90.93%) across 7 translation units (bringing AIH_BASICCOP.CPP, MDEC.CPP, and STATCHK.CPP to 100% `covered_local_frame_SLD_exact`, SCREENAUDIO.CPP to 100% SLD-exact, and sealing all PASS-declaration functions in SCREENMAIN.CPP, R3DCAR.CPP, and HUD.CPP), advance declaration-owner PASS by +2 (2459 -> 2461 / 2581 = 95.35%) and native SYM common-name CLEAN by +4 (2433 -> 2437 / 2570 = 94.82%, 133 DIRTY), and reduce remaining instruction tag differences by 36 words (1255 -> 1219).
+
+Resolve 17 covered function contracts (`covered_local_frame_SLD_exact`: `2330 -> 2347 / 2581`), 6 block-line contracts (`2417 -> 2423 / 2581`), 14 instruction-tag contracts (`2418 -> 2432 / 2581`), and 2 declaration-owner contracts (`2459 -> 2461 / 2581`) across 7 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/game/common/aih_basiccop.cpp` (9/9 = 100% `covered_local_frame_SLD_exact`, `+4` complete contracts, `-11` tag diffs): `CheckSpikeBelt__15AIHigh_BasicCop`, `ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj`, `Blockade_AddObject__FiP8coorddefi`, and `PlacePointOnRoad__FiP8coorddef`.
+- `recon/frontend/psx/mdec.cpp` (6/6 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-3` tag diffs): `initmdec`.
+- `recon/frontend/common/statchk.cpp` (5/5 = 100% `covered_local_frame_SLD_exact`, `+4` complete contracts, `+1` declaration-owner PASS, `+1` SYM CLEAN, `-12` tag diffs): `StatChk_IsRecordLapTime__FP10Car_tStatssPs`, `StatChk_SaveRecordLapTime__FP10Car_tStatsss`, `StatChk_IsTopTime__FP10Car_tStatss`, and `StatChk_SaveTopTime__FP10Car_tStatss`.
+- `recon/frontend/common/screenaudio.cpp` (8/8 = 100% SLD-exact, 7/8 `covered_local_frame_SLD_exact`, all 7 PASS-declaration functions 100% exact, `+2` complete contracts, `-3` tag diffs): `DrawBackground__12tScreenAudio` and `PlaySound__12tScreenAudio`.
+- `recon/frontend/common/screenmain.cpp` (12/13 SLD-exact, 12/13 `covered_local_frame_SLD_exact`, all 12 PASS-declaration functions 100% exact, `+1` complete contract, `-2` tag diffs): `DrawDropShadow__11tScreenMain`.
+- `recon/game/common/r3dcar.cpp` (24/27 SLD-exact, 24/27 `covered_local_frame_SLD_exact`, all 24 PASS-declaration functions 100% exact, `+2` complete contracts, `-3` tag diffs): `R3DCar_LoadFileAdr__FPc` and `R3DCar_GetCarName__FPcii`.
+- `recon/game/psx/hud.cpp` (61/62 SLD-exact, 59/62 `covered_local_frame_SLD_exact`, all 59 PASS-declaration functions 100% exact, `+3` complete contracts, `+4` SLD-exact, `+1` declaration-owner PASS, `+2` SYM CLEAN, `-2` tag diffs): `Hud_BuildTimeSprites__FP4SPRTPcii`, `Hud_BuildNumbers__Fi`, `Hud_RenderHudView__Fv`, and `Hud_BuildTach__Fi`.
+- Verification:
+  - `symloop.py`: all 7 modified translation units pass with `BYTES: UNCHANGED`, `ASPSX ok 524 bad 0`, `PSYLINK: 0 error lines`.
+  - `MATCH_PROGRESS.txt`: `3494 / 3494 at 100% (100.0%)`.
+  - `strict_branch.py`: `CLEAN 3471`, `0` mismatches.
+  - `honest_measure.py`: `RECON 299819 / 299819 = 100.000% (0 diff words)`, `0` overlap mismatches, `0` foreign labels.
+  - `source_owner_queue.py` (`build/tmp/v/source_round_cn_20261103/source_queue`): `covered_local_frame_SLD_exact`: `2330 -> 2347 / 2581` (`+17`), `declaration_owner_PASS`: `2459 -> 2461 / 2581` (`+2`), `block_lines_exact`: `2417 -> 2423 / 2581` (`+6`), `instruction_line_tags_exact`: `2418 -> 2432 / 2581` (`+14`), `end_line_exact`: `2573 / 2581`, `tag_difference_words`: `1255 -> 1219` (`-36`).
+
+2026-11-03cm Complete 56 additional SLD-exact function contracts (+52 `covered_local_frame_SLD_exact`, 2278 -> 2330 / 2581 = 90.27%) across 26 translation units (bringing AIH_TRAF.CPP, COPSPEAK.CPP, and FECREDITS.CPP to 100% SLD-exact and sealing all PASS-declaration functions in FLARE.CPP, DASHHUD.CPP, COLLIDE.CPP, AIH_COP.CPP, MOVIE.CPP, PSXFRONT.CPP, FECARS.CPP, PAUSEMENU.CPP, and FEMENUEXTENDED.CPP), advance declaration-owner PASS by +3 (2456 -> 2459 / 2581 = 95.27%) and native SYM common-name CLEAN by +6 (2427 -> 2433 / 2570 = 94.67%, 137 DIRTY), and reduce remaining instruction tag differences by 29 words (1284 -> 1255).
+
+Resolve 52 covered function contracts (`covered_local_frame_SLD_exact`: `2278 -> 2330 / 2581`), 49 block-line contracts (`2368 -> 2417 / 2581`), 9 instruction-tag contracts (`2409 -> 2418 / 2581`), and 3 declaration-owner contracts (`2456 -> 2459 / 2581`) across 26 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/game/common/aih_traf.cpp` (6/6 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-6` tag diffs): `HighExecute__14AIHigh_Traffic` (195 block records and 547 instruction words exact).
+- `recon/game/common/copspeak.cpp` (27/27 SLD-exact, 26/26 PASS-declaration `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs): `CopSpeak_ReadyNextRequest__Fv`.
+- `recon/frontend/common/fecredits.cpp` (7/7 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs): `DrawCurrCredit__14tCreditManager`.
+- `recon/game/psx/flare.cpp` (26/27 SLD-exact, 25/25 PASS-declaration `covered_local_frame_SLD_exact`, `+2` complete contracts, `-1` tag diff): `Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache` and `Flare_QuadRing__FPlP7CVECTORi`.
+- `recon/game/common/aih_basicperp.cpp` (7/9 SLD-exact, `+1` complete contract, `+1` SYM CLEAN): `CheckForCrimes__16AIHigh_BasicPerp` (100% exact) and `RemoveCloseCops__16AIHigh_BasicPerp` (9/10 block diffs resolved).
+- `recon/game/common/dashhud.cpp` (5/6 `covered_local_frame_SLD_exact`, all 5 PASS-declaration functions 100% exact, `+2` complete contracts, `-7` tag diffs): `DashHUD_InitHUD__Fv` and `DashHUD_CheckWrongWay__Fi`.
+- `recon/game/common/collide.cpp` (13/14 `covered_local_frame_SLD_exact`, all 13 PASS-declaration functions 100% exact, `+2` complete contracts, `+1` SYM CLEAN): `Collide_CheckMeForCollisions__FP13BO_tNewtonObj` and `Collide_ClearCollisionRegistry__Fv`.
+- `recon/game/psx/drawc.cpp` (`+1` block-line exact): `DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache`.
+- `recon/game/common/aih_cop.cpp`, `recon/game/common/aihigh.h` (9/10 `covered_local_frame_SLD_exact`, all 9 PASS-declaration functions 100% exact, `+2` complete contracts, `+1` declaration-owner PASS, `+2` SYM CLEAN, `-8` tag diffs): `CheckForNewTarget__10AIHigh_Cop` and `CheckForNewTriggers__10AIHigh_Cop`.
+- `recon/game/common/aih_btcperp.cpp` (22/26 `covered_local_frame_SLD_exact`, `+3` complete contracts, `+2` SYM CLEAN): `AvoidCops__17AIHigh_BTC_AIPerp`, `FindClosestCop__17AIHigh_BTC_AIPerp`, and `CheckForControlsPressed__15AIHigh_BTC_Perp`.
+- `recon/frontend/common/fevideowall.cpp` (9/12 `covered_local_frame_SLD_exact`, `+3` complete contracts): `TurnOff__10tVideoWall`, `TurnOn__10tVideoWall`, and `UpdateTransition__10tVideoWall`.
+- `recon/frontend/psx/movie.cpp` (16/17 SLD-exact, all 15 PASS-declaration functions 100% exact, `+1` complete contract): `Movie_Load__Fc`.
+- `recon/frontend/psx/video.cpp` (5/9 `covered_local_frame_SLD_exact`, `+2` complete contracts): `VIDEO_destroy__Fi` and `VIDEO_abortplayback__Fi`.
+- `recon/frontend/psx/psxfront.cpp` (23/25 SLD-exact, all 21 PASS-declaration functions 100% exact, `+3` complete contracts): `LoadAllHelpShapes__Fv`, `CleanupSpinningCars__Fv`, and `DoTitleScreen__Fv`.
+- `recon/frontend/common/front.cpp` (26/43 `covered_local_frame_SLD_exact`, `+2` complete contracts): `Front_InitPerps__FR9tFEStream` and `Front_InitMissions__FR9tFEStream`.
+- `recon/frontend/common/femenuoptions.cpp` (84/92 SLD-exact, 83/92 `covered_local_frame_SLD_exact`, `+3` complete contracts, `+4` SLD-exact): `Draw__14tInsideBoxMenusssss`, `Draw__18tInsideBoxSongMenusssss`, `ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand`, and `Draw__34tMenuItemControllerLeftRightChoiceiib`.
+- `recon/frontend/common/fecars.cpp` (45/46 `covered_local_frame_SLD_exact`, all 45 PASS-declaration functions 100% exact, `+2` complete contracts): `SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss` and `AdjustPosition__16tListIteratorCar7tPlayers`.
+- `recon/game/common/pausemenu.cpp` (59/60 `covered_local_frame_SLD_exact`, 60/60 scope regions PASS, all 59 PASS-declaration functions 100% exact, `+8` complete contracts): `ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand`, `ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand`, `ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand`, `CheckForDisabled__6tPMenu`, `Draw__6tPMenu`, `Draw__25tPMenuItemLeftRightChoiceb`, `Initialize__6tPMenu`, and `ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand`.
+- `recon/game/common/aih_basiccop.cpp` (5/9 `covered_local_frame_SLD_exact`, `+2` complete contracts): `SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t` and `HandleBlockadeSpeech__15AIHigh_BasicCop`.
+- `recon/frontend/common/femenuextended.cpp` (55/57 `covered_local_frame_SLD_exact`, all 55 PASS-declaration functions 100% exact, `+1` complete contract): `Initialize__9tMenuNFS4`.
+- `recon/frontend/common/fememcard.cpp` (13/18 `covered_local_frame_SLD_exact`, `+2` complete contracts): `Init_Memcard__FbT0` and `DeInit_Memcard__Fv`.
+- `recon/frontend/common/statchk.cpp` (2/5 SLD-exact, `+1` block-line exact): `StatChk_SaveRecordLapTime__FP10Car_tStatsss`.
+- `recon/game/psx/hud.cpp` (58/62 SLD-exact, 56/62 `covered_local_frame_SLD_exact`, `+2` complete contracts, `+3` SLD-exact): `Hud_BuildWingmanInterface__Fi`, `Hud_BuildRadar__Fi`, and `BigBTCTime__Fi`.
+- `recon/frontend/psx/memcard.c` (20/21 SLD-exact, 19/21 `covered_local_frame_SLD_exact`, `+2` complete contracts, `-3` tag diffs): `MCRD_savefile` and `iMCRD_HandleError`.
+- `recon/frontend/common/screencarselect.cpp` (`+1` complete contract): `DrawOverlay__16tScreenCarSelectP8tOverlay` (551 words, 68 block records exact).
+- `recon/game/psx/draww.cpp` (29/35 SLD-exact, 27/35 `covered_local_frame_SLD_exact`, `+3` complete contracts, `+4` SLD-exact, `+2` declaration-owner PASS, `+2` SYM CLEAN): `DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache`, `Draw_CircleClip__FP8coorddefT0i`, `DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache`, and `DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache`.
+- Verification:
+  - `symloop.py`: all 26 modified translation units pass with `BYTES: UNCHANGED`, `ASPSX ok 524 bad 0`, `PSYLINK: 0 error lines`.
+  - `MATCH_PROGRESS.txt`: `3494 / 3494 at 100% (100.0%)`.
+  - `strict_branch.py`: `CLEAN 3471`, `0` mismatches.
+  - `honest_measure.py`: `RECON 299819 / 299819 = 100.000% (0 diff words)`, `0` overlap mismatches, `0` foreign labels.
+  - `source_owner_queue.py` (`build/tmp/v/source_round_cm_20261103/source_queue`): `covered_local_frame_SLD_exact`: `2278 -> 2330 / 2581` (`+52`), `declaration_owner_PASS`: `2456 -> 2459 / 2581` (`+3`), `block_lines_exact`: `2368 -> 2417 / 2581` (`+49`), `instruction_line_tags_exact`: `2409 -> 2418 / 2581` (`+9`), `end_line_exact`: `2573 / 2581`, `tag_difference_words`: `1284 -> 1255` (`-29`).
+
+2026-11-03cl Complete 69 additional SLD/block/end-line contracts across 24 translation units (bringing 10 units -- SCREENTRACKRECORDS.CPP, SCREENDISPLAY.CPP, SCREENTRACKINFO.CPP, AIH_HUM.CPP, TEXTSYS.CPP, TRGSFX.CPP, AIDATARECORD.CPP, SFX.CPP, AIHIGH.CPP, and ANIM.CPP -- to 100% covered_local_frame_SLD_exact) and reduce remaining instruction tag differences by 96 words (1380 -> 1284).
+
+Resolve 69 covered function contracts, 45 function end-line contracts (2528 -> 2573 / 2581), 23 block-line contracts (2345 -> 2368 / 2581), and 13 net instruction-tag contracts (2396 -> 2409 / 2581) across 24 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/frontend/common/screentrackrecords.cpp` (7/7 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-1` tag diff)
+- `recon/frontend/common/screendisplay.cpp` (3/3 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs)
+- `recon/frontend/common/screentrackinfo.cpp` (5/5 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs)
+- `recon/game/common/aih_hum.cpp` (3/3 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/textsys.cpp` (8/8 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/trgsfx.cpp` (11/11 = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts)
+- `recon/game/common/aidatarecord.cpp` (26/26 = 100% `covered_local_frame_SLD_exact`, `+21` complete contracts)
+- `recon/game/psx/sfx.cpp` (10/10 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/aihigh.cpp` (14/14 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/anim.cpp` (18/18 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-21` tag diffs)
+- `recon/frontend/common/screenpinkslips.cpp` (6/8 `covered_local_frame_SLD_exact`, `+1` complete contract, `-1` tag diff)
+- `recon/frontend/common/screentournselect.cpp` (8/9 `covered_local_frame_SLD_exact`, `+2` complete contracts, `-4` tag diffs)
+- `recon/frontend/common/screentrophyroom.cpp` (6/9 `covered_local_frame_SLD_exact`, 7/9 SLD exact, `+1` complete contract, `-18` tag diffs)
+- `recon/frontend/common/fedialog.cpp`, `fedialog.h`, `fedialog_types.h` (26/32 `covered_local_frame_SLD_exact`, `+4` complete contracts via `saved_inlines` synthesis-site alignment)
+- `recon/frontend/common/femenuoptions.cpp`, `femenuoptions_types.h` (80/92 `covered_local_frame_SLD_exact`, `+9` complete contracts via `saved_inlines` synthesis-site and EOF alignment)
+- `recon/frontend/common/feapplication.cpp` (28/37 `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/frontend/common/fememcard.cpp` (34/42 `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/newton.cpp` (16/18 `covered_local_frame_SLD_exact`, `+2` complete contracts, `-3` tag diffs)
+- `recon/game/common/color.cpp` (6/8 `covered_local_frame_SLD_exact`, `+2` complete contracts)
+- `recon/game/common/aigets.cpp` (25/27 `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/bworldsm.cpp` (26/27 `covered_local_frame_SLD_exact`, `+1` complete contract)
+- `recon/game/common/ai.cpp` (19/24 `covered_local_frame_SLD_exact`, `+1` complete contract, `-4` tag diffs)
+- `recon/game/common/cars.cpp` (53/60 `covered_local_frame_SLD_exact`, `+2` complete contracts, `-3` tag diffs)
+- `recon/game/common/copspeak.cpp` (40/43 `covered_local_frame_SLD_exact`, `+10` complete contracts, `-29` tag diffs)
+- Verification:
+  - `symloop.py`: all 24 modified translation units pass with `BYTES: UNCHANGED`, `ASPSX ok 524 bad 0`, `PSYLINK: 0 error lines`.
+  - `MATCH_PROGRESS.txt`: `3494 / 3494 at 100% (100.0%)`.
+  - `strict_branch.py`: `CLEAN 3471`, `0` mismatches.
+  - `honest_measure.py`: `RECON 299819 / 299819 = 100.000% (0 diff words)`, `0` overlap mismatches, `0` foreign labels.
+  - `source_owner_queue.py` (`build/tmp/v/source_round_cl_20261103/source_queue`): `covered_local_frame_SLD_exact`: `2209 -> 2278 / 2581` (`+69`), `block_lines_exact`: `2345 -> 2368 / 2581` (`+23`), `instruction_line_tags_exact`: `2396 -> 2409 / 2581` (`+13`), `end_line_exact`: `2528 -> 2573 / 2581` (`+45`), `tag_difference_words`: `1380 -> 1284` (`-96`).
+
+2026-11-03ck Complete 20 additional SLD/block contracts across 15 translation units (bringing all 15 units ? FELINES.CPP, QUATERN.CPP, GENERICPMX.CPP, AUDIO.CPP, FE3DMENU.CPP, AILIFE.CPP, SCENE.CPP, AICOP.CPP, AIINIT.CPP, CONTROL.CPP, FETEXTURE.CPP, FEAUDIO.CPP, HUDPMX.CPP, STATS.CPP, and AIH_BTCCOP.CPP ? to 100% covered_local_frame_SLD_exact) and clean obsolete scratch comments.
+
+Resolve 20 covered function contracts and 17 block-line contracts across 15 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/frontend/common/felines.cpp` (2/2 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract):
+  - `PSXTransDrawBrightEndLine__Fiiiiiiiii`: align closing `}` of the inner block to relative line 37 (`{25 }38`).
+- `recon/game/common/quatern.cpp` (4/4 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-1` tag diff):
+  - `Quatern_MatToQuat__FP10matrixtdefP5tQuat`: stage `i = 1;` and `if (m->m[4] > m->m[0]) i = 2;` across SLD 96..98 and align the inner block end to relative line 69 (`{29 }69`).
+- `recon/game/common/genericpmx.cpp` (1/1 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract):
+  - `GenericPMX_LoadTexture__Fv`: wrap the `sprintf(name, "%sfx.VIV", GameSetup_gData.carInfo[i].carName);` loop body in a compound block on SLD 57..60 (`{20 }24`).
+- `recon/game/psx/audio.cpp` (6/6 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract):
+  - `Audio_DeInitDriver__Fv`: wrap the `SNDbankremove` loop body in a compound block on SLD 234..237 (`{14 }18`).
+- `recon/game/psx/fe3dmenu.cpp` (3/3 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract):
+  - `Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii`: close the inner block on SLD 119 (`{30 }50`).
+- `recon/game/common/ailife.cpp` (20/20 = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts):
+  - `AILife_PlaceCarAtLocation__FP8Car_tObji` and `AILife_ReencarnateCopBySlice__FP8Car_tObjiiii`: close inner scope blocks on SLD 231 (`{20 }27`) and SLD 346 (`{20 }33`).
+- `recon/game/common/scene.cpp` (6/6 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract):
+  - `Scene_BuildCustomSceneList__Fv`: close the inner `if` compound block on SLD 199 (`{70 }112`).
+- `recon/game/common/aicop.cpp` (4/4 = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts):
+  - `AICop_StartUp__Fv` and `AICop_Restart__Fv`: align `for` loop compound blocks to `{10 {11 }13 }13` and `{6 {7 }9 }9`.
+- `recon/game/common/aiinit.cpp` (10/10 covered functions / 17/17 records = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts, `-4` tag diffs, obsolete comments cleaned):
+  - `AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo`: wrap the `new AIHigh_Opponent` `else` arm in a compound block on SLD 298..300 (`{42 {42 {42 }42 }42 }45`).
+  - `AIInit_IsNonStandardCarFile__Fi`: unfold the 5-way `index == 12 || ... || index == 46` condition across SLD 517..521, eliminating all 4 tag differences.
+- `recon/game/common/control.cpp` (2/2 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs, obsolete comments cleaned):
+  - `Control_Human__FP8Car_tObj`: stage `int off = (lights &= 4) < 1;` on SLD 237 inside `else {` on SLD 235 (`{156`) before `R3DCar_TurnHeadLightOff(carObj, off); } }` on SLD 239 (`combine` folds `sltiu` into `$5`, eliding `.def off` while keeping `andi $5,$5,4` at tag 157 as `head` of `$L46` so all 4 unlinked `.bend` notes get `237 - 79 = 158` (`}158@+3c8`) and `sched2` places `move $4,$16` (`tag 159`) before `andi` (`tag 157`)).
+- `recon/frontend/psx/fetexture.cpp` (2/2 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs):
+  - `FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii`: stage `int f = flags | 0x10;` on SLD 95 before `return Transform_GetTextureInfo(shapename, offset, destiny, f);` on SLD 96, eliminating 2 tag differences and 2 block differences (`{26 }35`).
+- `recon/frontend/common/feaudio.cpp` (10/10 = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts, `-4` tag diffs):
+  - `FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2`: remove the redundant trailing `return;` so the outer block `.bend` stays at the `while` line (`{1 {15 }25 }27`).
+  - `FeAudio_InitViv__FPc`: stage `char *b = bigfile;` on SLD 313 before `open(b, ...)` on SLD 314, eliminating all 4 tag differences.
+- `recon/game/common/hudpmx.cpp` (3/3 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs):
+  - `HudPmx_InitTextures__Fv`: stage `int n = numpermshapes;` on SLD 115 before `HudPmx_LoadTextures(n, permshapenames, &Hud_PermShapes, 0);` on SLD 116, eliminating its 2 tag differences.
+- `recon/game/common/stats.cpp` (7/7 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-3` tag diffs):
+  - `Stats_ExtrapolateOpponentTimes__Fi`: open the `if` compound block on SLD 202 (`{29`) and stage `int f = trackLapTime * ...;` on SLD 211 before `totalTime += f * ((19 - carStrength) * 384 + 0x10000) >> 16;` on SLD 212, eliminating 3 tag differences and 2 block differences.
+- `recon/game/common/aih_btccop.cpp` (40/40 = 100% `covered_local_frame_SLD_exact`, `+2` complete contracts, 202 obsolete comment lines cleaned):
+  - `CheckForNewTarget__14AIHigh_BTC_Cop`: replace `NumRaceCars()` with `Cars_gNumRaceCars` on SLD 170 and stage `const int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_, testPerpCarObj);` on SLD 182 before `copToTargetDistanceMeters = __builtin_abs(distanceMeters);` on SLD 183, eliminating the extra `{16 }16` inline block and matching `{16 {27 }34 }40`.
+  - `HighExecute__18AIHigh_BTC_Wingman`: replace `GameTicks()` with `simGlobal.gameTicks` in `case 3` (`SpikeBelt_SetFreshenTime(simGlobal.gameTicks)` on SLD 1144 and `SpikeBelt_Freshen(simGlobal.gameTicks)` in `SetupBlockader`), restore `int release; coorddef newPos;` declaration order in `case 3`, and align `case 7` closing braces on SLD 1236 (`}262@+914`), bringing all 40/40 records in `aih_btccop.cpp` to 100% `EXACT`.
+
+All 3494 functions / 17716 branch words PASS `strict_branch.py` and `MATCH_PROGRESS.txt` (3494/3494 at 100.0%); `gdebug_compile.py` reports `same assembled` (15/15 code identical). Vendor `ASPSX` (524/0) and `PSYLINK` (0 errors) preserve byte-identical `nfs4.cpe` (`060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1`) and both validated compiler-input origin units. Honest linked `RECON` remains 299819/299819 words (`OTHER` 7195/7195, 0 masked overlap bytes, 0 foreign labels). Covered complete contracts advance `2189 -> 2209 / 2581` (`+20`: `GAME/COMMON` `1142 -> 1156 / 1258`, `GAME/PSX` `341 -> 343 / 395`, `FRONTEND/COMMON` `642 -> 645 / 838`, `FRONTEND/PSX` `63 -> 64 / 85`), exact block-line functions advance `2328 -> 2345 / 2581` (`+17`), native absolute instruction-line exact functions advance `2389 -> 2396 / 2581` (`+7`), native SYM common-name CLEAN advances `2425 -> 2426 / 2570` (`144` DIRTY), and absolute tag differences drop `1398 -> 1380` (`-18` net from `cj`; relative probe differences `1399 -> 1381`, relative exact tags `2388 -> 2395`, relative exact tags + blocks `2243 -> 2263`). Receipts: `build/tmp/v/source_round_ck_20261103/{final-evidence.json,board.before.json,board.after.json,source_queue/}` and `build/tmp/v/covered_frontier_epoch_ck_20261103/certificate.json` (SHA `f71de802db104af1c57dac2485e5f2e18712b54ff4a721bf5c27daec84c465ff`).
+
+2026-11-03cj Complete 32 additional SLD/block contracts across 11 units (bringing AUDIOCLC.CPP, AUDIOTRK.CPP, OBJECT.CPP, FETEXTRENDER.CPP, AIPHYSIC.CPP, and BWORLDSM.CPP to 100% covered_local_frame_SLD_exact) and clean obsolete scratch comment blocks.
+
+Resolve 32 covered function contracts and 20 block-line contracts across 11 translation units while preserving 3494/3494 (100.0%) function byte match:
+- `recon/game/common/audioclc.cpp` (18/18 = 100% `covered_local_frame_SLD_exact`, `+3` complete contracts, `-8` tag diffs, 65 obsolete comment lines cleaned):
+  - `AudioClc_SoundCloseCar__Fii`: wrap the two `AudioTrk_Sample` branch arms in compound blocks on SLD 115 and SLD 117 (`{5 }5 {7 }7`), eliminating 1 tag difference and 4 block differences.
+  - `AudioClc_SoundPlayersCar__Fi`: wrap the inner `else` arm in a compound block on SLD 285..290 and stage `Doppler = (car->N).linearVel.x * 0x10;` on SLD 298, eliminating 2 tag differences and 2 block differences.
+  - `AudioClc_GetClosestCars__Fiii`: restore the outer `else` block on SLD 422..459 and stage `long rVel = ...;` on SLD 455 before `c->relVel = rVel;` on SLD 456, eliminating 5 tag differences and 2 block differences.
+- `recon/game/common/audiotrk_types.h` and `recon/game/common/audiotrk.cpp` (6/6 = 100% `covered_local_frame_SLD_exact`, `+3` complete contracts, 40 obsolete comment lines cleaned):
+  - Move `AudioClc_SndError` inline definition into `audiotrk_types.h` so cross-file inlining in `AudioTrk_SoundTrack__FP8Car_tObji` and `AudioTrk_PreLoad__Fv` clamps `.begin`/`.bend` block lines to relative line 1 (`{1 {1 }1 }1 }1 }1`).
+  - `AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji`: replace unrolled `do-while` with `while (index-- != 0)` on SLD 126 (`{15 }16`), eliminating all block differences.
+- `recon/game/common/object.cpp` (37/37 = 100% `covered_local_frame_SLD_exact`, `+3` complete contracts, `-6` tag diffs, obsolete comments cleaned):
+  - `Object_InitCollisionCheckLoop__FP12BWorldSm_PosP18Object_tSimObjListPi`: stage `objList->numObjects + objList->numObjects2` via CSE on SLD 217 and SLD 229 and `int dist = Math_DistXZ(...)` on SLD 244, eliminating all 5 tag differences and 2 block differences with zero extra `.def` locals.
+  - `Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef`: align the inner scope and `return 1;` onto SLD 364..376 (`{34 }46`), eliminating 1 tag difference and 2 block differences.
+  - `Object_AddCustomObject__FP9SceneElemi`: completed in combination with the `while (index-- != 0)` and `SetAccidentData` SLD 958 alignment.
+- `recon/frontend/common/fetextrender_types.h` and `recon/frontend/common/fetextrender.cpp` (17/17 = 100% `covered_local_frame_SLD_exact`, `+7` complete contracts, `-34` tag diffs, obsolete comments cleaned):
+  - Move `FETextRender_CheckForReplacement` into `fetextrender_types.h` so cross-file inlining in `FETextRender_FullText`, `FETextRender_FullTextFade`, `FETextRender_MenuTextPositionedJustifyFade`, `FETextRender_WordWrapTextRGBJustify`, `FETextRender_WordWrapTextFade`, `FETextRender_WordWrapFade`, and `FETextRender_Title` clamps inlined block notes to relative line 1 and aligns call-site line tags (`0` tag diffs and exact blocks across all 17 functions).
+- `recon/game/common/aiphysic.cpp` (42/42 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-1` tag diff):
+  - `AIPhysic_Main__FP8Car_tObj`: stage `int d = carObj->desiredLatPos - (carObj->N).roadMatrix.m[0];` on SLD 574 before `carObj->aDesired = d;` on SLD 575, eliminating the last tag difference in `aiphysic.cpp`.
+- `recon/game/common/bworldSm.cpp` (28/28 = 100% `covered_local_frame_SLD_exact`, `+1` complete contract, `-2` tag diffs):
+  - `BWorldSm_QuadLight__FP12BWorldSm_Pos`: stage `(topInd << 3) + (int)QUAD_LIGHT_VERTICES` via CSE on SLD 1272 before `s1 = (u_short)QUAD_LIGHT_VERTICES[topInd].light;` on SLD 1273, preserving `addu v1,v1,v0` byte match while eliminating the last 2 tag differences in `bworldSm.cpp`.
+- `recon/game/common/anim.cpp` (17/18 `covered_local_frame_SLD_exact`, 18/18 `block_lines_exact`, `+3` complete contracts, `+4` block-exact functions):
+  - `Anim_Restart__Fv`, `Anim_InitSystem__FPc`, and `Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef`: align inner loop/destruction blocks to match retail (`0` tag diffs and exact blocks).
+  - `GetAnimFrameInfo__10AnimScriptPiT1`: align `*frame = (ticks / interval) % (animInst->count - 1);` on SLD 538 (`{1 }16` exact blocks).
+- `recon/frontend/common/femenuextended_types.h` and `recon/frontend/common/femenuextended.cpp` (`+2` complete contracts, `-2` tag diffs):
+  - `Draw__9tMenuNFS4` (`0/82` tag diffs, exact blocks via cross-file `IsDisabled` inline clamping) and `DrawItem__18tMenuNFS4TwoPlayeri` (`0/30` tag diffs, exact blocks).
+- `recon/frontend/common/femenuoptions_externs.h` and `recon/frontend/common/femenuoptions.cpp` (`+5` complete contracts, `-1` tag diff):
+  - `Percentage__29tMenuItemLeftRightAudioSlider`, `DrawLeftFlare__FiiiRi`, `DebounceKeys__12tOptionsMenu`, `Draw__12tOptionsMenu`, and `ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand` all reach 100% SLD + block exactness.
+- `recon/frontend/common/screencarselect.cpp` (`+2` complete contracts, `-2` tag diffs):
+  - `__16tScreenCarSelect` (`0/68` tag diffs, exact blocks) and `CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46` (`0/176` tag diffs, exact blocks).
+- `recon/frontend/psx/video.cpp` (`+2` complete contracts, `-1` tag diff):
+  - `VIDEO_create__Fiiiii` (`0/94` tag diffs, exact blocks) and `videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii` (`0/43` tag diffs, exact blocks).
+
+All 3494 functions / 17716 branch words PASS `strict_branch.py` and `MATCH_PROGRESS.txt` (3494/3494 at 100.0%); `gdebug_compile.py` reports `same assembled` (11/11 code identical). Vendor `ASPSX` (524/0) and `PSYLINK` (0 errors) preserve byte-identical `nfs4.cpe` (`060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1`) and both validated compiler-input origin units. Honest linked `RECON` remains 299819/299819 words (`OTHER` 7195/7195, 0 masked overlap bytes, 0 foreign labels). Covered complete contracts advance `2157 -> 2189 / 2581` (`+32`: `GAME/COMMON` `1128 -> 1142 / 1258`, `FRONTEND/COMMON` `626 -> 642 / 838`, `FRONTEND/PSX` `61 -> 63 / 85`), exact block-line functions advance `2308 -> 2328 / 2581` (`+20`), native absolute instruction-line exact functions advance `2372 -> 2389 / 2581` (`+17`), and absolute tag differences drop `1451 -> 1398` (`-53` net from `ci`; relative probe differences `1452 -> 1399`, relative exact tags `2371 -> 2388`, relative exact tags + blocks `2211 -> 2243`). Receipts: `build/tmp/v/source_round_cj_20261103/{final-evidence.json,board.before.json,board.after.json,source_queue/}` and `build/tmp/v/covered_frontier_epoch_cj_20261103/certificate.json` (SHA `d8c326d4517ee5495ab5a76a00697789b2abcdc200e140ac747159ed39b51694`).
+
+2026-11-03ci Complete all 40/40 AI.CPP covered SLD/block contracts, repair AIHigh_Cop header-inline block clamping and Object_AddCustomObject block coordinates, and clean obsolete scratch comment blocks.
+
+Resolve all nine remaining non-exact functions in `recon/game/common/ai.cpp` (bringing `AI.CPP` to 40/40 = 100% `covered_local_frame_SLD_exact`):
+- `AI_DoReactions__FP8Car_tObj`: stage `otherCarObj = Cars_gList[target]` (SLD 392) and `distance = AIWorld_ApxSplineDistance(carObj,otherCarObj)` (SLD 394) before `absDistance = __builtin_abs(distance)` (SLD 395) in the `0x200` reaction block, and stage `distance = AIWorld_SplineDistance(carObj,otherCarObj)` (SLD 418) before `metersDistance = distance * carObj->direction` (SLD 419) in the `0x20` reaction block, restoring `.begin $Lb34 58` and eliminating all 6 tag differences + 2 block differences.
+- `AI_DoReactionsAndBehavior__FP8Car_tObj`: split `if ((otherCarObj->carFlags & 4U) != 0)` onto SLD 513, eliminating its 2 tag differences.
+- `AI_CheckForBarriers__FP8Car_tObj`: stage `const int s = speed << 0x12;` on SLD 615 before `slicesAhead = s / 0x60000;` on SLD 616 (`cp_finish_decl` `SAVE_EXPR` elides `.def` while preserving `slicesAhead: REG:$20`, `slice: REG:$19`, and the `616/616/615/616/616` division-magic / shift instruction order), eliminating its 1 tag difference.
+- `AI_CheckForClearLanes__FP8Car_tObj`: stage `sortIndex = (carObjIndexInSortedList + ci * dir + Cars_gNumCars) % Cars_gNumCars;` (SLD 1095), `otherCarObj = Cars_gSortedList[sortIndex];` (SLD 1096), and `distance = AIWorld_SplineDistance(otherCarObj,carObj);` (SLD 1101) before the range guard on SLD 1105, eliminating all 13 tag differences.
+- `AI_AddCollidableObjects__FP8Car_tObjP5Group`: stage `distance = AIWorld_ApxSplineDistance(spos.slice,carObj);` (SLD 1253), open the inner block at SLD 1256 (`.begin 26`), and use `if (simObjs[objectIndex].type == 1) { avoidance = -0x280000; } else { avoidance = -0xd0000; }` on SLD 1266..1269, eliminating all 6 tag differences and 1 block difference.
+- `AI_AvoidSpikeBelt__FP8Car_tObj`: open the `then` block on SLD 1293 (`.begin 7`) with real elided `distance = AIWorld_ApxSplineDistance(spikeSlice,carObj);` on SLD 1294 before `if (distance * carObj->direction - 1U < 0x63ffff)` on SLD 1297, eliminating its 5 tag differences and 1 block difference.
+- `AI_CheckForCarsOnSide__FP8Car_tObj`: use early guard `if ((carObj->carFlags & 0x10U) != 0) return;` on SLD 1385 (removing the outer wrapper block), stage `absDistance = AIWorld_SplineDistance(otherCarObj,carObj);` on SLD 1395 before `__builtin_abs` on SLD 1396, and split the two `< 0xa0001` / `< blockDistance` guards onto SLD 1397 and 1399, eliminating all 7 tag differences and 2 block differences.
+- `AI_CheckPreferredLateralPosition__FP8Car_tObj`: stage the `carSideLane` lateral-offset expressions on SLD 1573 and SLD 1604 before `AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice, carSideLane)` on SLD 1575 and SLD 1605, eliminating all 12 tag differences.
+- `AI_ChooseNewLaneSlack__FP8Car_tObj`: use `randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int r = (randtemp >> 8 & 0xffff) & 3;` on SLD 2072 and `carObj->laneSlack = carObj->personality->laneSwerve[r];` on SLD 2073, eliminating its 2 tag differences.
+
+Additional repairs and comment cleanups in this round:
+- `recon/game/common/aih_cop_externs.h` and `recon/game/common/aih_cop.cpp`: move header-inline helpers (`NumRaceCars`, `NumHumanRaceCars`, `PerpChase_CopFreeTicks`, `PerpChase_ChaseLevel`, `AICop_PerpChaseInfo::ResetEngagementTime`) into `aih_cop_externs.h`, fixing cross-file inlined lexical block clamping (`1` relative) in `CheckForNewTarget__10AIHigh_Cop` (`block_lines_exact: True`, all 9 block differences eliminated) and `HighExecute__10AIHigh_Cop` (8 block differences eliminated).
+- `recon/game/common/object.cpp`: move `aicar->SetAccidentData(objectData);` to SLD 958 (`151` relative) and replace the unrolled loop with `while (index-- != 0)` in `Object_AddCustomObject__FP9SceneElemi`, fixing all 5 block differences (`block_lines_exact: True`), and remove the obsolete 62-line scratch comment block above `Object_AddCustomObject`.
+- `recon/frontend/common/femenu.cpp`: remove 412 lines of obsolete scratch notes (`W59`..`W74` and 4 `SYM-CODEGEN-CARRIER` comments) above `#line 659 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"`.
+
+All 160 functions / 760 branch words across the four units (`ai`, `aih_cop`, `object`, `femenu`) PASS `strict_branch.py`; `gdebug_compile.py` reports `same assembled` (4/4 code identical). Vendor `ASPSX` (524/0) and `PSYLINK` (0 errors) preserve byte-identical `nfs4.cpe` (`060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1`) and both validated compiler-input origin units. Fresh pinned `objdiff` remains 3494/3494 (100% code/data across 466 units); honest linked `RECON` remains 299819/299819 words (`OTHER` 7195/7195, 0 masked overlap bytes, 0 foreign labels). Covered complete contracts advance `2148 -> 2157 / 2581` (`+9`, `GAME/COMMON` `1119 -> 1128 / 1258`), exact block-line functions advance `2302 -> 2308 / 2581` (`+6`), native absolute instruction-line exact functions advance `2363 -> 2372 / 2581` (`+9`), and absolute tag differences drop `1490 -> 1451` (`-39` net from `ch`; relative probe differences `1491 -> 1452`, relative exact tags `2362 -> 2371`, relative exact tags + blocks `2202 -> 2211`). Receipts: `build/tmp/v/source_round_ci_20261103/{final-evidence.json,board.before.json,board.after.json,source_queue/}` and `build/tmp/v/covered_frontier_epoch_ci_20261103/certificate.json` (SHA `59fd034d6de4619ef763800720242654f42774e1f55835847c80859561c81efb`).
+
+2026-11-03ch Restore Cars_InitCar's supplied carObj->carName owning member and record raw-SLD/stage diagnostics.
+
+Replace the raw byte-offset argument `(char *)carObj + 0x240` in Cars_InitCar's
+first sprintf at physical line 1864 with the TU's supplied array member
+`carObj->carName`. This TU's own retail type block (records 1ef8a8/1ef8be/1ef8dd)
+defines `Car_tObj.N` (`BO_tNewtonObj`, size 576 at 0x0) followed by `carName`
+(`ARY CHAR`, size 9 at 0x240). All three `(void)0;` devices, physical lines,
+anchors and work remain unchanged; no header, type, alias, object or scope is added.
+
+Canonical 33 functions / 588 branch words PASS. ENTIRE normal ELF b1971ce9,
+full-debug ELF e5358233 and full-debug assembly 29ae7e46 (all 2539 ordered Def
+rows, scopes, tags, headers, files and ends) are bit-identical. Actual vendor
+ASPSX/PSYLINK outputs (SN object 041b9467, SYM binary 4f829581, native dump
+846638f4 and CPE 060d48b6) remain BYTE-FOR-BYTE identical. Fresh pinned
+3494/3494 across 466 units, 100% code/data; real linked RECON 299819/299819,
+OTHER 7195/7195, zero masked overlaps/foreign labels, uncovered 212. No numerical
+SYM/SLD count change: covered contracts 2148/2581, absolute tag differences 1490,
+relative 1491.
+
+Current source 59feb790bed5f4576e1eb237b3e4022c4918631b2d993db5235ba09da63ac176;
+native 846638f4b2c031a9415f3f5c78fef010db9655867b21c5ef8e170edc189dc8b4.
+Receipts: source_round_ch_20261103/{gates,proof,final-evidence}.json, source_queue/,
+board.after.json and fresh link/honest/objdiff reports. Parent proof
+SHA e0448c0b07ad2e95be2491f112cf2039c5aabfb6ba2c2c26ef65a36f37a1d982;
+private proposal retained in cars_initcar_carname_20261103_n/.
+CH selective freshness checks 1 dependency CPP + 1 CPP + 1 CC1, 0 assembler,
+actual g_value=8. Exactly two bindings change (source and .i); cached .s, 151 other
+rows/caches, 851 dependency membership / 850 nonprimary hashes, 13 producer bindings
+and both protected origins remain fixed. Retained raw CPP/CC1 frontier 152/152.
+Certificate: covered_frontier_epoch_ch_20261103/certificate.json,
+SHA a276517d0af50b060b3395a1f70f54dad8f63c473380a6c4f76a870ec365b00a.
+
+Bounded diagnostics and rejected controls recorded with this round:
+
+- Uncoalesced raw SLD80..88 inventory (`tools/psyq_pipe/sld_event_inventory.py`,
+  10 unit tests in `tools/psyq_pipe/test_sld_event_inventory.py`, report in
+  `raw_sld_inventory_20261103/ordered-events.json`): preserves every raw 80/82/84/86/88
+  record in file order, including same-address overwritten events and explicit
+  start/end boundary sharing. Interior raw-kind/body sequence equality is 503/2581
+  paired functions (GAME/COMMON 248/1258, GAME/PSX 62/395, FRONTEND/COMMON 184/838,
+  FRONTEND/PSX 8/85, EACLIB/PSX 1/5).
+- BasicCop +328 stage-loss boundary (`basiccop_raw_sld_stages_20261103_h/report.json`)
+  and read-only PSYLINK inventory (`basiccop_link_identity_20261103_i/linker-inventory.json`):
+  both stock full-debug `.s` and prepared SN `.s` emit `.loc 1 108` then `.loc 1 113`
+  with 0 instructions between; ASPSX 2.77 preserves both as two opcode-52 (`0x34`)
+  delta-5 records at file offset 12714 (`3448010534480105`) in `recon__game__common__aih_basiccop.cpp.obj`;
+  actual selected PSYLINK 2.73 coalesces them into a single MND `82` delta-10 record
+  (`b4c30580820a`) in `nfs4.sym`. Twelve distinct local PSYLINK binaries across PsyQ
+  2.60..4.60 and PsyQ doc excerpts are indexed read-only without executing alternative
+  rungs or claiming a version floor.
+- Cars_InitCar branch-tail acquisition controls (`cars_initcar_real_tail_20261103_l/receipt.json`,
+  `cars_initcar_paired_tails_20261103_m/receipt.json`): duplicating `file1 = loadpackadr(...)`
+  into both arms without the first `(void)0;` retains jump tag 2104 and 196 insns
+  (strict 10 branches CLEAN) but swaps `file1`/`file2` REG18/19 (22 diffs) because
+  jump2 merges after global alloc; pairing both `loadpackadr` and `sprintf+loadfileadrz`
+  without both `(void)0;` statements similarly fails 28 diffs (196/196, `file2`/`handle2`
+  REG16/18 swap). Rejected; canonical `cars.cpp` keeps the three `(void)0;` devices.
+- FETourn `GetTournamentFinishPrize` pointer-sum control (`fetourn_prize_pointer_sum_20261103/proof.json`):
+  removing the unprovided pointer local and returning `*(this->CurrentTourney()->fPrize + position)`
+  reaches 29/29 insns and 1 branch CLEAN but reverses `addu a0,a0,v0; lw v0,24(a0)` to
+  `addu v0,v0,a0; lw v0,24(v0)` (4 diffs) and deletes one `.def tTourneyInfo` row. Rejected.
+- BasicCop CF two-phase `carLength` reprice (`basiccop_cf_reprice_nov03/proof.json`):
+  splitting `carLength` on the CF-updated `ShouldIPerformCutOffBlock` fails 7 diffs
+  (89 vs 88 insns). Rejected.
+
+2026-11-03cg Restore BasicCop's actual supplied owning fields.
+
+Replace five raw int-pointer loads on four physical lines with existing members:
+carObj_->roadPosition/target->roadPosition at0x574,carObj_->direction at0x554,
+target->N.dimension.x at0x134 and N.dimension.z at0x13c. These are not invented
+semantic names: THIS TU's retail type interval names root Car_tObj.N at0 with
+BO_tNewtonObj size576,its dimension coorddef at0x134,and coorddef.x/z at0/8;
+Car_tObj's own direction/roadPosition are INT at0x554/0x574. Exact retail records
+05fdd1,05c960/05cf00,05ac3e/05ac5c,0604a1/060568 support the expressions. Existing
+shared types are already complete before the function; no header/type/alias/
+declaration/object/helper/scope/qualification is added. All lines/anchors and real
+work are preserved. This restores typed source ownership, not a naming disguise.
+
+Canonical9 functions/34 branch words PASS. ENTIRE normal ELF872c56c5,full-debug
+ELF225b203a and full-debug assemblyd4bea7d5 are bit-identical, including all1934
+compiler Def/type/alias records,all scopes/tags/headers/files/ends. Actual vendor
+ASPSX/PSYLINK also reproduce the entire SN objectcd5483a7,SYM binary4f829581,
+native dump846638f4 and CPE060d48b6 BYTE-FOR-BYTE. Thus EVERY native record and raw
+event is preserved, not merely the comparator's projections. Outputs are compared
+unchanged; no postcompiler rewrite or normalization occurs. Root inspected the
+retail owning records/headers and independently compiled/applied the proposal.
+
+Fresh pinned3494/3494,100% code/data,466 units; actual linked RECON299819/299819,
+OTHER7195/7195,zero masked overlap/foreign labels,uncovered212; vtable1473 PASS.
+No numerical SYM/SLD gain:covered word/block contracts2148/2581,absolute tag
+differences1490,relative1491. All3357 probe rows are unchanged by exact full-debug
+input/output identity; a source-bound refresh adds only the new source/proof hash.
+Raw-event deficit108 and remaining instruction103vs102 are still OPEN, as are the
+broader declaration/source and incomplete-library obligations. No full raw-retail
+or literal-original-source seal is claimed.
+
+Current source5cba18b557357198d6cc87fa757dc3ee3653cb4e3c229a28306eed14b3bf522a;
+native846638f4b2c031a9415f3f5c78fef010db9655867b21c5ef8e170edc189dc8b4.
+Receipts:source_round_cg_20261103/{gates,proof,final-evidence}.json,source_queue/,
+board.after.json and fresh link/honest/objdiff reports. Parent proof
+SHA14814e26fc0abd547dc71043a9baea2c8978a93c562b8fcb33d31e35025c40ad;
+private source proposal/receipt retained in basiccop_typed_fields_20261103/.
+CG selective freshness checks1dependencyCPP+1CPP+1CC1,0assembler,actual
+no_implement_inlines=true/defaultG4. EXACTLY TWO bindings change:source and.i;
+cached.s remains identical.151 other rows/caches,851 dependency membership/850
+nonprimary hashes,13 producer bindings and both protected origins remain fixed.
+Retained raw CPP/CC1 frontier152/152 is not a new full census/postcompiler seal.
+Certificate:covered_frontier_epoch_cg_20261103/certificate.json,
+SHA17d54d5f1ad2d9c49ac59c8232eecbe7e701755152bbddd8b6325e3ba1034b8c.
+Postd9ae99e2 changes remain uncommitted; restoration goal remains OPEN.
+
+2026-11-03cf BasicCop real false exit restores four region endpoints.
+
+ShouldIPerformCutOffBlock now returns0 on the real failed-distance path at108,
+then closes its existing two guards109/110; the common return113 remains. No new
+scope/object/helper/work or qualifier is introduced. Same physical lines/anchors,
+all88 instructions and every word tag remain unchanged. Four supplied block END
+records at relative+328 become22->26, with starts+84(line4),+180(line14),+180(line15),
++252(line18). Complete correct region tuples9014->9018; all ten ordered locals
+remain retail-exact. The load at+280 remains103 versus retail102: no new complete
+contract/tag-count gain. Same-line heading cleanup corrects83-193 to83-113 and
+removes its false full-SLD-VERIFIED claim.
+
+Actual canonical9 byte functions/34 branch words PASS; entire normal ELF872c56c5
+and CPE060d48b6 are identical. Root ASPSX524/0,PSYLINK0 errors; independent global
+audit preserves all2581 old-correct full facts,232740 ordered Def/type/alias/LABEL
+records and35421 ordered aliases. All49014 GLOBAL raw native SLD80..88 events are
+VERBATIM identical, including actual addresses/raw kinds/bodies/duplicate order.
+An independent whole-text fc /b finds ONLY four bytes changed: ASCII2->6 at
+0xBADEB,0xBAE16,0xBAE41,0xBAE6C, the four END-line fields; every other dump byte
+is identical. No hidden overwritten note, record or source fact is discarded.
+
+The raw-event audit explicitly retains16 native versus31 retail target events.
+At+328, retail has108 THEN113; native before AND after has only113. Compiler
+.loc104->108 produces no actual native event delta. This is PRE-EXISTING raw-event
+coverage debt, NOT a new correction or a full raw-SLD seal. Native function start
+8005c26c versus retail8005c2b4 still differs72 bytes; no address normalization,
+rebase or placement seal is claimed. Rejected declaration-prefix control repairs
+the load but loses three correct tags; bare-brace movement is neutral. Mirror CPP
+exact-delta assertion failure is preserved, not normalized; root canonical/native
+acceptance is authoritative. Private receipt:basiccop_declnote_nov03/proof.json.
+
+Fresh pinned3494/3494 across466 units,100% code/data; real linked RECON299819/299819,
+OTHER7195/7195,zero masked overlaps/foreign labels,uncovered212; vtable1473 PASS.
+Global covered word/block contracts2148,absolute tag differences1490,relative1491
+remain unchanged. Private reprobe of all642 words/nine rows changes only the four
+block ends;3348 other raw entries stay exact. Source73173a98ea7c951383555e59bd0fb17b9c489b99145f9e92bb3213304d9c9573;
+native846638f4b2c031a9415f3f5c78fef010db9655867b21c5ef8e170edc189dc8b4.
+Receipts:source_round_cf_20261103/{gates,proof,owners.before,owners.after}.json,
+source_queue/,board.after.json,relative-refresh-proof.json,native-byte-diff.log.
+Parent independently executed proof SHAe611aeecf096d654bb6f5444af64731b3a01ca5ff821ba161efccc0806ca35ab;
+relative proofa07a41e5037266d1d9228b44af19f161318fb421660c632e52e15c8bbcfb504a.
+CF freshness uses1dependencyCPP+1CPP+1CC1,0assembler,actual no_implement_inlines=true.
+Raw.i/.s equal current caches with no normalization;151 other rows/caches,851
+dependency membership/850 nonprimary hashes,13 producer bindings and both protected
+origins remain fixed. Retained raw CPP/CC1 frontier152/152 is not a fresh full
+census or postcompiler seal. Certificate:covered_frontier_epoch_cf_20261103/
+certificate.json,SHAe871152eddc2f4a00c79d5bf6a821aa720cce1336e6a5eecbd5115ab8a1efe45.
+No new asm/volatile/pin or generated-output rewrite. Goal remains OPEN.
+
+2026-11-03ce FETourn real initialization and knockout exit recover three tags.
+
+ValidTournament's supplied BOOL result belongs at its existing declaration1165:
+initialize it there and remove the later assignment1169. Its one wrong word
+at+0x4c now retains1165. No new object/name/type or scope is introduced; root
+currentTier REG2/currentTourn REG4/result BOOL REG3 remain unchanged. Selected
+stock initial RTL supplies1165 before the tier work; scheduling moves that same
+constant behind the flags load while retaining its source coordinate.
+
+UpdateTournFinishMoney's knockout arm now has an ordinary return on its existing
+closing-brace line382. Keep its real else and final return398. Stock tail merging
+preserves all76 instructions while the two wrong +0xa0/+0xa4 tags381 become382.
+No fabricated work or scope, helper, asm, volatile, pin, compiler flag or generated
+output rewrite is involved. All physical lines and existing function anchors stay
+fixed. Literal original syntax is not uniquely proved by the matching contracts.
+
+Parent canonical35 detailed functions/118 branch words PASS; the ENTIRE normal
+ELF0847f6201219db6b2f59815d689b93a51892883bf4e0eea6e8fc23ade1be660d and native
+CPE060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1 remain identical.
+Actual vendor lane exits0 and validates both protected origins. An independent
+parent audit checks all2581 function occurrences and permits EXACTLY those three
+retail-correct word-tag changes. All ordered full local/type/home/owner/frame/
+header/end/native-bound records and complete region/file streams are identical.
+The entire232740 ordered Def/type/alias/LABEL stream, including35421 full ordered
+aliases, is unchanged. Correct full locals12531/regions9014 are preserved; correct
+word tags206498->206501. No declaration, block, header, filename or end gain is
+claimed. Native-vs-retail link placement is separately recorded, not rebased/sealed.
+
+Both functions gain complete SUPPLIED declaration/frame/scope/SLD contracts:
+2146->2148/2581; FRONTEND/COMMON624->626/838. Absolute exact tag maps2361->2363,
+remaining1493->1490. Independently reprobed35 FETourn rows/1933 word tuples repair
+the same three relative tags, preserving all block maps and3322 other raw entries:
+relative differences1494->1491,exact2360->2362,both2200->2202. Legacy common-name
+CLEAN2425/2570 does not change. No whole-source or incomplete-library seal follows.
+
+Fresh pinned3494/3494 across466 units,100% code/data; actual GNU relink/raw
+RECON299819/299819,OTHER7195/7195,zero masked overlaps/foreign labels; uncovered212.
+Vtable1473 PASS. Source88b2706b63d0b8cd443f4186562d752d69393e8e9359332b997c2052bc499c9b;
+native05e856ed4b56d8f9b46ab3c7bea7f831b9ff6e3f2c91f98cba4ac02c6b55dff2.
+Receipts:source_round_ce_20261103/{gates,proof,owners.before,owners.after}.json,
+source_queue/,board.after.json,relative-refresh-proof.json and link/honest logs.
+Parent proof SHA9fcb177e36c6dd14e2044c7360388fd4c29b0494396e8a081dd67a97bde95011;
+relative proof404c8156d4f352aa47d642f2ae23545c2ce2b3080ff9bbf238e4083f2a068f6d.
+The private Valid-only and combined-control receipts remain separately preserved.
+Selective CE freshness rechecks only FETourn:1dependencyCPP+1CPP+1CC1,0assembler,
+actualG0. Fresh raw.i/raw.s equal the current caches without normalization. Only
+source/i/s bindings change;151 other rows/caches,851 dependency membership/850
+nonprimary hashes,13 producer bindings and both protected origins remain fixed.
+The retained frontier stays152/152 for both raw phases, not a new full census or
+postcompiler freshness seal. Certificate:covered_frontier_epoch_ce_20261103/
+certificate.json,SHAff017ba4a067a7b4d63f9980d91e48a668782d16ce304f8cbdc2622d03cc78c7.
+These postd9ae99e2 source changes are verified but uncommitted; goal remains OPEN.
+
+Bounded source-review follow-ups, not source-object exemptions:
+
+- Fog_ReadFogKeys unusedKey: cp/parse.y3672..3756 gives the FOR condition/body one
+  binding; already_scoped_stmt does not add another compound binding. decl.c's
+  retained-level predicates and jump.c's block-note guard explain why the current
+  keeper prevents test duplication, NOT that this dummy was original. Prior plain
+  for/deletion/while/GNU-region negatives remain rejected. No new compile or fake
+  declaration/helper is justified by the available reference bodies. The original
+  loop's declaration/macro/inline producer at1060..1074 remains unresolved.
+- DamageBill mask: the dated comment's SRAV description is wrong: retail SLLV is
+  tagged440, narrowing/AND441. The exact short-cast inline form was ALREADY tested
+  on Nov2: runtime exact but it retags a correct shift as441. Do not repeat it or
+  mistake that failure for source-object necessity. No compatible bit accessor or
+  independently matching NFS2 function was found. Current marker remains review
+  debt; report:fetourn_damage_mask_review_20261103/review.json,
+  SHA0764efb076b3ed417ca827a87ba4e96a80909f8f3c5102a750002231cbc90b02.
+- HUD time width: existing numeric w=width then w+=1 is distinct from the rejected
+  pointer-in-int control, but fails7diffs/76vs77 and leaves the load tagged917.
+  Combine/sched receipts show the increment sinks past the sprite call. Rejected,
+  canonical HUD/replay repair unchanged; hud_time_width_20261103_a/proof.json,
+  SHAb6e5f3974134c7834d0a7bc5ecda5111925c32e00708b632c2f34c030c11b4bb.
+- TwoPlayer DrawItem: splitting the existing Player call text to579 but completing
+  its comparison581 leaves the inline load on581 in INITIAL RTL, not retail579.
+  Runtime30/branch1 and whole normal ELF agree, but there is no tag improvement;
+  no wider metadata acceptance or canonical edit. Receipt:
+  femenuextended_drawitem_phase_private_20261103/negative-proof.json.
+
+These bounded failures preserve explicit producer questions; they do not certify
+the existing captures/helpers/macros as original or declare an unmatchable floor.
 
 2026-11-03cd Approved checkpoint scope.
 

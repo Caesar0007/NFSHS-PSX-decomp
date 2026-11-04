@@ -65,8 +65,8 @@ void tScreenControllerConfig::SetActuators(int max)
   else if ((this->fShaker).time != '\0') { (this->fShaker).time = (this->fShaker).time - 1;
   }
 
-  if (*(uchar *)&(this->fShaker).time != '\0') {
-
+  if (*(uchar *)&(this->fShaker).time != '\0')
+  {
     (this->fShaker).actuator[0] = (int)(uint)Force_rand_256[GetTicks() >> 2 & 0xff] < max;
     (this->fShaker).actuator[1] = (uchar)max;
 
@@ -116,9 +116,9 @@ void Controller_SetRamp(void)
 
 
 {
-  {
-  short i;
-  i = 0; while (1) { int type; int config; if (i >= 2) break;
+
+
+  for (short i = 0; ; i = i + 1) { int type; int config; if (i >= 2) break;
 
     type = frontEnd.controlType[i];
     type = type == 0x23 ? 0 : ((type == 0x53 || type == 0x73) ? 1 : 2);
@@ -128,8 +128,8 @@ void Controller_SetRamp(void)
 
     if (InGame_GetDevice(GetPSXPadValue(mappings[config][0][type],0)) == 1) { frontEnd.rampSteer[i] = '\0';
     } if (InGame_GetDevice(GetPSXPadValue(mappings[config][2][type],0)) == 1) { frontEnd.rampGas[i] = '\0';
-    } if (InGame_GetDevice(GetPSXPadValue(mappings[config][3][type],0)) == 1) { frontEnd.rampBrake[i] = '\0';
-    } i = i + 1; } return; } }
+    } if (InGame_GetDevice(GetPSXPadValue(mappings[config][3][type],0)) == 1) { frontEnd.rampBrake[i] = '\0'; }
+  } return; }
 
 /* ---- tScreenControllerConfig::AnimKeyPoints  (screencontroller.cpp:817) ---- */
 /* 2026-10-31 (FRONT2): carrier-free -- the `result` funnel (EXTRA SYM local) is gone once every
@@ -199,11 +199,11 @@ void tScreenControllerConfig::CheckConfigs()
       } if (this->fAnimFade != 0) {
         return;
       } this->fFade[0] = 1;
-
+      this->fFadeController[0] = (ushort)(byte)this->fPrevController;
 
       this->fSwap = 1;
       this->fFade[1] = 1;
-      this->fFadeController[0] = (ushort)(byte)this->fPrevController; this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
+      this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
       if (this->fArrowFade < 0x80) {
         goto ChkConfigs_textDone; } } this->fTextController = this->fCurrentController;
 ChkConfigs_textDone: if (this->fTextController == 6) {
@@ -470,9 +470,9 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
   if (this->CurrentlyLoadedArt != 2) {
 
     DrawShapeExtended(0,fadeleveltop != 0 ? 0x201 : 0x200,0,0,fadeleveltop,0,&drawFlags);
-  } else {
-    tDrawShapeExtended drawFlags;
+  } else
 
+  { tDrawShapeExtended drawFlags;
 
 
     drawFlags.tint[0] = CalcFadeVal(0xc8c8c8,this->fArrowFade);
@@ -1417,7 +1417,11 @@ int tScreenControllerConfig::GetHelpText()
   return retvalue;
 }
 
-/* (2026-09-20) The hand-transcribed __asm__ destructor(s) that stood here are GONE: with real virtual destructors the
- * compiler emits the out-of-line copies the vtables need, at the same place (the deferred-inline tail). */
 
+
+
+
+
+
+class tScreenControllerConfig;
 /* end of screencontroller.cpp */

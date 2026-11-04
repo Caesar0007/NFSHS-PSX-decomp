@@ -528,8 +528,8 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
   }
   if (car->carInfo->carType - 0x16U < 6)
   {
-    if ((car->AIFlags & 2U) != 0) {
-      int iamp;
+    if ((car->AIFlags & 2U) != 0)
+    { int iamp;
       iamp = ((0x1324 - distSq) * 0x7f) / 0x1324;
 
       if (bSirenOn[closestIndex] == 0) {
@@ -544,18 +544,9 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
         freeVoiceChannel(closestIndex + 0x2b);
       }
     }
-  } return; }
+  } }
 
 /* ---- AudioClc_SoundPlayersCar__Fi  [@0x80075508] ---- */
-/* MATCH: source-PASS 461/461 (2026-08-24).  The former 4-diff residual was
- * thread_jumps redirecting the `(type==5||type==3) && channel>=0` fail edge
- * past the else chain's `bgez channel` re-test.  A zero-byte boundary at the
- * head of the explicit outer else makes that shared entry semantically
- * observable to jump.c; both false paths enter before bgez, and gcc fills its
- * slot with `li v0,1` exactly like retail.  No per-function compiler splice is
- * required. */
-        /* MATCH: preserve the common else entry before channel's bgez re-test. */
-
 #line 679 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundPlayersCar(int playerIndex)
 {
@@ -591,22 +582,22 @@ void AudioClc_SoundPlayersCar(int playerIndex)
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((car->carFlags & 0x204U) == 4)))) &&
 
-      (car->RSControl == 0) && (car->pullOver == 0) && (facing < 0)) {
+      (car->RSControl == 0) && (car->pullOver == 0)) {
 
 
 
+    if (facing < 0) {
 
 
+      if (((car->N).flightTime == 0) && ((car->collision).smoking == 0)) {
 
-    if (((car->N).flightTime == 0) && ((car->collision).smoking == 0)) {
-
-      car->wrongway++;
-      if (((0x3f < car->wrongway) && ((car->wrongway & 0x1f) == 0)) &&
-         ((car->wrongway < 0x94 || (Hud_BeTheCop != 0)))) {
-        AudioCmn_PlayWrongWaySFX();
+        car->wrongway++;
+        if ((0x3f < car->wrongway) && ((car->wrongway & 0x1f) == 0))
+          if ((car->wrongway < 0x94) || (Hud_BeTheCop != 0)) {
+            AudioCmn_PlayWrongWaySFX();
+          }
       }
-    }
-  }
+    } else car->wrongway = 0; }
   else {
     car->wrongway = 0;
   }
@@ -659,8 +650,8 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   if (gMasterSFXLevel == 0) {
     return;
   }
-  {
-    int c;
+
+  { int c;
     int channel;
     c = car->audioCount - 1;
     while (c >= 0) {
@@ -733,8 +724,8 @@ void AudioClc_SoundPlayersCar(int playerIndex)
 
   if (car->carInfo->carType - 0x16U < 6)
   {
-    if ((car->AIFlags & 2U) != 0) {
-      int iamp;
+    if ((car->AIFlags & 2U) != 0)
+    { int iamp;
 
 
       if (dsquare < 0x1324) {
@@ -754,7 +745,7 @@ void AudioClc_SoundPlayersCar(int playerIndex)
         freeVoiceChannel(car->carIndex + 0x2f);
       }
     }
-  } return; }
+  } }
 
 /* ---- AudioClc_ResetClosest__FiP8Car_tObji  [@0x80075c3c] ---- */
 
@@ -782,48 +773,6 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
 }
 
 /* ---- AudioClc_GetClosestCars__Fiii  [@0x80075d04] ---- */
-/* MATCH: PASS (267/267); historical 2026-08-08 FAIL 3 (268/267), was 17.
- * The later W63-A10 shared-view pointer shape below sealed the residual.
- * Earlier round: three SYM/source
- * truths landed: (1) `__builtin_abs` for the x/y/z folds (17->5; same
- * spelling as the PASSing CalcDistance -- the if(x<0)x=-x form rotated the
- * whole abs region); (2) C++ MIXED-DECL order per the SYM symbol list:
- * `closest` DECL-WITH-INIT *before* the `cl[numclosest]` VLA decl (5->3;
- * the alloca's sp-sub is prologue-hoisted but the s6=sp+16 base BIND stays
- * at the decl point, after the closest computation = retail order);
- * (3) searchdist/patch block-scoped per SYM.  RESIDUAL 3 = ONE extra lui:
- * our translation.x (offset 0) folds to (mem (lo_sum high sym)) with its
- * own high-pseudo, while y/z (+4/+8, not lo_sum-offsettable) force the
- * full address -> loop.c hoists it (p149, REG_EQUIV) -> reload remats as
- * the `la t1`; retail routes the x-load through that shared base too
- * (`lw v0,0(t1)`), ours keeps TWO identical (high sym) pseudos un-merged
- * (expand-created vs loop-created -- never in one cse scope; loop.c
- * combine_movables didn't merge them).  FALSIFIED: y,z,x / z-first orders
- * (120/30 diffs @count-EXACT 267 -- base-reuse works but defs rotate),
- * operand swaps, split stmt, cast-ptr (FE folds back), abs interleave,
- * whole-TU no_split_addresses (9 PASSes break), -fforce-addr (same double
- * lui).  Route: instrument loop.c combine_movables (r11-style) or accept.
- * W59-A4 adds two more falsifications on the same 3: a plain
- * `coorddef *viewpos = &AudioClc_gRenderView.translation;` local with x/y/z read
- * through it is INERT (3 -- the FE folds it back exactly as the cast-ptr note
- * says), and the same local laundered with an identity fence
- * `__asm__("" : "=r"(viewpos) : "0"(viewpos))` REGRESSES to 29 (the opaque base
- * un-CSEs the y/z pair and rotates the whole abs region).  Route unchanged.
- * W63-A10 SEALED (DUAL-LANE: gate PASS 267/267 + psyqproof REAL=0; TU 18/18).
- * The base pointer has to be declared OUTSIDE THE LOOP.  Inside the body the
- * front end folds it straight back; before the loop it is exactly one high-symbol
- * pseudo, which loop.c hoists and reload-rematerialises as retail's `la t1` so
- * all three components load from the same base.
- * P856 SOURCE RECEIPT: the symbol-bearing, byte-matched NFS2 PC implementation
- * names the corresponding `DRender_tCalcView *` parameter `view` and spells the
- * three expressions as `view->translation.x/y/z`.  NFS4 removed that parameter;
- * retaining the same typed source object as `view = &AudioClc_gRenderView`
- * before the loop preserves the shared-source name and expression shape and is
- * independently byte-exact at 267/267.  Optimized NFS4 SYM omits this pointer. */
-  /* ORIGINAL-NAME-RECOVERED: view -- the byte-matched, symbol-bearing NFS2
-     predecessor retains this exact DRender_tCalcView pointer name and type;
-     see the source receipt above. */
-
 #line 920 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
@@ -839,9 +788,9 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
     cl[i].ptr = 0;
     cl[i].dst = 0x12c0000;
   }
-  DRender_tCalcView *view = &AudioClc_gRenderView;
-  for (i = 0, car = Cars_gList; i < Cars_gNumCars; i++, car++) {
-    int searchdist;
+
+  DRender_tCalcView *view = &AudioClc_gRenderView; for (i = 0, car = Cars_gList; i < Cars_gNumCars; i++, car++) { int searchdist;
+
     if (GameSetup_gData.commMode == 1) {
 
       if (((*car)->carFlags & 4U) != 0) {
@@ -871,8 +820,8 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 
     distance1 = (z < x) ? x + (z >> 2) : z + (x >> 2);
 
-    if (distance1 < 0x1900000) {
-      int patch;
+    if (distance1 < 0x1900000)
+    { int patch;
 
       patch = CopSpeak_GetEnginePatch((*car)->carInfo->carType,0);
       if (patch >= 0) {
@@ -953,20 +902,7 @@ extern int gMasterAmbientLevel;
 void Camera_GetAudioViewInfo(int cviewP, DRender_tCalcView *cview, coorddef **cvel);
 void AudioCmn_UpdateThunder(void);
 
-/* ---- AudioClc_SoundCars__Fv  [@0x80076160] ---- RECONSTRUCTED 2026-06-13 from disasm-v3
- *  (Ghidra @NFS4.EXE.c:53952 for structure; ALL helper-call args + the lastview vector-copy
- *  recovered from disasm-v3 0x80076160 — Ghidra had dropped the AudioClc_ helper args and
- *  mis-rendered lastview as =0). Skipped from the AudioClc pass. Per screen: get audio view,
- *  find/sound the closest cars, sound the player's car, save the view position as lastview.
- *  Pursuit "busted" block re-primes perp engine SFX. */
-    /* MATCH: PASS 176/176 (2026-08-08, was FAIL 2 under a w30-a6 "pure
-     * allocator artifact" floor verdict + 505-iter permuter).  Three SYM
-     * truths cracked it together: NO `gs`/`patch` locals (SYM block lists
-     * only `i` -- the calls are NESTED, v0->a1 directly), `i` block-scoped,
-     * and the loop written as a plain `for` (its rotated guard makes
-     * loop.c's strength-reduction giv-init source the HOISTED base pseudo
-     * -> `addu s0,s2` chain; the old explicit if+do-while sourced the
-     * address temp -> `addu s0,a1` = the whole 2-diff residual). */
+/* ---- AudioClc_SoundCars__Fv  [@0x80076160] ---- */
 
 #line 1051 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundCars(void)

@@ -58,8 +58,8 @@ void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   numPermShapes = 0x26;
   numSwapShapes = 0x20;
   /* retail's tree is the function level plus one inline-call pair: no block, no `cur` local */
-
-  GetTrophyName(&tournamentManager,TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[(byte)frontEnd.tier]),ts_Small,gSwapFileName,-1);
+  tTourneyInfo *const tourn = TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[(byte)frontEnd.tier]);
+  GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
   *permFileName = "zTrophy";
   *swapFileName = gSwapFileName; return;
 }
@@ -343,10 +343,10 @@ void tScreenTrophyRoom::LoadTrophy()
 {
 
 
-  if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy) {
-    /* the frontEnd.tier read is its OWN local so its %hi lands in the beq
-       delay slot (retail's eager steal) instead of tournamentManager's. */
-    GetTrophyName(&tournamentManager,TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[this->tier]),ts_Small,gSwapFileName,-1);
+  if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy)
+  {
+    tTourneyInfo *const tourn =
+      TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[this->tier]); GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }

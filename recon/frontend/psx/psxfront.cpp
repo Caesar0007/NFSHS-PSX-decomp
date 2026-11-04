@@ -205,8 +205,8 @@ void CleanupSpinningCars(void)
       purgememadr(gCarObj[i]);
     }
   }
-  {
-    int handle; char fname [60]; inFrontEnd[0] = 1;
+
+  { int handle; char fname [60]; inFrontEnd[0] = 1;
     R3DCar_CleanUp();
 
     CarIO_CleanUp();
@@ -285,8 +285,8 @@ void DoTitleScreen(void)
 
   elapsedticks();
 
-  if (creditShapeFile == (char *)0x0) {
-
+  if (creditShapeFile == (char *)0x0)
+  {
 
 
 
@@ -329,7 +329,7 @@ void DoTitleScreen(void)
   purgememadr(creditShapeFile);
   creditShapeFile = (char *)0x0;
   titleScreenDisplayed = '\x01';
-  return;
+
 }
 
 /* lines 357-438: (static data / macros / comments - no emitted code) */
@@ -1451,8 +1451,8 @@ void LoadAllHelpShapes(void)
 
 
 
-    purgememadr(permFile);
-  } return; }
+    purgememadr(permFile); } return;
+  }
 
 /* lines 1261-1337: (static data / macros / comments - no emitted code) */
 

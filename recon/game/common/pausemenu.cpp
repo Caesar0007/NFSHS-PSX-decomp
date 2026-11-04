@@ -438,10 +438,10 @@ void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand
     goto processed; right:
 
     this->fData->Increment((tPlayer)-1); processed:
-  keyval = kInput_KeyType_AlreadyProcessed; return;
+  keyval = kInput_KeyType_AlreadyProcessed;
 
 
-}
+  return; }
 
 
 
@@ -475,8 +475,8 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
                                this->IsDisabled(), textX);
 
   y = gPause_CurrentY;
-  if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) { struct PMenuTag { u_int addr : 24; u_int len : 8; }; POLY_GT4 *prim;
-
+  if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
+  { struct PMenuTag { u_int addr : 24; u_int len : 8; }; POLY_GT4 *prim;
 
     prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1); Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
                  textX - textpixels(TextSys_Word((int)text)) - 8, y + 5, 0xbebe);
@@ -791,10 +791,10 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 
     if (this->fOnButtonPress != 0x0) {
       (*this->fOnButtonPress)(command); }
-    keyval = kInput_KeyType_AlreadyProcessed; } return;
+    keyval = kInput_KeyType_AlreadyProcessed; }
 
 
-}
+  return; }
 
 
 
@@ -829,10 +829,10 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 
     AudioCmn_PlayPauseSound(4);
     command.type = this->fCommand;
-    keyval = kInput_KeyType_AlreadyProcessed; } return;
+    keyval = kInput_KeyType_AlreadyProcessed; }
 
 
-}
+  return; }
 
 
 
@@ -905,13 +905,13 @@ void tPMenu::Initialize()
   this->fCurrentItem = 0;
   this->fHighlight = 1; if (this->fItemList[this->fCurrentItem]->IsEnabled() &&
 
-      (this->fItemList[this->fCurrentItem]->IsNavigable() != 0)) return; while ((this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) && (this->fItemList[this->fCurrentItem]->IsDisabled() ||
+      (this->fItemList[this->fCurrentItem]->IsNavigable() != 0))
+      return;
 
 
 
-
-          (this->fItemList[this->fCurrentItem]->IsNavigable() == 0))) {
-    this->fCurrentItem = this->fCurrentItem + 1; } return;
+      while ((this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) && (this->fItemList[this->fCurrentItem]->IsDisabled() || (this->fItemList[this->fCurrentItem]->IsNavigable() == 0))) {
+    this->fCurrentItem = this->fCurrentItem + 1; }
 }
 
 
@@ -939,8 +939,8 @@ bool tPMenu::Debounce()
 void tPMenu::CheckForDisabled()
 
 
-{ while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-
+{
+  while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
          this->fItemList[this->fCurrentItem]->IsDisabled()) {
 
     if (0 < this->fCurrentItem) {
@@ -967,8 +967,8 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
   if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
     this->fItemList[this->fCurrentItem]->ProcessInput(keyval,command); }
 
-  switch (keyval) { case kInput_KeyType_Up:
-
+  switch (keyval)
+  { case kInput_KeyType_Up:
 
       AudioCmn_PlayPauseSound(3); do {
 
@@ -1012,10 +1012,10 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
       AudioCmn_PlayPauseSound(4);
       command.type = kMPause_BackupMenu;
-      keyval = kInput_KeyType_AlreadyProcessed; break; default: return; } return;
+      keyval = kInput_KeyType_AlreadyProcessed;
 
 
-}
+      break; default: return; } return; }
 
 
 
@@ -1028,14 +1028,14 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 void tPMenu::Draw()
 
 
-{ { short item;
+{
     this->CheckForDisabled();
 
     gPause_CurrentY = 0x62;
     this->fItemList[0]->Draw(false);
 
     gPause_CurrentY = 0x75;
-    item = 1; while (true) { if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+    for (short item = 1; ; item = item + 1) { if (this->fItemList[item] == (tPMenuItem *)0x0) break;
 
       if (this->fItemList[item]->IsEnabled()) {
 
@@ -1046,7 +1046,7 @@ void tPMenu::Draw()
 
         gPause_CurrentY = gPause_CurrentY + 0xd; }
 
-      item = item + 1; } return; } }
+      } }
 
 
 

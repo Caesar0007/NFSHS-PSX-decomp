@@ -7,7 +7,7 @@
 #include "screenmain_types.h"
 #include "screenmain_externs.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+#line 11 "feticks.h"
 static inline tFEApplication * App(void) { return FEApp; }
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
@@ -20,7 +20,7 @@ static inline int FE_Ticks(void) { return ticks; }
 /* `ticks` is VSync-ISR state: each read is a real load */
 static inline int VSyncTicks(void) { return *(volatile int *)&ticks; }
 static inline bool Credits_Initialized(tCreditManager &credits) { return credits.fCreditsInitialized; }
-
+#line 24 "C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmain.cpp"
 
 /* ---- ScreenMain.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes;
    videoWallConfigs[].videos = SYMBOL-REF ptrs to the tVideo globals, not absolute addresses) ---- */
@@ -183,8 +183,8 @@ void tScreenMain::SetState(tScreenMainState state)
   short i;
   tTexture_ShapeInfo *shape;
 
-  if (state != this->fState) {
-
+  if (state != this->fState)
+  {
 
     VIDEO_abortplayback(this->hVideo);
     this->bVideoAborted = 1;
@@ -238,10 +238,10 @@ void tScreenMain::SetState(tScreenMainState state)
         this->tvTransitions[i].state = kScreenMain_Credits;
         i = i + 1; } while (i < 0x10);
       Init(&CreditManager,this->fStartTicks);
-      break;
-    }
-  }
-  return; }
+
+
+
+      break; } } return; }
 
 
 
@@ -318,8 +318,8 @@ void tScreenMain::InitDynamicImages()
 #line 405 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 {
-  if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(0) > 0) {
-
+  if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(0) > 0)
+  {
     this->SwapBackground(-1);
 
     if ((tMenuNFS4 *)FEApp->CurrentMenu(0) == &menuDefs->menuPinkSlipSelect) {
@@ -365,10 +365,10 @@ void tScreenMain::DrawDropShadow()
 
   i = 0; do {
 
-    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addr_24 = (uint)prim & 0xffffffU; prim->tag = (prim->tag & 0xff000000UL) | (((POLY_G4 *)pal_link)->tag & 0xffffffU); Render_gPacketPtr = (u_char *)prim + 0x24; ((POLY_G4 *)pal_link)->tag = (((POLY_G4 *)pal_link)->tag & 0xff000000UL) | (addr_24 & 0xffffffU);
-    *(u_int *)&prim->r0 = 0x808080; prim->code = 0x3a; *(u_int *)&prim->r1 = 0x808080;
+    prim = (POLY_G4 *)Render_gPacketPtr; addr_24 = (int)Render_gPalettePtr + 1; addr_24 = (uint)prim & 0xffffffU; prim->tag = (prim->tag & 0xff000000UL) | (((POLY_G4 *)Render_gPalettePtr)->tag & 0xffffffU); Render_gPacketPtr = (u_char *)prim + 0x24; ((POLY_G4 *)Render_gPalettePtr)->tag = (((POLY_G4 *)Render_gPalettePtr)->tag & 0xff000000UL) | (addr_24 & 0xffffffU);
+    *(u_int *)&prim->r0 = 0x808080; *(u_int *)&prim->r1 = 0x808080;
     *(u_int *)&prim->r3 = 0; *(u_int *)&prim->r2 = 0;
-    ((u_char *)&prim->tag)[3] = 8;
+    prim->code = 0x3a; ((u_char *)&prim->tag)[3] = 8;
     /* MATCH (W57, 69->28): the SYM 8c block lists ONLY `i` and `prim` --
        `src_walk` was a Ghidra-invented walk pointer, and gcc strength-reduced
        it into a SECOND induction giv (`addiu a3,v0,0` + `addiu a2,a3,14`)
@@ -938,17 +938,5 @@ void tScreenMain::Cleanup()
   this->tScreen::Cleanup();
 }
 
-
-
-/* ---- tScreenMain::dtor  [SCREENMAIN.CPP:162-851] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-
-
-
+extern "C" void ___7tScreen(void *); tScreenMain *screenMain;   /* @0x80051e58; SYM EXT */
 /* end of screenmain.cpp */
-
-tScreenMain *screenMain;   /* @0x80051e58; SYM EXT */

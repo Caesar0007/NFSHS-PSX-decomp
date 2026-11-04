@@ -202,9 +202,9 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
 
 
 
-    if (showRoomFlag != 0) {                                /* showroom camera */
-      coorddef targetPos;
-      camY = camY * 0.5f;
+    if (showRoomFlag != 0)
+    {                                /* showroom camera */
+      coorddef targetPos; camY = camY * 0.5f;
 
 
 
@@ -224,12 +224,12 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
     else {
       fixedxformy(temp.m,camRot << 6);
     }
-    {
-      matrixtdef correct;
-      /* w38-a9: the oracle stores 0x10000 at m[4] (sp+0xB8) with the other two diagonal
-         entries and only THEN overwrites it with 0x8980 in the Math_fasttransmult jal's
-         delay slot -- i.e. the source writes a full IDENTITY first, then tweaks m[4].
-         The old recon dropped the identity m[4] store (1 insn short). */
+
+
+    { matrixtdef correct;
+
+
+
       correct.m[0] = 0x10000; correct.m[1] = 0; correct.m[2] = 0;
       correct.m[3] = 0; correct.m[4] = 0x10000; correct.m[5] = 0;
       correct.m[6] = 0; correct.m[7] = 0; correct.m[8] = 0x10000;

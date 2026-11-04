@@ -5,12 +5,12 @@
 #include "screentracks_types.h"
 #include "screentracks_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
+/* retail's SYM records an inline-call pair at every tick read in this TU */
+#line 10 "feticks.h"
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline int FE_Ticks(void) { return ticks; }
-
+#line 14 "C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentracks.cpp"
 
 /* Retail screentracks.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -363,8 +363,8 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 
 {
-  if (bright != this->fDestBrightness) {
-
+  if (bright != this->fDestBrightness)
+  {
     this->fStartBrightness = this->fBrightness;
     this->fDestBrightness = bright;
     this->fStartTicks = FE_Ticks(); } return; }
@@ -399,11 +399,11 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
     }
   }
 
-  if ((this->fBrightness == 0) && (this->fDestBrightness == 0)) {
-
+  if ((this->fBrightness == 0) && (this->fDestBrightness == 0))
+  {
     VIDEO_abortplayback(this->hVideo);
-    if (this->fTicksSet == 0) {
-
+    if (this->fTicksSet == 0)
+    {
       this->fTicksSet = 1;
       this->fVideoTicks = elapsed = FE_Ticks();
       this->fMovieTrack = (short)(signed char)trackInfo.fTrackID; } } return; }
@@ -471,40 +471,35 @@ void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand
 {
   tTrackInformation trackInfo;
 
-  if (keyval == kInput_KeyType_Square) {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               &trackInfo);
-    MenuItem_Enable(&menuDefs->itemTraffic);
+  if (keyval == kInput_KeyType_Square)
+  {
+    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable(&menuDefs->itemTraffic);
 
 
 
-    if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    }
-    if (2 < trackInfo.fTrackDifficulty) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    } if (trackInfo.fIsEgg != '\0') {
-      MenuItem_Disable(&menuDefs->itemTraffic); } if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit)) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    } if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech()) {
-      MenuItem_Enable(&menuDefs->itemLocalSpeech);
-    } else { MenuItem_Disable(&menuDefs->itemLocalSpeech);
-    }
-  } else if (keyval == kInput_KeyType_Triangle) {
 
-    if (!FEApp->CurrentMenu(0)->IsSubMenu()) {
-      TurnOffInstant(&this->fVideoWall);
-    }
-  }
-}
+    if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02'))
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if (2 < trackInfo.fTrackDifficulty)
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if (trackInfo.fIsEgg != '\0')
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit))
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech())
+    { MenuItem_Enable(&menuDefs->itemLocalSpeech); } else
+    { MenuItem_Disable(&menuDefs->itemLocalSpeech); }
+
+  } else if (keyval == kInput_KeyType_Triangle)
+  {
+    if (!FEApp->CurrentMenu(0)->IsSubMenu())
+    { TurnOffInstant(&this->fVideoWall); } } }
 
 
 
-/* ---- tScreenTrackSelect::dtor ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
+
+
+
 extern "C" void ___7tScreen(void *);
 
 

@@ -109,12 +109,12 @@ int Scene_BuildCustomSceneList(void)
 
 
 
-    }
-  }
+    } }
 
 
 
 
+  else { (void)0; }
 
 
 

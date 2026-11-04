@@ -315,11 +315,11 @@ void Movie_Load(char movie)
 
     strNextVlc(&dec);
 
-    bMovieLoaded = 1;
+    bMovieLoaded = 1; } return;
 
 
-  }
-  return;
+
+
 }
 
 /* lines 283-286: (static data / macros / comments - no emitted code) */

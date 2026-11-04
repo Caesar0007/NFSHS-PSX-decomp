@@ -552,8 +552,8 @@ int AIHigh_Opponent::DoRearEnder()
 
 
   attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x100);
-  if (attackIndex != -1) { Car_tObj *otherCarObj; int longDistance; int latDistance;
-
+  if (attackIndex != -1)
+  { Car_tObj *otherCarObj; int longDistance; int latDistance;
     otherCarObj = Cars_gList[attackIndex];
     longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_); longDistance = longDistance * this->carObj_->direction;
     latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
@@ -569,8 +569,8 @@ int AIHigh_Opponent::DoRearEnder()
 
 
 
-  if (((this->carObj_->N).simOptz == '\0') && (0x140000 < __builtin_abs(this->carObj_->currentSpeed))) {
-
+  if (((this->carObj_->N).simOptz == '\0') && (0x140000 < __builtin_abs(this->carObj_->currentSpeed)))
+  {
 
     for (int racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {
 
@@ -617,15 +617,15 @@ void AIHigh_Opponent::HighExecute()
 
 
 
-  switch ((stateType_t)stateType_) { case STATE_PURGATORY: case STATE_IDLE: case STATE_OFFROAD: case STATE_ROVING_TRAFFIC: case STATE_NONACTIVE: case STATE_DONUTS: case STATE_GOTOSLICE: case STATE_CRUISE: break; case STATE_NONE:
-
+  switch ((stateType_t)stateType_)
+  { case STATE_NONE:
 
     this->SetState(new AIState_Normal(carObj_),STATE_NORMAL);
-    return; case STATE_NORMAL: { int attackIndex;
+    return;
 
+    case STATE_NORMAL:
 
-
-
+    { int attackIndex;
 
     this->HandleCops();
     this->CheckForWipeOut();
@@ -644,8 +644,8 @@ void AIHigh_Opponent::HighExecute()
       this->attackMode_ = PROVOKED_ATTACK; }
 
 
-    if (this->attackMode_ != 0) { coorddef pos;
-
+    if (this->attackMode_ != 0)
+    { coorddef pos;
       memset((u_char *)&pos,0,0xc);
       int aggression = attackMode_ - 1;
       aggression = aggression < 2 ? 2 : aggression; this->SetState(new AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20, 0x960000,0x960000,aggression,0x10000),
@@ -654,9 +654,9 @@ void AIHigh_Opponent::HighExecute()
 
 
 
-    break; case STATE_CHASE: {
+    break; case STATE_CHASE:
 
-
+    {
     AIState_Chase *attackState = (AIState_Chase *)state_;
     this->HandleCops();
     this->CheckForWipeOut();
@@ -684,12 +684,12 @@ void AIHigh_Opponent::HighExecute()
 
 
 
-    if (attackMode_ == NO_ATTACK) { carObj_->desiredDirection =
-
+    if (attackMode_ == NO_ATTACK)
+    { carObj_->desiredDirection =
         GameSetup_gData.reverseTrack == 0 ? 1 : -1; this->SetState(new AIState_Normal(carObj_),
         STATE_NORMAL);
 
-      attackMode_ = NO_ATTACK; } break; } }
+      attackMode_ = NO_ATTACK; } break; }
 
 
 
@@ -701,7 +701,7 @@ void AIHigh_Opponent::HighExecute()
 
 
 
-
+    case STATE_PURGATORY: case STATE_IDLE: case STATE_OFFROAD: case STATE_ROVING_TRAFFIC: case STATE_NONACTIVE: case STATE_DONUTS: case STATE_GOTOSLICE: case STATE_CRUISE: break; }
 
 
 
@@ -741,11 +741,11 @@ AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 
 #line 259 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 int AIHigh_Opponent::DoProvokedAttack()
-{ if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) && ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) &&
+{
 
 
-      ((((Car_tObj *)this->carObj_->N.collision.lastOtherObj)->carFlags & 4U) != 0)) { Car_tObj *otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj;
-
+  if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) && ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) && ((((Car_tObj *)this->carObj_->N.collision.lastOtherObj)->carFlags & 4U) != 0))
+  { Car_tObj *otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj;
 
     if (this->lastHumanHitter_ != otherCar) {
 
@@ -762,11 +762,5 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
   return -1; }
-
-
-
-
-
-
-
+class AIHigh_Opponent;
 /* end of aih_opp.cpp */

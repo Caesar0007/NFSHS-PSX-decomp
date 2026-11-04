@@ -153,8 +153,8 @@ tScreenCarSelect::tScreenCarSelect()
     overlay = this->fOverlays + i;
     overlay->location[0] = gOverlayPositions[i][0];
     overlay->location[1] = gOverlayPositions[i][1];
-    overlay->ID = i; overlay->direction = 0; overlay->transition = 0;
-    overlay->delta = 6;
+    overlay->direction = 0; overlay->transition = 0;
+    overlay->ID = i; overlay->delta = 6;
 
   }
 
@@ -253,8 +253,8 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   pos.h = overlay->location[0].h + overlay->transition * (overlay->location[1].h - overlay->location[0].h) / 0x80;
 
 
-  switch(overlay->ID) {
-  case 0:
+  switch(overlay->ID)
+  { case 0:
 
     if (validCar != 0) {
       DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,pos,0);   /* W58-A1: RECT& decl */
@@ -287,8 +287,8 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
     text = overlay->ID == 2 ? 0x8d : overlay->ID == 3 ? 0x8e : 0x8c;
 
-    if (validCar != 0) {
-      moneyColor = 0xbebe;
+    if (validCar != 0)
+    { moneyColor = 0xbebe;
       value = overlay->ID == 2 ? carInfo.fPrices[0] :
               overlay->ID == 3 ?
               carInfo.fPrices[upgradeTranslate[(short)Menu_CurrentItem(menuDefs->menuCarUpgrades)]] :
@@ -325,8 +325,8 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     break;
   case 5:
 
-    if (overlay->transition == 0x80) {
-      int descrItem;
+    if (overlay->transition == 0x80)
+    { int descrItem;
       for (i = 0; i < 3; i = i + 1) {
         fade = 0;
         if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) { fade = 0x60;
@@ -348,10 +348,10 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
         FETextRender_WordWrap((short)descrItem,temp,textState_Hilighted,textType_PopUpText);
       text = 0xa0;
       if ((carInfo.fUpgrades & upgradeIcons[(short)Menu_CurrentItem(menuDefs->menuCarUpgrades)]) == 0) {
-        text = 0x9e;
+
         if (gPadinfo.buf[0].ID == '#') {
           text = 0x9f;
-        }
+        } else text = 0x9e;
       }
       FETextRender_MenuTextPositionedJustify(text,pos.x + pos.w + -0xf,pos.y + pos.h + -0x14,1,textState_Hilighted, textType_FramedInfo);
     }
@@ -367,7 +367,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
         for (j = 0; j < 4; j = j + 1) {
           carInfo.fStats[j][i] = 0; } }
     } this->DrawSliders(carInfo,pos.x + 0xd,pos.y + 4);
-  }
+    break; }
 
 
 
@@ -489,10 +489,10 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
   T[2] = fixeddiv(elapsed << 0x10,0x2580000);
   T[1] = fixedmult(T[2],T[2]);
   T[0] = fixedmult(T[1],T[2]);
-  i = 0; T[3] = 0x10000;
+  T[3] = 0x10000;
 
 
-  do {
+  i = 0; do {
 
     G[0][i] = gKnots[knot1][i];
     G[1][i] = gKnots[knot2][i];

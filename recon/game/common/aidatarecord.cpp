@@ -160,8 +160,27 @@ void AIDataRecord_t::Setup()
 {
 
 
-  if (this->preAllocatedBuffer_ != (char *)0x0) {
-    this->dataBuffer_ = this->PreAllocatedBuffer();
+  if (this->preAllocatedBuffer_ != (char *)0x0)
+  { this->dataBuffer_ = this->PreAllocatedBuffer(); }
+
+
+
+
+
+
+
+  else {
+
+
+    int loaded = this->Load();
+
+
+
+
+
+
+    if (!loaded)
+    {
 
 
 
@@ -171,28 +190,8 @@ void AIDataRecord_t::Setup()
 
 
 
-
-  } else if (this->Load() == 0) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    this->SetDataBuffer((char *)reservememadr(this->Name(),this->BufferSize(),0));
-  }
-}
+      this->SetDataBuffer((char *)reservememadr(this->Name(),this->BufferSize(),0));
+      0; } } }
 
 /* ---- Load__14AIDataRecord_t ---- */
 
@@ -243,11 +242,10 @@ int AIDataRecord_t::SaveAndPurge()
 
     return 1;
   }
+  else
 
 
-
-  return 0;
-}
+    return 0; }
 
 /* ---- __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t  AccTable::ctor ---- */
 
@@ -365,12 +363,11 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
   for (int curveLoop = 0; curveLoop < this->NumElements(); curveLoop++) {
-    this->dataBuffer_[curveLoop] =
 
-
-        fixedmult(this->Get(curveLoop), handlingUpgrade) / 0x10000;
-  }
-}
+    int speed = this->Get(curveLoop);
+    speed = fixedmult(speed, handlingUpgrade);
+    this->dataBuffer_[curveLoop] = speed / 0x10000;
+  } }
 
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] COVERED-SLD-PASS ---- */
 /* Always0. SYM attributes this definition to AIDATARECORD.H; physical header placement/key-function emission remains unproved. */
@@ -385,9 +382,6 @@ int AIDataRecord_CarTracking_t::Get(int slice)
 /* The object ends with the five compiler-SYNTHESIZED derived destructors (0x8006D514..0x8006D5B4, the deferred-inline
  * batch, reverse class order) -- they have no source. */
 
+#line 765 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
+class AIDataRecord_t;
 /* end of aidatarecord.cpp */
-
-/* The three deferred destructor end records constrain the terminal context to765.
- * At EOF the selected compiler uses the preceding logical line;no executable work
- * or generated debug record is rewritten. Original literal footer text is unproved. */
-

@@ -300,8 +300,8 @@ void Stats_ExtrapolateOpponentTimes(int type)
 
   for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
 
-    if (Cars_gHumanRaceCarList[i]->stats.finishType != 2) {
-      int sliceTotal;
+    if (Cars_gHumanRaceCarList[i]->stats.finishType != 2)
+    { int sliceTotal;
       int startingTime; sliceTotal = Cars_gHumanRaceCarList[i]->stats.sliceTotal; if (sliceTotal < 1) { sliceTotal = 1;
       } startingTime = Cars_gHumanRaceCarList[i]->stats.sliceTime - 0x200;
 
@@ -394,8 +394,8 @@ void Stats_ExtrapolateOpponentTimes(int type)
 
   for (i = 0; i < Cars_gNumAIRaceCars; i++) {
 
-    if (Cars_gAIRaceCarList[i]->stats.finishType != 2) {
-      int sliceTotal;
+    if (Cars_gAIRaceCarList[i]->stats.finishType != 2)
+    { int sliceTotal;
       int startingTime; sliceTotal = Cars_gAIRaceCarList[i]->stats.sliceTotal; if (sliceTotal < 1) { sliceTotal = 1;
       } startingTime = Cars_gAIRaceCarList[i]->stats.sliceTime - 0x200;
 
@@ -428,8 +428,8 @@ void Stats_ExtrapolateOpponentTimes(int type)
            Cars_gAIRaceCarList[i]->stats.time[j]) && (Cars_gAIRaceCarList[i]->stats.time[j] > 0)) {
         Cars_gAIRaceCarList[i]->stats.finalBestLap = Cars_gAIRaceCarList[i]->stats.time[j];
       } }
-    {
-      int averageLap;
+
+    { int averageLap;
       averageLap = Cars_gAIRaceCarList[i]->stats.finalTotalTime / STATS_NUM_LAPS - rand() / 0x30;
       if (averageLap < Cars_gAIRaceCarList[i]->stats.finalBestLap) {
         Cars_gAIRaceCarList[i]->stats.finalBestLap = averageLap;
@@ -459,10 +459,10 @@ void Stats_ExtrapolateOpponentTimes(int type)
               Cars_gRaceCarList[y]->stats.finalTotalTime) {
             position++;
           }
-          else if ((Cars_gRaceCarList[x]->stats.finalTotalTime == Cars_gRaceCarList[y]->stats.finalTotalTime) && (y < x)) {
+          else if (Cars_gRaceCarList[x]->stats.finalTotalTime == Cars_gRaceCarList[y]->stats.finalTotalTime) {
 
-
-            position++;
+            if (y < x)
+              position++;
           }
         }
       }

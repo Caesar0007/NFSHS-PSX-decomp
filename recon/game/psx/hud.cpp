@@ -1029,8 +1029,8 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
     } if (c == 0x53) {
       c = langSec;
     }
-    w = *(signed char *)((u_char *)Font_Getcharacter(c) + 8) + 1;
-
+    w = (int)Font_Getcharacter(c);
+    w = *(signed char *)(w + 8) + 1;
 
     Hud_BuildSpriteFromFont(&sprt[n],(char)c,x,y);
     n = n + 1;
@@ -1896,7 +1896,7 @@ void Hud_BuildTach(int player)
   clut = *(u_long *)(player != 0 ? &HudPmx_gShapes[0x83] : &HudPmx_gShapes[0x81]); clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
   x = fixedmult(cos,0x1d);
   y = fixedmult(sin,0x1d);
-  u_long clutx; do { clutx = x + 0x1d; } while (0); clut = clut | (y + 0x9d) << 8; if (player != 0) { clut = clut | (x + 0x75); } else { clut = clut | clutx; } *(u_int *)&gSprt1[2].u0 = clut;  /* SOURCE-REVIEW-UNRESOLVED: unrecorded offset capture/statement wrapper. */ /* word-fused u0/v0/clut store */
+  const u_long clutx = x + 0x1d; do { } while (0); clut = clut | (y + 0x9d) << 8; if (player != 0) { clut = clut | (x + 0x75); } else { clut = clut | clutx; } *(u_int *)&gSprt1[2].u0 = clut;
 
   cos1 = fixedmult(cos,10) + 0xe;
   sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
@@ -1907,7 +1907,7 @@ void Hud_BuildTach(int player)
 
 
 
-    prim = (POLY_F3 *)Render_gPacketPtr; void *const tp9 = (void *)((u_char *)prim + 0x14); ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)prim + 0x14;
+    prim = (POLY_F3 *)Render_gPacketPtr; { void *const tp9 = (void *)((u_char *)prim + 0x14); ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)prim + 0x14;
 
 
 
@@ -1917,7 +1917,7 @@ void Hud_BuildTach(int player)
     *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
-    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
+    *(short *)((u_char *)tp9 + 0xe) = (short)sin1; }
 
     prim2 = (POLY_F3 *)Render_gPacketPtr; ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim2 + 0x14; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim2;
 
@@ -1934,11 +1934,11 @@ void Hud_BuildTach(int player)
   prim2->y0 = prim2->y0 + 2;
   prim2->y1 = prim2->y1 + 2;
   prim2->y2 = prim2->y2 + 2;
-
+  }
 
 
   ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(gSprt1 + 2);
-  }
+
 }
 
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
@@ -2709,12 +2709,12 @@ void Hud_BuildNumbers(int player)
 
 
 
-    {
-      const int xt /* SOURCE-REVIEW-UNRESOLVED: unrecorded fold-boundary capture;direct forms2/6/30dif at758. */ = x + 4;
+
+    const int xt = x + 4, wt = w1 * 2;
 
 
 
-      x = w1 * 2 + xt; }
+    x = wt + xt;
     prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = Render_gPacketPtr + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Hud_BuildGT4(prim,HudPmx_gShapes + speed % 10 + 0x2c,x,y,SpeedColor);
     *(u_int *)&prim->r3 = color2; *(u_int *)&prim->r2 = color2;
@@ -3113,8 +3113,8 @@ void Hud_BuildWingmanInterface(int player)
     poly = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)poly + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
     Hud_BuildF4(poly,0,x + 0xc, (int)((unsigned int)y - (-(unsigned int)(((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2))), 0x3f,8,fc);
   }
-  {
-    int i; i = 0; do {
+
+  { int i; i = 0; do {
 
       poly = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)poly + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
 
@@ -3573,13 +3573,13 @@ int Hud_BuildRadar(int player)
         visible = 2;
       } }
   }
-  { /* Retail shared packet-emission region (+47c..+6d8). */
+  /* Retail shared packet-emission region (+47c..+6d8). */
 
-
+  {
   for (i = 0; i < Cars_gNumCopCars; i++) {
 
-    if (Cars_gCopCarList[i]->N.active != '\0') {
-      SPRT *sprt;
+    if (Cars_gCopCarList[i]->N.active != '\0')
+    { SPRT *sprt;
 
       sprt = (SPRT *)Render_gPacketPtr; ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)sprt + 0x14; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
       if ((gFlip != 0) || (simVar.quickPauseSim != 0)) {
@@ -4593,7 +4593,7 @@ void BigBTCTime(int secs)
   }
   Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
   Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
-  return;
+
 }
 
 /* ---- Hud_RenderHudView__Fv  [HUD.CPP:3426-3736] SLD-VERIFIED ---- */
@@ -4676,7 +4676,7 @@ void Hud_RenderHudView(void)
       u_long y;
       u_long ww;
       u_long ww2;
-      u_long ww2p1; /* SOURCE-REVIEW-UNRESOLVED: retail has no record; `x - (ww2 + 1)` is reassociated by fold (split_tree) to (x - 1) - ww2 -> 159 (42 diffs) */
+
       u_long color;
       int flare_type;
 
@@ -4694,7 +4694,7 @@ void Hud_RenderHudView(void)
 
       Font_TextColor(4);
 
-      ww2p1 = ww2 + 1; Font_TextXY(TextSys_Word(PerpOverlayMessage[j] + 0x41), x - ww2p1, y);
+      const u_long ww2p1 = ww2 + 1; Font_TextXY(TextSys_Word(PerpOverlayMessage[j] + 0x41), x - ww2p1, y);
 
 
 

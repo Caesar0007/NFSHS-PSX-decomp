@@ -6,7 +6,7 @@
 #include "screenpinkslips_types.h"
 #include "screenpinkslips_externs.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+#line 10 "feticks.h"
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline tFEApplication * App(void) { return FEApp; }
@@ -19,7 +19,7 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
-
+#line 23 "C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips.cpp"
 
 /* Retail screenpinkslips.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -303,15 +303,15 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 
 
 {
-  if ((signed char)(u_char)trackInfo.fTrackID != this->fPreviousTrack) {
-
+  if ((signed char)(u_char)trackInfo.fTrackID != this->fPreviousTrack)
+  {
     sprintf(gSwapFileName,"TR%02dPS",(signed char)(u_char)trackInfo.fTrackID);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
 
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
-    if (-1 < *(signed char *)&this->fTransitionDirection) {
-
+    if (-1 < *(signed char *)&this->fTransitionDirection)
+    {
       this->fTVTicks = FE_Ticks();
       *(signed char *)&this->fTransitionDirection = -1;
     }
@@ -387,32 +387,24 @@ void tScreenPinkSlips::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
 {
   tTrackInformation trackInfo;
 
-  if (keyval == kInput_KeyType_Square) {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               &trackInfo);
-    MenuItem_Enable(&menuDefs->itemTraffic);
+  if (keyval == kInput_KeyType_Square)
+  {
+    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable(&menuDefs->itemTraffic);
 
 
 
-    if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    }
-    if (2 < trackInfo.fTrackDifficulty) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    } if (trackInfo.fIsEgg != '\0') {
-      MenuItem_Disable(&menuDefs->itemTraffic); } if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit)) {
-      MenuItem_Disable(&menuDefs->itemTraffic);
-    } MenuItem_Disable(&menuDefs->itemLocalSpeech);
-  }
-}
+
+    if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02'))
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if (2 < trackInfo.fTrackDifficulty)
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if (trackInfo.fIsEgg != '\0')
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit))
+    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    MenuItem_Disable(&menuDefs->itemLocalSpeech); } }
 
 
-
-/* ---- tScreenPinkSlips::dtor  [SCREENPINKSLIPS.CPP:82-389] ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
 
 

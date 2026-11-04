@@ -894,13 +894,15 @@ char * R3DCar_LoadFileAdr(char *name)
 
 {
   char * buf;
-  
-  buf = Platform_TempReserveMemory(
-      filesize(name),
-      "bigfile");
+
+
+  const int size = filesize(name);
+  buf = Platform_TempReserveMemory(size, "bigfile");
   loadfileatadr(name,buf);
 
   return buf; }
+
+
 
 /* ---- R3DCar_GetCarName__FPcii [@0x800aee98; retail R3DCAR.CPP:1145-1154; SLD open] ---- */
 /* SOURCE-REVIEW-UNRESOLVED: copIdx is an unrecorded source snapshot, not an
@@ -914,11 +916,11 @@ void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
 
-  const u_int copIdx = carType - 0x16U;
+  const u_int copIdx = carType - 0x16U; const int isCop = copIdx < 6;
 
   sprintf(filename,"zz%s",GameSetup_gCarNames[carType]);
 
-  if (copIdx < 6)
+  if (isCop)
   {
     int index = R3DCar_CopIndex[copIdx][country];
     filename[2] = R3DCar_CopCountry[index];

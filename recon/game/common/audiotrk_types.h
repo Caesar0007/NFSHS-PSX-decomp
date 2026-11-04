@@ -93,6 +93,7 @@ struct AudioElem {
 };
 #define NFS4_AUDIOLIST_ELEMS_INLINE   /* CAudioList::Elems() -- retail's CAudioList `this` pair in AudioTrk_PreLoad */
 #include "shared/CAudioList.h"
+static inline AudioElem *AudioList_Elems(CAudioList *list) { return (AudioElem *)(list + 1); }
 
 #include "shared/FLARE_PIECE_DEF.h"
 

@@ -111,8 +111,8 @@ void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade
   if (opacity == 0) {
     PSXDrawSquare(col,x,y,ww,hh);
   }
-  else { PSXDrawTransSquare(col,x,y,ww,hh,1);   /* H12: was tx,ty (uninitialized; Ghidra lost the x/y reads) -- oracle 0x8004BDB0 $a1=$s2=x, $a2=$s4=y */
+  else { PSXDrawTransSquare(col,x,y,ww,hh,1);
   }
-  return; }
+}
 
 /* end of felines.cpp */

@@ -167,18 +167,18 @@ int AIHigh_BTC_Perp::CheckForControlsPressed()
 
 
 
-{ int pressed; pressed = 0;
+{ int pressed;
+  pressed = 0;
 
-
-  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) { Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
-
+  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0)
+  { Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
 
 
     if (*(u_short *)control != 0 || control->handBrake == '\x01') {
-      pressed = 1; } } if ((Cars_gNumHumanRaceCars == 2) &&
+      pressed = 1; } }
 
-      (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) { Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
-
+  if ((Cars_gNumHumanRaceCars == 2) && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0))
+  { Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
 
 
     if (*(u_short *)control != 0 || control->handBrake == '\x01') {
@@ -499,11 +499,11 @@ AIHigh_BTC_Perp::CheckForActivation()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
 
     Car_tObj *humanCopCarObj = Cars_gList[carLoop]; if (((humanCopCarObj->carFlags & 0x200U) != 0) &&
-        (humanCopCarObj->N.active != '\0')) {
-
+        (humanCopCarObj->N.active != '\0'))
+    {
       AIHigh_BTC_HumanCop *carHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[humanCopCarObj->carIndex];
-      if (carHigh->NeedsPerp() != 0) {
-
+      if (carHigh->NeedsPerp() != 0)
+      {
 
         if ((this->carObj_->carFlags & 4U) != 0) {
 
@@ -514,8 +514,8 @@ AIHigh_BTC_Perp::CheckForActivation()
 
           int carType = GameSetup_gData.perpInfo[carHigh->CurrentStage()].CarType;
 
-          if (carType == this->carObj_->carInfo->carType) { return carHigh; } } } }
-
+          if (carType == this->carObj_->carInfo->carType) { return carHigh; }
+        } } }
 
 
 
@@ -692,8 +692,8 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 { int doBrake; doBrake = 0; if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && (this->closestCopCarObj_->RSControl == 0) && (this->closestCopCarObj_->direction == this->carObj_->direction) &&
 
 
-      (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000)) { int xPosition; int zPosition; int xPositionIndex; int zPositionIndex;
-
+      (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000))
+      { int xPosition; int zPosition; int xPositionIndex; int zPositionIndex;
 
 
 
@@ -801,15 +801,15 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
 #line 581 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::FindClosestCop()
-{ int closestCopInMeters; int closestCopInMetersAbs; int closestCarIndex; { int copLoop;
+{ int closestCopInMeters; int closestCopInMetersAbs; int closestCarIndex;
 
     closestCopInMeters = 0x270f0000;
     closestCopInMetersAbs = 0x270f0000;
     closestCarIndex = -1;
-    copLoop = 0; while (true) { if (Cars_gNumHumanRaceCars <= copLoop) { break; }
+    for (int copLoop = 0; copLoop < Cars_gNumHumanRaceCars; copLoop++) {
 
-      if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) { int longMetersBetween; int absLongMetersBetween; longMetersBetween = AIWorld_ApxSplineDistance(
-
+      if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0)
+      { int longMetersBetween; int absLongMetersBetween; longMetersBetween = AIWorld_ApxSplineDistance(
             this->carObj_,Cars_gHumanRaceCarList[copLoop]);
         absLongMetersBetween = __builtin_abs(longMetersBetween);
         if (absLongMetersBetween < closestCopInMetersAbs) {
@@ -819,7 +819,7 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
           closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex; } }
 
 
-      copLoop = copLoop + 1; } }
+    }
 
   if (closestCarIndex == -1) {
 
@@ -1262,17 +1262,6 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
   TrgSfx_RestartTrgSfx(); return; }
-/* SOURCE-REVIEW-UNRESOLVED: t has no retail caller-local record. After
-       restoring the speed getter, direct clamp forms still differ (22/300,
-       split assignment13/299, void-arm products121/305). Those finite
-       failures do not prove that an original source object was required. */
-/* Retail has only these two lateral locals. The three getter call sites
-       reproduce its guarded inline groups; their original name is unknown.
-       Previous staged-offset/fence necessity claims were source-shape-specific;
-       the prior body is backed up in build/nc12/aistate_before_lateral_getters_20261016.cpp. */
-/* Bounds are unsigned byte-field products, but retail compares signed.
-         Cast the bounded products to int
-         and evaluate each bound first; no source-only limit object is needed. */
 
 
 
@@ -1280,65 +1269,5 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==== AIState vague-linkage tail (2026-08-03 name-fix): btcperp's OWN compiled copies of the
- * shared AIState helpers -- retail emitted one instance per .obj (SYM names them identically at
- * distinct VAs; oracle vtable copies D_80055000/D_80055020 are this obj's NonActive/Base vtables,
- * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
- * aistate.cpp instances (100%-proven spellings). */
-
-/* ---- Execute__17AIState_NonActive_80061370 @0x80061370 : empty per-frame body (real method --
- * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
-
-/* w60 unlock: the surplus canonical `AIState_NonActive::Execute()` member def that
- * lived here collided with aih_btccop's (owner of 0x8005F624) -- removed. */
-
-/* ---- ___17AIState_NonActive_80061378 @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
-
-/* ---- TestForRelease__12AIState_Base_800613C4 @0x800613C4 : shared default impl (real method) ---- */
-
-/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
- * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
-
-/* ---- ___12AIState_Base_800613CC @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
-
+class AIHigh_BTC_HumanPerp;
 /* end of aih_btcperp.cpp */

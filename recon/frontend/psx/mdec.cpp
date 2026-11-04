@@ -26,26 +26,13 @@ int g_mdecdrawsyncfailed = 0;                 /* 0x80052b30 (SYM: EXT INT) */
 /* lines 1-91: file header, #includes, static data (DECDCTTAB), macros (no symbols) */
 
 /* ---- initmdec  (mdec.cpp:92, code lines 92-145) ---- */
-/* 2026-10-12: ordinary signed /256 replaces area plus its explicit sign
-   bias; ordinary /16 and frame-width-before-height source order remove stride.
-   Repeated bpp*0x1e0+stripsize call arguments then remove bufsize,101/101
-   PASS with all five native local/parameter tuples and the root region exact.
-   SOURCE-REVIEW-UNRESOLVED: stripsize is still a source-only capture, not
-   certified original by debug elision. Fully expanding both size arguments,
-   including nested allocation/clear, is119dif/104; restore the measured best.
-   Direct stride division after height was7dif/102; correcting statement order
-   makes it101 PASS. No added asm, qualifier, dummy use, alias or output rewrite.
-   Old independent carrier-necessity claims applied to a different source
-   shape; original spelling/full SLD remain unsealed. */
-  /* MATCH: no `hs` local in the SYM -- retail narrows `height` IN PLACE, so the
-     sign-extended value lands back in height's own register (oracle $s3). */
 #line 89 "C:/nfs4/FRONTEND/PSX/MDEC.CPP"
 int initmdec(int width,int height,int bpp,int memtype)
 
 
 {
   struct MDECSTRUCT *mdec;
-  int stripsize;
+  int vlcsize;
 
 
 
@@ -68,19 +55,14 @@ int initmdec(int width,int height,int bpp,int memtype)
   mdec->width = width;
   mdec->height = height;
   mdec->bpp = bpp;
-  stripsize = ((int)(((width + 0xfU) & 0xfffffff0) * ((height + 0xfU) & 0xfffffff0)) / 256) * 0x300;
+  vlcsize = ((int)(((width + 0xfU) & 0xfffffff0) * ((height + 0xfU) & 0xfffffff0)) / 256) * 0x300;
+  const int stripsize = bpp * 0x1e0;
 
 
 
+  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",stripsize + vlcsize,memtype);
 
-  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",bpp * 0x1e0 + stripsize,memtype);
-
-  blockclear(mdec->stripbuf,bpp * 0x1e0 + stripsize);
-
-
-
-
-
+  blockclear(mdec->stripbuf,stripsize + vlcsize);
 
 
 
@@ -89,7 +71,12 @@ int initmdec(int width,int height,int bpp,int memtype)
 
 
 
-  mdec->vlcbuf = (u_long *)((int)mdec->stripbuf + bpp * 0x1e0);
+
+
+
+
+
+  mdec->vlcbuf = (u_long *)((int)mdec->stripbuf + stripsize);
   mdec->striprect.w = (short)bpp;
   mdec->framerect.w = (short)((width * bpp) / 16);
   mdec->framerect.h = (short)height; height = (short)height; mdec->striprect.h = (short)height;

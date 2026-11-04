@@ -43,13 +43,13 @@ void Platform_InitMemory(void)
 
 {
   u_int tempLow;
-  u_int m; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; prior variants are not object-necessity proof. */
+
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
 
 
   gLowMemory = tempLow;
-  m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80]; m -= tempLow; gTotalMemory = m;
-  m += tempLow; gHighMemory = m;
+  gTotalMemory = (gLowMemory ? (u_int)&bigBuf[sizeof(bigBuf) - 0x80] - tempLow : (u_int)&bigBuf[sizeof(bigBuf) - 0x80]);
+  gHighMemory = gTotalMemory + tempLow;
   gCurrentMemory = tempLow;
   return;
 }
@@ -105,7 +105,7 @@ char *Platform_ReserveMemory(int size,char *string)
 
 
     return (char *)0x0;
-  }
+  } else { int unused;
 
 
 
@@ -114,7 +114,7 @@ char *Platform_ReserveMemory(int size,char *string)
 
 
 
-  return string;
+  return string; }
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
@@ -147,7 +147,7 @@ char *Platform_TempReserveMemory(int size,char *string)
 
 
     return (char *)0x0;
-  }
+  } else { int unused;
 
 
 
@@ -156,7 +156,7 @@ char *Platform_TempReserveMemory(int size,char *string)
 
 
 
-  return (char *)gCurrentMemory;
+  return (char *)gCurrentMemory; }
 }
 
 /* ---- Platform_SysStartUp__Fv  [PLATFORM.CPP:207-305] SLD-VERIFIED ---- */

@@ -67,7 +67,7 @@ int FEInput_GetNoDebounceKey(int key,int controller)
 
 {
   char *analogs;
-  int result;
+  __complex__ int result;
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
     return 0;
@@ -82,31 +82,31 @@ int FEInput_GetNoDebounceKey(int key,int controller)
     switch (key) {
     case 0x800000:
 
-      result = (u_char)analogs[0] < 0x40; goto return_bool;
+      __real__ result = (u_char)analogs[0] < 0x40; goto return_bool;
     case 0x200000:
 
-      result = (u_char)analogs[0] < 0xc1; goto return_not_bool;
+      __real__ result = (u_char)analogs[0] < 0xc1; goto return_not_bool;
     case 0x100000:
 
-      result = (u_char)analogs[1] < 0x40; goto return_bool;
+      __real__ result = (u_char)analogs[1] < 0x40; goto return_bool;
     case 0x400000:
 
-      result = (u_char)analogs[1] < 0xc1; goto return_not_bool;
+      __real__ result = (u_char)analogs[1] < 0xc1; goto return_not_bool;
     case (int)0x80000000:
 
-      result = (u_char)analogs[2] < 0x40; goto return_bool;
+      __real__ result = (u_char)analogs[2] < 0x40; goto return_bool;
     case 0x20000000:
 
-      result = (u_char)analogs[2] < 0xc1; goto return_not_bool;
+      __real__ result = (u_char)analogs[2] < 0xc1; goto return_not_bool;
     case 0x10000000:
 
-      result = (u_char)analogs[3] < 0x40; goto return_bool;
+      __real__ result = (u_char)analogs[3] < 0x40; goto return_bool;
     case 0x40000000:
 
-      result = (u_char)analogs[3] < 0xc1; goto return_not_bool;
+      __real__ result = (u_char)analogs[3] < 0xc1; goto return_not_bool;
     default:
 
-      result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state; goto return_mask;
+      __real__ result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state; goto return_mask;
     }
   }
 
@@ -143,20 +143,20 @@ int FEInput_GetNoDebounceKey(int key,int controller)
     switch (key) {
     case 0x200000:
 
-      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1; goto return_not_bool;
+      __real__ result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1; goto return_not_bool;
     case 0x800000:
 
-      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62; return_bool: if (result) { goto return_one; } return 0;
+      __real__ result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62; return_bool: if (__real__ result) { goto return_one; } return 0;
     case 0x8000:
 
 
-      result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41; goto return_not_bool;
+      __real__ result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41; goto return_not_bool;
     case 0x4000:
 
-      result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41; return_not_bool: if (!result) { goto return_one; } return 0;
+      __real__ result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41; return_not_bool: if (!__real__ result) { goto return_one; } return 0;
     default:
 
-      result = (u_int)PAD_state(controller << 2) & 0xffff; return_mask: if ((result & key) != 0) { return 1; } __asm__("" : : "i"(0)); return 0;
+      __real__ result = (u_int)PAD_state(controller << 2) & 0xffff; return_mask: if ((__real__ result & key) != 0) { return 1; } __asm__("" : : "i"(0)); return 0;
     }
   }
 
@@ -190,10 +190,10 @@ int FEInput_GetDebounceKey(int key,int controller)
 
 
 {
+  __complex__ int r;
+  __real__ r = FEInput_GetNoDebounceKey(key,controller);
 
-  if (FEInput_GetNoDebounceKey(key,controller) != 0)
-
-
+  if (__real__ r != 0)
   {
     if ((debounce[controller] & key) != 0)
     {

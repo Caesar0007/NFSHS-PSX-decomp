@@ -362,7 +362,7 @@ void CopSpeak_ReadyNextRequest(void)
       FILE_operror(r->ophandle);
 
 
-    }
+    {} }
 
 
 
@@ -897,7 +897,7 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
 {
   int next;
   CopSpeak_tBank *bank;
-  const int queueHeadSnapshot = CopSpeak_gQueueHead; next = queueHeadSnapshot < 0x3f ? queueHeadSnapshot + 1 : 0;
+  __complex__ int queueHeadSnapshot; __real__ queueHeadSnapshot = CopSpeak_gQueueHead; next = (__real__ queueHeadSnapshot) < 0x3f ? (__real__ queueHeadSnapshot) + 1 : 0;
 
 
   if (next == CopSpeak_gQueuePlay) return -1;
@@ -929,10 +929,10 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
 
 
 
-  CopSpeak_gQueue[queueHeadSnapshot] = *r;
+  CopSpeak_gQueue[__real__ queueHeadSnapshot] = *r;
   CopSpeak_gQueueHead = CopSpeak_gQueueHead < 0x3f ? CopSpeak_gQueueHead + 1 : 0;
 
-  return queueHeadSnapshot;
+  return __real__ queueHeadSnapshot;
 }
 
 /* ---- CopSpeak_BankVolume__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1095-1099] COVERED-SLD-PASS ---- */

@@ -55,6 +55,7 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
 /* [INFERRED PSX spelling] NFS2 PC SYM names this operation Sfx_BuildRotatedFacet.
  * NFS4's empty inline pair gives the actual is/dSouffle/radius argument region
  * and sina/cosa body region. No new storage or separately emitted function. */
+#line 76 "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp"
 static inline void Sfx_BuildRotatedFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,int radius)
 {
   int cosa;
@@ -404,6 +405,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
 /* case-4 spark ribbon: SYM block (Vi,is,dSouffle) + (ptrans,invertedm) = an inlined
  * static helper returning the skip flag (oracle `.L800DD9F8: bnez $v1,<ret>` with the
  * two arms setting $v1 = 1 / 0). ---- */
+#line 115 "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp"
 static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sfxsouffle *dSouffle)
 {
   coorddef invertedm;
@@ -479,6 +481,7 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
  *   - the spark helper declares `invertedm` BEFORE `ptrans` (retail 72 / 88);
  *   - the switch-scope `CVECTOR color, gcolor;` is declared just before `case 10:`,
  *     not at the top of the switch body (see the note at that declaration). ---- */
+#line 192 "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp"
 static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,int mode,
                                         CVECTOR color,Sfx_tCache *sd)
 {
@@ -534,125 +537,7 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
           ChangeTPage(&tpage,mode);
           prim->tpage = tpage;
         }
-        /* MATCH (w41-a9, 168 -> 116 and the insn count exact 938/938): the OT link
-           RE-READS the packet cursor into `prim` and then uses THAT one pointer for all
-           three jobs -- the tag read-modify-write, the cursor bump, and the OT word.
-           Oracle: `lui $s0,0x1F80; lw $s0,4($s0)` (the reload lands in the SYM's
-           prim=$s0), then `lw/and/or/sw 0($s0)`, `addiu $v1,$s0,0x28`, `and $a1,$s0,
-           0xFFFFFF`.  Keeping the ORIGINAL `prim` live instead and taking the cursor
-           from a fresh `Render_gPacketPtr` read costs a second base register AND leaves
-           the `and`/`or` pair un-cross-jumped in this arm (+2 `and` +2 `or` on the
-           opcode census, i.e. the whole 942-vs-938 overage).
-           ---- w53-a2 (2026-08-09) 🔴 THIS TAIL IS CROSS-JUMP-FROZEN: BuildRibbonFacet
-           is inlined TWICE (mode 1 and mode 2) and the two copies of these last ~20
-           insns are held APART only by their current exact spelling.  ANY reshape here
-           makes them identical and gcc cross-jumps them away: measured 938 -> 918 insns
-           (= exactly one 20-insn tail deleted) and 116 -> 102 diffs for BOTH
-              (i) the AdditivePrim basin shape (P_TAG bitfield + `link` temp + `ot2`
-                  pointer local), and
-              (ii) a plain "hoist the OT READ above the cursor store" block
-                  (`u_int *ot2 = ...; u_int w = *ot2; Render_gPacketPtr = prim+0x28;
-                   *ot2 = w & 0xff000000 | (u_int)prim & 0xffffff;`),
-           which is the STRUCTURAL half of this fn's residual (retail computes the
-           site-2 OT address and its `lw` BEFORE `sw v1,4(at)`; ours stores first).
-           Retail keeps its two copies apart naturally because their registers differ
-           ($s0 vs $t0 / at vs $t1) -- a post-RA property we cannot spell in C.
-           ⇒ the site-2 ordering angle CANNOT be attacked from this call site; it needs
-           either a de-inline (one out-of-line helper, changes the whole frame map) or
-           a cross-jumping-off probe.  ALSO falsified at the SECOND (leaf, case-13/14)
-           tail: adding retail's `prim = (POLY_FT4*)Render_gPacketPtr;` RE-READ in front
-           of its tag RMW (retail `lw t0,0(t1)` @row 909, one pointer for tag+bump+link)
-           = 116 -> 150 @942 -- it breaks the cross-jump that currently holds the count
-           exact, i.e. the w41-a9 "+2 and +2 or" overage returns.
-           ==== W71-A7 (2026-08-21): 116 -> 44.  THE CROSS-JUMP BLOCKER IS SOLVED, and
-           with it the whole "site-2 ordering angle CANNOT be attacked from this call
-           site" verdict above is RETIRED.  Three findings, in order:
-           (1) THE DE-MERGER THAT WORKS IS A **MEMORY**-OPERAND FENCE, NOT A VALUE ONE.
-               w50-A3 falsified `__asm__("" : : "r"(link))` as a de-merger and concluded
-               "the de-merge has to come from the ALLOCATION side".  That was the wrong
-               operand CLASS.  This helper is inlined twice, and the two inline instances
-               own DIFFERENT stack slots for their own locals (SYM: case-10 dest@120 /
-               case-8 dest@112).  So a zero-EMITTED-BYTE, NON-volatile identity launder
-               carrying an "m" operand on one of those locals --
-               -- is ONE asm in the source but TWO textually DIFFERENT insns after
-               inlining (`120(sp)` vs `112(sp)`), which is exactly what post-RA
-               cross_jump compares.  The 20-insn tail swallow stops dead.  Any
-               instance-local memory operand works identically (dest[0], dest[3], pt[0],
-               pt[1], check, color -- all measured 63 @943 at the time); a REGISTER
-               operand does not, because both instances end up in the same hard reg.
-           (2) WITH THE MERGE BLOCKED, THE w60 AdditivePrim JOINT DIAL PAIR TRANSFERS
-               HERE VERBATIM (it never could before -- every earlier attempt measured
-               only the collapse): an INT-TYPED index-first OT address
-               (`sd->otz * 4 + (int)Render_gPalettePtr`) plus the `w` temp that moves
-               the OT-word READ above the packet-cursor STORE.  Both ribbon tails now
-               reproduce retail's `lw a0,20(s3); addiu v1,s0,40; sll; addu a0,a0,a2;
-               lw v0,0(a0); sw v1,4(at)` order AND its four-constant register rotation
-               (a1=0xffffff, a2=palette, a3=0xff000000) exactly.
-           (3) the case-13/14 tail then also takes the same treatment (see its own note).
-           MEASURED (from the 116 basin, all re-gated): reshape alone 86 @918 (the
-           documented swallow) . reshape + m-fence 63 @943 . + the case-13/14 reshape
-           with retail's `prim` re-read 44 @944 (LANDED).  Placement sweep for the fence
-           (basin 114): on `prim` before the tag RMW 100 @922 . on `ot2` after its init
-           105 @939 . on `prim` before the bump 74 @940 . on `w` BEFORE the bump 94 @940
-           . on `w` AFTER the bump 63 @943 (kept) . volatile m-only after the bump 69
-           @943 . on `ot2` after the bump 93 @943.  Falsified from the 44 basin: split
-           `nxt` bump temp 44 (inert) / with the store below the fence 66 @940.
-           RESIDUAL 44 @944 (+6), fully decoded, TWO items only:
-            (a) +2 nops -- retail fills the `lw a0,20(s3)` load-delay slot with the
-                cursor bump `addiu v1,s0,40`; ours emits the bump 4 slots later.
-            (b) +4 -- the three arms' shared 3-insn tail (`and v0,v0,a3; or v0,v0,a1;
-                sw v0,0(a0)`, retail's .L800DE610) only merges its LAST insn for us,
-                because the case-13/14 arm still colors that `or` with $a2 where the two
-                ribbon arms use $a1 (see the a1<->a2 note at the case-13/14 tail).  Fix
-                that swap and the 3-way merge completes, taking the count to 940 and
-                removing (b) entirely -- that is the single highest-value next step.
-           ==== W72-A14 (2026-08-22): **SEALED -- PASS 938/938, DUAL LANE** (44 -> 0).
-           The predicted chain fired exactly as W71 forecast it, and it went further:
-           44 -> 20 (the a1<->a2 swap, see the case-13/14 note) -> 12 (the `lnk`
-           statement below) -> 6 (the m-fence DELETED) -> PASS (`pt`, see the gte note).
-           THE RIBBON HALF, two facts:
-           (1) THE `lnk` STATEMENT IS THE 3-WAY MERGE.  cross_jump matches a common
-               SUFFIX, and the arm's LAST insn before the `j` decides where the match
-               stops.  With the link masked INLINE in the final expression the arm ends
-               `... sw v1,4(at); and v0,v0,a3; and a1,s0,a1; j` -- `and a1,s0,a1` faces
-               the fall-through's `and v0,v0,a3`, they differ, and only [or, sw] merge.
-               Naming the link as its OWN statement BEFORE the cursor bump emits
-               `and a1,s0,a1` EARLY, so the arm ends `... sw v1,4(at); and v0,v0,a3; j`
-               and all three insns of retail's .L800DE610 merge.  It also deletes the
-               (a) load-delay `nop`: with one insn fewer to place, sched2 puts the cursor
-               bump `addiu v1,s0,40` in the `lw a0,20(s3)` delay slot, retail's own fill.
-               => the W71 residual's TWO items (a)+(b) were ONE cause, not two.
-           (2) !! THE W71 'm'-OPERAND CROSS-JUMP DE-MERGER IS NOW DEAD CODE -- and
-               keeping it COSTS 6 diffs.  It was blocking a merge that, once the arms
-               end in retail's own order, gcc performs CORRECTLY.  Deleting it: 12 -> 6
-               and the count goes EXACT 938/938.  MEASURED (statement-order grid on
-               A=`w=*ot2` B=`lnk=prim&0xffffff` C=`Render_gPacketPtr=prim+0x28`
-               F=the m-fence D=the OT store, plus P/S = C split into value+store):
-                 ABCFD 12 @940 . ACFBD 12 @940 . ACBFD 12 @940 . BACFD 12 @940 .
-                 APSFBD/APSBFD/APBSFD/PASFBD/PABSFD all 12 @940 . ABFCD 47 @939 .
-                 AFBCD 50 @940 . ABCDF 78 @946 . APFSBD 37 @939 . APBFSD 41 @941 .
-                 **ABCD (no fence at all) 6 @938 <== LANDED**
-               The 12-cell plateau is a strict DICHOTOMY that names the mechanism: with
-               the fence present, B before F gives the right bump but reorg TARGET-STEALS
-               `and v0,v0,a3` into the delay slot, and B after F gives the right delay
-               slot but a load-delay `nop`.  Reason: the fence is an ASM insn sitting
-               between the backward-fill candidate and the `j`, and per catalog 4.4 any
-               asm STOPS reorg's backward delay-slot scan -- so the fence itself forced
-               the steal.  Falsified while looking for a fence that does not: an "m"
-               launder on `ot2` instead of `w` at four positions (52-64 diffs -- the "m"
-               operand on the OT ADDRESS rotates the palette/mask registers), and an "m"
-               launder on `lnk` (16 @940).
-           => CATALOG CANDIDATE (21A-6 correction): an instance-local "m"-operand fence is
-             a de-merger of LAST resort.  Before reaching for it, check whether the arms'
-             SUFFIX ORDER is retail's -- a de-merge that is really a mis-ordered suffix is
-             fixed for free by naming the statement, and the fence then costs real diffs.
-             (Here it also masked the delay-slot fill for three waves.) */
         prim = (POLY_FT4 *)Render_gPacketPtr;
-          /* W72-A14: `lnk` as its OWN statement, BEFORE the cursor bump, is what
-             completes the 3-way cross-jump merge at retail's .L800DE610 AND frees the
-             `lw a0,20(s3)` load-delay slot for the bump.  Do NOT inline it back into the
-             store expression, and do NOT re-add the W71 "m"-operand fence here -- both
-             are measured above. */
         addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim);
         Render_gPacketPtr = (u_char *)(prim + 1);
       }

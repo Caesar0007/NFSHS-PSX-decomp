@@ -1984,8 +1984,8 @@ static void Front_InitMissions(tFEStream &streamData)
 
 
 
-  if (frontEnd.raceType == RaceType_HotPursuit) {
-    char oldTier;
+  if (frontEnd.raceType == RaceType_HotPursuit)
+  { char oldTier;
     char oldMission;
 
 
@@ -2012,7 +2012,7 @@ static void Front_InitMissions(tFEStream &streamData)
     frontEnd.policeTier = oldTier;                                      /* 1576 */
     frontEnd.policeMission = oldMission;                                /* 1577 */
   }
-  return; }
+  }
 
 
 
@@ -2174,8 +2174,8 @@ static void Front_InitPerps(tFEStream &streamData)
 
 
 
-  if (streamData.pMission != (tMissionInfo *)0x0) {
-
+  if (streamData.pMission != (tMissionInfo *)0x0)
+  {
     i = 0; { const int maxPerpModels = 0x10; while (1) { tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */ char carColor; if ((int)(uint)streamData.pMission->fNumStages <= (int)i) break;
 
         carModel = (tCarModels)streamData.pStages[i].fCarModel;

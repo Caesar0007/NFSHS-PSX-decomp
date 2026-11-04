@@ -155,7 +155,7 @@ struct tDialogYesNoTri : public tDialogYesNo {
        parameter region, not an explicit empty-body region. Other owner
        surfaces retain the previous definition: global removal changes eight
        TU objects. Original cross-TU body visibility remains under review. */
-#ifndef NFS4_FEMENUDEFS_SURFACE
+#if !defined(NFS4_FEMENUDEFS_SURFACE) && !defined(NFS4_FEDIALOG_DIRECT)
     inline tDialogYesNoTri() {}
 #endif
 #line 294 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"

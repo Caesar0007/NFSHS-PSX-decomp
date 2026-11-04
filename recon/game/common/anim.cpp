@@ -25,11 +25,11 @@ void Anim_Restart(void)
 {
 
 
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 32; i++)
 
-    if (animSlots[i] != 0)
-    {
-      delete animSlots[i]; } animSlots[i] = (AnimScript *)0x0;
+  { if (animSlots[i] != 0)
+    { delete animSlots[i]; }
+    animSlots[i] = (AnimScript *)0x0;
   }
 
 
@@ -52,9 +52,9 @@ int Anim_InitSystem(char *trackName)
 
   bigFile = (char *)loadfileadrz(fname,(void *)0x0);
   i = 9;
-  if (bigFile != (char *)0x0) {
-    char *mem;
-    int size;
+  if (bigFile != (char *)0x0)
+  { char *mem; int size;
+
     size = filesize(fname);
 
 
@@ -221,8 +221,8 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
   Anim_GetLastRotPos(animScripts[animNum],pt,mat);
 
-  if ((flags & 4U) != 0) {
-    int tmp;
+  if ((flags & 4U) != 0)
+  { int tmp;
 
     tmp = mat->m[3]; mat->m[3] = mat->m[6]; mat->m[6] = -tmp;
     tmp = mat->m[4]; mat->m[4] = mat->m[7]; mat->m[7] = -tmp;
@@ -431,12 +431,12 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
   }
   else { interval = 6;
   }
+  const int q = ticks / interval;
+  const int r = q % (animInst->count - 1);
 
-  *frame = (ticks / interval) % (animInst->count - 1);
+  *frame = r;
+  *numFrames = animInst->count - 1; }
 
-
-  *numFrames = animInst->count - 1; return;
-}
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x800745f8] ---- */
 

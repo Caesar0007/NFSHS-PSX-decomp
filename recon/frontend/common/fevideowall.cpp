@@ -17,30 +17,30 @@ void tVideoWall::Initialize
 {
   short i;
 
-  i = 0;
+
   this->fTVs = tvs;
   this->fFirstTVShape = firstTV;
-
+  this->fNumTVs = numTVs;
   this->fTVShapes = shapes;
-
+  this->tvOrder = tvOrdering;
 
   this->fOffsetY = 0; this->fOffsetX = 0;
 
-
+  this->fTVTicks = FE_Ticks();
   this->fTransitionDirection = 0;
-
+  this->fFlipAxis = flip_axis;
 
 
   this->fAvailableTextID = -1;
-  this->fNumTVs = numTVs; this->fAvailable = 1;
+  this->fAvailable = 1;
   this->fAvailableBright = 0;
   this->fValid = 1;
 
 
   this->fIconShapes = (tTexture_ShapeInfo *)0x0;
-  this->tvOrder = tvOrdering;
-  this->fTVTicks = FE_Ticks();
-  this->fFlipAxis = flip_axis; if (0 < this->fNumTVs) {
+
+
+  i = 0; if (0 < this->fNumTVs) {
     do { this->fTVs[i].state = tv_StateOff; i = i + 1; } while (i < this->fNumTVs);
   }
   this->fUpdated = 0; return;
@@ -154,8 +154,8 @@ void tVideoWall::UpdateTransition()
   short j;
 
   i = (FE_Ticks() - this->fTVTicks) >> 3;
-  if (0 < this->fTransitionDirection) {
-
+  if (0 < this->fTransitionDirection)
+  {
     if (this->fValid != 0) {
 
       for (j = 0; (j < i) && (j < this->fNumTVs); j = j + 1) {
@@ -201,17 +201,17 @@ void tVideoWall::Draw()
     }
   }
 
-  if (((this->fValid == 0) || (this->fAvailable == 0)) || (this->fAvailableBright != 0)) {
-    i = 0;
+  if (((this->fValid == 0) || (this->fAvailable == 0)) || (this->fAvailableBright != 0))
+  { i = 0;
     if (0 < this->fNumTVs) {
       do { DrawTVLines(this->fTVs + i); i = i + 1; } while (i < this->fNumTVs);
     }
-    if (0 < this->fAvailableBright) {
-
+    if (0 < this->fAvailableBright)
+    {
       textColor = CalcFadeVal(0xbebe,0x80 - this->fAvailableBright);
 
-      if ((this->fIconShapes != (tTexture_ShapeInfo *)0x0) && (0 < this->fIconFrames)) {
-
+      if ((this->fIconShapes != (tTexture_ShapeInfo *)0x0) && (0 < this->fIconFrames))
+      {
         drawFlags.tint[0] = 0xbebe;
         drawFlags.custom_shapes = this->fIconShapes;
         DrawShapeExtended(this->fIcon + (FE_Ticks() >> 4) % (int)this->fIconFrames,
@@ -229,12 +229,12 @@ void tVideoWall::Draw()
       }
     }
   }
-  if ((((this->fUpdated != 0) || (this->fValid == 0)) || (this->fAvailable == 0)) &&
-     (0 < this->fNumTVs)) {
-    i = 0;
-    do {
 
-      DrawTV(this->fTVs + i); i = i + 1; } while (i < this->fNumTVs); } return; }
+  if (((this->fUpdated != 0) || (this->fValid == 0)) || (this->fAvailable == 0)) {
+
+
+    i = 0; if (0 < this->fNumTVs) {
+      do { DrawTV(this->fTVs + i); i = i + 1; } while (i < this->fNumTVs); } } return; }
 
 
 
@@ -244,8 +244,8 @@ void tVideoWall::TurnOff()
 
 
 {
-  if (this->fTransitionDirection != -1) {
-
+  if (this->fTransitionDirection != -1)
+  {
     this->fTransitionDirection = -1;
     this->fTVTicks = FE_Ticks(); } return; }
 
@@ -273,8 +273,8 @@ void tVideoWall::TurnOn()
 
 
 {
-  if (this->fTransitionDirection != 1) {
-
+  if (this->fTransitionDirection != 1)
+  {
     this->fTransitionDirection = 1;
     this->fTVTicks = FE_Ticks(); } return; }
 

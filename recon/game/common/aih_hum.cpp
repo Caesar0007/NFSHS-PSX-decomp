@@ -46,19 +46,5 @@ void AIHigh_Human::HighExecute()
 #line 38 "C:/nfs4/GAME/COMMON/AIH_HUM.CPP"
 AIHigh_Human::AIHigh_Human(Car_tObj *carObj) : AIHigh_Player(carObj)
 {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class AIHigh_Human;
 /* end of aih_hum.cpp */

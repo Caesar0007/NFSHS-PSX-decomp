@@ -188,17 +188,6 @@ FindObjInstanceFromSerialNum(Group *group,int index)
 
 
 
-/* ---- Object_InitCollisionCheckLoop [OBJECT.CPP:190-243;
- * 134/134 byte PASS and native ownership exact; full SLD still open] ---- */
-/* Two actual Group getters recover retail's inline regions. Selecting a
- * pointer before the common chunkIndex load removes altSlice while retaining
- * base-first address operands. Direct field arms were4dif/134; integer-address
- * forms were21dif/135. No replacement capture or compiler-output rewrite. */
-            /* MATCH: WRAP-ARM = the STEPPED value first, wrap term last.  `slice - 1 + gNumSlices`
-             * reassociates to the oracle's `addiu G,-1; addu slice,G-1`; `slice + gNumSlices - 1`
-             * emits addu-then-addiu, and `slice + (gNumSlices - 1)` lets cse steal the condition's
-             * own `slice-1` (=> `(slice-1)+G`, +2 insns).  Mirrors line 202's `(slice+1) - gNumSlices`. */
-
 #line 187 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)
 
@@ -221,8 +210,8 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
 
     objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
     objList->chunk2 = altChunk;
-    *numObj = objList->numObjects + objList->numObjects2;
-  } else {
+    if (objList->numObjects + objList->numObjects2) {}
+    *numObj = objList->numObjects + objList->numObjects2; } else {
     altChunk = (int)BWorldSm_slices[
         (slicePos->slice - 1 < 0)
             ? slicePos->slice - 1 + gNumSlices
@@ -232,8 +221,8 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
 
       objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
       objList->chunk2 = altChunk;
-      *numObj = objList->numObjects + objList->numObjects2;
-    } else {
+      if (objList->numObjects + objList->numObjects2) {}
+      *numObj = objList->numObjects + objList->numObjects2; } else {
 
 
 
@@ -245,10 +234,10 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
   {
     if (0 < Object_customSimObjs->GetNumElements())
     {
-      if (Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
-                      (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff)
 
-
+      int dist = Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
+                      (coorddef *)(BWorldSm_slices + slicePos->slice));
+      if (dist <= 0xbfffff)
       {
         *numObj = *numObj + Object_customSimObjs->GetNumElements();
       }
@@ -304,15 +293,6 @@ GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)
 
 
 
-/* ---- Object_GetRadiusCollisionData [OBJECT.CPP:304-330;
- * 67/67 byte PASS; supplied locals/regions/header/end exact,4 word tags open.] ---- */
-/* Real point[3] is the coordinate prefix. Separate Find/Anim source phases
- * still need recovery; reusing objList reproduces all tags but its later value
- * ownership is unproved,so that diagnostic is not reconstructed.
- * Receipt: build/nc12/object_radius_source_20261026/final-proof.json. */
-
-
-
 #line 301 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coorddef *pos,int *radius)
 
@@ -333,7 +313,7 @@ int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coord
       int dummy; Chunk *pMChunk;
 
       pMChunk = Track_chunkList + chunk;
-      Trk_SimpleInst *inst = FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(u_int)simObj->instIndex); /* DEVICE (exact-only): record-less temp (combine folds its pseudo into a0, no SYM record); puts the inner call on retail line 316 */
+      Trk_SimpleInst *inst = FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(u_int)simObj->instIndex);
 
       Anim_GetPos((Trk_AnimateInst *)inst, 1,simGlobal.gameTicks,(coorddef *)simObj->point,&dummy,&dummy);
     }
@@ -350,12 +330,6 @@ int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coord
 /* ---- Object_GetPointsCollisionData  [OBJECT.CPP:336-381] covered SLD requires native comparison ---- */
 
 
-      /* SOURCE-REVIEW-UNRESOLVED: these constants are not recovered objects.
-       * Element-result getters elide objDef. Table-level getter trials keep
-       * 79 words,local owners and pair addresses,but their name/purpose is open.
-       * No inferred helper or assertion control is adopted as original source.
-       * Recover the actual producer before replacing this scope scaffold. */
-
 #line 333 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints)
 
@@ -367,8 +341,8 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
   simObj = GetSimObj(objIndex,objList,&chunk);
 
 
-  if (simObj != (Trk_SimObject *)0x0) {
-    Trk_SimpleInst *objInstance;
+  if (simObj != (Trk_SimObject *)0x0)
+  { Trk_SimpleInst *objInstance;
 
 
     if (chunk == -1) {
@@ -376,13 +350,13 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
     }
     else { objInstance = FindObjInstanceFromSerialNum( Track_chunkList[chunk].objInstanceBuf,(u_int)simObj->instIndex);
     }
-    if (objInstance != (Trk_SimpleInst *)0x0) {
-      Trk_ObjectDef *objDef;
-      {
-        const int extentType = 5;
-        {
-          const int clearFlag = 0;
-        } } objDef = Track_gObjDefs[objInstance->pad];
+    if (objInstance != (Trk_SimpleInst *)0x0)
+    { Trk_ObjectDef *objDef; { const int extentType = 5; { const int clearFlag = 0; } }
+
+
+
+
+      objDef = Track_gObjDefs[objInstance->pad];
       if ((objInstance->type == '\x05') &&
 
           (((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex == 0)) {
@@ -785,68 +759,6 @@ int Object_FindDefWithThisID(int ID)
 
 
 
-/* ---- Object_AddCustomObject [OBJECT.CPP:808-1002;
- * 213/213 byte PASS and native ownership exact; full source/SLD still open] ---- */
-/* Real switch/case ownership, merged custom-def guard, and the actual traffic
- * setter recover all retail locals/scopes. The early traffic-case break owns
- * the num-cars guard before the search. Pointer-typed zero staging remains
- * explicitly unresolved below; native exactness is not a source-text seal. */
-      /* SOURCE-REVIEW-UNRESOLVED: this pointer-typed zero staging is not
-         established original source. Direct i guard on the restored switch/
-         setter/ownership graph still fails11dif at212/213; it is reverted. */
-      /* MATCH (W62-A12, 11 -> PASS 213/213, DEVICE-FREE): retail's missing insn
-         was `addu a0,a1,zero` in the `bnez` delay slot -- 12D DEAD-PSEUDO STAGING:
-         the zero is carried through carObj's OWN register (SYM 8c @800a5c80:
-         carObj = REG $4 = $a0, i = REG $5 = $a1), so the guard must read the
-         STAGED value, not `i`.  The second half of the pair (and the reason five
-         earlier waves' staging attempts all failed) is that the `for`'s redundant
-         re-init `i = 0` must GO: it is exactly the one reference reqdelta prices
-         (p188 refs 9 -> 8) that swaps i off $a0 and lets carObj take it.  Land the
-         pair or neither -- staging alone is 19-20, dropping the init alone is 11. */
-      /* NEAR-MISS 11 (ours 212 / oracle 213).  Retail materialises `i = 0` EARLY
-         (its own SLD statement, line 925 -- ours sinks it into the `bnez` delay
-         slot) and then COPIES it into a second pseudo `addu a0,a1,zero` (SLD 927)
-         which is what the pre-loop `i < Cars_gNumTrafficCars` guard compares
-         (`slt v0,a0,v1`); the loop counter stays $a1 in both builds.  FALSIFIED
-         (W55-A16, 1 compile): an explicit second source variable
-         `guard = i; ... (guard < Cars_gNumTrafficCars)` -- cse constant-folds it
-         back (both pseudos are provably 0) and the diff count is UNCHANGED at 11.
-         The copy therefore is NOT a source-level second variable holding a known
-         zero; whatever feeds retail's guard pseudo is not constant-0 to cse.
-         Remaining 2 diffs are the carObj base ($a0 vs $v0) at :779/:780.
-         FALSIFIED (W56-A14): inner-shadow `int i;` inside the if-block DOES add the
-         missing copy (count 212->213 exact) but colors the inner loop counter off $a1
-         (32 diffs) -- oracle keeps i in $a1 throughout with ONLY the guard using the a0
-         copy; a scheduling/coloring split, permuter-class re-seed (not spelling).
-         FALSIFIED (W60-A9), closing the 09G "make the copy a GLOBAL allocno" route:
-         a second `int guard = i;` carrying an OPACITY fence `"=r"(guard):"0"(guard)`
-         (the w47 value-numbering barrier cse cannot fold through) = 15 @216 -- it
-         does defeat the constant-fold but emits THREE extra insns, not retail's one;
-         the same fence placed on `i` itself before the copy = 31 @216.  And the
-         second residual (the carObj base $a0-vs-$v0 at :779/:780) does NOT respond to
-         an opacity fence on `carObj` (11, unchanged).  So the missing copy is a
-         local-alloc copy-preference question (06E), consistent with the W56-A14
-         inner-shadow measurement, and the remaining route is a permuter re-seed.
-         FALSIFIED (W61-A13, 2026-08-15) -- the W60 12D DEAD-PSEUDO-STAGING route is
-         now closed too.  SYM 8c @800a5c80 (block line 117) gives the ground truth:
-         `i` = REG $5 = $a1 and `carObj` = REG $4 = $a0, so retail's missing insn
-         `addu a0,a1,zero` stages i's zero THROUGH carObj's own register -- exactly
-         the shape 12D says to reproduce by assigning into the register's owning
-         variable rather than inventing one.  Measured (real gate runs):
-           carObj = (Car_tObj *)i;  + guard `(int)carObj < N` ....... 19 @212
-           same with the guard written Yoda ......................... 19 @212
-           drop the redundant `i < N` guard conjunct entirely ........ 11 @212
-           guard on the literal `0 < N` ............................. 13 @214
-           guard `0 < N` + `for (; i < N; i++)` ..................... 13 @214
-           guard `i < N` + `for (; i < N; i++)` ..................... 11 @212
-           guard Yoda `N > i` + `for (i = 0; ...)` .................. 11 @212
-           guard `0 < N` + `for (i = i; ...)` ....................... 13 @214
-         Note the literal-guard forms DO add two instructions (214) but the wrong
-         ones.  Every route that produces retail's copy also moves the loop counter
-         off $a1 (W56-A14) -- 12E's law in the flesh: a dial buys retail's REGISTER
-         or retail's COUNT, never both in that measured basin. Later source
-         ownership must be tested; these failures establish no universal floor. */
-
 #line 805 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
@@ -862,9 +774,9 @@ void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
       Trk_CollideBoomInst *objBoomInstance;
       int index;
       tQuat quat;
-      index = Object_customObjInst->GetNumElements();
-
-      objBoomInstance = (Trk_CollideBoomInst *)(Object_customObjInst + 1); index--; if (index != -1) { do { index--; objBoomInstance = (Trk_CollideBoomInst *) ((char *)objBoomInstance + (short)Object_customObjInst[1].m_num_elements); } while (index != -1);
+      objBoomInstance = (Trk_CollideBoomInst *)Object_customObjInst->GetData();
+      index = Object_customObjInst->m_num_elements;
+      while (index-- != 0) { objBoomInstance = (Trk_CollideBoomInst *) ((char *)objBoomInstance + (short)Object_customObjInst[1].m_num_elements);
       }
 
       objBoomInstance->size = sizeof(Trk_CollideBoomInst);
@@ -983,28 +895,28 @@ case 1:
 
           carObj = Cars_gTrafficCarList[i];
           aicar = highLevelAIObjs[carObj->carIndex];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           aicar->SetAccidentData(objectData);
         }
       }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

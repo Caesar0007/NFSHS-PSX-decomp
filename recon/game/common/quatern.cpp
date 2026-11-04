@@ -157,10 +157,10 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
     } q->w = (short)(fixedmult(matrix->m[3] - matrix->m[1],s) >> 2);
     q->x = (short)(fixedmult(matrix->m[2] + matrix->m[6],s) >> 2);
     q->y = (short)(fixedmult(matrix->m[5] + matrix->m[7],s) >> 2);
-    return;
-  default:
-    return;
-  } }
+    break;
+  }
+
+}
 
 /* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
  * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.

@@ -35,12 +35,13 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
 
   shpptr = (shapetbl *)shapepointer(f,index);
 
-  if (shpptr != 0) {
-    char is_compressed;
-    is_compressed = *(char *)shpptr & 0x80;
+  if (shpptr != 0)
+  {
+    char is_compressed = *(char *)shpptr & 0x80;
 
 
-    if (is_compressed != 0) {
+    if (is_compressed != 0)
+    {
       char *oldptr;
       int newptr;
 
@@ -49,9 +50,8 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
 
 
 
-
-
-      unpacked = (shapetbl *)reservememadr("unpacked",unpacksize((char *)shpptr + 0x10) + 0x10,0);
+      const int size = unpacksize((char *)shpptr + 0x10);
+      unpacked = (shapetbl *)reservememadr("unpacked",size + 0x10,0);
       blockmove(shpptr,unpacked,0x10);
       unpack((char *)shpptr + 0x10,(void *)((int)unpacked + 0x10));
       *(char *)unpacked = *(char *)unpacked & 0x7f;

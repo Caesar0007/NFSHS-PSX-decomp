@@ -256,18 +256,18 @@ void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity
 
 
           if (gStatusSm[car][wheel] == 2) {
-            Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+            Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type); return;
           }
           else {
 
             gStatusSm[car][wheel] = 2;
 
-            Skidmark_AddStretch(&gSaveSeg[car][wheel],&gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
-          }
-        }
-      }
-    }
-  }
+            Skidmark_AddStretch(&gSaveSeg[car][wheel],&gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice); } } } } }
+
+
+
+
+
 }
 
 /* ---- TrgSfx_InitTrgSfx__Fv  [TRGSFX.CPP:286-312] SLD-VERIFIED ---- */

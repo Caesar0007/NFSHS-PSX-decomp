@@ -2432,7 +2432,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
 
     numQuads = (u_char)stripPtr->quadCount;
-    { int iquad = 0; u_short *pMaterial = (u_short *)(stripPtr + 1); while (true) { if (numQuads <= iquad) break;
+    for (int iquad = 0; ; iquad = iquad + 1) { if (numQuads <= iquad) break;
 
 
       if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr)
@@ -2442,7 +2442,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
 
 
-        newQuad.material = *pMaterial;
+        u_short *pMaterial = (u_short *)(stripPtr + 1); newQuad.material = pMaterial[iquad];
 
         r0 = stripPtr->topVert + iquad;
         r1 = r0 + 1;
@@ -2460,8 +2460,8 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
 
 
-      pMaterial = pMaterial + 1; iquad = iquad + 1; }
     }
+
     stripPtr = (Trk_NewStrip *)((u_char *)stripPtr + (u_char)stripPtr->size); } }
 
 /* ---- DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:1390-1654] covered SLD requires native comparison ---- */
@@ -5689,11 +5689,11 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
   {
     int dist;
     if (dz < dx) { dist = dx + (dz >> 2); } else { dist = dz + (dx >> 2); }
+    return dist < r; }
+
+  return 0; }
 
 
-    return dist < r;
-  }
-}
 
 /* MATCH (w46-a6, step A): UNSIZED ASM-LABEL VIEW of the depth-CLUT table.  The
    sized `extern short gClutDepth[256][16]` decl gives loop.c a %hi/%lo pseudo
@@ -6971,10 +6971,10 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
           }
           gte_SetRotMatrix(&sd->matB);
           gte_SetTransMatrix(&sd->matB);
-
-
         }
+        (void)0;
       }
+
       loopbot:
 
       lineQuadCount = lineQuadCount + 1;
@@ -7230,7 +7230,7 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
       chunkDat = Track_chunkList + buildList[buildInd].chunkInd;
 
 
-      Group *group = chunkDat->lineBuf; if (group)
+      if (Group *group = chunkDat->lineBuf)
       {
 
         if (buildList[buildInd].enableBits & 4U)
@@ -7273,11 +7273,11 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
           trans.x = (-(Vi->cview.translation.x) + pChunkCp->x) >> 10;
           trans.y = (-(Vi->cview.translation.y) + pChunkCp->y) >> 10;
-          trans.z = (-(Vi->cview.translation.z) + pChunkCp->z) >> 10;
+          trans.z = (-(Vi->cview.translation.z) + pChunkCp->z) >> 10; }
 
 
 
-          DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans); }
+          DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans);
 
 
 

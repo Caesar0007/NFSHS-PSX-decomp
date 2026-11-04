@@ -327,7 +327,7 @@ static inline void Speech_Create(void)
    at the function start around this creation are this header inline's (name inferred) */
 static inline void Speech_CreateUndefined(void)
 {
-  if (Speech::fgUndefined == 0) Speech::fgUndefined = new Speech::Speaker;
+  if (Speech::fgUndefined == 0) Speech::fgUndefined = ({ new Speech::Speaker; });
 }
 
 

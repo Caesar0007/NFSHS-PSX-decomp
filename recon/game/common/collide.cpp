@@ -1747,17 +1747,17 @@ void Collide_ClearCollisionRegistry(void)
     }
   }
 
-  ({ carLoop = 0; ({ while (true) { if (carLoop >= Cars_gNumCars) break; carLoop = carLoop + 1; }
+  { carLoop = 0; while (carLoop < Cars_gNumCars) { int unused;
 
 
 
 
 
-  carLoop; });
+  carLoop = carLoop + 1; }
 
 
 
-  return; }); }
+  return; } }
 
 /* ---- Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi  [@0x800916d4] ---- */
 /* MATCH: SYM rule-8 - single named 'temp' accumulator; one-expression sums let gcc
@@ -1935,11 +1935,11 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
 
               if (signCase != 0)
               {
-                Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius); switch (
+                { Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius); if (
 
 
-                signCase) {
-                case 1: { coorddef normal; coorddef samplePoint; int impulse;
+                signCase == 1)
+                { coorddef normal; coorddef samplePoint; int impulse;
 
                     impulse = 0;
 
@@ -1963,12 +1963,12 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
                     (newObj->collision).impulse = impulse;
                     (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
 
-                    if ((newObj->collision).impulse == 0)
+                    if ((newObj->collision).impulse != 0)
+                    {
+                      (newObj->collision).sfxType = 0x50001;
+                      (newObj->collision).collisionPoint = newObj->position; } } else
 
-                    continue; } (newObj->collision).sfxType = 0x50001;
-                  (newObj->collision).collisionPoint = newObj->position; continue;
 
-                default:
                   if (signCase == 2) {
 
                     if (0x20000 < newObj->speedXZ) {
@@ -1994,7 +1994,7 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
 
                     if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
 
-                      Force_HitSign((Car_tObj *)newObj); } } break; } } } }
+                      Force_HitSign((Car_tObj *)newObj); } } } } } }
 
 
 

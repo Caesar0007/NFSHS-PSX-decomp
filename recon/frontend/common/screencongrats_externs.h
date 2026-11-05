@@ -25,7 +25,7 @@ void GetTrophyName(tTournamentManager *mgr, tTourneyInfo *tourn, tTrophySize siz
 void  AudioCmn_PlayFESFX(int SFXnum);
 int   CalcFadeVal(int col1, int col2, int amount);
 int   CalcFadeVal(int col1, int amount);   /* 2-arg overload */
-extern int ticks[];
+extern volatile int ticks;
 void  CarIO_CleanUpLicense(int player);
 void  CarIO_CreateLicense(char *text, int carType, int player);
 void  DrawCar(tCarInfo &carInfo, short x, short y, float camerax, float cameray, char brightness, bool reflection, u_long rotate, tPlayer player);
@@ -62,7 +62,7 @@ int sprintf(char *buffer, const char *format, ...);
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks[0]; }
+static inline int FE_Ticks(void) { return ticks; }
 
 /* ORIGINAL-NAME-UNRESOLVED: inferred text-definition color accessor.
    The same table lookup is used by FEFades and FETextRender. */
@@ -78,7 +78,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
 
 /* ---- tScreenCongrats::ProcessInput  (screencongrats.cpp:423) ---- */
-static inline long CongratsTicks(void) { return ticks[0]; }
+static inline long CongratsTicks(void) { return ticks; }
 
 /* ORIGINAL-NAME-UNRESOLVED: this inferred money getter and tm parameter
    reproduce the retail receiver-free read pair; their spelling is not recorded. */

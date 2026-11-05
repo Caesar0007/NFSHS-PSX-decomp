@@ -110,7 +110,7 @@ extern int     isFirstSlice_v[] asm("isFirstSlice");
 #define bMovieLoaded bMovieLoaded_v[0]
 #define bStopMovie   bStopMovie_v[0]
 #define bRewindMovie bRewindMovie_v[0]
-#define isFirstSlice isFirstSlice_v[0]
+#define isFirstSlice (*(long *)isFirstSlice_v)
 /* Same immediate `.bss` emission as its neighbours so it keeps its retail
  * position BETWEEN isFirstSlice and vlcbuf0 (a plain static would be a
  * deferred end-of-file .lcomm and land after sect_buff); 8-aligned like the
@@ -425,7 +425,7 @@ int Movie_Play(char movie)
   DISPENV disp;
   DRAWENV draw;
   int joyval;
-  __complex__ int dispRect;
+  int dispRect;
   (void)sizeof(({ int deadfrm[4]; 0; }));
 
   SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
@@ -445,18 +445,18 @@ int Movie_Play(char movie)
     if (Movie_NextFrame() == -1) break;
 
 
-    __real__ dispRect = dec.rectid == 0;
+    dispRect = dec.rectid == 0;
     SetDefDispEnv
-              (&disp,(int)dec.rect[__real__ dispRect].x,(int)dec.rect[__real__ dispRect].y,(int)dec.rect[__real__ dispRect].w,
+              (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
 
-               (int)dec.rect[__real__ dispRect].h);
+               (int)dec.rect[dispRect].h);
 
 
 
     disp.screen.h = 0xf0;
     SetDefDrawEnv
-              (&draw,(int)dec.rect[__real__ dispRect].x,(int)dec.rect[__real__ dispRect].y,(int)dec.rect[__real__ dispRect].w,
-               (int)dec.rect[__real__ dispRect].h);
+              (&draw,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
+               (int)dec.rect[dispRect].h);
 
     if (gIsRGB24 != 0) {
 
@@ -607,7 +607,7 @@ static void strCallback(void)
 
 
   if (gIsRGB24 != 0)
-  { __complex__ int _2;
+  { int _2;
 
       if (StCdIntrFlag != 0) {
 
@@ -636,10 +636,10 @@ static void strCallback(void)
 
 
     dec.isdone = 1;
-
+    isFirstSlice = 1;
 
     dec.rectid = (u_int)(dec.rectid == 0);
-    dec.slice.x = dec.rect[dec.rectid].x; isFirstSlice = 1;
+    dec.slice.x = dec.rect[dec.rectid].x;
 
     dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2); }
 }

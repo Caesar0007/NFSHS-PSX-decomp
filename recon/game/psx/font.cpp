@@ -114,7 +114,7 @@ void Font_SetABR(int abr)
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
  * (andi 0xff) that the oracle does not have. */
-/* ==== 🏆 W53-A4 (2026-08-09): SEALED, PASS 55/55 -- from 38 diffs in ONE edit ====
+/* ====  W53-A4 (2026-08-09): SEALED, PASS 55/55 -- from 38 diffs in ONE edit ====
  * MECHANISM (the sibling FontUpsideDownBlit's clean-room recipe, applied here):
  *  (1) THE SLD IS THE STATEMENT ORDER.  tools/diffsrc.py + the SYM SLD stream give
  *      retail's per-insn line map; grouping by line recovers FONT.CPP's real body:
@@ -130,7 +130,7 @@ void Font_SetABR(int abr)
  *      RMWs, and there is NO `pal`/`addr24` local (SYM lists only width/height/sprt/dv).
  *      The bitfield write IS the oracle's second `lw v0,0(t3)` read-modify-write, and
  *      MEM_IN_STRUCT_P keeps the 0x1F800000 cell load single (w52 cse struct-alias law).
- *      ⚠ The w45/w46/w49 "P_TAG REGRESSES here 42->48" verdicts were BASIN-RELATIVE --
+ *       The w45/w46/w49 "P_TAG REGRESSES here 42->48" verdicts were BASIN-RELATIVE --
  *      they were measured with the pal local + the split dv + the wrong statement order.
  *  Everything the pre-seal receipt chased (the {v,pal,mask} -> t3/t4/t6 rotation, the
  *  early `lw v,40(sp)`, the late `addu a0,t1,zero`) dissolved with the correct body:
@@ -332,16 +332,16 @@ charactertbl * Font_Getcharacter(int targetindex)
 
 {
   charactertbl *ch;
-  char *base; base = (char *)&currentfont; const u_int characterTableBase = (*(int *)(base + 132));
+  char *base; const int cfbase = (ch = 0, (int)&currentfont); base = *(char **)((u_char *)cfbase + 132);
 
-  ch = (charactertbl *)(characterTableBase + (targetindex + -0x20) * 0xb);
+  ch = (charactertbl *)(base + (targetindex + -0x20) * 0xb);
 
   if (geti(ch,2) == targetindex) {
 
     return ch;
   }
 
-  ch = Font_textbsearch(targetindex,(char *)characterTableBase,(*(int *)(base + 116)),0xb);
+  ch = Font_textbsearch(targetindex,base,(*(int *)((u_char *)cfbase + 116)),0xb);
 
   return ch;
 }
@@ -424,18 +424,18 @@ void Font_SwitchFont(char *f1)
 
 
 {
-  __complex__ int base;
+
   setfont(f1);
 
-  __real__ base = (int)&currentfont; ((DR_MODE *)((u_char *)__real__ base + 0x94))->tag = 0;
-  ((DR_MODE *)((u_char *)__real__ base + 0x94))->code[0] = 0;
-  ((DR_MODE *)((u_char *)__real__ base + 0x94))->code[1] = 0;
+  ; const int base = (f1 = 0, (int)&currentfont); ((DR_MODE *)((u_char *)base + 0x94))->tag = 0;
+  ((DR_MODE *)((u_char *)base + 0x94))->code[0] = 0;
+  ((DR_MODE *)((u_char *)base + 0x94))->code[1] = 0;
 
 
 
-  font_currentTPage = GetTPage((*(shapetbl **)((u_char *)__real__ base + 136))->type & 3,font_abr, (*(shapetbl **)((u_char *)__real__ base + 136))->shapex, (*(shapetbl **)((u_char *)__real__ base + 136))->shapey);
-  __complex__ int ch; __real__ ch = (int)Font_Getcharacter(0x20);
-  gFontSpaceWidth = ((charactertbl *)__real__ ch)->advance; return; }
+  font_currentTPage = GetTPage((*(shapetbl **)((u_char *)base + 136))->type & 3,font_abr, (*(shapetbl **)((u_char *)base + 136))->shapex, (*(shapetbl **)((u_char *)base + 136))->shapey);
+  ; const int ch = (int)Font_Getcharacter(0x20);
+  gFontSpaceWidth = ((charactertbl *)ch)->advance; return; }
 
 /* ---- Font_DeInit__Fv  [FONT.CPP:333-338] SLD-VERIFIED ---- */
 #line 330 "C:/nfs4/GAME/PSX/FONT.CPP"
@@ -573,13 +573,13 @@ void Font_TextXY(char *string,int x,int y)
 
 
 {
-  char *str; charactertbl *ch; int code; __complex__ int cfbase; str = string;
+  char *str; charactertbl *ch; int code; str = string;
 
 
 
   code = -1;
 
-  __real__ cfbase = (int)&currentfont; while (code != 0) {
+  while (code != 0) {
 
     code = *(u_char *)str;
     str = str + 1;
@@ -594,10 +594,10 @@ void Font_TextXY(char *string,int x,int y)
         u = geti(ch->u,2);
         int v = geti(ch->v,2);
         /* `char` is UNSIGNED on this build -> (signed char) forces the oracle's `lb` */
-        (*gCurrentBlitter)(x + *(signed char *)&ch->xoffset,
-                           y + *(signed char *)&ch->yoffset,
-
-                           *(void **)((u_char *)__real__ cfbase + 136),u,v,(charactertbl *)ch,*(int *)((u_char *)__real__ cfbase + 120));
+        ; const int xo = *(signed char *)&ch->xoffset;
+        ; const int yo = *(signed char *)&ch->yoffset;
+        ; const int cfbase = (v = v, (int)&currentfont);
+        (*gCurrentBlitter)(x + xo, y + yo, *(void **)((u_char *)cfbase + 136),u,v,(charactertbl *)ch,*(int *)((u_char *)cfbase + 120));
 
 
         x = x + *(signed char *)&ch->advance;

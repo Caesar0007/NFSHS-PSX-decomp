@@ -139,13 +139,13 @@ void tScreenMemcard::LoadIcon(int filenum)
 
 
 
-    if (filenum < this->pCI->numfiles) {
-
+    if (filenum < this->pCI->numfiles)
+    {
       blockclear(this->fMemFile + filenum,0x2c);
 
-      CARDINFO_def *const cardInfo = this->pCI; this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20); this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
+      this->fMemFile[filenum].name = (char *)(this->pCI->dir + filenum);
 
-
+      this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
 
       this->fMemFile[filenum].icon[0] = (shapetbl *)(*fMemIcon)[filenum][0];
       this->fMemFile[filenum].icon[1] = (shapetbl *)(*fMemIcon)[filenum][1];
@@ -163,9 +163,9 @@ void tScreenMemcard::LoadIcon(int filenum)
       while (1) { if (done) {
           break;
         }
-        int one;
+        int one; CARDINFO_def *pCI = MCRD_getcard(this->card);
 
-        if (MCRD_getcard(this->card)->status == -1) {
+        if (pCI->status == -1) {
 
           this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
         }
@@ -227,17 +227,17 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x10:
         case 0x13:
         case 0x17:
-          done = this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = true;
+          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
           this->goticon[filenum] = '\0';
 
-
+          done = true;
           break;
         }
       }
     }
 LoadIcon_clearCardFlag:
   CURRENTLYUSINGMEMCARD = 0;
-  return;
+
 }
 
 /* ---- tScreenMemcard::DrawVerticalLine  (screenmemcard.cpp:264) ---- */
@@ -280,11 +280,11 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 
 {
-  __complex__ int innerHeight; __complex__ short pos; __complex__ int test; __complex__ unsigned int shifted; __real__ shifted = (unsigned int)gridpos << 16; __real__ pos = gridpos; __real__ test = (int)__real__ shifted >> 16; if (0 < __real__ test) { __asm__("" : "+r"(__real__ shifted), "+r"(x)); if (0x40 <= __real__ test) goto VL_clampHi; } if (__real__ test < 0) { __real__ pos = 0; } goto VL_clamped; VL_clampHi: __real__ pos = 0x40;
-VL_clamped:
-  gridpos = __real__ pos; __real__ innerHeight = (__real__ innerHeight = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2, (ushort)EXTRAYATTOP + __real__ innerHeight);
+  gridpos = (((gridpos > 0) ? gridpos : 0) < 0x40) ? ((gridpos > 0) ? gridpos : 0) : 0x40;
+
+  const int innerHeight = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2; const int totalHeight = (ushort)EXTRAYATTOP + innerHeight;
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
-             (short)__real__ innerHeight, (uint)(dir == 0),(int)gridpos * 2,0);
+             (short)totalHeight, (uint)(dir == 0),(int)gridpos * 2,0);
 }
 
 /* ---- tScreenMemcard::DrawHorizontalLine  (screenmemcard.cpp:273) ---- */
@@ -320,10 +320,10 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 
 {
-  __complex__ int width; __complex__ short pos; __complex__ int test; __complex__ unsigned int shifted; __real__ shifted = (unsigned int)gridpos << 16; __real__ test = (int)__real__ shifted >> 16; __real__ pos = gridpos; if (0 < __real__ test) { __asm__("" : "+r"(__real__ shifted)); if (0x40 <= __real__ test) goto HL_clampHi; } if (__real__ test < 0) { __real__ pos = 0; } goto HL_clamped; HL_clampHi: __real__ pos = 0x40; HL_clamped: gridpos = __real__ pos;
+  gridpos = (((gridpos > 0) ? gridpos : 0) < 0x40) ? ((gridpos > 0) ? gridpos : 0) : 0x40;
   /* MATCH (SLD 276 = ONE statement) */
-  __real__ width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)__real__ width, 1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X); return;
+  const int width = (ushort)GRIDMEMCARD_WIDTH + ((ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2);
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width, 1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X); return;
 }
 
 /* ---- tScreenMemcard::PlaceIcons  (screenmemcard.cpp:282) ---- */
@@ -452,8 +452,8 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
 
 
 
-  if (this->pCI->status == -1) {
-
+  if (this->pCI->status == -1)
+  {
     this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
 
     if (this->checkingstart == 0) { this->checkingstart = FE_Ticks();
@@ -483,106 +483,106 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
           }
         }
 
-        i = i + 1; } while (i < this->pCI->numfiles); } goto DrawMC_statusCheckFinal;
-  }
+        i = i + 1; } while (i < this->pCI->numfiles); } }
 
-  if (this->pCI->status == -2) {
+
+  else if (this->pCI->status == -2) {
 
     this->checkingstart = 0;
-    this->fMemCardMessageTextSys = 0x288; goto DrawMC_statusCheckFinal;
+    this->fMemCardMessageTextSys = 0x288;
   }
+  else {
+
+    this->checkingstart = 0;
 
 
-  this->checkingstart = 0;
 
+    if (this->pCI->numfiles == 0) {
+      this->fMemCardMessageTextSys = 0x284;
+    } else {
+      this->fMemCardMessageTextSys = 0x27d; }
 
+    if (this->fGetNewIcons == 0) {
+      this->fReadyToGetNewIcons = 0;
+    }
+    else {
+      this->fReadyToGetNewIcons = 1;
+      for (i = 0; i < this->pCI->numfiles; i = i + 1) {
 
-  if (this->pCI->numfiles != 0) {
-    this->fMemCardMessageTextSys = 0x27d; } else { this->fMemCardMessageTextSys = 0x284;
-  }
+        if (this->fFadeIcon[i] < 0x80) {
+          this->fReadyToGetNewIcons = 0;
+        } }
+    }
+    for (i = 0; i < this->pCI->numfiles; i = i + 1) {
 
+      if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
 
-  if (this->fGetNewIcons == 0) {
-    this->fReadyToGetNewIcons = 0; goto DrawMC_perFileLoopTop;
-  }
-  goto DrawMC_checkIconFades;
-DrawMC_cardPulled: this->ReleaseIcons(); this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0; this->fGetNewIcons = 0; goto DrawMC_afterPerFileLoop; DrawMC_checkIconFades: this->fReadyToGetNewIcons = 1;
-  i = 0; if (i < this->pCI->numfiles) { for (; i < this->pCI->numfiles; i = i + 1) {
+        this->ReleaseIcons();
+        this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
 
-      if (this->fFadeIcon[i] < 0x80) {
-        this->fReadyToGetNewIcons = 0;
-      } }
-  }
-  else goto DrawMC_afterPerFileLoop; DrawMC_perFileLoopTop: i = 0; if (0 < this->pCI->numfiles) { do {
+        this->fGetNewIcons = 0; break;
+      }
 
-        if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
-          goto DrawMC_cardPulled;
+      if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) { if (this->fGetNewIcons == 0) {
+
+          this->LoadIcon(i);
         }
-
-
-
-
-
-        if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) { if (this->fGetNewIcons == 0) {
-
-            this->LoadIcon(i);
-          }
-          else { goto DrawMC_readyToGetNewIcons; } } if (this->fGetNewIcons != 0) { DrawMC_readyToGetNewIcons: if (this->fReadyToGetNewIcons != 0) { this->goticon[i] = '\0';
-          }
+        else { goto DrawMC_readyToGetNewIcons; } } if (this->fGetNewIcons != 0) { DrawMC_readyToGetNewIcons: if (this->fReadyToGetNewIcons != 0) { this->goticon[i] = '\0';
         }
+      }
 
 
 
-        if (CURRENTLYUSINGMEMCARD == 0) { if (this->goticon[i] != '\0') { if (this->fFadeIcon[i] == 0) {
+      if (CURRENTLYUSINGMEMCARD == 0) { if (this->goticon[i] != '\0') { if (this->fFadeIcon[i] == 0) {
 
-              this->theNFS4icon = MCRD_fileexists(this->card,"NFS4");
-              if ((this->fMemCardMessageTextSys != 0x27f) && (this->fMemCardMessageTextSys != 0x27b)
-                 ) {
-                this->checkingstart = 0;
-              }
-              if ((this->theNFS4icon != -1) && (this->goticon[this->theNFS4icon] != '\0')) {
-
-                this->fMemCardMessageTextSys = -1;
-                sprintf(this->fMemCardMessage, (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
-              }
-              else {
-                this->fMemCardMessageTextSys = 0x284;
-              }
+            this->theNFS4icon = MCRD_fileexists(this->card,"NFS4");
+            if ((this->fMemCardMessageTextSys != 0x27f) && (this->fMemCardMessageTextSys != 0x27b)
+               ) {
+              this->checkingstart = 0;
             }
-            goto DrawMC_iconActive;
-          } } else { DrawMC_iconActive: if (this->goticon[i] != '\0') {
+            if ((this->theNFS4icon != -1) && (this->goticon[this->theNFS4icon] != '\0')) {
 
-            if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons == 0)) {
-
-              this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
-              if (0x80 < this->fFadeIcon[i]) {
-
-                this->fFadeIcon[i] = 0x80;
-                if (this->fMemIconClutId[i] != 0) {
-
-                  Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
-                  this->fMemIconClutId[i] = 0;
-                }
-                this->goticon[i] = '\0';
-                this->numicon[i] = '\0';
-                this->numblock[i] = '\0';
-              }
+              this->fMemCardMessageTextSys = -1;
+              sprintf(this->fMemCardMessage, (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
             }
             else {
-
-              this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
-              if (this->fFadeIcon[i] < 0) {
-                this->fFadeIcon[i] = 0;
-              }
-            } this->PlaceIcons(i,fadeval);
+              this->fMemCardMessageTextSys = 0x284;
+            }
           }
-        } i = i + 1; } while (i < this->pCI->numfiles);
-    }
-DrawMC_afterPerFileLoop:
-  if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons != 0)) {
-    this->fGetNewIcons = 0;
-  }
-DrawMC_statusCheckFinal: if ((this->pCI->status == -3) && (this->theNFS4icon == -1)) {
+          goto DrawMC_iconActive;
+        } } else { DrawMC_iconActive: if (this->goticon[i] != '\0') {
+
+          if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons == 0)) {
+
+            this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
+            if (0x80 < this->fFadeIcon[i]) {
+
+              this->fFadeIcon[i] = 0x80;
+              if (this->fMemIconClutId[i] != 0) {
+
+                Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
+                this->fMemIconClutId[i] = 0;
+              }
+              this->goticon[i] = '\0';
+              this->numicon[i] = '\0';
+              this->numblock[i] = '\0';
+            }
+          }
+          else {
+
+            this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
+            if (this->fFadeIcon[i] < 0) {
+              this->fFadeIcon[i] = 0;
+            }
+          } this->PlaceIcons(i,fadeval);
+        }
+      } }
+
+
+    if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons != 0)) {
+      this->fGetNewIcons = 0; } }
+
+  if ((this->pCI->status == -3) && (this->theNFS4icon == -1)) {
     this->fMemCardMessageTextSys = 0x2bf;
   }
 
@@ -595,8 +595,8 @@ DrawMC_statusCheckFinal: if ((this->pCI->status == -3) && (this->theNFS4icon == 
 
     MCRD_handlecardevents(this->card);
   }
-  return;
-}
+
+  return; }
 
 /* ---- tScreenMemcard::SetEnablings  (screenmemcard.cpp:517) ---- */
       /* MATCH: NESTED ifs, not `&&` -- the `&&` form lets gcc range-fold the two
@@ -631,27 +631,27 @@ void tScreenMemcard::SetEnablings()
   }
 
 
-  if (!DontChangeEnablings) {
-    /* MATCH (SLD 538/539/540): the oracle's `beq` puts the CLEAR arm inline and
-       the SET arm out of line -- i.e. the test is `!= -1`, not `== -1`. */
-    if (this->theNFS4icon != -1) {
+  if (!DontChangeEnablings)
+  {
+    if (this->theNFS4icon != -1)
+    {
       MenuItem_Enable(&menuDefs->itemLoadGame);
     }
+    else
+    { MenuItem_Disable(&menuDefs->itemLoadGame); }
 
-    else {
-      MenuItem_Disable(&menuDefs->itemLoadGame);
-    }
     if ((((this->pCI->status == 0) || (this->pCI->status == -2)) ||
-        ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) && (this->player == 0)) {
-
+        ((this->pCI->status == -3 &&
+          (this->theNFS4icon != -1)))) && (this->player == 0))
+    {
       MenuItem_Enable(&menuDefs->itemSaveGame);
     }
+    else
+    { MenuItem_Disable(&menuDefs->itemSaveGame); } }
 
-    else {
-      MenuItem_Disable(&menuDefs->itemSaveGame);
-    }
-  }
-  if (FECheat_IsTheUserACryBabyCheater() != 0) { MenuItem_Disable(&menuDefs->itemSaveGame); } return; }
+
+  if (FECheat_IsTheUserACryBabyCheater() != 0)
+  { MenuItem_Disable(&menuDefs->itemSaveGame); } return; }
 
 /* ---- tScreenMemcard::DrawBackground  (screenmemcard.cpp:561) ---- */
 /* 2026-10-11: the initialization i belongs directly to the guarded body,
@@ -709,7 +709,7 @@ void tScreenMemcard::DrawBackground()
 {
   short x;
   short y;
-  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; __complex__ unsigned short gouraudX; __complex__ unsigned short gouraudY; __complex__ unsigned short startY; this->fMemCardMessageTextSys = -1;
+  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; this->fMemCardMessageTextSys = -1;
 
   if (this->goticon[this->theNFS4icon] == '\0') {
     this->theNFS4icon = -1;
@@ -730,12 +730,12 @@ void tScreenMemcard::DrawBackground()
 
 
 
-  if (this->fInitedMemCard == 0) {
-
+  if (this->fInitedMemCard == 0)
+  {
     this->fMemCardMessageTextSys = 0x27c;
     if ((this->fScreenFadeVal == 0) &&
-        (FE_Ticks() - this->fScreenFadeReadyTick > 0x80)) {
-      int i;
+        (FE_Ticks() - this->fScreenFadeReadyTick > 0x80))
+    { int i;
       Init_Memcard(true,false);
 
 
@@ -748,8 +748,8 @@ void tScreenMemcard::DrawBackground()
       }
       this->fInitedMemCard = 1;
     }
-    else if (this->fScreenFadeReadyTick == 0) {
-
+    else if (this->fScreenFadeReadyTick == 0)
+    {
       this->fScreenFadeReadyTick = FE_Ticks();
     }
   }
@@ -782,12 +782,12 @@ void tScreenMemcard::DrawBackground()
 
   gray = 0x505050;
 
-  x = (ushort)GRIDMEMCARD_STARTX - (__real__ gouraudX = GRIDMEMCARDGOURAUDBIT_X);
-  __real__ startY = GRIDMEMCARD_STARTY; __real__ gouraudY = GRIDMEMCARDGOURAUDBIT_Y; y = __real__ startY - __real__ gouraudY - ((ushort)EXTRAYATTOP + 4);
-  w = GRIDMEMCARD_WIDTH + __real__ gouraudX * 2 + 2;
-  h = (short)((ushort)GRIDMEMCARD_HEIGHT + __real__ gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
+  const unsigned short startX = GRIDMEMCARD_STARTX; const unsigned short gouraudX = GRIDMEMCARDGOURAUDBIT_X; x = startX - gouraudX;
+  const unsigned short startY = GRIDMEMCARD_STARTY; const unsigned short gouraudY = GRIDMEMCARDGOURAUDBIT_Y; y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
+  w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
+  h = (short)((ushort)GRIDMEMCARD_HEIGHT + gouraudY * 2 + ((ushort)EXTRAYATTOP + 6));
 
-  SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
+  h /= 2; SubtractiveBox(x,y,w,h,gray,gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare
             (0,GRIDMEMCARD_STARTX + 2,kMemCardMessage1Y + -2,GRIDMEMCARD_WIDTH + -4,
@@ -803,7 +803,7 @@ void tScreenMemcard::DrawBackground()
 
 
   x = GRIDMEMCARD_STARTX;
-  for (; i < 4; i++) {
+  for (i = 0; i < 4; i++) {
     this->DrawVerticalLine(x,
                      GRIDMEMCARD_STARTY - GRIDMEMCARDGOURAUDBIT_Y - EXTRAYATTOP, gridpos,i % 2);
     x += MEMCARD_DELTAX;
@@ -845,11 +845,11 @@ void tScreenMemcard::DrawForeground()
 
 
 {
-  __complex__ int fade; __real__ fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
-
-  if ((short)__real__ fade < 0x80) { if ((short)__real__ fade < 1) goto DrawFg_setZero; } if ((short)__real__ fade < 0x81) goto DrawFg_join; __real__ fade = 0x80; goto DrawFg_join; DrawFg_setZero: __real__ fade = 0;
-DrawFg_join: { int k;   /* [SYM] REG $s0, block opened at SLD 5 */ k = 0; do {
-      DrawShapeExtended(0x38 + k,0,0,0,(short)__real__ fade,0,
+  int fade = (ushort)this->fScreenFadeVal * 2;
+  short fadebox = fade - 0x80;
+  fadebox = MAX(MIN(0x80,fadebox),0);
+  { int k;   /* [SYM] REG $s0, block opened at SLD 5 */ k = 0; do {
+      DrawShapeExtended(0x38 + k,0,0,0,fadebox,0,
 
                  (tDrawShapeExtended *)0x0);
       k = k + 1; } while (k < 4); } return;

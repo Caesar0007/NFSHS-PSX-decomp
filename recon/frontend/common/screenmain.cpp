@@ -499,7 +499,7 @@ void tScreenMain::DrawBackground()
   short i;
   short j;
   tDrawShapeExtended drawFlags;
-  u_long deltaTicks; short animFade; short x; short y; char buffer [32]; int shapeX; int shapeY; animFade = 0;
+  u_long deltaTicks; short animFade; short x; short y; char buffer [32]; int shapeX; int shapeY; short nextAnimation; animFade = 0;
 
 
 
@@ -510,8 +510,8 @@ void tScreenMain::DrawBackground()
   for (i = animFade; i < 2; i++) {
 
     ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + i);
-    if (this->fVideoShapes[i].fFile != (char *)0x0) {
-      bool bAllTVsOn;
+    if (this->fVideoShapes[i].fFile != (char *)0x0)
+    { bool bAllTVsOn;
       bAllTVsOn = true;
       for (j = 0; j < 0x10; j++) {
         if (((this->tvStates[j] != kScreenMain_StaticImage) &&
@@ -528,30 +528,30 @@ void tScreenMain::DrawBackground()
       }
     }
   }
-  if (this->fState != kScreenMain_Credits) { goto test_credits_menu; } if (FEApp->CurrentMenu(0) != (tMenu *)&MenuDefs()->menuCredits) {
+  if ((this->fState == kScreenMain_Credits) && (FEApp->CurrentMenu(0) != (tMenu *)&menuDefs->menuCredits))
+  {
     this->SetState(kScreenMain_StaticImage);
-    goto credits_state_done;
   }
-test_credits_menu: if (FEApp->CurrentMenu(0) == (tMenu *)&MenuDefs()->menuCredits) {
-
+  else if (FEApp->CurrentMenu(0) == (tMenu *)&menuDefs->menuCredits)
+  {
     this->SetState(kScreenMain_Credits);
   }
-credits_state_done:
+
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
 
-  if (this->fState == kScreenMain_WarningImage) {
+  if (this->fState == kScreenMain_WarningImage)
+  {
     if ((frontEnd.raceType != RaceType_PinkSlips) &&
-       ((tMenuItemGoToMenuNFS4Button *)
-        FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] != &MenuDefs()->itemTwoPlayerPinkSlips)) {
-      this->SetState(kScreenMain_StaticImage);
-    }
+        ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(0)->fItemList[FEApp->CurrentMenu(0)->fCurrentItem] != &menuDefs->itemTwoPlayerPinkSlips)) {
+      this->SetState(kScreenMain_StaticImage); }
   }
-  else if ((frontEnd.raceType == RaceType_PinkSlips) || ((tMenuItemGoToMenuNFS4Button *) FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] == &MenuDefs()->itemTwoPlayerPinkSlips)) {
+  else if (
+      (frontEnd.raceType == RaceType_PinkSlips) || ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(0)->fItemList[FEApp->CurrentMenu(0)->fCurrentItem] == &menuDefs->itemTwoPlayerPinkSlips)) {
     this->SetState(kScreenMain_WarningImage);
   }
 
-  if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {
-    int fade;
+  if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade))
+  { int fade;
     int TextCol;
     RECT r;
     if (this->fState == kScreenMain_WarningImage) {
@@ -583,9 +583,9 @@ credits_state_done:
                ,1,&drawFlags);
     DrawShapeExtended(0x100,0x11,0,0,0x60 - this->fWarningFade
                ,1,&drawFlags);
-    ScaleShapeExtended((gettick() / 0x15) % 6 + 0xfa,1,0,0,0x60 - this->fWarningFade
-               ,3,(tDrawShapeExtended *)0x0);
 
+    const int scaleShape = (gettick() / 0x15) % 6 + 0xfa;
+    ScaleShapeExtended(scaleShape,1,0,0,0x60 - this->fWarningFade,3,(tDrawShapeExtended *)0x0);
 
     FETextRender_SetABR(1,true);
     TextCol = CalcFadeVal(0xbebe,0x60 - this->fWarningFade);
@@ -597,34 +597,34 @@ credits_state_done:
 
     FeDraw_SetABRMode(0);
   }
-  int videoY = 0;
 
 
 
 
-  if ((this->fFrame & 1U) == 0) { videoY = 0x50;
+
+  shapeY = 0; if ((shapeX = this->fFrame & 1U) == 0) { shapeY = 0x50;
   }
-  if (VIDEO_state(this->hVideo) == 3) {
-
+  if (VIDEO_state(this->hVideo) == 3)
+  { this->fMovieTicks = FE_Ticks();
 
     this->bVideoAborted = 0;
-    this->fMovieTicks = FE_Ticks(); if (VIDEO_updateframexy(this->hVideo,0x200,videoY) != 0) {
+    if (VIDEO_updateframexy(this->hVideo,0x200,shapeY) != 0) {
 
-      this->fFrame = this->fFrame + 1;
-    }
-  }
-  else {
-    if (((VIDEO_state(this->hVideo) != 1) &&
+      this->fFrame = this->fFrame + 1; }
+    shapeY = 0; }
+
+  else
+  { if (((VIDEO_state(this->hVideo) != 1) &&
          (0x280 < ((u_long)FE_Ticks() - (u_long)this->fStartTicks))) &&
-        (this->fState == kScreenMain_StaticImage)) {
-      char moviename [80];
+        (this->fState == kScreenMain_StaticImage))
+    { char moviename [80];
       RECT r;
 
 
 
       r.x = 0x200;
-
-      r.w = 0x50; r.y = 0;
+      r.y = 0;
+      r.w = 0x50;
       r.h = 0xa0;
       ClearImage(&r,'\0','\0','\0');
       DrawSync(0);
@@ -668,7 +668,7 @@ credits_state_done:
     this->fAnimationUploaded = 0;
 
     if (this->fSwapShapes.async_handle == 0) {
-      short nextAnimation;
+
 
       do {
 
@@ -683,14 +683,14 @@ credits_state_done:
 
 
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if (this->fSwapShapes.fFile != (char *)0x0) {
-
+  if (this->fSwapShapes.fFile != (char *)0x0)
+  {
     this->fSwapShapes.fNumShapes = 10;
     ::UploadSwapShapes((tScreen *)this,10);
     this->fAnimTicks = FE_Ticks();
-    this->fAnimationUploaded = 1;
+
     this->fAnimLocation = (ushort)this->fAnimTicks & 3;
-  }
+    this->fAnimationUploaded = 1; }
 
 
 
@@ -700,36 +700,36 @@ credits_state_done:
     animFade = deltaTicks - 0x2a0;
   }
 
-  if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
-    int drawAnimFade;
+  if ((deltaTicks < 800) && (this->fAnimationUploaded != 0))
+  { int drawAnimFade;
 
     drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
     drawFlags.custom_shapes = this->fSwapShapes.fShapes;
     drawAnimFade = (int)animFade;
-    if (CreditManager.fCreditsInitialized != 0) {
+    if (Credits_Initialized(CreditManager)) {
       drawAnimFade = drawAnimFade + 0x40; if (0x80 < drawAnimFade) { drawAnimFade = 0x80;
-      }
-    }
+      } }
 
 
-    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,(shapeX = animLocations[this->fAnimLocation].x),(shapeY = animLocations[this->fAnimLocation].y),drawAnimFade,1,&drawFlags);
+
+    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,animLocations[this->fAnimLocation].x,animLocations[this->fAnimLocation].y,drawAnimFade,1,&drawFlags);
   }
 
 
   y = 0x32;
-  i = 0; while (1) { if (0x19 <= i) break; if (0xd2 <= y) break;
+  for (i = 0; (i < 0x19) && (y < 0xd2); ) {
+
     x = 0x1a2;
+    for (j = 4; 0 <= j; ) {
 
-    j = 4; while (1) { if (j < 0) break;
       DrawShapeExtended((numberValues[(i + FE_Ticks() / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
-
                  (tDrawShapeExtended *)0x0);
-      j--; x = x + 0xd;
-    } y = y + 8;
-    i++;
-  }
+      j--; x = x + 0xd; }
+    y = y + 8;
+    i++; }
 
-  x = (short)((int)((FE_Ticks() - this->fStartTicks) * 0x1000) >> 0x10);
+
+  x = (short)((FE_Ticks() - this->fStartTicks) >> 4);
   j = 0; if (-1 < x) { while (1) { if (0xf < j) break;
       if (((this->tvStates[tvOrder[j]] != this->tvTransitions[tvOrder[j]].state) ||
           (this->tvConfigs[tvOrder[j]].clut != this->tvTransitions[tvOrder[j]].clut)) &&

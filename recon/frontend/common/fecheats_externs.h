@@ -49,4 +49,14 @@ inline tDialogMessageString *tDialogMessageString::SetString(int word)
   return this;
 }
 
+static inline void FECheat_AddMoney(long money)
+{
+  tournamentManager.fMoney += money;
+}
+
+static inline void FECheat_SetPlacement(short num, char placement)
+{
+  tournamentManager.fBestPlacement[num] = placement;
+}
+
 #endif

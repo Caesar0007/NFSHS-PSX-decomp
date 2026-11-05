@@ -1456,7 +1456,7 @@ void Weather_DoSplats
 
 
 {
-  int i; __complex__ int q; if (gCurrentNumSplats < num) {
+  int i; int q; if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
   }
 
@@ -1473,7 +1473,7 @@ void Weather_DoSplats
           }
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
-            __real__ q = (int)&splats[i]; __real__ q = (int)((unsigned int)__real__ q | ((unsigned int)__real__ q & 3u)); if (GameSetup_gData.commMode == 1) { ((Weather_tSplatInfo *)__real__ q)->pos.vy = (short)((u_int)random() % 0xf0 >> 1); } else { ((Weather_tSplatInfo *)__real__ q)->pos.vy = (short)((u_int)random() % 0xf0);
+            q = (q = 0, (int)((unsigned int)&splats[i] | ((unsigned int)&splats[i] & 3u))) + ((q = 0) != 0); if (GameSetup_gData.commMode == 1) { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0 >> 1); } else { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0);
             }
             splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }

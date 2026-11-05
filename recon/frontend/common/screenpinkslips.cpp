@@ -10,55 +10,14 @@
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline tFEApplication * App(void) { return FEApp; }
-
-
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
-
-
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
+static inline int FE_Ticks(void) { return *(int *)&ticks; }
 #line 23 "C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips.cpp"
 
 /* Retail screenpinkslips.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-
-/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
-   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
-   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
-   assembler macro, which GNU-as expands per-access (self-temp / $at). */
-extern tFEApplication *A_FEApp[] __asm__("FEApp");
-#define FEApp A_FEApp[0]
-/* P872: menuDefs uses its native scalar declaration; the -G0 lane makes
-   its former array alias unnecessary. Other global views stay unchanged. */
-extern int A_ticks[] __asm__("ticks");
-#define ticks A_ticks[0]
-
 /* ---- tScreenPinkSlips::DrawBackground  [SCREENPINKSLIPS.CPP:71-194] ---- */
-    /* 2026-11-02: guard and decrement the actual stored byte field. This
-       removes trackIndex while preserving the ushort-to-byte copy/value web;
-       the copy now has its supplied source tag. Old independent direct-form
-       failures did not establish an original char snapshot.
-       Receipt: build/tmp/v/pinkslips_track_field_20261102/. */
-    /* SYM-CODEGEN-CARRIER: currentItem -- this ushort snapshot remains
-       unresolved. No replacement object or guessed menu getter was added. */
-        /* SYM-CODEGEN-CARRIER: ry -- paired coordinate snapshot in that
-           receipt; retail keeps both values across Flare_2DHalo. */
-        /* SYM-CODEGEN-CARRIER: rx -- direct RECT member use is FAIL 99 at
-           365/364 instructions and rotates the whole saved-register handout. */
-      /* MATCH: ONE statement (oracle SLD groups the subu+srl on one line) and
-         the arms in THIS order - the reversed test picks the oracle's commutative
-         `addu $v0,$v1,$v0` in the signed /2 idiom. */
-    /* SYM-CODEGEN-CARRIER: selected -- folding the predicate into this branch
-       is FAIL 7 at 361/364 instructions and removes retail's $a1 value web. */
-  /* SYM-CODEGEN-CARRIER: movieVramX -- this unprovided SHORT capture yields
-     the observed tpage-x value web;
-     `li $t2,0x200` then sign-extends `sll/sra` into $a2; an int/cast literal
-     folds to a bare `li $a2,512`.  14 -> 10 diffs, count-exact 364/364. */
-  /* W86-S4: SYM `8c` declaration order -- the fn-static `flareextra` (STAT) is
-     recorded BETWEEN trackInfo and shapeY, not at the top.  Re-gated PASS. */
 #line 68 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.CPP"
 void tScreenPinkSlips::DrawBackground()
 
@@ -70,24 +29,24 @@ void tScreenPinkSlips::DrawBackground()
   short tv;
   tMenuTextState textState;
   tTrackInformation trackInfo;
-  static int flareextra;   /* retail: uninit lcomm -> front.bss flareextra.248 @0x80052bf0 (DrawBackground reads 0x80050000+11248) */ short shapeY; short movieVramX = 0x200; i = 0; r.x = 0x15b; r.y = 0x8f; r.w = 0x90; r.h = 0xe;
-  while (i < (short)(byte)frontEnd.pinkSlipsNumTracks) {
-    BOOL selected;
+  static int flareextra; short shapeY; short movieVramX = 0x200; r.x = 0x15b; r.y = 0x8f; r.w = 0x90; r.h = 0xe;
+  for (i = 0; i < (short)(byte)frontEnd.pinkSlipsNumTracks; i++) {
+
     textState = textState_Selected;
-    selected = false; if ((i == (short)this->fMenu->fCurrentItem - 1) || ((i == 0) && ((short)this->fMenu->fCurrentItem == 0))) { selected = true; } if (selected) {
+    if ((i == this->fMenu->CurrentItem() - 1) || ((i == 0) && (this->fMenu->CurrentItem() == 0)))
+    {
       int flare_intensity;
-
       flareextra = flareextra + 1;
-      if (0x3c < flareextra) { flareextra = 0;
-      } flare_intensity = (0x1e >= flareextra ? flareextra : 0x3c - flareextra) / 2;
-
+      if (0x3c < flareextra) flareextra = 0;
+      if (0x1e < flareextra) flare_intensity = (0x3c - flareextra) / 2;
+      else flare_intensity = flareextra / 2;
       flare_intensity += 0x14;
       flare_intensity *= 0x80 - this->fScreenFadeVal;
-      if (0 < flare_intensity) {
-        short rx = r.x;
-        short ry = r.y;
-        Flare_2DHalo(rx + -0xf,ry + 6,flare_intensity / 2,
-                    (flare_intensity * 2) / 3,0x17);
+      if (0 < flare_intensity)
+      {
+        short rx = r.x; int dx = rx + 1;
+        short ry = r.y; int dy = ry + 1;
+        Flare_2DHalo(rx + -0xf,ry + 6,flare_intensity / 2, (flare_intensity * 2) / 3,0x17);
         DrawShapeExtended(0x38,0,rx + -0x12,ry, (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
       }
 
@@ -98,22 +57,22 @@ void tScreenPinkSlips::DrawBackground()
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
 
     frontEnd.pinkSlipsTrackIndex = (char)i;
-    FETextRender_MenuTextPositionedJustify( TextValue(&MenuDefs()->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0, textState,textType_FlybyHelp);
+    FETextRender_MenuTextPositionedJustify( TextValue(&menuDefs->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0, textState,textType_FlybyHelp);
     DrawShape_NFS4RoundRectangle(-1,&r,1);
+    r.y = r.y + 0xe;
+  }
 
-    i = i + 1; r.y = r.y + 0xe; } { u_short currentItem = (u_short)this->fMenu->fCurrentItem;
 
-
-    frontEnd.pinkSlipsTrackIndex = (char)currentItem;
-    if (frontEnd.pinkSlipsTrackIndex != 0) {
-      frontEnd.pinkSlipsTrackIndex -= 1;
-    }
-  } GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo);
+  frontEnd.pinkSlipsTrackIndex = (char)this->fMenu->CurrentItem();
+  if (frontEnd.pinkSlipsTrackIndex != 0) {
+    frontEnd.pinkSlipsTrackIndex -= 1;
+  }
+  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo);
   this->UpdateVideoWall(trackInfo);
 
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < *(signed char *)&this->fTransitionDirection)) {
-
+  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < *(signed char *)&this->fTransitionDirection))
+  {
     ::UploadSwapShapes((tScreen *)this,4);
     this->fTransitionDirection = '\x01';
     this->fTVTicks = FE_Ticks();
@@ -165,9 +124,9 @@ void tScreenPinkSlips::DrawBackground()
         j = j + 1; tv = tv + 1; } while (j < 4);
       i = i + 1; } while (i < 2);
   }
-  else if (0x100 < FE_Ticks() - this->fTVTicks) {
+  else if (0x100 < FE_Ticks() - this->fTVTicks)
+  {
     char moviename [80];
-
 
     sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
     VIDEO_spoolfile(this->hVideo,moviename);
@@ -218,13 +177,6 @@ static char imageTVOrder[4] = { 1, 2, 0, 3 };          /* STAT @0x80051E60 - TV 
 tScreenPinkSlips *screenPinkSlips = 0;                 /* @0x80051E64 */
 
 /* ---- tScreenPinkSlips::Initialize  [SCREENPINKSLIPS.CPP:219-259] ---- */
-  /* SYM `8c` order is r (AUTO sp+24), moviename (AUTO sp+32),
-     trackInfo (AUTO sp+112).  P865 removes the two non-SYM value carriers:
-     hVideo owns VIDEO_create's result, and fTVTicks owns the FE_Ticks() snapshot.
-     This preserves PASS 82/82 with an exact debug twin.  SLD still cannot
-     establish the snapshot's original spelling/order: retail labels the
-     hoisted load as 252 and its store as 258; putting the assignment after
-     the resets (lexical 258) instead schedules that load too late (FAIL 4). */
 #line 216 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.CPP"
 void tScreenPinkSlips::Initialize()
 
@@ -235,8 +187,8 @@ void tScreenPinkSlips::Initialize()
   tTrackInformation trackInfo;
 
   r.x = 0x200;
-
-  r.w = 0xaa; r.y = 0;
+  r.y = 0;
+  r.w = 0xaa;
   r.h = 0x100;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
@@ -263,12 +215,12 @@ void tScreenPinkSlips::Initialize()
   this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
   VIDEO_spoolfile(this->hVideo,moviename);
   VIDEO_startplayback(this->hVideo);
-  this->fTVTicks = FE_Ticks(); this->fFrame = 0;
+  this->fFrame = 0;
 
   this->fBrightness = 0;
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
-
+  this->fTVTicks = FE_Ticks();
   this->fTransitionDirection = '\x01'; return;
 }
 
@@ -291,13 +243,6 @@ void tScreenPinkSlips::Cleanup()
 
 
 /* ---- tScreenPinkSlips::UpdateVideoWall  [SCREENPINKSLIPS.CPP:300-315] ---- */
-  /* SYM records no locals.  Repeating the explicit
-     `(signed char)(u_char)fTrackID` expression lets GCC CSE one unsigned byte
-     read across the compare and sprintf argument while retaining retail's
-     lbu/sll/sra promotion sequence; the calls then force the later
-     fPreviousTrack assignment to reread the field.  Writing fTVTicks before
-     fTransitionDirection also schedules the FE_Ticks() load before the -1 store,
-     reproducing retail without the former trackID/iVar1 carriers or volatile. */
 #line 297 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.CPP"
 void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 
@@ -322,10 +267,6 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 
 
 /* ---- tScreenPinkSlips::DrawVideoWall  [SCREENPINKSLIPS.CPP:324-367] ---- */
-  /* MATCH: SLD records only `i` ($s0) and `j` ($s1).  The original reuses `i`
-     for the unsigned-shifted tick delta; introducing a separate tick local
-     displaces `this` from retail's $s2.  The condition order is also material:
-     GCC rotates `j < i && j < 4` into the oracle's entry, top, and bottom tests. */
 #line 321 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.CPP"
 void tScreenPinkSlips::DrawVideoWall()
 

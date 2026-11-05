@@ -322,7 +322,7 @@ int InGame_GetPSXPadValue(int value, int player)
 {
   int c;
   int newControl;
-  int type; __complex__ int index1, index2, index3;
+  int type; int index1, index2, index3;
 
   c = value;
 
@@ -339,13 +339,13 @@ int InGame_GetPSXPadValue(int value, int player)
 
     switch (c) {
     case 0x00800000:
-      __real__ index1 = player << 2;
+      index1 = (index1 = 0, player << 2);
       newControl = ((player << 30) |
-                    (128 - INGAME_INDEX_WORD(__real__ index1, 0x88)) * 0x10000 |
+                    (128 - INGAME_INDEX_WORD(index1, 0x88)) * 0x10000 |
 
 
 
-                    (128 - INGAME_INDEX_WORD(__real__ index1, 0x90)) * 0x100) | 1;
+                    (128 - INGAME_INDEX_WORD(index1, 0x90)) * 0x100) | 1;
       break;
 
     case 0x00200000:
@@ -383,11 +383,11 @@ int InGame_GetPSXPadValue(int value, int player)
                    (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
       break;
     case 0x10000000:
-      __real__ index2 = player << 2;
+      index2 = (index2 = 0, player << 2);
       newControl = (player << 30) | 0x03000000 |
-                   (128 - INGAME_INDEX_WORD(__real__ index2, 0x98)) * 0x10000 |
+                   (128 - INGAME_INDEX_WORD(index2, 0x98)) * 0x10000 |
 
-                   (128 - INGAME_INDEX_WORD(__real__ index2, 0xA0)) * 0x100 | 1;
+                   (128 - INGAME_INDEX_WORD(index2, 0xA0)) * 0x100 | 1;
       break;
 
     case 0x40000000:
@@ -406,13 +406,13 @@ int InGame_GetPSXPadValue(int value, int player)
 
     switch (c) {
     case 0x00800000:
-      __real__ index3 = player << 2;
+      index3 = (index3 = 0, player << 2);
       newControl = ((player << 30) |
-                    (128 - INGAME_INDEX_WORD(__real__ index3, 0x68)) * 0x10000 |
+                    (128 - INGAME_INDEX_WORD(index3, 0x68)) * 0x10000 |
 
 
 
-                    (128 - INGAME_INDEX_WORD(__real__ index3, 0x70)) * 0x100) | 1;
+                    (128 - INGAME_INDEX_WORD(index3, 0x70)) * 0x100) | 1;
       break;
 
     case 0x00200000:
@@ -673,7 +673,7 @@ int InGame_GetDevice(int control)
  * insns), so the angle only pays if the added movables are dead after combine/cse2.
  * NOT ATTEMPTED here (out of budget); recorded so the next belt does not re-run the
  * insn_count or ordering halves in isolation again. */
-#define INGAME_HOFF_PTR ((int *)(i * 4 + (int)__real__ hb))
+#define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hoff))
         /* W76 SYM correction (2026-08-23), byte-neutral PASS 98/98:
            `RampSteering = RampBrake = RampGas = 1` is the typed chained assignment
            whose unnamed base CSE replaces the non-retail `ctrl` local and preserves
@@ -738,13 +738,13 @@ void InGame_SetRamp(void)
   if (Replay_ReplayMode < 2)
   {
 
-    { short i; __complex__ int hb; i = 0; if (i < Cars_gNumHumanRaceCars) { do {
+    { short i; i = 0; if (i < Cars_gNumHumanRaceCars) { do {
         Cars_gHumanRaceCarList[i]->carInfo->RampSteering =
             Cars_gHumanRaceCarList[i]->carInfo->RampBrake =
                 Cars_gHumanRaceCarList[i]->carInfo->RampGas = 1;
-        __real__ hb = (int)hoff; /* SYM-CODEGEN-CARRIER: hb -- blocks the non-retail &hoff loop hoist */
 
-          __real__ hb = (int)((u_int)__real__ hb | ((u_int)__real__ hb & 3)); if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
+
+          if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
         } if (InGame_GetDevice(h[0x51 - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
         } if (InGame_GetDevice(h[0x52 - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
         } i = i + 1; } while (i < Cars_gNumHumanRaceCars); } } } return; }

@@ -279,12 +279,12 @@ void tScreenTournSelect::DrawBackground()
   RECT r;
   tTourneyInfo *tourn;
   int YellowCol;
-  int DarkGreyCol; int GreyCol; long number; char *descriptionText; short shapeY; short shapeX; u_long movieRGB; tourn = TourneyInTier((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
+  int DarkGreyCol; int GreyCol; short shapeY; u_long movieRGB; int tvIdx; tourn = TourneyInTier((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
 
   YellowCol = CalcFadeVal(0xbebe,this->fScreenFadeVal);
   DarkGreyCol = CalcFadeVal(0x232323,this->fScreenFadeVal);
   GreyCol = CalcFadeVal(0x505050,this->fScreenFadeVal);
-  number = TourneyMoney();
+  const long number = TourneyMoney();
 
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
   DrawMoney(TextSys_WordX(0x7b) + 0x8c,TextSys_WordY(0x7b) + 9,6,
@@ -310,8 +310,8 @@ void tScreenTournSelect::DrawBackground()
 
   this->UpdateVideoWall(tourn);
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
-
+  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection))
+  {
     ::UploadSwapShapes((tScreen *)this,0x20);
     this->fTransitionDirection = 1;
     this->fTVTicks = FE_Ticks();
@@ -326,28 +326,28 @@ void tScreenTournSelect::DrawBackground()
 
   if ((this->fFrame & 1U) == 0) { shapeY = 0x50;
   }
-  shapeX = 0x200; movieRGB = 0x2c1e1e;
+  const short shapeX = (movieRGB = 0x2c1e1e, 0x200);
 
   i = 0; do {
 
     j = 0; do {
 
-
+      tvIdx = (u_short)(j + i * 4);
 
       this->tvConfigs[(short)(j + i * 4)].x = j * 0x50 + 0xa5;
-
+      this->tvConfigs[(short)(j + i * 4)].y = i * 0x30 + 0x29;
       this->tvConfigs[(short)(j + i * 4)].w = 0x50;
       this->tvConfigs[(short)(j + i * 4)].h = 0x30;
-      this->tvConfigs[(short)(j + i * 4)].y = i * 0x30 + 0x29;
-      this->tvConfigs[(short)(j + i * 4)].u = j * 0x14;
 
-      this->tvConfigs[(short)(j + i * 4)].uw = 0x14; this->tvConfigs[(short)(j + i * 4)].v = i * 0x28;
+      this->tvConfigs[(short)(j + i * 4)].u = j * 0x14;
+      this->tvConfigs[(short)(j + i * 4)].v = i * 0x28;
+      this->tvConfigs[(short)(j + i * 4)].uw = 0x14;
       this->tvConfigs[(short)(j + i * 4)].vh = 0x28;
 
       this->tvConfigs[(short)(j + i * 4)].tpage = GetTPage(2,0,shapeX,shapeY);
+      this->tvConfigs[(short)(j + i * 4)].clut = 0;
 
-
-      this->tvConfigs[(short)(j + i * 4)].state = tv_StateOn; this->tvConfigs[(short)(j + i * 4)].clut = 0;
+      this->tvConfigs[(short)(j + i * 4)].state = tv_StateOn;
       this->tvConfigs[(short)(j + i * 4)].flags = 0x22;
       this->tvConfigs[(short)(j + i * 4)].tint = movieRGB;
       this->tvConfigs[(short)(j + i * 4)].destBrightness = 0x80;
@@ -359,11 +359,11 @@ void tScreenTournSelect::DrawBackground()
     if (VIDEO_updateframexy(this->hVideo,shapeX,shapeY) != 0) {
 
       this->fFrame++;
-    }
+    } {}
   }
-  else {
-    /* SYM 65e013-65e03a: this buffer belongs to the nested block at
-       80040254-80040288 (source 331-336), AUTO -136, not function scope. */
+  else
+
+  {
     char moviename [80];
     this->fCurrentMovie = 0;
     sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
@@ -394,22 +394,22 @@ void tScreenTournSelect::DrawBackground()
       0x75 - FETextRender_WordWrapHeight(r.w,TextSys_Word(i));
   }
   r.y = (short)this->PreCalculatedTournamentY;
-  j = i - 0x367;
-
-  descriptionText = TextSys_Word(i); i = 0; FETextRender_WordWrapTextRGB(descriptionText,r, CalcFadeVal(0x505050,this->fScreenFadeVal));
-  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
 
 
-             textType_ScreenInfo);
+  FETextRender_WordWrapTextRGB(TextSys_Word(i),r, CalcFadeVal(0x505050,this->fScreenFadeVal));
+
+  j = i - 0x367; i = j;
+
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,textType_ScreenInfo);
 
 
   j += 0x37a; FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,j, 0xaa,0x7d,0,textState_Hilighted,textType_ScreenInfo);
-  do {
 
 
 
 
 
+  i = 0; do {
 
     DrawTV(&this->tvConfigs[i]);
     i++; } while (i < 8); return;

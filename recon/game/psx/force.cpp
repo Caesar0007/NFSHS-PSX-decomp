@@ -97,7 +97,7 @@ void Force_Vbl(void)
 {
   for (int i = 0; i < 2; i = i + 1) {
     Force_tGlobal *f; int padnum;
-    int padstate; __complex__ int actuator1;
+    int padstate;
     f = &Force_g[i]; padnum = i << 4;
     padstate = PadGetState(padnum);
 
@@ -115,13 +115,13 @@ void Force_Vbl(void)
     if (f->time > f->fade) {
       f->actuator[0] =
            Force_rand_256[Force_gTick >> 1 & 0xff] < f->high + f->jolt;
-      __real__ actuator1 = 0xff; if (f->low + f->jolt < 0x100) __real__ actuator1 = f->low + f->jolt; f->actuator[1] = __real__ actuator1;
+      f->actuator[1] = (unsigned long long)((f->low + f->jolt > 0xff) ? 0xff : (f->low + f->jolt));
       f->time = f->time - 1;
     }
     else if (f->time != 0) {
       f->actuator[0] =
            Force_rand_256[Force_gTick >> 1 & 0xff] < f->jolt * f->time / f->fade + f->high;
-      __real__ actuator1 = 0xff; if (f->jolt * f->time / f->fade + f->low < 0x100) __real__ actuator1 = f->jolt * f->time / f->fade + f->low; f->actuator[1] = __real__ actuator1;
+      f->actuator[1] = (unsigned long long)((f->jolt * f->time / f->fade + f->low > 0xff) ? 0xff : (f->jolt * f->time / f->fade + f->low));
       f->time = f->time - 1;
     }
     else {

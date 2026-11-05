@@ -88,7 +88,7 @@ void tScreen::GoNonInterlaced()
 
 
 {
-  int *playerViewIndex;
+
 
 
   screenheight = 0xf0;
@@ -96,26 +96,26 @@ void tScreen::GoNonInterlaced()
 
 
 
-  dflip *const displayEnv = gEnviro; const u_short displayHeight = *(u_short *)&screenheight; gEnviro[0].disp.disp.y = 0x100;
-  gEnviro[0].disp.disp.h = displayHeight;
+  dflip *const displayEnv = gEnviro; gEnviro[0].disp.disp.y = 0x100;
+  const u_short displayHeight = *(u_short *)&screenheight; gEnviro[0].disp.disp.h = displayHeight;
   gEnviro[0].disp.screen.h = displayHeight;
   displayEnv[0].disp.isinter = '\0';
   gEnviro[1].disp.disp.y = 0;
   gEnviro[1].disp.screen.h = displayHeight;
   displayEnv[1].disp.isinter = '\0';
 
-  Draw_tView (&viewTable)[] = Draw_gView; playerViewIndex = &Draw_gPlayer1View; Draw_tView *const frontView = &viewTable[*playerViewIndex]; frontView->drawenv[0].dfe = '\0'; Draw_tView *const backView = &viewTable[*playerViewIndex]; frontView->drawenv[0].clip.y = 0;
-  frontView->drawenv[0].clip.h = displayHeight;
-  frontView->drawenv[0].ofs[0] = 0;
-  frontView->drawenv[0].ofs[1] = 0;
-  const short viewHeight = (short)screenheight;
+  Draw_gView[Draw_gPlayer1View].drawenv[0].clip.y = 0;
+  Draw_gView[Draw_gPlayer1View].drawenv[0].clip.h = displayHeight;
+  Draw_gView[Draw_gPlayer1View].drawenv[0].ofs[0] = 0;
+  Draw_gView[Draw_gPlayer1View].drawenv[0].ofs[1] = 0;
+  Draw_gView[Draw_gPlayer1View].drawenv[0].dfe = '\0';
 
-  backView->drawenv[1].clip.y = 0x100;
-
-  backView->drawenv[1].ofs[0] = 0;
-  backView->drawenv[1].ofs[1] = 0x100;
-  backView->drawenv[1].dfe = '\0';
-  backView->drawenv[1].clip.h = viewHeight; DrawSync(0);
+  Draw_gView[Draw_gPlayer1View].drawenv[1].clip.y = 0x100;
+  Draw_gView[Draw_gPlayer1View].drawenv[1].clip.h = (short)screenheight;
+  Draw_gView[Draw_gPlayer1View].drawenv[1].ofs[0] = 0;
+  Draw_gView[Draw_gPlayer1View].drawenv[1].ofs[1] = 0x100;
+  Draw_gView[Draw_gPlayer1View].drawenv[1].dfe = '\0';
+  DrawSync(0);
   VSync(0); return;
 }
 

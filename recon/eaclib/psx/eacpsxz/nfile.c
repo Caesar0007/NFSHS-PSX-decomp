@@ -230,8 +230,8 @@ int FILE_opstatus(unsigned int id)
      * an equivalent addu a0,v1,v0 vs addu a0,v0,v1 operand-order allocator tie-break.
      * 🆕 wave-21 NEGATIVE RESULTS (both reverted, both WORSE): (1) factoring the shared
      * `oparray+(id>>24)*0x30` index-math (byte-identical across opstatus/operror/callbackop/
-     * completeop/priorityop) into a `static`/`static __inline__` helper -- non-inline emits a
-     * real out-of-line `jal` (22 insns, wrong shape entirely); `__inline__` fully substitutes
+     * completeop/priorityop) into a `static`/`static inline` helper -- non-inline emits a
+     * real out-of-line `jal` (22 insns, wrong shape entirely); `inline` fully substitutes
      * with ZERO stack-frame footprint (no phantom appears), same 21-insn shape as direct
      * inline, ruling out "tree-inlined helper leaves a residual frame" for this compiler.
      * (2) merging both `return` sites into a single `result; goto tail;` shared epilogue (the

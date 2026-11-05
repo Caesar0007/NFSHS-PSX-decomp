@@ -28,6 +28,7 @@ struct tMenu {
     virtual bool IsSubMenu();
     virtual void Draw();
     virtual void UpdateTransition();
+    inline short CurrentItem() { return fCurrentItem; }
 #ifdef NFS4_FEMENUDEFS_SURFACE
     // Inferred setter spelling: retail records child PTR tMenu in three
     // constructor inline pairs; the raw stores target fChildMenu.

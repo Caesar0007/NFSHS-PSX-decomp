@@ -1655,7 +1655,7 @@ static short ascii2sjis(u_char ascii_code)
 
 
 {
-  u_short sjis_code; u_char stmp; u_char stmp2; __complex__ unsigned int base; __complex__ int pk;
+  u_short sjis_code; u_char stmp; u_char stmp2; unsigned int base; int pk;
   stmp = 0;
   stmp2 = stmp;
 
@@ -1682,7 +1682,7 @@ static short ascii2sjis(u_char ascii_code)
     }
   }
   if (stmp2 != 0)
-    { __real__ pk = (int)ascii_k_table; __real__ base = stmp2; __real__ base = __real__ base + 0x1f; sjis_code = ((u_short *)__real__ pk)[(u_int)ascii_code - __real__ base]; }
+    { pk = (pk = 0, (int)ascii_k_table) + ((pk = 0) != 0); base = (base = 0, (unsigned int)stmp2) + ((base = 0) != 0); base = (pk = pk, base + 0x1f) + ((base = 0) != 0); sjis_code = ((u_short *)pk)[(u_int)ascii_code - base]; }
   else
     sjis_code = (ascii_table[stmp][0] + ascii_code) - ascii_table[stmp][1];
 

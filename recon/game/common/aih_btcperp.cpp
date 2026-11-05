@@ -9,12 +9,10 @@
 #include "aih_btcperp_types.h"
 #include "aih_btcperp_externs.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+#line 1 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.H"
 static inline int NumCars(void) { return Cars_gNumCars; }
-
-
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline int GameTicks(void) { return simGlobal.gameTicks; }
+static inline crimeType NoCrime(void) { return CRIME_NONE; }
+#line 19 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 
 
 /* Retail aih_btcperp.obj opens .rodata with this unreferenced class tag. */
@@ -212,13 +210,13 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
 
 
-  if (this->pullOverMode_ != 0) { int userReadyToContinue;
-
+  if (this->pullOverMode_ != 0)
+  { int userReadyToContinue;
     this->NotifyCopsOfArrest();
     this->beatingTicksLeft_ -= AI_elapsedTime;
-    if ((this->beatingTicksLeft_ < 1) && (this->hudActivated_ == 0)) {
+    if (this->beatingTicksLeft_ < 1) {
 
-      if (this->IsFalseArrest() != 0) {
+      if (this->hudActivated_ == 0) { if (this->IsFalseArrest() != 0) {
 
         this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
 
@@ -235,7 +233,7 @@ void AIHigh_BTC_Perp::HandlePullOver()
         if (this->hudActivated_ == 0) {
 
           this->NotifyHumanCopsOfArrestHud();
-          this->hudActivated_ = 1; } } }
+          this->hudActivated_ = 1; } } } }
 
 
     userReadyToContinue = this->CheckForControlsPressed(); if ((((this->beatingTicksLeft_ < 1) && (this->pullOverMode_ != 0)) && (userReadyToContinue != 0)) && ((this->hudActivated_ == 1 &&
@@ -245,9 +243,9 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
 
 
-        (0x140 < simGlobal.gameTicks - this->lastPullOverTime_)))) {
-
-      this->lastPullOverTime_ = GameTicks(); this->basicPerpInfo_.crime_ = 0;
+        (0x140 < simGlobal.gameTicks - this->lastPullOverTime_))))
+    {
+      this->lastPullOverTime_ = simGlobal.gameTicks; this->basicPerpInfo_.crime_ = NoCrime();
 
 
       this->NotifyCopsOfArrestComplete();
@@ -258,25 +256,25 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
 
       this->caught_ = 1;
-      this->hudActivated_ = 0; } } else if (this->originalActivationCop_->HasCatchTime() &&
+      this->hudActivated_ = 0; } } else
 
 
 
 
 
 
-           (this->CheckIfCaught() != 0)) {
+  if (this->originalActivationCop_->HasCatchTime() && (this->CheckIfCaught() != 0)) {
 
 
     this->carObj_->pullOver = 1;
 
 
-    this->beatingTicksLeft_ = 0x60;
+      this->beatingTicksLeft_ = 0x60;
 
 
-    this->lastPullOverTime_ = simGlobal.gameTicks;
+      this->lastPullOverTime_ = simGlobal.gameTicks;
 
-    this->pullOverMode_ = 2; } return; }
+      this->pullOverMode_ = 2; } return; }
 /* The line-15/22/33 SLD scopes are the four inline member expansions below.
      ReadBE32 is expanded once for filecount and twice for each directory row;
      IsHeader is expanded for the four trailing filename characters.  Fully
@@ -514,8 +512,8 @@ AIHigh_BTC_Perp::CheckForActivation()
 
           int carType = GameSetup_gData.perpInfo[carHigh->CurrentStage()].CarType;
 
-          if (carType == this->carObj_->carInfo->carType) { return carHigh; }
-        } } }
+          if (carType == this->carObj_->carInfo->carType) {
+            return carHigh; } } } }
 
 
 
@@ -859,7 +857,91 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
 
 
-  switch(this->stateType_) { case 0: { this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE); this->perpMode_ = 0; break; } case 1: break; case 2: {
+  switch(this->stateType_)
+  {
+    case 0:
+    {
+      this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE); this->perpMode_ = 0; break; }
+
+
+
+
+
+
+    case 1: break; case 2: {
+      switch(this->perpMode_)
+      {
+
+
+
+
+
+
+        case 0: case 3: case 5: break; case 1: {
+
+
+          if (this->timeUntilContact_ < 0x140)
+          {
+            this->madeContactTime_ = simGlobal.gameTicks;
+
+            if (this->perpMode_ != 2)
+            { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))->slot0(this->carObj_); }
+
+            this->perpMode_ = 2;
+
+            Camera_gInfo[0].forceFocus = 2; Camera_gInfo[0].focusOnAICar =
+                 (char)(this->carObj_)->carIndex;
+            Camera_gInfo[1].forceFocus = 2; Camera_gInfo[1].focusOnAICar =
+                 (char)(this->carObj_)->carIndex; } }
+
+
+
+          break; case 2:
+
+
+
+          this->perpMode_ = 4;
+
+
+          break;
+
+
+
+
+
+
+        case 4: {
+
+          if (this->escapeDuration_ < simGlobal.gameTicks - this->madeContactTime_) {
+
+            this->perpMode_ = 5;
+
+            this->ReleaseCops(); }
+
+          if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40)
+          {
+            if (Camera_gInfo[0].forceFocus != 0)
+            { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
+                  ->slot5(this->carObj_);
+
+
+
+              Camera_ResetRelPos(3); }
+
+            Camera_gInfo[0].forceFocus = 0; Camera_gInfo[0].focusOnAICar =
+                 (char)(this->carObj_)->carIndex;
+            Camera_gInfo[1].forceFocus = 0; Camera_gInfo[1].focusOnAICar =
+                 (char)(this->carObj_)->carIndex; }
+
+
+
+
+
+
+          if (this->originalActivationCop_->CarObj()->direction == this->carObj_->direction)
+          {
+            if (0 < AIWorld_ApxSplineDistance( this->carObj_,this->originalActivationCop_->CarObj()) * this->carObj_->direction)
+            { this->originalActivationCop_->SetRequestedDesiredSpeed(fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc)); } } }
 
 
 
@@ -868,10 +950,46 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
 
 
+          break; default: break; }
 
 
 
-    switch(this->perpMode_) { case 0: case 3: case 5: break; case 1: {
+      if (this->perpMode_ == 5)
+      {
+        this->HandleCops();
+        if (this->pullOverMode_ != 2) {
+          this->AvoidCops(); }
+
+        if (this->caught_ != 0)
+        {
+          this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
+
+
+
+
+
+
+          this->perpMode_ = 0; } } } break;
+
+
+
+
+
+
+    case 7: {
+
+      AIHigh_BTC_HumanCop *chaserCop = this->CheckForActivation();
+      if (chaserCop != (AIHigh_BTC_HumanCop *)0x0)
+      {
+        this->NewStage(chaserCop);
+        this->SetSchedulingOff(0); }
+
+
+      else { this->SetSchedulingOff(1); } }
+
+
+
+      break;
 
 
 
@@ -879,154 +997,34 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
 
 
+    case 10: {
 
 
-
-      if (this->timeUntilContact_ < 0x140) {
-
+      if ((this->perpMode_ == 0) && (this->timeUntilContact_ < 0x140))
+      {
         this->madeContactTime_ = simGlobal.gameTicks;
 
-        if (this->perpMode_ != 2) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
-              ->slot0(this->carObj_); }
+        if (this->perpMode_ != 2)
+        { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))->slot0(this->carObj_); }
 
         this->perpMode_ = 2;
+
 
         Camera_gInfo[0].forceFocus = 2; Camera_gInfo[0].focusOnAICar =
              (char)(this->carObj_)->carIndex;
         Camera_gInfo[1].forceFocus = 2; Camera_gInfo[1].focusOnAICar =
-             (char)(this->carObj_)->carIndex; } }
-
-
-
-      break; case 2:
-
-
-
-      this->perpMode_ = 4;
-
-
-      break; case 4: {
-
-
-
-
-
-
-
-
-      if (this->escapeDuration_ < simGlobal.gameTicks - this->madeContactTime_) {
-
-        this->perpMode_ = 5;
-
-        this->ReleaseCops(); }
-
-      if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
-
-        if (Camera_gInfo[0].forceFocus != 0) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
-
-              ->slot5(this->carObj_);
-
-
-
-          Camera_ResetRelPos(3); }
-
-        Camera_gInfo[0].forceFocus = 0; Camera_gInfo[0].focusOnAICar =
-             (char)(this->carObj_)->carIndex;
-        Camera_gInfo[1].forceFocus = 0; Camera_gInfo[1].focusOnAICar =
              (char)(this->carObj_)->carIndex; }
 
 
+      else if (this->perpMode_ == 2)
+      {
+        this->SetState(new AIState_Normal(this->carObj_),STATE_NORMAL);
+
+        this->perpMode_ = 4;
+        0; } }
 
 
-
-
-      if (this->originalActivationCop_->CarObj()->direction == this->carObj_->direction) { if (0 < AIWorld_ApxSplineDistance( this->carObj_,this->originalActivationCop_->CarObj()) *
-
-                    this->carObj_->direction) { this->originalActivationCop_->SetRequestedDesiredSpeed(
-              fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc)); } } break; } default: break; }
-
-
-
-
-
-
-
-
-
-
-
-
-    if (this->perpMode_ == 5) {
-
-      this->HandleCops();
-      if (this->pullOverMode_ != 2) {
-        this->AvoidCops(); }
-
-      if (this->caught_ != 0) {
-
-        this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE); this->perpMode_ = 0; } } }
-
-
-
-
-
-
-    break; case 7: {
-
-
-
-
-
-
-
-
-    AIHigh_BTC_HumanCop *chaserCop = this->CheckForActivation();
-    if (chaserCop != (AIHigh_BTC_HumanCop *)0x0) {
-
-      this->NewStage(chaserCop);
-      this->SetSchedulingOff(0); }
-
-
-    else { this->SetSchedulingOff(1); } }
-
-
-
-    break; case 10: {
-
-
-
-
-
-
-
-
-
-
-    if ((this->perpMode_ == 0) && (this->timeUntilContact_ < 0x140)) {
-
-      this->madeContactTime_ = simGlobal.gameTicks;
-
-      if (this->perpMode_ != 2) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
-            ->slot0(this->carObj_); }
-
-      this->perpMode_ = 2;
-
-
-      Camera_gInfo[0].forceFocus = 2; Camera_gInfo[0].focusOnAICar =
-           (char)(this->carObj_)->carIndex;
-      Camera_gInfo[1].forceFocus = 2; Camera_gInfo[1].focusOnAICar =
-           (char)(this->carObj_)->carIndex; }
-
-
-    else if (this->perpMode_ == 2) {
-
-      this->SetState(new AIState_Normal(this->carObj_),STATE_NORMAL);
-
-      this->perpMode_ = 4; } } }
-
-
-
-
+      break; }
 
 
 
@@ -1106,21 +1104,21 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
   Object_ClearCustomObjects();
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
 
 
 
-
-  randtemp = fastRandom * randSeed; humanDirection = chaserCop->InitialDirection(); AICop_gRoadBlockState = kAICop_RoadBlockState_None; fastRandom = randtemp & 0xffff; humanMovement = chaserCop->InitialMovement(); placementSide = -1; randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
-
-
-
-  if (randPlacement < 0x14d) {
+  randtemp = fastRandom * randSeed; humanDirection = chaserCop->InitialDirection(); fastRandom = randtemp & 0xffff; humanMovement = chaserCop->InitialMovement(); randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
 
 
 
+  if (randPlacement < 0x14d)
+  {
 
 
+
+    placementSide = -1;
     placementDirection = 0;
     placementSpeed = PLACEMENTSPEED_FAST;
 
@@ -1135,15 +1133,15 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
       this->escapeDuration_ = 0x180;
-      placementDistance = 400; } } else {
+      placementDistance = 400; }
 
 
-    if (humanMovement == 0) { placementSide = 1;
+  } else { if (humanMovement == 0)
+    {
 
 
 
-
-
+      placementSide = 1;
       placementDirection = 0;
       placementSpeed = PLACEMENTSPEED_FAST;
 
@@ -1158,24 +1156,24 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-      placementDistance = 400; chaserCop->SetRequestedDesiredSpeed(0x2c71c7); this->escapeDuration_ = 0x180; } else { placementSide = 1;
+      placementDistance = 400; chaserCop->SetRequestedDesiredSpeed(0x2c71c7); this->escapeDuration_ = 0x180; }
 
 
 
+    else {
 
 
 
-
-
+      placementSide = 1;
       placementDistance = 0x28;
       placementDirection = placementSide;
       placementSpeed = PLACEMENTSPEED_SLOW;
 
       humanCopCarObj->desiredSpeed = 0x2c71c7; chaserCop->SetRequestedDesiredSpeed(0x2c71c7);
 
-      this->escapeDuration_ = 0x1e0; } } (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE( (placementDistance / 6) * placementSide * humanDirection,
+      this->escapeDuration_ = 0x1e0; } }
 
-
+  (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE( (placementDistance / 6) * placementSide * humanDirection,
 
 
 
@@ -1238,20 +1236,20 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-  if (placementSpeed == PLACEMENTSPEED_FAST) {
-
+  if (placementSpeed == PLACEMENTSPEED_FAST)
+  {
     this->SetState(new AIState_Normal(this->carObj_), STATE_NORMAL);
 
 
-    this->perpMode_ = (cruiseMode_t)placementSpeed; } else {
+    this->perpMode_ = (cruiseMode_t)placementSpeed;
 
 
-
+  } else {
 
     this->SetState(new AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000), STATE_CRUISE);
 
-    this->perpMode_ = 0; }
-
+    this->perpMode_ = 0;
+    0; }
 
 
 

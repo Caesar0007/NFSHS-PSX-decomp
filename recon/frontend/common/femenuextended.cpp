@@ -13,9 +13,6 @@
 /* ---- FEMenuExtended.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
-extern int CalcTextFadeSelToHiWide(int, int, int)
-  asm("CalcTextFadeSelToHi__F13tMenuTextTypess");
-
 
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
  *  SYM-CONFORM: the GCC-v2 spelling above is the linkage key; retail source is
@@ -33,53 +30,12 @@ static void MenuNFS4_SetHelpPos(RECT &r)
 
 
 /* ---- MenuNFS4_DrawTextBox  [FEMENUEXTENDED.CPP:66-137] SLD-VERIFIED ---- */
-/* MATCH (source-only, 4 -> PASS 293/293): SLD places the max-selection branch
-   on retail line 92, then the call arguments, jal, and dist add in line 94.  A
-   selected-value boundary preserves that split; separate textType/selFade
-   identities and a void-tail boundary before fade stage retail's a0/a1/a2 and
-   leave `addiu s5,v1,25` for the jal delay slot.  The wide local declaration
-   names the same short-parameter ABI symbol while preventing opaque carriers
-   from adding artificial post-boundary sign extensions.  Instrumented cc1plus
-   plus allocsim/reqdelta identified helpText p80 and fSelFade p98: p80 needs 13
-   refs, supplied by the eight measured last-use operands below, to recover the
-   retail s1/s2 handout.  No build recipe or post-cc1 edit; full TU 57/57 PASS. */
-
-        /* MATCH W86-D3 2026-09-02: textType's identity launder replaced by a
-           PURE-C ABSORPTION inflator.  `textType & (textType | selected)` ==
-           textType for ANY value of selected (absorption law) -- a semantic
-           no-op whose operand is runtime-unknown to cse, so the AND survives
-           to flow (the extra reference is counted) and combine collapses it at
-           ZERO bytes.  Whole-TU gate 57/57 with x1 and x2.  The sibling
-           launders are NOT reachable this way: selFade absorbed against
-           selected/textpix/helpText 20, against dist 46, against fSelFade 4,
-           the OR form 20; fade absorbed against any of them 4; all three at
-           once 26 (removal of all three is 4). */
-      /* SYM-CODEGEN-CARRIER: fade -- the zero-valued identity boundary stages
-         retail's $a2 and leaves the dist add in the call delay slot.
-         W85-S3 (2026-09-02): the EIGHT-operand `__asm__("" : : "r"(helpText) x8)`
-         read fence that used to sit below the second FullTextRGB call is DELETED --
-         it is completely INERT (whole-TU gate 57/57 with and without it).
-         The three identity launders here are NOT: removing them is 4 diffs @293/293,
-         the residual being retail's `addiu s5,v1,25` (the `+ 0x19`) in the
-         CalcTextFadeSelToHiWide jal delay slot where ours emits it before the
-         argument group.  Falsified this wave, all whole-TU gated: do{}while(0) dials
-         on the textType/fade sets 4; the statement expression unrolled into plain
-         statements 4; the plain single-expression `dist = (...) + 0x19` form 4; and
-         moving the `+ 0x19` add AFTER the call (four placements, so the add is
-         genuinely free to sink into the slot) 136 / 136 / 136 / 136, with an
-         in-place `dist += 0x19` 210.  Kept under the W85 iron rule. */
-      /* SYM-CODEGEN-CARRIER: selFade -- the widened copy of stack parameter
-         fSelFade stages retail's $a1 without changing its recorded ABI type. */
-      /* SYM-CODEGEN-CARRIER: textType -- absent from the reliable local list;
-         its identity boundary stages retail's $a0 call argument. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read drenv, daprim, temp, textpix,
-     dist, drawFlags, buffer, shape. */
 #line 62 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
                bool drawArrows,bool reflected)
 
 
-{ DRAWENV *drenv; DR_AREA *daprim; RECT temp; int textpix; int dist; tDrawShapeExtended drawFlags; char buffer [64]; tTexture_ShapeInfo *shape; dist = initialWidth;
+{ DRAWENV *drenv; DR_AREA *daprim; RECT temp; int textpix; int dist; tDrawShapeExtended drawFlags; char buffer [64]; tTexture_ShapeInfo *shape;
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
 
 
@@ -94,61 +50,61 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
   if (reflected != 0) {
     drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - r.y);
   }
-  DrawShape_SubtractNFS4RectEdges(r);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
+  DrawShape_SubtractNFS4RectEdges(r);
 
-  if (-1 < helpText) {
-    daprim = (DR_AREA *)Render_gPacketPtr;
+  if (-1 < helpText)
+  {
     temp.x = 0; temp.y = *(short *)((char *)drenv + 2); temp.w = 0x200; temp.h = 0xf0;
-    addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
+    daprim = (DR_AREA *)Render_gPacketPtr; addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
     SetDrawArea(daprim,&temp);
     FETextRender_SetFont(0);
     sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
     textpix = textpixels(buffer) - strlen(buffer);
-    { int textType; int selFade; int fade; dist = ({ const int selected = textpix >= dist ? textpix : dist;
-        selFade = fSelFade;
-        textType = textType_FlybyHelp; textType &= (textType | selected); short savedSelFade = selFade; selFade = 0; selFade = savedSelFade; /* C-only CSE boundary. */ fade = 0; __asm__("" : "=r"(fade) : "0"(fade)); selected; }) + 0x19; int col = CalcTextFadeSelToHiWide(textType,selFade,fade);
+    dist = (textpix >= initialWidth ? textpix : initialWidth) + 0x19;
 
-      if (reflected != 0) {
-        col = CalcFadeVal(0,col,0xf0 - r.y);
+    int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
+
+    if (reflected != 0) {
+      col = CalcFadeVal(0,col,0xf0 - r.y);
+    }
+    FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset),r.y + 4, col,'\0',0);
+    FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
+
+    if (drawArrows != 0)
+    {
+      int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
+      if (reflected == 0) {
+        ypos = ypos + 2;
       }
-      FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset),r.y + 4, col,'\0',0);
-      { FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
 
-        if (drawArrows != 0) {
+      DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
 
-          int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
-          if (reflected == 0) {
-            ypos = ypos + 2;
-          }
-
-          DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
-
-          DrawShapeExtended(0xb,0x118,r.x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
+      DrawShapeExtended(0xb,0x118,r.x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
 
 
-          DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
+      DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
 
-          DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
-        }
-      }
-    } daprim = (DR_AREA *)Render_gPacketPtr; temp = r;
+      DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
+    }
+
+    temp = r;
     temp.y = temp.y + *(short *)((char *)drenv + 2);
 
 
 
     temp.x = temp.x + 2;
     temp.w = temp.w + -4;
-    addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
+    daprim = (DR_AREA *)Render_gPacketPtr; addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
     SetDrawArea(daprim,&temp);
   }
 
 
-
+  shape = gHelpShapes + 0x1e;
   temp = r;
   temp.y++;
   temp.h -= 2;
-  shape = gHelpShapes + 0x1e; temp.w -= 1 + (shape->width >> 1);
+  temp.w -= 1 + (shape->width >> 1);
   DrawShapeExtended(0x1e,8,(int)temp.x + (int)temp.w,(int)temp.y,0,0,(tDrawShapeExtended *)0x0);
   PSXDrawSquare(0,(int)temp.x,(int)temp.y,(int)temp.w,(int)shape->height); return;
 }
@@ -1023,16 +979,16 @@ void tMenuOptions::Draw()
 
 {
   short numItems; short i; u_long deltaTicks; long x; long y; long w; long h; long itemY; numItems = ((tMenu *)this)->GetNumberEnabledItems();
-  w = 0x140;
+
 
 
 
 
   this->TransitionIsFinished();
-
+  w = 0x140;
   h = numItems * 0x12;
-  if (this->fInMenuTransition != 0) {
-
+  if (this->fInMenuTransition != 0)
+  {
     deltaTicks = FE_Ticks() - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
 
@@ -1065,8 +1021,8 @@ void tMenuOptions::Draw()
   } else if (this->fPlayer == 1) {
     y = y + ((0xf0 - h) >> 2);
   }
-  if (this->fInMenuTransition == 0) {
-
+  if (this->fInMenuTransition == 0)
+  {
     if (-1 < this->fTitle) {
       FETextRender_MenuTextPositionedJustify(this->fTitle,(short)((u_int)((x + ((int)w >> 1)) * 0x10000) >> 0x10), (short)((u_int)((y + 2) * 0x10000) >> 0x10),2,textState_Hilighted, textType_PopUpTitle);
     }
@@ -1092,7 +1048,7 @@ void tMenuOptions::Draw()
 
 
   FeDraw_SetABRMode(0);
-  return; }
+}
 
 
 

@@ -67,10 +67,10 @@ int FEInput_GetNoDebounceKey(int key,int controller)
 
 {
   char *analogs;
-  __complex__ int result;
+
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
-    return 0;
+    goto return_zero;
   }
   FEInput_VerifyControllerValues(controller);
 
@@ -82,31 +82,31 @@ int FEInput_GetNoDebounceKey(int key,int controller)
     switch (key) {
     case 0x800000:
 
-      __real__ result = (u_char)analogs[0] < 0x40; goto return_bool;
+      if ((u_char)analogs[0] < 0x40) goto return_one; return 0;
     case 0x200000:
 
-      __real__ result = (u_char)analogs[0] < 0xc1; goto return_not_bool;
+      if ((u_char)analogs[0] < 0xc1) return 0; goto return_one;
     case 0x100000:
 
-      __real__ result = (u_char)analogs[1] < 0x40; goto return_bool;
+      if ((u_char)analogs[1] < 0x40) goto return_one; return 0;
     case 0x400000:
 
-      __real__ result = (u_char)analogs[1] < 0xc1; goto return_not_bool;
+      if ((u_char)analogs[1] < 0xc1) return 0; goto return_one;
     case (int)0x80000000:
 
-      __real__ result = (u_char)analogs[2] < 0x40; goto return_bool;
+      if ((u_char)analogs[2] < 0x40) goto return_one; return 0;
     case 0x20000000:
 
-      __real__ result = (u_char)analogs[2] < 0xc1; goto return_not_bool;
+      if ((u_char)analogs[2] < 0xc1) return 0; goto return_one;
     case 0x10000000:
 
-      __real__ result = (u_char)analogs[3] < 0x40; goto return_bool;
+      if ((u_char)analogs[3] < 0x40) goto return_one; return 0;
     case 0x40000000:
 
-      __real__ result = (u_char)analogs[3] < 0xc1; goto return_not_bool;
+      if ((u_char)analogs[3] < 0xc1) return 0; goto return_one;
     default:
 
-      __real__ result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state; goto return_mask;
+      if ((~(u_int)gPadinfo.buf[controller * 4].data.standard.state & key) != 0) goto return_one_b; analogs = 0; return 0;
     }
   }
 
@@ -143,27 +143,27 @@ int FEInput_GetNoDebounceKey(int key,int controller)
     switch (key) {
     case 0x200000:
 
-      __real__ result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1; goto return_not_bool;
+      if (gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1) return 0; goto return_one;
     case 0x800000:
 
-      __real__ result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62; return_bool: if (__real__ result) { goto return_one; } return 0;
+      if (gPadinfo.buf[controller * 4].data.negcon.twist < 0x62) goto return_one; return_zero: return 0;
     case 0x8000:
 
 
-      __real__ result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41; goto return_not_bool;
+      if (gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41) return 0; goto return_one;
     case 0x4000:
 
-      __real__ result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41; return_not_bool: if (!__real__ result) { goto return_one; } return 0;
+      if (gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41) return 0; goto return_one;
     default:
 
-      __real__ result = (u_int)PAD_state(controller << 2) & 0xffff; return_mask: if ((__real__ result & key) != 0) { return 1; } __asm__("" : : "i"(0)); return 0;
+      if ((((u_int)PAD_state(controller << 2) & 0xffff) & key) != 0) goto return_one_b; analogs = 0; return 0;
     }
   }
 
   if ((((u_int)PAD_state(controller << 2) & 0xffff) & key) == 0) {
     return 0;
   }
-return_one: return 1;
+return_one_b: return 1; return_one: return 1;
 }
 
 
@@ -190,10 +190,10 @@ int FEInput_GetDebounceKey(int key,int controller)
 
 
 {
-  __complex__ int r;
-  __real__ r = FEInput_GetNoDebounceKey(key,controller);
+  int r;
+  r = FEInput_GetNoDebounceKey(key,controller) != 0;
 
-  if (__real__ r != 0)
+  if (r)
   {
     if ((debounce[controller] & key) != 0)
     {
@@ -294,11 +294,52 @@ FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
   } if (FEInput_GetDebounceKey(0x2000,player) != 0) {
     return kInput_KeyType_Circle;
   }
-  /* Inverting only this final test preserves the bnez tail layout. */
-  if (FEInput_GetDebounceKey(0x8000,player) == 0) {
-    return (tInputKeyType) ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
-  }
-  return kInput_KeyType_Square;
+
+  if (FEInput_GetDebounceKey(0x8000,player) != 0) return kInput_KeyType_Square;
+  if (FEInput_GetDebounceKey(8,player) != 0) return kInput_KeyType_Start;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  return kInput_KeyType_NoKey;
 }
 
 

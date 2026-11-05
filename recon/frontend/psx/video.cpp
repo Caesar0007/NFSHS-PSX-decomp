@@ -18,24 +18,7 @@
 #include "video.h"
 #include "video_externs.h"
 
-
-/* MATCH: split-address view of `ticks` for videodecode's PRE-LOOP read only -- a bare
-   scalar extern compiles to the atomic `lw $r,sym` assembler macro, so its lui cannot
-   interleave with timerhz's the way retail does.  The IN-LOOP read must stay the plain
-   scalar: the array view there lets loop.c hoist the %hi out of the loop (+2 insns). */
-extern int ticks_a[] asm("ticks");
-
-/* lines 1-61: file header, #includes, static data, macros (no symbols emitted) */
-
 /* ---- VIDEO_create  (video.cpp:62, code lines 62-102) ---- */
-/* 2026-10-11 source review: remove the unsupported MDEC binding wrapper;
-   retail has only the root region. The existing hzp timer-rate address
-   capture remains SOURCE-REVIEW-UNRESOLVED, even if debug elides its row.
-   On this corrected shape direct array/dereference reads give6dif/94,
-   scalar and sequenced-comma scalar reads4dif/94: retail uses v1 for the
-   address while those forms use v0/a0. These measured failures do not prove
-   a pointer object existed in original source. No replacement fence/pin,
-   qualifier, dummy use or post-compile rewrite is introduced. */
 #line 59 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
@@ -118,20 +101,20 @@ void VIDEO_spoolfile(int handle,char *fname)
 {
 
 
-  if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state == VIDEOSTATE_IDLE)) {
-    ((VIDEOSTRUCT *)handle)->streamrequestid =
+  if (((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) {
 
 
 
 
 
+    if (((VIDEOSTRUCT *)handle)->state == VIDEOSTATE_IDLE) {
 
 
 
 
-        STREAM_queuefile(((VIDEOSTRUCT *)handle)->videotap,fname,0,0);
-    ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_SPOOLING;
-  } return; }
+      ((VIDEOSTRUCT *)handle)->streamrequestid = STREAM_queuefile(((VIDEOSTRUCT *)handle)->videotap,fname,0,0);
+      ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_SPOOLING; } } return;
+}
 
 /* lines 156-157: (static data / macros / comments - no emitted code) */
 
@@ -143,7 +126,13 @@ void VIDEO_startplayback(int handle)
 {
 
 
-  if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE)) {
+  if (((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) {
+
+
+
+
+
+    if (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE) {
 
 
 
@@ -153,15 +142,9 @@ void VIDEO_startplayback(int handle)
 
 
 
-
-
-
-
-
-
-    if (STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap) >= 20001) {
-      ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING;
-    } } return; }
+      if (STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap) >= 20001) {
+        ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING; } } } return;
+}
 
 /* lines 180-181: (static data / macros / comments - no emitted code) */
 
@@ -203,10 +186,10 @@ enum VIDEOSTATE VIDEO_state(int handle)
 
 
 
-  if (vid->state == VIDEOSTATE_SPOOLING) {
-
-    if (STREAM_state(vid->videotap) == 2) {
-      vid->reftime = VIDEO_TicksNow() * 10;
+  if (vid->state == VIDEOSTATE_SPOOLING)
+  {
+    if (STREAM_state(vid->videotap) == 2)
+    {
 
 
 
@@ -215,21 +198,21 @@ enum VIDEOSTATE VIDEO_state(int handle)
 
 
       vid->state = VIDEOSTATE_PLAYING;
-
+      vid->reftime = VIDEO_TicksNow() * 10;
       vid->displaytime = 0;
       vid->displaytimefrac = 0;
     }
   }
-  else if ((vid->state == VIDEOSTATE_PLAYING) &&
 
-
-
-
-
-          (STREAM_state(vid->videotap) == 0))
+  else if (vid->state == VIDEOSTATE_PLAYING)
   {
-    vid->state = VIDEOSTATE_IDLE;
-  }
+
+
+
+    if (STREAM_state(vid->videotap) == 0)
+    {
+      vid->state = VIDEOSTATE_IDLE;
+    } }
 
 
 
@@ -297,6 +280,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
     videoupdatetime(vid);
 
 
+    if (currenttime < vid->displaytime) {
 
 
 
@@ -304,11 +288,10 @@ int VIDEO_updateframexy(int handle,int x,int y)
 
 
 
-
-    if (currenttime < vid->displaytime && videodecode(vid,chunk,x,y) != 0) {
-      dropped = 0;
-    }
+      if (videodecode(vid,chunk,x,y) != 0) { dropped = 0; } else { dropped = 1; vid->droppedframes = vid->droppedframes + 1; } }
     else {
+
+
 
 
 

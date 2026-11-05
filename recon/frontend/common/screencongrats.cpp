@@ -93,7 +93,7 @@ void tScreenCongrats::Cleanup()
        inlines the bodies at the branch instead. */
     /* [SYM] j lives in the block opened at SLD 19; i in the block nested
        inside it (same source line) -- the 8c record order is j then i. */
-  /* 🔴 CORRECTNESS: the "" here were stale Ghidra rodata placeholders -- the
+  /* CORRECTNESS: the "" here were stale Ghidra rodata placeholders -- the
      oracle sprintf()s into fPermFileNameBuf and hands that buffer back.
      Writing through a string literal was a real runtime bug. */
   /* MATCH (W69, 63 -> PASS): SYM fixes tourneyInfo=$s4, j=$s2, i=$s0,
@@ -108,7 +108,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 
 {
   tTourneyInfo *tourneyInfo;
-  __complex__ short numRanked;
+
   tourneyInfo = tournamentManager.CurrentTourney();
 
 
@@ -125,12 +125,12 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 
   if (2 <= (u_int)(this->trophy - kTrophyCar))
   {
-    int j; __real__ numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
+    int j; const short numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
     j = 900;
-    { int i; i = 1; if (0 < __real__ numRanked) { do {
+    { int i; i = 1; if (0 < numRanked) { do {
           if (tournamentManager.PlayerRanking((short)i) == 0) {
             j = i;
-          } i = i + 1; } while (i <= __real__ numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
+          } i = i + 1; } while (i <= numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
     *swapFileName = congratsSwapFileName;
     numSwapShapes = 0x20; this->fNumSpinShapes = 0x20;
   }
@@ -272,9 +272,9 @@ void tScreenCongrats::DrawBackground()
 
 
 
-        this->framenum = (FE_Ticks() - this->InExtraSpinTick) / 6 + 0x15;
+        const int extraFrame = (FE_Ticks() - this->InExtraSpinTick) / 6;
 
-
+        this->framenum = extraFrame + 0x15;
 
         if (0x29 < this->framenum) {
 
@@ -297,13 +297,13 @@ void tScreenCongrats::DrawBackground()
 
         if (0x13 < this->framenum)
         {
-          __complex__ int spinTicks; __asm__("" : : "i"(0));
-          scale = true;
-          if (((__real__ spinTicks = FE_Ticks(), this->framenum = 0x14),
-               __real__ spinTicks - this->starttick / 4) % 0x5dc < 0x2d)
+          const int twenty = (fJustFadeOff = 0, 0x14);
+          int spinTicks; scale = true; if (((spinTicks = FE_Ticks() - (spinTicks = 0, 0)),
+
+               this->framenum = twenty, spinTicks - this->starttick / 4) % 0x5dc < 0x2d)
           {
-            this->InExtraSpinTick = FE_Ticks();
             this->InExtraSpin = 1;
+            this->InExtraSpinTick = FE_Ticks();
           }
         }
       }
@@ -377,13 +377,13 @@ void tScreenCongrats::DrawBackground()
   else {
     StripeRGB = 0x30022;
   } bannerframe = (this->congratsMessage == kScreenCongrats_Congrats) ? 0x2A : 0x15;
-  drawFlags3.tint[0] = CalcFadeVal(StripeRGB,this->fScreenFadeVal);
-  if ((this->congratsMessage == kScreenCongrats_Congrats) &&
+  ; const int fade3 = CalcFadeVal(StripeRGB,this->fScreenFadeVal);
 
 
+  drawFlags3.tint[0] = fade3;
 
 
-      (this->trophy != kTrophyCar))
+  if ((this->congratsMessage == kScreenCongrats_Congrats) && (this->trophy != kTrophyCar))
   {
     { int i; for (i = 1; i < 0x1e; i++) {
 
@@ -429,36 +429,11 @@ void tScreenCongrats::DrawForeground()
 }
 
 /* ---- tScreenCongrats::CalculatePrizes  (screencongrats.cpp:365) ---- */
-/* SOURCE-REVIEW-UNRESOLVED: retail records only this. carCXBits/carCYBits,
- * both read-only empty asm fences and both volatile stores remain reconstruction
- * devices, NOT recovered original locals/qualifiers or evidence of necessity.
- * 2026-10-12 baseline29/29 PASS: typed direct float fields35dif/30 words;
- * raw literal stores12/29 (early CX store and sequenced message/CY expression
- * still12); nonvolatile Y/CY6/29 (swapping their source order also6).
- * Removing the first fence alone2/29, strictly CX-LUI versus CY-LUI ordering;
- * signed CX/CY constants likewise2. Widened CX constant8/31, duplicated real
- * branch-local CX stores12/31. These failed candidates were reverted, not
- * treated as a compiler/source floor. Next: inspect independent ready-list/
- * memory-dependence causes and authentic float/word-store producer spelling.
- * The old claim that no extra local was used contradicted the actual source
- * and native EXTRA carCXBits record; it is withdrawn. Match is preserved,
- * but this function is not source-restored or native-contract CLEAN.
- * Actual CC1PLPSX RTL receipts: build/nc12/prize_rtl baseline/no_first_fence.
- * Both empty output-less asms are asm_operands/v (implicitly volatile), so
- * the first is a scheduling boundary, not merely an inert extra reference.
- * Baseline scheduler insn15 has ref_count17 (scheduler dependencies, not17
- * source value reads); its ready-list tail is
- * 114/15/13 at T-19/20/21. Without it, CY's split pair112/113 precedes CX13;
- * the final handout still uses a1, leaving two order-only differences.
- * Do not transfer a register-priority-only recipe to this scheduling case. */
 #line 362 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.CPP"
 void tScreenCongrats::CalculatePrizes()
 
 
 {
-  __complex__ unsigned long carCXBits; __real__ carCXBits = 0x40800000;
-  __asm__("" : : "r"(__real__ carCXBits));
-  const unsigned long carCYBits = 0xc0eccccd;
 
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = kTrophyNone;
@@ -466,18 +441,14 @@ void tScreenCongrats::CalculatePrizes()
   this->fCarPlayer = 0;
   this->TotalCash = 0;
   this->CashAwarded = -1;
-  this->fCarX = 0x116;
-  *(unsigned long *)&this->fCarCX = __real__ carCXBits;
-  *(volatile short *)&this->fCarY = 0x3f;
-  *(volatile unsigned long *)&this->fCarCY = carCYBits;
-  if (this->congratsMessage == kScreenCongrats_Eliminated) {
-    this->fCarX = 0x120;
-    this->fCarY = 0x49;
-    this->fCarCY = -8.2;
-  }
-  __asm__("" : : "r"(__real__ carCXBits));
-  return;
-}
+
+
+  this->fCarX = 0x116; this->fCarY = 0x3f;
+  this->fCarCX = 4.0; this->fCarCY = -7.4;
+
+  if (this->congratsMessage == kScreenCongrats_Eliminated)
+  {
+    this->fCarX = 0x120; this->fCarY = 0x49; this->fCarCX = 4.0; this->fCarCY = -8.2; } return; }
 
 /* ---- tScreenCongrats::Initialize  (screencongrats.cpp:385) ---- */
 /* SYM-CODEGEN-CARRIER: vtbl -- retail SYM has no source local here; the original
@@ -867,15 +838,15 @@ void tScreenTournamentTrophy::CalculatePrizes()
 
 
 
-
+  tourneyInfo = tournamentManager.CurrentTourney(); const short numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
 
   j = 900;
-  tourneyInfo = tournamentManager.CurrentTourney(); i = 1; __complex__ short numRanked; __real__ numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0')); if (0 < __real__ numRanked) { do {
+  i = 1; if (0 < numRanked) { do {
       if (tournamentManager.PlayerRanking((short)i) == 0) {
         j = i;
       }
 
-      i = i + 1; } while (i <= __real__ numRanked);
+      i = i + 1; } while (i <= numRanked);
   }
 
   if (j == 1) goto first_place; if (j <= 0) goto eliminated; if (j >= 4) goto eliminated; goto ranked_finish;
@@ -924,15 +895,15 @@ prizes_done:
 
 
 
-  __complex__ long cashAwarded; __real__ cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney; __asm__("" : : "i"(0)); __complex__ unsigned long carCXBits; __real__ carCXBits = 0x40800000; __asm__("" : "=r"(__real__ carCXBits) : "0"(__real__ carCXBits)); this->CashAwarded = __real__ cashAwarded;
+  this->CashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
 
 
   this->fCarX = 0x116; this->fCarY = 0x3f;
-  this->fCarCY = -7.4;
-  *(unsigned long *)&this->fCarCX = __real__ carCXBits;
+  this->fCarCX = 4.0; this->fCarCY = -7.4;
+
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
 
-    this->fCarX = 0x120; this->fCarY = 0x49; this->fCarCY = -8.2; } return; }
+    this->fCarX = 0x120; this->fCarY = 0x49; this->fCarCX = 4.0; this->fCarCY = -8.2; } return; }
 
 
 /* ---- tScreenBeTheCopCongrats::GetCar  (screencongrats.cpp:746) ---- */

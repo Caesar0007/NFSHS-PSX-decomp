@@ -37,9 +37,9 @@ extern tGlobalMenuDefs *menuDefs;   /* SYM 5ba0c1: one pointer, not an array */
 
 /* called game/FE/MCRD/PsyQ functions (Ghidra-dumped signatures) */
 void trap(int code);
-int garyMemCardGrabBlocks(int card, int filenum) asm("garyMemCardGrabBlocks");
+extern "C" int garyMemCardGrabBlocks(int card, int filenum);
 int AudioMus_Buffered(void);
-void Init_Memcard(bool redraw, u_char pinkslips) asm("Init_Memcard__FbT0");
+void Init_Memcard(bool redraw, bool pinkslips);
 void DeInit_Memcard(void);
 void SubtractiveBox(int x, int y, int w, int h, int col1, int col2, int col3, int col4);
 void PSXDrawSquare(int col, int x, int y, int w, int h);

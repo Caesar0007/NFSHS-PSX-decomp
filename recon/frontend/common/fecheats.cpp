@@ -47,7 +47,8 @@ static void FECheat_HandleActivation(tCheatCode cheat)
 
 {
   short i;
-  switch(cheat) {
+  switch(cheat)
+  {
   case cheat_Roadster:
   case cheat_Pony:
   case cheat_Saloon:
@@ -56,7 +57,6 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_GTRCar:
   case cheat_BonusCar:
   case cheat_CopCar:
-
     carManager.SetClassAvailable((tCarClassType)cheat,true);
     break;
   case cheat_AllCars:
@@ -74,13 +74,13 @@ static void FECheat_HandleActivation(tCheatCode cheat)
     trackManager.SetClassAvailable(tct_GTR,true);
     trackManager.SetClassAvailable(tct_Bonus,true);
     break;
-  case cheat_MoreMoney:
-  case cheat_BonusMoney:
-
-    tournamentManager.fMoney = tournamentManager.fMoney + 50000;
+  case cheat_MoreMoney: FECheat_AddMoney(50000);
 
 
-    break; case cheat_LotsaMoney: tournamentManager.fMoney = tournamentManager.fMoney + 100000000;
+    break;
+  case cheat_BonusMoney: FECheat_AddMoney(50000);
+
+    break; case cheat_LotsaMoney: FECheat_AddMoney(100000000);
 
 
     break;
@@ -101,14 +101,15 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_AllNotRaced:
   case cheat_AllGold:
   case cheat_AllSilver:
-  case cheat_AllBronze: {
-    char placement;
-    char *placements; i = 0; placement = (char)cheat + -0x1b; placements = (char *)&tournamentManager; FECheat_placement_test: if (0x3f < i) break; *(char *)((int)i + (int)placements + 0x1f0) = placement;
-    i = i + 1; goto FECheat_placement_test;
+  case cheat_AllBronze:
+
+    for (i = 0; i < 0x40; i = i + 1) { FECheat_SetPlacement(i, cheat - cheat_AllNotRaced);
+    }
     break;
-  }
-  }
-  return; }
+
+
+
+  } return; }
 
 
 

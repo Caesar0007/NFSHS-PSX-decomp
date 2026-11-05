@@ -1491,7 +1491,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gZNear = 0x80;
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
-    __complex__ int tgt; __real__ tgt = (int)Camera_gInfo[Vi->player].target; __real__ tgt = (int)((unsigned int)__real__ tgt | ((unsigned int)__real__ tgt & 3u)); if ((((Car_tObj *)__real__ tgt)->control.lights & 4) != 0) {
+    int tgt; if (((((Car_tObj *)(tgt = (tgt = 0, (int)Camera_gInfo[Vi->player].target)))->control.lights | ((Car_tObj *)(tgt | (tgt & 3)))->control.lights) & 4) != 0) {
 
 
       Night_gZDistShift = 0xd;

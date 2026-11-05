@@ -198,15 +198,15 @@ void tScreenAudio::PlaySound()
 void tScreenAudio::DrawForeground()
 
 
-{
-  short fade; __complex__ int fadeCalc; __real__ fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
-  if ((short)__real__ fadeCalc < 0x80) { if ((short)__real__ fadeCalc <= 0) goto DrawFgAudio_fadeZero; } if ((short)__real__ fadeCalc < 0x81) goto DrawFgAudio_fadeDone; __real__ fadeCalc = 0x80; goto DrawFgAudio_fadeDone; DrawFgAudio_fadeZero: __real__ fadeCalc = 0; DrawFgAudio_fadeDone: { int i = 0; fade = (short)__real__ fadeCalc;
+{ short fade; for ({ int dummy; for ({ extern int dummy; int d3, d2 = menuDefs->menuAudio.fScreenFade, fadeCalc; } 0; ) ; } 0; ) ;
+  fadeCalc = d2 >> 1;
+  if (((short)fadeCalc < 0x80) ? ((short)fadeCalc > 0) : true) { if ((short)fadeCalc >= 0x81) fadeCalc = 0x80; } else { d3 = 0; fadeCalc = 0; } fade = (short)fadeCalc; { int i = 0; fadeCalc = 0;
 
-    short savedFadeCalc = (short)__real__ fadeCalc; __real__ fadeCalc = 0; __real__ fadeCalc = savedFadeCalc; /* C-only CSE boundary. */ do {
+    do {
       DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
                  (tDrawShapeExtended *)0x0);
-      i = i + 1; } while (i < 4);
-  }
+      i = i + 1; } while (i < 4); }
+
 
   if (99 < fade) {
 

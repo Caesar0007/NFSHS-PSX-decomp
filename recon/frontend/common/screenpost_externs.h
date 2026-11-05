@@ -69,6 +69,10 @@ static inline tTournamentDefinition *Tournament_Definition() {
   return tournamentManager.fDefinition;
 }
 
+static inline int Tournament_Tier() {
+  return tournamentManager.fTier;
+}
+
 static inline int Tournament_NumRacers() {
   return tournamentManager.fNumRacers;
 }

@@ -765,47 +765,47 @@ void RaceStatistics(void)
 {
   short i; short j;
   short col1; short col2;
-  short colX; char string [40];
+  __complex__ short colX; char string [40];
   short HUD_STATS_POS_X; short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y;
-  int sizeH16; int titleY;
-  int one; int pitch;
-  int colInset; int rowInset;
-  pitch = 0x96; HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
-  one = 1; HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
+  __complex__ int sizeH16; __complex__ int titleY;
+  __complex__ int one; __complex__ int pitch; __complex__ int prod;
+  __complex__ int colInset; __complex__ int rowInset;
+  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
+  __real__ pitch = 0x96; __real__ prod = Cars_gNumHumanRaceCars * __real__ pitch;
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
-  if (GameSetup_gData.numLaps == one) {
+  __real__ one = 1; HUD_STATS_SIZE_W = __real__ prod; if (GameSetup_gData.numLaps == __real__ one) {
     HUD_STATS_SIZE_H -= 0xc;
   }
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
-  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10); HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
+  __real__ sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10); HUD_STATS_POS_Y = (short)(0x78 - (__real__ sizeH16 >> 0x11));
 
 
-  colX = HUD_STATS_POS_X + 0xa;
+  __real__ colX = HUD_STATS_POS_X + 0xa;
 
   const short titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
 
 
-  titleY = 0x76 - (sizeH16 >> 0x11);
+  __real__ titleY = 0x76 - (__real__ sizeH16 >> 0x11);
   short HUD_STATS_HOTPURSUIT_Y;
 
-  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
+  HUD_STATS_HOTPURSUIT_Y = (short)(__real__ titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
 
 
 
-  col1 = colX;
+  col1 = __real__ colX;
   col2 = 0xa0;
   if (1 < Cars_gNumHumanRaceCars) col2 = 0x55;
 
 
 
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x39),titleX,titleY);
+  Font_TextXY(TextSys_Word(0x39),titleX,__real__ titleY);
 
 
-  short ty17 = titleY + 0x11;  /* REVIEW: record-less split temporary (retail tags this add on its own line) */
+  short ty17 = __real__ titleY + 0x11;  /* REVIEW: record-less split temporary (retail tags this add on its own line) */
   Hud_FBuildF4(0,HUD_STATS_POS_X,ty17 + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
 
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
@@ -815,14 +815,14 @@ void RaceStatistics(void)
 
   for (i = 0; (int)i < Cars_gNumHumanRaceCars; i = i + 1) {
       int colmid; /* SYM: BLOCK-scoped REG $s2 */
-      colInset = 2;
-      colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + colInset);
-      rowInset = 0x13;
+      __real__ colInset = 2;
+      colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + __real__ colInset);
+      __real__ rowInset = 0x13;
 
-      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1, (sizeH16 >> 0x10) - ((((titleY + 0x11) * 0x10000 >> 0x10) - (int)HUD_STATS_POS_Y) + rowInset),0,'\0','\0');
+      Hud_FBuildF4(0,col2 + -2,((__real__ titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1, (__real__ sizeH16 >> 0x10) - ((((__real__ titleY + 0x11) * 0x10000 >> 0x10) - (int)HUD_STATS_POS_Y) + __real__ rowInset),0,'\0','\0');
 
       if (0 < (int)i) {
-        Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(sizeH16 >> 0x10) + -8,0,'\0','\0');
+        Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(__real__ sizeH16 >> 0x10) + -8,0,'\0','\0');
       }
 
 
@@ -839,7 +839,7 @@ void RaceStatistics(void)
 
 
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
-        Font_TextXY(string,colmid,((titleY + 0x11) * 0x10000 >> 0x10) + -4);
+        Font_TextXY(string,colmid,((__real__ titleY + 0x11) * 0x10000 >> 0x10) + -4);
       }
 
 
@@ -858,14 +858,14 @@ void RaceStatistics(void)
             Font_TextColor(4);
           }
           sprintf(string,TextSys_Word(0x34),(int)j + 1);
-          Font_TextXY(string,(int)col1,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
+          Font_TextXY(string,(int)col1,((__real__ titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
 
           if ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) {
             Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j],string);
           } else {
             Hud_ParseTime(0,string);
           }
-          Font_TextXY(string,col2 + 5,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
+          Font_TextXY(string,col2 + 5,((__real__ titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
         }
      }
     }
@@ -875,7 +875,7 @@ void RaceStatistics(void)
 
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
-      Font_TextXY(string,(int)col1, GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc : ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
+      Font_TextXY(string,(int)col1, GameSetup_gData.numLaps != 1 ? ((__real__ titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc : ((__real__ titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
 
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
@@ -886,7 +886,7 @@ void RaceStatistics(void)
       } else {
         sprintf(string,TextSys_Word(0x35));
       }
-      Font_TextXY(string,col2 + 5, (GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
+      Font_TextXY(string,col2 + 5, (GameSetup_gData.numLaps != 1 ? ((__real__ titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((__real__ titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
 
     if (GameSetup_gData.raceType == RaceType_HotPursuit) {

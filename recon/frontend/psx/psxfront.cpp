@@ -137,23 +137,23 @@ void InitializeSpinningCars(void)
 
 
 
-    { int i = 0; for (; ; ) { __complex__ int carObj; if (2 <= i) goto spinning_cars_initialized;
+    { int i = 0; for (; ; ) { int carObj; if (2 <= i) goto spinning_cars_initialized;
 
-      __real__ carObj = (int)reservememadr("carObj",0x8dc,0);
-      gCarObj[i] = (Car_tObj *)__real__ carObj; blockclear((void *)__real__ carObj,0x8dc);
+      carObj = ((i = i, (int)reservememadr("carObj",0x8dc,0)) ?: 0) + ((carObj = 0) != 0);
+      gCarObj[i] = (Car_tObj *)carObj; blockclear((void *)carObj,0x8dc);
 
-      ((Car_tObj *)__real__ carObj)->carInfo = &GameSetup_gData.carInfo[i];
+      ((Car_tObj *)carObj)->carInfo = &GameSetup_gData.carInfo[i];
 
-      ((Car_tObj *)__real__ carObj)->carInfo->carType = 1;
-      strcpy(((Car_tObj *)__real__ carObj)->carName,GameSetup_gCarNames[((Car_tObj *)__real__ carObj)->carInfo->carType]);
+      ((Car_tObj *)carObj)->carInfo->carType = 1;
+      strcpy(((Car_tObj *)carObj)->carName,GameSetup_gCarNames[((Car_tObj *)carObj)->carInfo->carType]);
 
-      ((Car_tObj *)__real__ carObj)->N.objID = i | 0x100;
-
-
+      ((Car_tObj *)carObj)->N.objID = i | 0x100;
 
 
-      R3DCar_Instantiate3DCar((Car_tObj *)__real__ carObj,i);
-      ((Car_tObj *)__real__ carObj)->N.active = '\x01';
+
+
+      R3DCar_Instantiate3DCar((Car_tObj *)carObj,i);
+      ((Car_tObj *)carObj)->N.active = '\x01';
 
       i = i + 1; } }
 spinning_cars_initialized:
@@ -1178,17 +1178,17 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     height = -height;
   }
 
-  __complex__ int vraw; __real__ vraw = (byte)shp->shapey; v = __real__ vraw;
+  int d; int vraw; vraw = ((d = 0, (int)(byte)shp->shapey) ?: 0) + ((vraw = 0) != 0); v = vraw;
   vh = shp->height;
 
   if ((flags & 2) != 0)
-    v = __real__ vraw - 1;
+    v = vraw - 1;
 
   i = 0;
   while (i < shp->width) {
     int addw;
-    __complex__ int texX; __complex__ unsigned int texXAligned; __complex__ int addwm1; __complex__ int ibp; __complex__ unsigned char vb; __real__ ibp = (i * bpp) / 16; __real__ texX = (uint)(ushort)shp->shapex + __real__ ibp; __real__ texXAligned = __real__ texX & 0xffffffc0U;
-    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)(__real__ texXAligned << 0x10) >> 0xc) / bpp;
+    int texX; unsigned int texXAligned; int addwm1; int ibp; unsigned char vb; ibp = ((d = 0, (i * bpp) / 16) ?: 0) + ((ibp = 0) != 0); texX = ((d = 0, (int)((uint)(ushort)shp->shapex + ibp)) ?: 0) + ((texX = 0) != 0); texXAligned = ((d = 0, (uint)texX & 0xffffffc0U) ?: 0U) + ((texXAligned = 0) != 0);
+    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)(texXAligned << 0x10) >> 0xc) / bpp;
     w = (shp->width - i < 0xff - u) ? shp->width - i : 0xff - u;
 
     prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */ ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
@@ -1202,7 +1202,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
 
 
     *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | (__real__ texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+    *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
 
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
@@ -1213,12 +1213,12 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
 #line 977 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
     w1 = w;
 #line 976 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
-    ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x18] = u + w1; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0x24] = u; __real__ vb = v; ((u_char *)prim)[0x25] = vh + __real__ vb; ((u_char *)prim)[0x31] = vh + __real__ vb; ((u_char *)prim)[0x30] = u + w1;
+    ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x18] = u + w1; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0x24] = u; vb = (vb = 0, ((unsigned char)(d = 0, (unsigned char)v) ?: (unsigned char)0)); ((u_char *)prim)[0x25] = vh + vb; ((u_char *)prim)[0x31] = vh + vb; ((u_char *)prim)[0x30] = u + w1;
     if (w1 <= 0) { w1 = 1;
     }
     if ((flags & 4) != 0) {
-      __real__ addwm1 = addw - 1;
-      *(short *)((u_char *)prim + 8) = ((width + x) - i) + __real__ addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + __real__ addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + __real__ addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + __real__ addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
+      addwm1 = ((d = 0, addw - 1) ?: 0) + ((addwm1 = 0) != 0);
+      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
     }
     else { *(short *)((u_char *)prim + 8) = i + x; *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = w1 + (i + x); *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = i + x; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = w1 + (i + x); *(short *)((u_char *)prim + 0x2e) = y + height;
     }
@@ -1263,8 +1263,8 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
 
 
 {
-  tTexture_ShapeInfo *tShp; int color [4]; __complex__ int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
-  } __real__ bright = 0x80 - fade;
+  tTexture_ShapeInfo *tShp; int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } bright = ((index = index, 0x80 - fade) ?: 0) + ((bright = 0) != 0);
 
 
 
@@ -1279,7 +1279,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,__real__ bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
 
@@ -1398,8 +1398,8 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
 {
   int scalex = 0x20000; int scaley = 0x10000;
   tTexture_ShapeInfo *tShp;
-  int color [4]; __complex__ int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
-  } __real__ bright = 0x80 - fade;
+  int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } bright = ((index = index, 0x80 - fade) ?: 0) + ((bright = 0) != 0);
 
 
 
@@ -1414,7 +1414,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,__real__ bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
 
 
   if ((flags & 0xc0U) != 0) {

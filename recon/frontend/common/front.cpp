@@ -839,8 +839,8 @@ void SetPads(void)
 
       i = 0; while (1) { if (i >= numoffsets) break;
 
-        if (PadInfoMode(pad,4,i) == LookingFor) {
-
+        int mode = PadInfoMode(pad,4,i);
+        if (mode == LookingFor) {
 
 
           gotone = true;
@@ -1576,9 +1576,9 @@ static void Front_InitPlayerCars(tFEStream &streamData)
         }
         streamData.numPlayers = streamData.numPlayers + 1;
 
+        if (frontEnd.gameMode != '\x01') break;
 
-
-      } while ((frontEnd.gameMode == '\x01') && (++i < 2));
+      } while (++i < 2);
     }
   }
   {
@@ -1593,10 +1593,10 @@ static void Front_InitPlayerCars(tFEStream &streamData)
 
 
 
-      if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData.totalModels < maxCarModels)) {
+      if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
 
-
-        streamData.totalModels = streamData.totalModels + 6;
+        if (streamData.totalModels < maxCarModels) {
+        streamData.totalModels = streamData.totalModels + 6; }
       }
 
 
@@ -2048,7 +2048,7 @@ static void Front_InitCopCars(tFEStream &streamData)
 
 {
   tCarModels fBestModel; tCarClassType fBestClass; tCarModels copModel; char copColor; short i; fBestModel = cm_MercedesSLK;
-  i = 0;
+
   fBestClass = cct_Roadster; copModel = cm_CapriceCop;
   copColor = '\0';
 
@@ -2136,7 +2136,7 @@ static void Front_InitCopCars(tFEStream &streamData)
       streamData.copCountry[i] = (ushort)(byte)(streamData.trackInfo).fCountry;
     }
   }
-  return; }
+}
 
 
 
@@ -2232,13 +2232,13 @@ static void Front_InitTrack(tFEStream &streamData)
 {
   /* SYM: the retail body records exactly one local, `tournTrack` in $v1.
      GetTrackByID and rand results remain expression temporaries, not source locals. */
-  tTrackInfo *tournTrack;
+  tTrackInfo *tournTrack; tTrackInformation *trackInfo;
   
   if (frontEnd.raceType == RaceType_Tournament) {
 
     tournamentManager.GetTrackToRace(streamData.track);
-    blockmove(trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber),
-              &streamData.trackInfo,0x30);
+    trackInfo = trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber);
+    blockmove(trackInfo,&streamData.trackInfo,0x30);
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
@@ -2359,8 +2359,8 @@ static void Front_InitTraffic(tFEStream &streamData)
 
 
 
-
-    if (maxTraffic != 0) { do {
+    while (streamData.numTraffic <
+           maxTraffic) {
 
         carModel = (tCarModels)(byte)streamData.trackInfo.fTrafficCars[i++];
         if (5 < (int)i) { i = 0;
@@ -2372,12 +2372,11 @@ static void Front_InitTraffic(tFEStream &streamData)
         }
         streamData.trafficCars[streamData.numTraffic] = (u_short)carModel;
 
-        streamData.numTraffic = streamData.numTraffic + 1;
-      } while (streamData.numTraffic < maxTraffic);
-    }
-  }
-  return;
-}
+        streamData.numTraffic = streamData.numTraffic + 1; } } }
+
+
+
+
 
 
 
@@ -2439,14 +2438,14 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
   short i;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
-  i = 0;
-  if (0 < streamData.numPlayers) { do {
 
+  for (i = 0; i < streamData.numPlayers; i = i + 1) {
 
+      carInfo = streamData.playerCars + i;
       carLineup = &streamData.carLineup[i];
 
       *stream++ = 0x119; *stream++ = (int)streamData.currentCar; *stream++ = (int)(signed char)carLineup->position;
-      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; carInfo = streamData.playerCars + i; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
       *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.transmission[i];
       *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fColor;
       *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
@@ -2501,9 +2500,9 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
       *stream++ = 0x109; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.rampBrake[i];
 
       stream = OutputDisplaySettings(stream,(int)streamData.currentCar,i,streamData.trackInfo);
-      i = i + 1; streamData.currentCar = streamData.currentCar + 1;
-    } while (i < streamData.numPlayers);
+      streamData.currentCar = streamData.currentCar + 1;
   }
+
 
   *stream++ = 0x1d; *stream++ = (int)streamData.numPlayers;
   *stream++ = 0x1e; *stream++ = (int)streamData.numOpponents;
@@ -2545,9 +2544,9 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
   short i;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
-  i = 0;
-  if (0 < streamData.numOpponents) {
-    do {
+
+  for (i = 0; i < streamData.numOpponents; i = i + 1) {
+
       carLineup = &streamData.carLineup[(int)i + (int)streamData.numPlayers];
       carInfo = carManager.GetCarFromID((short)carLineup->carModel);
 
@@ -2567,11 +2566,11 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
 
       *stream++ = 0x122; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fColorList[(byte)carLineup->carColor] >> 0x10 & 0xff | carInfo->fColorList[(byte)carLineup->carColor] & 0xff00 | (carInfo->fColorList[(byte)carLineup->carColor] & 0xff) << 0x10;
       *stream++ = 0x123; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
-      *stream++ = 0x124; *stream++ = (int)streamData.currentCar; i = i + 1; *stream++ = (uint)carInfo->fSpeechColors[(byte)carLineup->carColor];
+      *stream++ = 0x124; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSpeechColors[(byte)carLineup->carColor];
 
       streamData.currentCar = streamData.currentCar + 1;
-    } while (i < streamData.numOpponents);
-  } return stream;
+  }
+  return stream;
 }
 
 
@@ -2679,8 +2678,8 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
     *stream++ = 0x25; *stream++ = 0;
     *stream++ = 0x26; *stream++ = 0;
   }
-  i = 0;
-  if (0 < streamData.numPerpObjects) { do {
+
+  for (i = 0; i < streamData.numPerpObjects; i = i + 1) {
 
       carManagerPtr = &carManager; carInfo = carManagerPtr->GetCarFromID((short)streamData.perps[i].carModel);
 
@@ -2696,9 +2695,9 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
       *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = 0;
-      i = i + 1; streamData.currentCar = streamData.currentCar + 1;
-    } while (i < streamData.numPerpObjects);
+      streamData.currentCar = streamData.currentCar + 1;
   }
+
   *stream++ = 0x25; *stream++ = (int)streamData.numPerps;
 
   return stream;
@@ -2733,12 +2732,12 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
   short i;
   int density;
   tCarInfo *carInfo;
-  i = 0;
-  if (0 < streamData.numTraffic) { do {
+
+  for (i = 0; i < streamData.numTraffic; i = i + 1) {
 
       carInfo = carManager.GetCarFromID(streamData.trafficCars[i]);
 
-      *stream++ = 0x104; i = i + 1; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
       *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = 1;
       *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
@@ -2750,8 +2749,8 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
       *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       streamData.currentCar = streamData.currentCar + 1;
-    } while (i < streamData.numTraffic);
   }
+
   const int traffic = streamData.numTraffic; density = traffic / 3;
   if (0 < streamData.numTraffic) {
     density = (density < 1) ? 1 : density;
@@ -2854,15 +2853,15 @@ bool Front_EnableLocalSpeech(void)
     return false;
   trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
 
-  const int lang = trackInfo.fLanguage;
-  if ((lang != (byte)frontEnd.language) && (0 <= lang) &&
-     (lang < 3 || lang == 6))
+  const int lang = trackInfo.fLanguage; if (lang != (byte)frontEnd.language)
+    if ((0 <= lang) &&
+       (lang < 3 || lang == 6))
 
 
 
 
 
-    result = true;
+      result = true;
 
 
 
@@ -2943,8 +2942,8 @@ int * Front_BuildStream(int *stream)
 
 
 
-
-      seedrandom(frontEnd.randomSeed = seed);
+      frontEnd.randomSeed = seed;
+      seedrandom(seed);
     }
   } for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
     colourChosen[colourLoop] = 0; }
@@ -3011,13 +3010,13 @@ int * Front_BuildStream(int *stream)
 
 
   stream[0x2e] = 3; stream[0x2f] = 1;
-  stream[0x30] = 0x1b; const int randomSeed = (int)frontEnd.randomSeed;
+  stream[0x30] = 0x1b; stream[0x31] = (int)frontEnd.randomSeed;
   stream[0x32] = 0x4a; stream[0x33] = 0;
 
 
 
   stream[0x34] = 0x24;
-  stream[0x31] = randomSeed; gameLang = (uint)(byte)frontEnd.language;
+  gameLang = (uint)(byte)frontEnd.language;
   trackLang = (uint)(byte)streamData.trackInfo.fLanguage;
   if ((frontEnd.localSpeech != '\0') && Front_EnableLocalSpeech()) {
 

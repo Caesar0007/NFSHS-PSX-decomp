@@ -28,19 +28,11 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 
 /* ---- FECheat_HandleActivation  [FECHEATS.CPP:89-152] SLD-VERIFIED ---- */
 
-    /* SYM-CARRIER: supplied `short num` is REG16 in an outer inline-parameter
-       owner at +0x1b0, not a second caller local; root `short i` is separate.
-       Current `i` reuse preserves bytes but does not recover that producer.
-       The old separate-caller-local control FAIL14/116 does not prove an
-       original object or required reuse; genuine inline ownership is open. */
-    /* SYM-CODEGEN-CARRIER: placement
-     * SYM-CODEGEN-CARRIER: placements
-     * Unprovided placement is $a0, manager base $a1; $v0 is the HI scratch,
-     * then loop scratch. Neither capture is proved original or necessary.
-     * Direct-field FAIL10/116 is basin-specific; source removal stays open. */
-  /* W65 PASS (57->0): preserve retail case-body order, pass the records array
-     address directly, and keep the placement cases as a top-tested loop with
-     their value and manager base prepared before the loop. */
+  /* FRONT8 2026-11-07: BYTE+SYM+SLD exact.  The placement cases are one
+     top-tested for loop calling the inline FECheat_SetPlacement(num, placement)
+     with a SHORT placement parameter: retail records only the inline's REG $16
+     num; a char/int placement parameter either records or loses the QI-mode
+     allocation (placement $a0, manager base $a1, index $v1). */
 #line 86 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 static void FECheat_HandleActivation(tCheatCode cheat)
 
@@ -101,14 +93,14 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_AllNotRaced:
   case cheat_AllGold:
   case cheat_AllSilver:
-  case cheat_AllBronze: {
-    char placement;
-    char *placements; i = 0; placement = (char)cheat + -0x1b; placements = (char *)&tournamentManager; FECheat_placement_test: if (0x3f < i) break; *(char *)((int)i + (int)placements + 0x1f0) = placement;
-    i = i + 1; goto FECheat_placement_test;
-    break;
-  }
-  }
-  return; }
+  case cheat_AllBronze:
+
+    for (i = 0; i < 0x40; i = i + 1) { FECheat_SetPlacement(i, cheat - 0x1b);
+    }
+
+
+
+  break; } }
 
 
 

@@ -3385,21 +3385,21 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
     PCOORD16 *tV = (PCOORD16 *)sd->tV;
 
     i = (int)obj->numVertex;
-    while( true ) { i = i - 1; if (i == -1) break;
-      {
+    while( true ) { int x; int y; int z; i = i - 1; if (i == -1) break;
 
 
-        short t1 = vt->x; short t2 = vt->y; short t3 = vt->z; tV->x = t1; tV->y = t2; tV->z = t3;
+
+      { short t1 = vt->x; short t2 = vt->y; short t3 = vt->z; tV->x = t1; tV->y = t2; tV->z = t3;
       }
       gte_ldv0((char *)tV); gte_rt(); gte_stlvnl((char *)sd + 0x9c);
-      {
-        int x = (sd->tv).vx;
-        int y = (sd->tv).vy;
-        int z = (sd->tv).vz;
+
+        x = (sd->tv).vx;
+        y = (sd->tv).vy;
+        z = (sd->tv).vz;
         tV->x = (short)x;
         tV->y = (short)y;
         tV->z = (short)z;
-      }
+
       vt = vt + 1;
       tV = tV + 1;
     }
@@ -3414,8 +3414,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   switch (envmap & 9) {
     case 0: {
 
-      if ((envmap & 0x20U) == 0) {
-        POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
+      if ((envmap & 0x20U) == 0)
+      { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
         while( true ) { i = i - 1; if (i == -1) {
             return;
           }

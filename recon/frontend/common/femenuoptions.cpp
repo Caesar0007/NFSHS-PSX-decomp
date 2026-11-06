@@ -775,15 +775,15 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
 tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx, short diffy,bool fillback)
   : tMenuItem(textDescription)
 {
-
+  fFlags |= 0x80;
   currMenu = (tInsideBoxMenu *)0;
   nextMenu = (tInsideBoxMenu *)0;
   fWidth = width;
   fHeight = height;
-  fSelFade = 0; fFlags |= 0x80; fDiffX = diffx;
+  fDiffX = diffx;
   fDiffY = diffy;
   fFillback = fillback;
-
+  fSelFade = 0;
 
   fFlags |= 0x80;
 }
@@ -1043,18 +1043,18 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
 
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
 
-  if ((this->fFadeVal != 0x80) && (fPlayList)) {
-    DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
+  if (this->fFadeVal != 0x80) {
 
 
-               flareextra);
-  }
+    if (fPlayList) {
+      DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,flareextra); } }
 
 
 
-  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
-    tDrawShapeExtended drawFlags;
-    int width;
+
+  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList))
+  {
+    tDrawShapeExtended drawFlags; int width;
     int drawX; int drawY; width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
 
@@ -1064,9 +1064,9 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     drawY = y + 4; drawX = ((x + width) - (int)shape->width) - 0xa; if (fPlayList) { drawY = y + 3; } DrawShapeExtended(0x3a,0x18,drawX,drawY,0,1,&drawFlags);
   }
 
-  if (this->currMenu != (tInsideBoxMenu *)0x0) {
-    int xx;
-    int yy; int ww; int hh; DRAWENV *drenv; DR_AREA *daprim; RECT full; RECT temp; int gray; tTexture_ShapeInfo *shapetop; tTexture_ShapeInfo *shapebottom; xx = x + this->fDiffX; yy = y + this->fDiffY; ww = this->fWidth; hh = this->fOpenHeight;
+  if (this->currMenu != (tInsideBoxMenu *)0x0)
+  {
+    int xx; int yy; int ww; int hh; DRAWENV *drenv; DR_AREA *daprim; RECT full; RECT temp; int gray; tTexture_ShapeInfo *shapetop; tTexture_ShapeInfo *shapebottom; xx = x + this->fDiffX; yy = y + this->fDiffY; ww = this->fWidth; hh = this->fOpenHeight;
 
     drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
 
@@ -2073,12 +2073,12 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
 
     this->Calibrate();
   }
-  ww = (w >> 1) + -4;
+
   this->fX = (short)x;
   this->fY = (short)y;
 
 
-
+  ww = (w >> 1) + -4;
 
   col = CalcFadeVal(0x551e00,0xc83c1e,(int)this->fSelFade);
   col2 = CalcFadeVal(0x551e00,0xbebe, (int)this->fSelFade);
@@ -2909,8 +2909,8 @@ void tMemoryCardMenuItem::Draw(bool)
   v = (signed short)v; fEnableFade = v - 0x80; if (0x80 < fEnableFade) { fEnableFade = 0x80; } if (fEnableFade < 0) { fEnableFade = 0;
   } if (v < 0x80) { if (0 < v) { if (0x80 <= v) { fEnableSlide = 0x80; } else { fEnableSlide = v;
       }
-    } else { fEnableSlide = 0; } } else { fEnableSlide = 0x80; } if ((this->fFadeVal != 0x80) && (this->fEnableVal != 0)) {
-    fEnableFade = 0x80 - fEnableFade;
+    } else { fEnableSlide = 0; } } else { fEnableSlide = 0x80; } if (this->fFadeVal == 0x80) return;
+    if (this->fEnableVal == 0) return; fEnableFade = 0x80 - fEnableFade;
 
     x = TextSys_WordX(this->fTextDescription);
     y = TextSys_WordY(this->fTextDescription);
@@ -2935,14 +2935,10 @@ void tMemoryCardMenuItem::Draw(bool)
     DrawShapeExtended(0x1e,8,(x + fWidth) - (int)shape->width,y + -3,0,0,
                       (tDrawShapeExtended *)0x0);
     if ((int)shape->width < fWidth) {
+      PSXDrawSquare(0,x,y + -3,fWidth - (int)shape->width,(int)shape->height); }
+  /* retail DROPS the result (06A no-trailing-return); the fade/enable
+     early-return guards put the epilogue on the closing brace (retail 2084). */
 
-
-
-
-      PSXDrawSquare(0,x,y + -3,fWidth - (int)shape->width,(int)shape->height);
-    }
-  }
-  /* retail DROPS the result (06A no-trailing-return) */
 }
 
 

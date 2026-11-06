@@ -5,11 +5,7 @@
 #include "femenudefs.h"
 
 
-inline tDialogMessageString *tDialogMessageString::SetString(int word)
-{
-  string = TextSys_Word(word);
-  return this;
-}
+/* tDialogMessageString::SetString(int) lives in femenudefs_externs.h (header inline: caller-line SLD pairs). */
 
 /* ---- FEMenuDefs.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* tBlankMenuItemGoToMenuNFS4Button_vtable @0x800114d8 + tBlankMenuItemNFS4LeftRightChoice_vtable @0x80011530:
@@ -181,8 +177,8 @@ void MenuExtended_SetSpecialEvent(tMenuCommand &)
 
 {
   frontEnd.carListType = '\x01';
-  frontEnd.tier = '\x01'; frontEnd.pinkSlipsTrackIndex = '\0';
-
+  frontEnd.pinkSlipsTrackIndex = '\0';
+  frontEnd.tier = '\x01';
   frontEnd.raceType = RaceType_Tournament;
   screenMain->SwapBackground(-1);
 }
@@ -681,8 +677,8 @@ bool GenericMenuSaveGame(int showdialog)
   screenMemcard->SetMessage(0x27e);
   FEApp->Redraw();
   uninitafter = false;
-  if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
-    FEApp->NoInputMemCardDialog.SetString(0x282);
+  if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0))
+  { FEApp->NoInputMemCardDialog.SetString(0x282);
 
     FEApp->NoInputMemCardDialog.tDialogBase::Display();
     while (!Dialog_FullyOpen(&FEApp->NoInputMemCardDialog)) {
@@ -728,8 +724,8 @@ bool GenericMenuSaveGame(int showdialog)
 bool PinkSlipsPreSave(void)
 
 {
-  if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
-
+  if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0)
+  {
     bool ret = true; tDialogYesNoTri YesNoDialog; int answer; YesNoDialog.SetString(TextSys_Word(0x273));
     YesNoDialog.SetChoices(0x321,0x322,0);
 
@@ -869,39 +865,39 @@ void MenuExtended_GoToRace(tMenuCommand &command)
   tCarInfo carInfo;
 
   command.type = kMenu_Command_StartRace;
-  popUp = FEApp->MessagePopup(); if (frontEnd.carListType == '\x01') {
+  popUp = FEApp->MessagePopup(); if (frontEnd.carListType == '\x01')
+  {
     if ((carManager.GetNumOwnedCars(0) <= 0) &&
-        (frontEnd.raceType != RaceType_HotPursuit) &&
-        (frontEnd.raceType != RaceType_PinkSlips)) {
-      popUp->SetString(TextSys_Word(0xaa));
+        (frontEnd.raceType != RaceType_HotPursuit) && (frontEnd.raceType != RaceType_PinkSlips))
+    { popUp->SetString(TextSys_Word(0xaa));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
-      return;
-    }
-  }
-
-
-  if (frontEnd.raceType == RaceType_Tournament) {
-
-    if (carManager.GetNumTourneyCars(0) < 1) {
-      popUp->SetString(TextSys_Word(0xf1));
-      popUp->tDialogBase::Display();
-      command.type = kMenu_Command_None;
-
-
-
-
 
       return;
     }
   }
 
+  if (frontEnd.raceType == RaceType_Tournament)
+  {
+    if (carManager.GetNumTourneyCars(0) < 1)
+    { popUp->SetString(TextSys_Word(0xf1));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
 
-  if (frontEnd.raceType == RaceType_HotPursuit) {
 
+
+
+
+      return;
+    }
+  }
+
+
+  if (frontEnd.raceType == RaceType_HotPursuit)
+  {
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
-    if (carInfo.fPursuitAvailable == '\x00') {
-      popUp->SetString(TextSys_Word(0xf2));
+    if (carInfo.fPursuitAvailable == '\x00')
+    { popUp->SetString(TextSys_Word(0xf2));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
 
@@ -909,17 +905,17 @@ void MenuExtended_GoToRace(tMenuCommand &command)
     }
   }
 
-  if (frontEnd.carListType == '\x00') {
-
+  if (frontEnd.carListType == '\x00')
+  {
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
-    if (carInfo.fAvailable == '\x00') {
-      popUp->SetString(TextSys_Word(0xf3));
+    if (carInfo.fAvailable == '\x00')
+    { popUp->SetString(TextSys_Word(0xf3));
 
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
+      return;
     }
   }
-
 }
 
 
@@ -958,40 +954,40 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
   if (frontEnd.raceType == RaceType_PinkSlips) {
     return;
   }
-  if (frontEnd.carListType == '\x01') {
-
+  if (frontEnd.carListType == '\x01')
+  {
     if ((carManager.GetNumOwnedCars(0) <= 0) &&
-        (frontEnd.raceType != RaceType_HotPursuit)) {
-
-
-      popUp->SetString(TextSys_Word(0xaa));
+        (frontEnd.raceType != RaceType_HotPursuit))
+    { popUp->SetString(TextSys_Word(0xaa));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
+
       return;
     }
   }
-  if (frontEnd.carListType == '\x00') {
-    carManager.GetStockCar(
-        (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
-    if (carInfo.fAvailable == '\x00') {
 
-      popUp->SetString(TextSys_Word(0xf3));
+  if (frontEnd.carListType == '\x00')
+  { carManager.GetStockCar(
+        (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
+    if (carInfo.fAvailable == '\x00')
+    { popUp->SetString(TextSys_Word(0xf3));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
-      return;
 
+      return;
 
     }
   }
-  if (frontEnd.raceType == RaceType_HotPursuit) {
-    carManager.GetStockCar(
+
+  if (frontEnd.raceType == RaceType_HotPursuit)
+  { carManager.GetStockCar(
         (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
-    if (carInfo.fPursuitAvailable == '\x00') {
-      popUp->SetString(TextSys_Word(0xf2));
+    if (carInfo.fPursuitAvailable == '\x00')
+    { popUp->SetString(TextSys_Word(0xf2));
 
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
-
+      return;
     }
   }
 }
@@ -1029,8 +1025,8 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 
   frontEnd.tier = '\0';
   tourn = tournamentManager.CurrentTourney(0,frontEnd.tournament);
-  if (0 < tourn->fEntranceFee) {
-
+  if (0 < tourn->fEntranceFee)
+  {
 
 
 
@@ -1042,8 +1038,8 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
       FEApp->MessagePopup()->SetString(0xf6)->tDialogBase::Display();
       return;
     }
-    else {
-
+    else
+    {
       tDialogYesNo popUp; popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x322,0x321,0);
 
@@ -1059,7 +1055,7 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
   tournamentManager.StartNewTournament(0,frontEnd.tournament);
   command.type = kMenu_Command_GoToMenu;
   command.nextMenu = &menuDefs->menuTrackInfo;
-  return; }
+}
 
 
 
@@ -1096,8 +1092,8 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 
 
-  if (0 < tourn->fEntranceFee) {
-
+  if (0 < tourn->fEntranceFee)
+  {
 
     if (tourn->fEntranceFee > tournamentManager.GetMoney())
     {
@@ -1106,8 +1102,8 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
       FEApp->MessagePopup()->SetString(0xf6)->tDialogBase::Display();
       return;
     }
-    else {
-
+    else
+    {
       tDialogYesNo popUp; popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x321,0x322,0);
 
@@ -1123,7 +1119,7 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
   tournamentManager.StartNewTournament(1,frontEnd.specialevent);
   command.type = kMenu_Command_GoToMenu;
   command.nextMenu = &menuDefs->menuTrackInfo;
-  return; }
+}
 
 
 
@@ -1273,11 +1269,11 @@ void MenuExtended_SetHotPursuit(tMenuCommand &)
   frontEnd.carListType = '\0';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\x01';
-  if (frontEnd.gameMode == '\x01') {
-    CarIterator_SetFilter(menuDefs->iteratorCar1, 9);
-  }
-  else {
-    CarIterator_SetFilter(menuDefs->iteratorCar1, 1); } frontEnd.oppNumber = '\0'; return;
+  if (frontEnd.gameMode == '\x01')
+  { CarIterator_SetFilter(menuDefs->iteratorCar1, 9); }
+  else
+  { CarIterator_SetFilter(menuDefs->iteratorCar1, 1); }
+  frontEnd.oppNumber = '\0';
 }
 
 
@@ -1329,15 +1325,15 @@ void MenuExtended_SellCar(tMenuCommand &)
   long money; money = tournamentManager.GetMoney(); money += carManager.CalcUsedPrice((ushort)(byte)frontEnd.garageCar[0]);
   if ((carManager.GetNumOwnedCars(kPlayerOne) > 1) ||
 
-      (money >= carManager.CheapestCarStockPrice())) {
-
+      (money >= carManager.CheapestCarStockPrice()))
+  {
     tDialogYesNo popUp; popUp.SetString(TextSys_Word(0xa5));
     popUp.SetChoices(0x321,0x322,0);
 
 
-    if (popUp.Run() != 0) {
-      tournamentManager.SubtractMoney(
-          -(u_long)carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0));
+    if (popUp.Run() != 0)
+    {
+      tournamentManager.SubtractMoney(-(u_long)carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0));
       menuDefs->iteratorSellerCar.Decrement(kPlayerOne);
       menuDefs->iteratorSellerCar.Increment(kPlayerOne);
       AudioCmn_PlayFESFX(0x1a);
@@ -1412,22 +1408,22 @@ void MenuExtended_BuyCar(tMenuCommand &)
   popUp = FEApp->MessagePopup();
   carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
 
-  if (carManager.GetNumOwnedCars(0) < 0x20) {
-
-    if (tournamentManager.GetMoney() >= carInfo.fPrices[0]) {
-
+  if (carManager.GetNumOwnedCars(0) < 0x20)
+  {
+    if (tournamentManager.GetMoney() >= carInfo.fPrices[0])
+    {
       tDialogYesNo yesNo; yesNo.SetString(TextSys_Word(0xa4));
       yesNo.SetChoices(0x321,0x322,0);
 
 
-      if (yesNo.Run() != 0) {
-        tournamentManager.SubtractMoney(carManager.PurchaseCar(
-            (short)carInfo.fCarID, (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0));
+      if (yesNo.Run() != 0)
+      {
+        tournamentManager.SubtractMoney(carManager.PurchaseCar((short)carInfo.fCarID, (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0));
         AudioCmn_PlayFESFX(0x1a);
       }
     }
-    else {
-
+    else
+    {
       AudioCmn_PlayFESFX(10);
 
       popUp->SetString(0xa7)->tDialogBase::Display();
@@ -1503,17 +1499,17 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
   int upgradeFlag; upgradeFlag = 1 << (upgradeNumber);
 
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
-  if ((carInfo.fUpgrades & upgradeFlag) == 0) {
-
-    if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.GetMoney()) {
-
+  if ((carInfo.fUpgrades & upgradeFlag) == 0)
+  {
+    if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.GetMoney())
+    {
       tDialogYesNo popUp; popUp.SetString(TextSys_Word(0xa6));
       popUp.SetChoices(0x321,0x322,0);
 
 
-      if (popUp.Run() != 0) {
-        tournamentManager.SubtractMoney(
-            carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0], (short)upgradeFlag,0));
+      if (popUp.Run() != 0)
+      {
+        tournamentManager.SubtractMoney(carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0], (short)upgradeFlag,0));
         AudioCmn_PlayFESFX(0x1a);
       }
     }
@@ -1636,8 +1632,8 @@ void MenuExtended_SaveGame(tMenuCommand &)
 #line 921 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void GenericMenuLoadGame(int player)
 {
-  if (CURRENTLYUSINGMEMCARD == 0) {
-
+  if (CURRENTLYUSINGMEMCARD == 0)
+  {
     screenMemcard->SetMessage(0x27d);
     FEApp->Redraw();
     LoadGame((short)player,false,1);
@@ -1795,10 +1791,10 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
           if (activateCar->fAvailable == '\0') {
 
             carManager.SetCarAvailable((tCarModels)activateCar->fCarID,true);
-
+            result = 1;
             frontEnd.congratsCopCar = activateCar->fCarID;
             frontEnd.congratsCopCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
-            result = 1;
+
           }
         }
       } } } return result;
@@ -1843,16 +1839,16 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
 
 
 
-  switch (frontEnd.raceType) {
+  switch (frontEnd.raceType)
+  {
   case 2:
-
-    if (tournamentManager.IsTournamentFinished() != 0) {
-
+    if (tournamentManager.IsTournamentFinished() != 0)
+    {
       command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuTournamentFinished;
       screenTournamentStandings->SetDrawMoney();
     }
-    else {
-
+    else
+    {
       command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuTournamentStandings;
       screenTournamentStandings3item->SetDrawMoney();
     }
@@ -2074,9 +2070,9 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
 
   FEApp->NoInputMemCardDialog.tDialogBase::Hide();
-  command.type = kMenu_Command_GoToMenuOneWay;
+
   command.nextMenu = &menuDefs->menuMain;
-  FEApp->NoInputMemCardDialog.SetString(0x274);
+  command.type = kMenu_Command_GoToMenuOneWay; FEApp->NoInputMemCardDialog.SetString(0x274);
 
 
   FEApp->NoInputMemCardDialog.tDialogBase::Display();
@@ -2332,9 +2328,9 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
   tDialogYesNo AreYouSure; AreYouSure.SetChoices(0x321,0x322,0); AreYouSure.SetString(TextSys_Word(0x9d));
 
 
-  if (AreYouSure.Run() != 0) {
+  if (AreYouSure.Run() != 0)
+  {
     char string [80];
-
 
 
     Init_Memcard(false,1);

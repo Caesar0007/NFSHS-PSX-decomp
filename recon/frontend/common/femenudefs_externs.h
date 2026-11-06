@@ -121,4 +121,11 @@ static inline void CarIterator_SetFilter(tListIteratorCar &iterator, int filter)
 /* menu-item state test (retail records a variable-free inline pair on menuDefs->itemSaveGame) */
 static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
 
+/* header inline (retail SLD records the caller's line for its block pair) */
+inline tDialogMessageString *tDialogMessageString::SetString(int word)
+{
+  string = TextSys_Word(word);
+  return this;
+}
+
 #endif

@@ -54,7 +54,7 @@ static inline void FECheat_AddMoney(long money)
   tournamentManager.fMoney += money;
 }
 
-static inline void FECheat_SetPlacement(short num, char placement)
+static inline void FECheat_SetPlacement(short num, short placement)
 {
   tournamentManager.fBestPlacement[num] = placement;
 }

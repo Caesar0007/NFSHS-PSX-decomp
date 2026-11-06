@@ -94,41 +94,46 @@ void PAD_update(void);
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
+
     PadInitDirect(&Padglobal[0].nopad, &Padglobal[1].nopad);
     PadStartCom();
+
+
+
+
+
     blockclear(&gPadinfo, 0x54);
     gPadinfo.initialized = 1;
     addtimer(PAD_update);
-  }
-}
+  } }
 
 /* lines 80-82: (static data / macros / comments - no emitted code) */
 
 /* ---- PAD_restore  (PAD.C:83, code lines 83-89) ---- */
 
+/* MATCHED (w33-a10). Two per-obj toolchain-identity facts, both now
+ * reproduced by the build rather than documented as floors:
+ *   1. PAD.OBJ was compiled -mno-split-addresses (PER_TU_FLAGS in
+ *      tools/build.py) -- that is where the unfused `la $s0,gPadinfo`
+ *      (lui %hi + addiu %lo into a callee-saved reg, then plain 0($s0)
+ *      accesses across the calls) comes from. It is a COMPILER address-
+ *      lowering mode, NOT a source shape: no `T *p = &g;` local can
+ *      produce it, which is why every prior wave's lever-#16 attempt
+ *      failed here.
+ *   2. The last 3 diffs were the canonical Tier-1 epilogue-fill signature
+ *      (ours `jr ra; addiu sp` vs the oracle's `addiu sp; jr ra; nop`).
+ *      W80-root retires the historical -fno-delayed-branch workaround: the
+ *      authentic per-function GCC 2.7.2 splice emits the complete 21-insn
+ *      function exactly through the normal maspsx route. */
 #line 82 "D:/nfs4/EACLIB/PSX/PAD.C"
 void PAD_restore(void)
 {
-  /* MATCHED (w33-a10). Two per-obj toolchain-identity facts, both now
-   * reproduced by the build rather than documented as floors:
-   *   1. PAD.OBJ was compiled -mno-split-addresses (PER_TU_FLAGS in
-   *      tools/build.py) -- that is where the unfused `la $s0,gPadinfo`
-   *      (lui %hi + addiu %lo into a callee-saved reg, then plain 0($s0)
-   *      accesses across the calls) comes from. It is a COMPILER address-
-   *      lowering mode, NOT a source shape: no `T *p = &g;` local can
-   *      produce it, which is why every prior wave's lever-#16 attempt
-   *      failed here.
-   *   2. The last 3 diffs were the canonical Tier-1 epilogue-fill signature
-   *      (ours `jr ra; addiu sp` vs the oracle's `addiu sp; jr ra; nop`).
-   *      W80-root retires the historical -fno-delayed-branch workaround: the
-   *      authentic per-function GCC 2.7.2 splice emits the complete 21-insn
-   *      function exactly through the normal maspsx route. */
   if (gPadinfo.initialized != 0) {
+
     deltimer(PAD_update);
     PadStopCom();
     gPadinfo.initialized = 0;
-  }
-}
+  } }
 
 /* lines 90-171: (static data / macros / comments - no emitted code) */
 
@@ -551,20 +556,31 @@ void PAD_update(void)
 {
   int i;
   int active;
-
   for (i = 0; i < 2; i++) {
+
     if (Padglobal[i].nopad != 0) {
-      blockfill(gPadinfo.buf + i * 4, 0x20, 0xff);
-    }
+
+
+      blockfill(gPadinfo.buf + i * 4, 0x20, 0xff); }
+
     else {
       blockmove(Padglobal + i, gPadinfo.buf + i * 4, 8);
       blockfill(gPadinfo.buf + i * 4 + 1, 0x18, 0xff);
     }
   }
+
+
+
+
+
+
   for (i = 0; i < 8; i++) {
+
     active = (gPadinfo.buf[i].nopad == 0);
     if (active != gPadinfo.state[i].bActive) {
+
       if (gPadinfo.state[i].time++ > 5) {
+
         gPadinfo.state[i].bActive = active;
         gPadinfo.state[i].time = 0;
       }

@@ -429,19 +429,11 @@ void Hrz_InitSky(void)
  * hoisted); loops 1/3 = plain do-while (rotated bottom-test). Level-end [16]=[0]
  * wrap copy = plain CVECTOR assign (char-aligned -> lwl/lwr). Tail Hrz_gSaveCol[1]
  * copy = u_long pun (oracle uses ALIGNED lw/sw, a CVECTOR assign would emit lwl/lwr).
- * 2026-10-13: missing empty +80..+f8/+9c..+e8 regions remain unexplained.
- * Ordinary for/break and exit-in-body for variants rotate the loop,7dif/184
- * vs185. Exit-to-label for185PASS does not restore the missing regions,so
- * revert it. Inline height-store/maximum-update references force maximum
- * onto the stack (40dif/191,frame104vs96). By-value maximum helper is
- * 3dif/186; assignment-funnel/GNU-max versions25dif/186. Remove all trial
- * helpers; no invented name, fake use or empty scope retained. These are
- * source-basin receipts, not a floor or proof of original producer identity.
- * 2026-10-22: ordinary source layout restores all185 word/file tags, all12
- * emitted block coordinates and end414; four retail scope records are still
- * missing. The height-query inline controls preserve code but add six records,
- * not the required four; no trial helper is adopted. Receipt:
- * build/nc12/hrz_ring_source_20261022. No full function SYM seal claimed. */
+ * 2026-11-07 DRAW4: the empty retail scopes {22..}35 / {24..}34 are the for-scope and
+ * cond-scope of a plain `for (i = 0; i < 0x10; i++)` whose body declares the record-less
+ * `const int height` (kept scopes put a BLOCK note into the exit test, so jump.c does not
+ * rotate the loop = retail top test; the old while(true)/break form is gone). Blocks,
+ * tags and locals == retail. */
 
 #line 334 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_Init2DRing(void)
@@ -467,21 +459,21 @@ void Hrz_Init2DRing(void)
     int nMaxPmxHeight_InPixels;
     int pnPmxHeight_InPixels [16];
 
+
     nMaxPmxHeight_InPixels = 1;
 
-
-    i = 0; while (true) { if (!(i < 0x10)) break;
+    for (i = 0; i < 0x10; i = i + 1) {
 
 
       gpPmx[i] = gHorizonPixmap[(u_char)Hrz_gTrackSpec->ringPMX[i] & 7];
 
 
 
-      pnPmxHeight_InPixels[i] = gpPmx[i]->v2 - gpPmx[i]->v1;
+      const int height = gpPmx[i]->v2 - gpPmx[i]->v1; pnPmxHeight_InPixels[i] = height;
 
-      if (nMaxPmxHeight_InPixels < pnPmxHeight_InPixels[i]) {
-        nMaxPmxHeight_InPixels = pnPmxHeight_InPixels[i]; }
-      i = i + 1; }
+      if (nMaxPmxHeight_InPixels < height) {
+        nMaxPmxHeight_InPixels = height; }
+      }
 
 
     i = 0; do {
@@ -768,29 +760,17 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     gHrz_Lightning.brightness = gHrz_Lightning.brightness + -0x10;
 }
 
-/* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD map, not full SLD-exact ----
- * SYM lists only `i`; removing source carrier `col` and storing each literal directly is
- * count-exact but FAIL 4 (55/55), moving both loop-setup `li a1,84` sites.
- * 2026-09-22: i belongs inside the on branch. All three native scope address
- * boundaries now agree; col and relative SLD line fidelity remain unresolved.
- * 2026-10-13: direct literals with i initialized before the front-color
- * store, post-decrement in the array index, and pre-decrement in the loop
- * test all retain 55 words but leave the same 4 scheduling differences.
- * Typed UINT-array stores also leave those 4: li a1,84 precedes the loop
- * color's lui/ori instead of following it. Restore the captured body.
- * Paired actual CC1PLPSX -O2 -G4 RTL/loop/sched dumps are preserved at
- * build/nc12/hrz_flicker_{literal,capture}_probe.i.* with exact .i inputs.
- * The literal probe has a separate loop-invariant color move hoisted
- * from each loop body; the capture is already initialized before its loop.
- * This measures those expression graphs, NOT distinct original-object
- * necessity. No replacement const, fence or fake use; col stays unresolved. */
+/* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD map ----
+ * 2026-11-06 DRAW4: col carrier removed. Retail hoists the color constant BEFORE the
+ * count-down `li a1,84` init = a COUNT-UP source loop (loop.c moves the invariant before
+ * strength reduction reverses the loop). Locals == retail (on, i). */
 
 #line 898 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_LightningFlicker(int on)
 
 
 {
-  u_int col; /* UNRESOLVED: absent from retail SYM; not proven necessary. */
+
   if (on != 0)
   {
     int i;
@@ -809,8 +789,8 @@ void Hrz_LightningFlicker(int on)
 
         *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xffc0c0;
 
-        col = 0xffc0c0; for (i = 0x54; -1 < i; i = i - 1) {
-          *(u_int *)&gSkyColor[i] = col; } }
+        for (i = 0; i < 0x55; i = i + 1) {
+          *(u_int *)&gSkyColor[i] = 0xffc0c0; } }
     }
 
 
@@ -827,8 +807,8 @@ void Hrz_LightningFlicker(int on)
 
       *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xc02828;
 
-      col = 0xc02828; for (i = 0x54; -1 < i; i = i - 1) {
-        *(u_int *)&gSkyColor[i] = col; } } }
+      for (i = 0; i < 0x55; i = i + 1) {
+        *(u_int *)&gSkyColor[i] = 0xc02828; } } }
 
 
 

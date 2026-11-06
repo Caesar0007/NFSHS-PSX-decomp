@@ -5523,8 +5523,15 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
  * Original macro spelling remains source-review work. The visibility-list
  * address now uses the matching 32-short row view in this site; the external
  * `short **` declaration is unchanged. No asm, volatile, dummy use or anchor.
- * Receipt: build/nc12/draww_objects_source_20261025/final-proof.json. */
-
+ * Receipt: build/nc12/draww_objects_source_20261025/final-proof.json.
+ * 2026-11-07 DRAW4: EXACT on BYTE+SYM+SLD. The enableBits test is a `continue` guard (retail
+ * for-body {16 holds the second if-scope {61 directly); the special-instance then `{` sits on
+ * its own line (rel 62). */
+/* DEVICE (exact-only): retail records an EMPTY inline-expansion block pair {62 {62 }62 }62 at
+ * the head of the special-instance then-arm (zero code, no parameter records) = a call to an
+ * empty parameterless inline. The original callee is unknown; this hook only reproduces that
+ * expansion (a parameter, even `this`, gets a REG record). */
+static inline void DW_EmptyHook(void) { }
 #line 2714 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
@@ -5551,7 +5558,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-    if (buildList[buildInd].enableBits & 2) {
+    if (!(buildList[buildInd].enableBits & 2)) continue;
 
 
 
@@ -5589,12 +5596,12 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf)) {
+      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf))
+      {
 
 
 
-
-        ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
+        DW_EmptyHook(); ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
         sd->doublelayer = 0;
 
 
@@ -5607,7 +5614,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
         gChunkObjInfo.doFrustumClip = 1;
         DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
       }
-    }
+
 
 
 
@@ -7546,8 +7553,8 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   int i;
   int j;
   CCOORD16 vertex3d [27];
-  Trk_Quad quads [16];
-  Track_tMaterial material; short fx; short fy; short fz; short sx; short sy; short sz; short wx, wy, wz; int slice; coorddef *cp;
+  short wx, wy, wz;
+  short fx; short fy; short fz; short sx; short sy; short sz; int slice; coorddef *cp; Trk_Quad quads [16]; Track_tMaterial material;
   slice = gSpikeBeltSlice;
   cp = (coorddef *)BWorldSm_slices[slice].center;
 

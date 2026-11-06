@@ -1947,12 +1947,12 @@ void Hud_BuildTach(int player)
  * the '#' literal outranked str and the two swapped $s2/$s3 -- the old identity
  * fences, save/dead-set/restore and the void tail fence are all gone).  The 11-
  * branch else-if chain exceeds cse's path length, which is what makes the 0xE5
- * arm re-read *str.  The pad glyphs' width goes through a const element pointer
- * (`shp`, no SYM record): the address must be a pseudo so it is rematerialised
- * as `la; lh 16(reg)` after the FBuildSprite call (direct `.width` folds the
- * offset and hoists the base: 140 diffs).  Residual: those 4 shp scopes are
- * extra SYM blocks (retail 7 scopes, ours 17); the earlier pointer-taking inline
- * Hud_ShapeWidth gave the same bytes but more blocks and 12 tag diffs.
+ * arm re-read *str.  The pad glyphs' width is read through the same int-arithmetic
+ * address as the alphShape tail (`(HudPmx_tShape *)(K * 20 + (int)HudPmx_gShapes)`):
+ * the address stays a pseudo, rematerialised as `la; lh 16(reg)` after the
+ * FBuildSprite call (direct `.width` folds the offset and hoists the base: 140
+ * diffs). 2026-11-07 DRAW4: this replaced the four block-local `shp` element
+ * pointers -> SYM blocks EXACT (7 scopes), bytes/tags unchanged.
  * If/else on one line for the pad-dependent glyphs: a ?: of two int literals
  * stored to char emits sign-extended constants (li -86). */
 #line 1447 "C:/nfs4/GAME/PSX/HUD.CPP"
@@ -1976,20 +1976,20 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
       ix = ix + 2;
 
       if (gPadinfo.buf[0].ID == '#')
-      { HudPmx_tShape *const shp = &HudPmx_gShapes[0xad];
+      {
         if (justwidth == 0)
         {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        ix = (long long)(ix + 3) + shp->width;
+        ix = (long long)(ix + 3) + ((HudPmx_tShape *)((0xad * 20) + (int)HudPmx_gShapes))->width;
       }
       else
-      { HudPmx_tShape *const shp = &HudPmx_gShapes[0xaa];
+      {
         if (justwidth == 0)
         {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        ix = (long long)(ix + 3) + shp->width;
+        ix = (long long)(ix + 3) + ((HudPmx_tShape *)((0xaa * 20) + (int)HudPmx_gShapes))->width;
       }
 
 
@@ -1999,20 +1999,20 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
       if ((GameSetup_gData.commMode == 1) && ((gPadinfo.buf[4].ID == '#') ? (gPadinfo.buf[0].ID != '#') : (gPadinfo.buf[0].ID == '#')))
       {
         if (gPadinfo.buf[4].ID == '#')
-        { HudPmx_tShape *const shp = &HudPmx_gShapes[0xad];
+        {
           if (justwidth == 0)
           {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-          ix = (long long)(ix + 3) + shp->width;
+          ix = (long long)(ix + 3) + ((HudPmx_tShape *)((0xad * 20) + (int)HudPmx_gShapes))->width;
         }
         else
-        { HudPmx_tShape *const shp = &HudPmx_gShapes[0xaa];
+        {
           if (justwidth == 0)
           {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-          ix = (long long)(ix + 3) + shp->width;
+          ix = (long long)(ix + 3) + ((HudPmx_tShape *)((0xaa * 20) + (int)HudPmx_gShapes))->width;
         }
       }
     }
@@ -4121,6 +4121,9 @@ void Hud_BlackThinBox(int x, int y, int w, int h)
 }
 
 /* ---- Hud_Draw321Num__Fiiiiii  [HUD.CPP:3155-3254] SLD-VERIFIED ---- */
+/* 2026-11-07 DRAW4: SYM EXACT. Retail `by` ($21) is the LOOP-2 row only; loop 1 passes
+ * `y + j * 9 + 4` straight to Flare_2DHalo. by2 carrier, the `by = y;` pre-init and the
+ * `by | (by & 3)` absorption are gone (PASS). The receipts below price the old carriers. */
   /* SOURCE-REVIEW-UNRESOLVED: the w-era read-only ref fence `__asm__ volatile("" : : "r"(by))`
      (removal cost 65 diffs) is replaced by the pure-C ABSORPTION IDENTITY
      `X | (X & 3) == X`.  Real RTL for cse/loop/flow (the reference is counted and
@@ -4299,16 +4302,16 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
   int j;
   int k;
   int by;
-  int by2; /* SOURCE-REVIEW-UNRESOLVED: absent from retail locals. */
+
   int index;
-  by = y; /* Defined row baseline even when the optional halo pass is skipped. */
+
 
 
   if (flare_intensity != 0) {
 
     k = 0; j = 0; do {
 
-      i = 0; by = y + j * 5 + j * 4; do {
+      i = 0; do {
 
 
 
@@ -4320,7 +4323,7 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
 
 
 
-          Flare_2DHalo(x + i * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
+          Flare_2DHalo(x + i * 10 + 4,y + j * 9 + 4,flare_intensity,flare_intensity,6);
         }
         i = i + 1; k = k + 1; } while (i < 5);
       j = j + 1; } while (j < 5);
@@ -4335,7 +4338,7 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
 
 
   Hud_BlackThinBox(x - 3,y - 2,0x38,0x31);
-  by = (__typeof__(by))((unsigned int)by | ((unsigned int)by & 3u));
+
 
 
 
@@ -4376,13 +4379,13 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
 
   k = 0; j = 0; do {
 
-    i = 0; by2 = y + j * 9 + 1; do {
+    i = 0; by = y + j * 9 + 1; do {
 
 
 
       index = (Hud_Character[num] & 1 << k) != 0;
 
-      Hud_FBuildSprite(index | 0x3c,x + i * 10 + 1,by2,0x808080,0);
+      Hud_FBuildSprite(index | 0x3c,x + i * 10 + 1,by,0x808080,0);
       i = i + 1; k = k + 1; } while (i < 5);
     j = j + 1; } while (j < 5);
 

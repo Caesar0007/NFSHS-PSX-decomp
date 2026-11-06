@@ -307,18 +307,18 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
       this->fTimeOutStartTick = 0; if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01')) { bool dialogIsIdle; int previousNegconChoice;
 
-        dialogIsIdle = false; if (!this->negconPopUp.IsVisible()) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice != -1) {
-            goto SetCurCtrl_noNegconDialog;
-          } this->fCurrentController = '\0';
+        dialogIsIdle = false; if (!this->negconPopUp.IsVisible()) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice == -1) {
+
+          this->fCurrentController = '\0';
           this->fArrowFade = 0x80;
           this->negconChoice = this->negconPopUp.Run();
           this->fCurrentController =
 
               this->negconChoice != 0 ? '\x02' : '\x01';
           { tGlobalMenuDefs *menuDefinitions = menuDefs;
-            this->negconChoice = previousNegconChoice; fSetMenu = &menuDefinitions->menuControllerNegcon; } goto SetCurCtrl_menuSetVertHelp;
+            this->negconChoice = previousNegconChoice; fSetMenu = &menuDefinitions->menuControllerNegcon; } break; }
         }
-SetCurCtrl_noNegconDialog:
+
         {
 
 
@@ -330,19 +330,19 @@ SetCurCtrl_noNegconDialog:
 
         fSetMenu = &menuDefs->menuControllerNegcon;
       }
-      goto SetCurCtrl_menuSetVertHelp;
+      break;
 
   case 0x41: { if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
         tGlobalMenuDefs *menuDefinitions;
 
         this->fCurrentController = '\x04';
-        menuDefinitions = menuDefs; this->fTimeOutStartTick = 0; fSetMenu = &menuDefinitions->menuControllerDualShock; goto SetCurCtrl_menuSetVertHelp;
+        menuDefinitions = menuDefs; this->fTimeOutStartTick = 0; fSetMenu = &menuDefinitions->menuControllerDualShock; break;
       }
       if ((PadGetState((this->player != 0) * 0x10) == 2) ||
           (((this->fTimeOutStartTick != 0) &&
             (PadGetState((this->player != 0) * 0x10) == 1)) && (0x60 < FE_Ticks() - this->fTimeOutStartTick)) || (this->fCurrentController == '\x03')) {
         setmenutonull = true;
-        goto SetCurCtrl_unknown;
+        this->fTimeOutStartTick = 0; this->fCurrentController = '\x03'; break;
       }
 
 
@@ -351,10 +351,10 @@ SetCurCtrl_noNegconDialog:
       if (this->fTimeOutStartTick == 0) {
         this->fTimeOutStartTick = FE_Ticks();
       }
-      goto SetCurCtrl_menuSetVertHelp;
+      break;
     }
   case 0x53:
-  case 0x73: SetCurCtrl_dualShockDetected: this->fTimeOutStartTick = 0;
+  case 0x73: this->fTimeOutStartTick = 0;
     if (PadGetState((this->player != 0) * 0x10) == 6) {
 
       this->fCurrentController = '\x06';
@@ -367,12 +367,12 @@ SetCurCtrl_noNegconDialog:
       }
     } break;
   default:
-    setmenutonull = true; SetCurCtrl_unknown: this->fTimeOutStartTick = 0;
+    setmenutonull = true; this->fTimeOutStartTick = 0;
 
     this->fCurrentController = '\x03';
     break;
   } }
-SetCurCtrl_menuSetVertHelp:
+
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
     SetMenu(&menuDefs->itemControllerSettings,firsttime,fSetMenu);
   }

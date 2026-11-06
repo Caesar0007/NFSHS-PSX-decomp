@@ -693,7 +693,7 @@ gte_stsxy(&sp2);
   if ((flags & 1U) != 0)
   { VECTOR tvec1;           /* @sp+0x50 */
     VECTOR tvec2;           /* @sp+0x68 */
-    long result;            /* v1 (the -600 clamp temp) */
+
 
 
     gte_ldtr0();
@@ -709,9 +709,9 @@ gte_stlvnl(&tvec1);
     if ((flags & 2U) != 0) {
       tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
     }
-    result = tvec2.vz + -0x258; if (result < 0) { result = 0; } tvec2.vz = result;
+    tvec2.vz = tvec2.vz + -0x258 < 0 ? 0 : tvec2.vz + -0x258;
 
-    gscale = gscale * result >> 0xb;
+    gscale = gscale * tvec2.vz >> 0xb;
   }
 
   if ((type & 0x100U) != 0)

@@ -68,8 +68,8 @@ void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 
 {
-  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) { if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawVerticalLine_high; } if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } goto DrawVerticalLine_draw; DrawVerticalLine_high: gridpos = 0x40;
-DrawVerticalLine_draw:
+  if (!(0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) || !(0x3f < ((int)(((uint)(ushort)gridpos << 16)) >> 16))) { if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } } else { gridpos = 0x40; }
+
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,0xa2,1,
                        ((int)gridpos << 0x10) >> 0xf,0); return;
 }
@@ -82,8 +82,8 @@ void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 
 {
-  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) { if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawHorizontalLine_high; } if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } goto DrawHorizontalLine_draw; DrawHorizontalLine_high: gridpos = 0x40;
-DrawHorizontalLine_draw:
+  if (!(0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) || !(0x3f < ((int)(((uint)(ushort)gridpos << 16)) >> 16))) { if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } } else { gridpos = 0x40; }
+
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,0xc0,1,2, ((int)gridpos << 0x10) >> 0xf,0xc); return;
 }
 

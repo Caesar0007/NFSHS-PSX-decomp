@@ -703,7 +703,7 @@ int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 
 
-  if ((pFILE->size & 0x7fU) != 0) goto MCRDsave_errorDefault;
+  if ((pFILE->size & 0x7fU) != 0) return -1;
   {
 
 
@@ -753,7 +753,7 @@ int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 
       if (0x20 < strlen(pFILE->title)) {
-MCRDsave_errorDefault:
+
 
 
 
@@ -1488,7 +1488,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
 
   switch(opResult) {
   case 0:
-    goto iMCRDError_return;
+    break;
   case 1:
 
 
@@ -1498,7 +1498,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
     pCI->status = -1;
     pCI->lasterror = 2;
     gMemCardInfo.bReady = 1;
-    goto iMCRDError_return;
+    break;
   case 2:
 
 
@@ -1506,7 +1506,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
     pCI->status = -4;
     pCI->lasterror = 3;
     gMemCardInfo.bReady = 1;
-    goto iMCRDError_return;
+    break;
   case 3:
 
 
@@ -1518,11 +1518,11 @@ int iMCRD_HandleError(int func,int opResult,int card)
 
 
 
-      goto iMCRDError_return;
+      break;
     }
     else { gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
-      goto iMCRDError_return;
+      break;
     }
   case 4:
 
@@ -1551,7 +1551,7 @@ iMCRDError_formatOK:
         pCI->status = -2;
         pCI->lasterror = 7;
         gMemCardInfo.bReady = 1;
-        goto iMCRDError_return;
+        break;
 
       }
     }
@@ -1564,7 +1564,7 @@ iMCRDError_formatOK:
     pCI->status = -2;
     pCI->lasterror = 5;
     gMemCardInfo.bReady = 1;
-    goto iMCRDError_return;
+    break;
   case 5:
     pCI->lasterror = 0x13;
     gMemCardInfo.bReady = 1;
@@ -1572,7 +1572,7 @@ iMCRDError_formatOK:
 
 
 
-    goto iMCRDError_return;
+    break;
   case 6:
 
 
@@ -1595,7 +1595,7 @@ iMCRDError_formatOK:
 
     pCI->lasterror = 0xe;
     gMemCardInfo.bReady = 1;
-    goto iMCRDError_return;
+    break;
   case 7:
     pCI->lasterror = 0x14;
     gMemCardInfo.bReady = 1;
@@ -1603,7 +1603,7 @@ iMCRDError_formatOK:
 
 
 
-    goto iMCRDError_return;
+    break;
   default:
 
 
@@ -1612,7 +1612,7 @@ iMCRDError_formatOK:
     gMemCardInfo.bReady = 1;
   }
 
-iMCRDError_return:
+
   return code;
 }
 

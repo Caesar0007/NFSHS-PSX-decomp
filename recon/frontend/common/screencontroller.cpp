@@ -185,18 +185,18 @@ void tScreenControllerConfig::CheckConfigs()
       } this->fSwap = 1;
       this->fFade[1] = 1;
       this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
-      if (this->fArrowFade < 0x80) {
+      if (this->fArrowFade >= 0x80) {
 
 
 
-        goto ChkConfigs_textDone;
-      }
+        this->fTextController = this->fCurrentController; } if (this->fTextController == 6) { this->fTextController = 5; } this->fPrevController = this->fCurrentController; return;
+
     }
     else {
-      if ((this->CurrentlyLoadedArt != -1) &&
-         (strcmp(fileNames[(byte)this->fCurrentController], fileNames[this->CurrentlyLoadedArt]) == 0)) {
-        goto ChkConfigs_swapIn;
-      } if (this->fAnimFade != 0) {
+      if (!((this->CurrentlyLoadedArt != -1) &&
+         (strcmp(fileNames[(byte)this->fCurrentController], fileNames[this->CurrentlyLoadedArt]) == 0))) {
+
+        if (this->fAnimFade != 0) {
         return;
       } this->fFade[0] = 1;
       this->fFadeController[0] = (ushort)(byte)this->fPrevController;
@@ -204,12 +204,12 @@ void tScreenControllerConfig::CheckConfigs()
       this->fSwap = 1;
       this->fFade[1] = 1;
       this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
-      if (this->fArrowFade < 0x80) {
-        goto ChkConfigs_textDone; } } this->fTextController = this->fCurrentController;
-ChkConfigs_textDone: if (this->fTextController == 6) {
+      if (this->fArrowFade >= 0x80) {
+        this->fTextController = this->fCurrentController; }
+      if (this->fTextController == 6) {
       this->fTextController = 5;
-    } this->fPrevController = this->fCurrentController; return;
-ChkConfigs_swapIn:
+    } this->fPrevController = this->fCurrentController; return; }
+
 
 
 
@@ -217,7 +217,7 @@ ChkConfigs_swapIn:
     if (((this->fPrevController == 5) || (this->fPrevController == 3)) &&
        ((this->fCurrentController == 4 || (this->fCurrentController == 6)))) {
       this->SwapInController();
-    } this->fPrevController = this->fCurrentController; return;
+    } this->fPrevController = this->fCurrentController; return; }
   }
 
 
@@ -407,15 +407,15 @@ int tScreenControllerConfig::CalcAnimFrame(int frame)
       frame = 1; }
     else if (frame < 0xb) {
       if (9 < frame) { frame = 9; } frame = frame + 2; }
-    else { if (frame < 0x14) goto CalcAnimFrame_low;
+    else if (frame < 0x14) { frame = 0x16 - frame; }
 
-      if (0x1e < frame) goto CalcAnimFrame_high;
-      frame = frame + -0x14; if (9 < frame) { frame = 9; } frame = frame + 0x10; goto CalcAnimFrame_done;
-CalcAnimFrame_low: frame = 0x16 - frame; goto CalcAnimFrame_done;
-CalcAnimFrame_high: frame = 0x38 - frame; } }
+    else if (frame <= 0x1e) {
+      frame = frame + -0x14; if (9 < frame) { frame = 9; } frame = frame + 0x10; }
+    else
+      frame = 0x38 - frame; }
 
 
-CalcAnimFrame_done: return frame;
+  return frame;
 }
 
 /* ---- tScreenControllerConfig::ActualDrawController  (screencontroller.cpp:1105) ---- */

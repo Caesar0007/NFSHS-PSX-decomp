@@ -764,9 +764,9 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
 
 
 {
-  if (keyval == kInput_KeyType_Square) {
-    tCarInfo carInfo;
-    bool validCar;
+  if (keyval == kInput_KeyType_Square)
+  {
+    tCarInfo carInfo; bool validCar;
     tMenuItem *item;
 
     validCar = this->GetCar(carInfo);
@@ -779,37 +779,37 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
     }
     /* SYM-INLINE-THIS: SetTextDescription */
     item->SetTextDescription(0x10b);
-    if (validCar != 0) {
+    if (validCar != 0)
+    {
 
-
-      if ((signed char)carInfo.fCarID == '\b') {
-        item->SetTextDescription(0x10c);
-      } if ((signed char)carInfo.fCarID == '\x01') {
-        item->SetTextDescription(0x10d);
+      if ((signed char)carInfo.fCarID == '\b')
+      { item->SetTextDescription(0x10c);
+      } if ((signed char)carInfo.fCarID == '\x01')
+      { item->SetTextDescription(0x10d);
       }
     }
-    if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01')) {
-      MenuItem_Disable(&menuDefs->itemOpponentUpgrades);
+    if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01'))
+    { MenuItem_Disable(&menuDefs->itemOpponentUpgrades);
     }
   }
   if (keyval != kInput_KeyType_Triangle) {
     return;
-  } if (this->fState == 5) goto st5; if (5 < this->fState) goto ge6; if (this->fState < 2) goto done; goto gamemode; ge6: if (this->fState == 6) goto st6; return;
-st5:
+  } switch (this->fState) {
+  case 5:
 
-  this->SetState(0);
-  goto done;
-st6:
-  this->SetState(2);
+    this->SetState(0);
+    break;
+  case 6:
+    this->SetState(2);
 
-  goto done;
-gamemode:
+    break;
+  case 2: case 3: case 4:
 
 
 
-  if (frontEnd.gameMode == '\x01') {
-    goto done; } this->SetState(1);
-done: return; }
+    if (frontEnd.gameMode == '\x01') {
+      break; } this->SetState(1);
+  } return; }
 
 
 

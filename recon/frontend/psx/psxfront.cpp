@@ -137,7 +137,7 @@ void InitializeSpinningCars(void)
 
 
 
-    { int i = 0; for (; ; ) { int carObj; if (2 <= i) goto spinning_cars_initialized;
+    { int i = 0; for (; ; ) { int carObj; if (2 <= i) break;
 
       carObj = ((i = i, (int)reservememadr("carObj",0x8dc,0)) ?: 0) + ((carObj = 0) != 0);
       gCarObj[i] = (Car_tObj *)carObj; blockclear((void *)carObj,0x8dc);
@@ -156,7 +156,7 @@ void InitializeSpinningCars(void)
       ((Car_tObj *)carObj)->N.active = '\x01';
 
       i = i + 1; } }
-spinning_cars_initialized:
+
 
     R3DCar_PostStartUp();
 

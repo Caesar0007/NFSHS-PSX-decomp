@@ -659,11 +659,11 @@ static int strNextVlc(DECENV *dec)
   cnt = 10;
   do {
 
-    next = strNext(dec); cnt = cnt + -1; if (next != (u_long *)0x0) goto found;
+    next = strNext(dec); cnt = cnt + -1; if (next != (u_long *)0x0) break;
 
   } while (cnt != 0);
-  return -1;
-found:
+  if (next == (u_long *)0x0) return -1;
+
 
   dec->vlcid = (u_int)(dec->vlcid == 0);
   if (DecDCTvlc(next,dec->vlcbuf[dec->vlcid]) != 0) {
@@ -731,29 +731,29 @@ static u_long * strNext(DECENV *dec)
     }
   }
 
-  if (*addr != sector->headm) goto freeit; if (addr[1] == sector->headv) goto accept;
-freeit:
-  StFreeRing(addr);
-  return (u_long *)0x0;
-accept:
+  if ((*addr != sector->headm) || (addr[1] != sector->headv)) {
 
-  if (gMovieFrame > sector->frameCount) goto rewind;
+    StFreeRing(addr);
+    return (u_long *)0x0; }
 
 
+  if (gMovieFrame > sector->frameCount) { bRewindMovie = 1; }
 
 
 
 
-  if (sector->frameCount < gEndFrame) goto setframe;
-rewind:
+
+
+  else if (!(sector->frameCount < gEndFrame)) {
 
 
 
-  bRewindMovie = 1; goto framedone;
-setframe:
 
-  gMovieFrame = sector->frameCount;
-framedone:
+    bRewindMovie = 1; }
+  else {
+
+    gMovieFrame = sector->frameCount; }
+
 
   if ((*(int *)(long long)width_v != (u_int)sector->width) || (gHeight != (u_int)sector->height))
   {

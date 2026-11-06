@@ -259,10 +259,10 @@ void tScreenAudio::DrawBackground()
     break;
   case 4:
     percent = menuDefs->itemAmbientVolume.Percentage();
-    break; default: goto DrawBg_noSlider;
+    break;
 
   }
-DrawBg_noSlider:
+
   if (-1 < percent) { lastpercentage = percent;
   }
   if ((-1 < percent) || (-1 < lastpercentage))

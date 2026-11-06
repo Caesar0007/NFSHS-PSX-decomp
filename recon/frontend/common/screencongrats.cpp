@@ -813,12 +813,12 @@ void tScreenTournamentTrophy::DrawCongratsMessage() {
    explicit cash-award arms4/144 and a raw literal store6/144. Those trials
    are reverted, not proof that original source required these devices.
    Native agreement is not a complete original-source or SLD certificate. */
-  /* MATCH (W82 orch): the kSpinningNone store belongs to the ranked and
-     eliminated paths ONLY -- retail's first_place `goto prizes_done` jumps
-     PAST it (j +0x184, brdist word #9), keeping the Gold/None spinner it
-     just set; a shared store at prizes_done had first_place clobbering it
-     (real semantic bug) and the j landing one insn short.  cross_jump
-     merges these two copies into retail's shared suffix at +0x180. */
+  /* MATCH: the kSpinningNone store belongs to the ranked and eliminated paths
+     ONLY -- the first-place path skips it and keeps the Gold/None spinner it
+     just set.  Written as `switch (j)` with cases 2/3 falling into `default:`
+     for a knockout tourney (FRONT9 round 7; replaced the old `goto prizes_done`
+     ladder, no LABEL records); cross_jump merges the duplicated tails into
+     retail's shared suffix. */
   /* @0x800492A8-D4/0x80049380: oracle computes the tourneyInfo (fTournaments[tourIndex]) POINTER
    * ONCE (kept live in s5) and reuses it for BOTH fKnockout checks below (numRanked's ".fKnockout"
    * AND the later `def->fTournaments[tourIndex].fKnockout` re-test) -- one named local matches. */
@@ -849,8 +849,8 @@ void tScreenTournamentTrophy::CalculatePrizes()
       i = i + 1; } while (i <= numRanked);
   }
 
-  if (j == 1) goto first_place; if (j <= 0) goto eliminated; if (j >= 4) goto eliminated; goto ranked_finish;
-first_place:
+  switch (j) {
+  case 1:
   {
     if (tInfo.fAwardCar != 0) {
 
@@ -864,25 +864,25 @@ first_place:
     }
     this->fSpeechToPlay = 0xf;
     this->congratsMessage = kScreenCongrats_Congrats;
-    goto prizes_done;
+    break;
   }
-ranked_finish:
-  if (tourneyInfo->fKnockout != '\0') goto eliminated;
+  case 2: case 3:
+    if (tourneyInfo->fKnockout == '\0') {
 
-  this->fSpeechToPlay = j + 0xe;
-  this->congratsMessage = kScreenCongrats_Congrats;
-  this->trophy = j == 2 ? kTrophySilver : kTrophyBronze;
-  this->smallSpinningThing = kSpinningNone;
+      this->fSpeechToPlay = j + 0xe;
+      this->congratsMessage = kScreenCongrats_Congrats;
+      this->trophy = j == 2 ? kTrophySilver : kTrophyBronze;
+      this->smallSpinningThing = kSpinningNone;
 
-  goto prizes_done;
+      break; }
 
-eliminated:
+  default:
 
-  this->congratsMessage = kScreenCongrats_Eliminated;
-  this->trophy = kTrophyCar;
-  this->smallSpinningThing = kSpinningNone;
+    this->congratsMessage = kScreenCongrats_Eliminated;
+    this->trophy = kTrophyCar;
+    this->smallSpinningThing = kSpinningNone;
+  }
 
-prizes_done:
 
   this->fCarPlayer = 0;
 

@@ -178,7 +178,7 @@ void tScreenMemcard::LoadIcon(int filenum)
 
             this->ReleaseIcons();
 
-            goto LoadIcon_clearCardFlag;
+            CURRENTLYUSINGMEMCARD = 0; return;
           }
 
 
@@ -235,7 +235,7 @@ void tScreenMemcard::LoadIcon(int filenum)
         }
       }
     }
-LoadIcon_clearCardFlag:
+
   CURRENTLYUSINGMEMCARD = 0;
 
 }
@@ -523,11 +523,11 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
         this->fGetNewIcons = 0; break;
       }
 
-      if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) { if (this->fGetNewIcons == 0) {
+      if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0) && (this->fGetNewIcons == 0)) {
 
-          this->LoadIcon(i);
-        }
-        else { goto DrawMC_readyToGetNewIcons; } } if (this->fGetNewIcons != 0) { DrawMC_readyToGetNewIcons: if (this->fReadyToGetNewIcons != 0) { this->goticon[i] = '\0';
+        this->LoadIcon(i);
+      }
+      if (this->fGetNewIcons != 0) { if (this->fReadyToGetNewIcons != 0) { this->goticon[i] = '\0';
         }
       }
 

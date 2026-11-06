@@ -1991,8 +1991,8 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
 {
-  COORD16 * Nvertice;
   int i;
+  COORD16 * Nvertice;
   Nvertice = obj->Nvertex;
 
   if ((*(u_int *)&sd->ePmx0 == 0) && (*(u_int *)&sd->ePmx1 == 0)) { envmap = envmap & 0xbe;
@@ -2060,8 +2060,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
     i = (int)obj->numVertex;
     while( true ) { i = i + -1; if (i == -1) break;
-      { short t1, t2, t3;
-        t2 = vt->y; t3 = vt->z; t1 = vt->x; tV->x = t1; tV->y = t2; tV->z = t3;
+
+      { short t1, t2, t3; t2 = vt->y; t3 = vt->z; t1 = vt->x; tV->x = t1; tV->y = t2; tV->z = t3;
       }
       vt = vt + 1;
       tV = tV + 1;
@@ -2071,12 +2071,12 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
   i = (int)obj->numFacet;
 
-  switch (envmap & 9) {
-    case 0: {
-      POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
+  switch (envmap & 9)
+  { case 0:
+
       if ((envmap & 2U) == 0)
       {
-        while( true ) { i = i - 1; if (i == -1) {
+        while( true ) { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
             return;
           }
 
@@ -2125,7 +2125,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 
 
-
+          {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -2156,18 +2156,18 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
                 offsetU = sd->offsetU2;
                 offsetV = sd->offsetV2;
               }
-              {
-                u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
+
+              { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
               }
             } else {
-              u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
+              { u_short uv0; u_short uv1; u_short uv2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2; }
             }
-          }
+          } }
         }
       }
+      else
       {
-        POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
-        while( true ) { i = i - 1; if (i == -1) {
+        while( true ) { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
             return;
           }
 
@@ -2216,7 +2216,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 
 
-
+          {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -2243,14 +2243,14 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = sd->offsetU0; u_char v = sd->offsetV0; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
-          } else { Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
-          }
+          } else { u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
+          } }
         }
       }
-    }
+
     break;
-    case 1: { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
-      while( true ) { i = i - 1; if (i == -1) {
+    case 1:
+      while( true ) { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
           return;
         }
 
@@ -2303,11 +2303,11 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 
 
+        {
 
-
-        if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+        if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0))
           {
-            short *z = (short *)(Nvertice + facet->vertexId0); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
+            { short *z = (short *)(Nvertice + facet->vertexId0); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
           } { short *z = (short *)(Nvertice + facet->vertexId1); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
           } { short *z = (short *)(Nvertice + facet->vertexId2); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
           }
@@ -2375,12 +2375,12 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             *(u_short *)((int)prim + 0xe) = clut;
             *(u_short *)((int)prim + 0x16) = tpage;
           }
-          { u_char u = (sd->ePmx0).u0 + 0x40; u_char v = (sd->ePmx0).v0; DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
-          }
-        }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
+
+        } }
 
 
-
+        {
 
 
         prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -2396,13 +2396,13 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
           *(u_char *)((int)prim + 7) = code;
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
-        }
+          u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
+        } }
       }
-    }
-    case 8: {
-      POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
-      while( true ) { i = i - 1; if (i == -1) {
+
+    case 8:
+
+      while( true ) { POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
           return;
         }
 
@@ -2514,8 +2514,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
           }
-        }
-        else {
+        } else {
+
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
           DRAWC_OTLINK_FT3B(sd, prim);
@@ -2537,13 +2537,13 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             *(u_char *)((int)prim + 7) = code;
           }
           {
-            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
+            u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
           }
         }
       }
-    }
-    case 9: { POLY_FT3 *prim; int overlayFlag; int overlayRaw; short facetFlag; int facetValue; Transformer_zFacet *facet; int id0; int id1; int id2; int facet_flag; int sd_otz; u_char code = 0x26;
-      while( true ) { i = i - 1; if ((i | (i & 1) | (i & 2) | (i & 4) | (i & 8) | (i & 16)) == -1) {
+
+    case 9:
+      while( true ) { POLY_FT3 *prim; int overlayFlag; int overlayRaw; short facetFlag; int facetValue; Transformer_zFacet *facet; int id0; int id1; int id2; int facet_flag; int sd_otz; u_char code = 0x26; i = i - 1; if ((i | (i & 1) | (i & 2) | (i & 4) | (i & 8) | (i & 16)) == -1) {
           return;
         }
 
@@ -2624,11 +2624,11 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 
 
+        {
 
-
-        if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+        if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0))
           {
-            short *z = (short *)(Nvertice + facet->vertexId0); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
+            { short *z = (short *)(Nvertice + facet->vertexId0); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
           } { short *z = (short *)(Nvertice + facet->vertexId1); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
           } { short *z = (short *)(Nvertice + facet->vertexId2); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
           }
@@ -2701,9 +2701,9 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             *(u_short *)((int)prim + 0xe) = clut;
             *(u_short *)((int)prim + 0x16) = tpage;
           }
-          { u_char u = (sd->ePmx0).u0 + 0x40; u_char v = (sd->ePmx0).v0; DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
-          }
-        }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
+
+        } }
 
 
         if ((overlayFlag & 3) != 0)
@@ -2738,8 +2738,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
           }
-        }
-        else {
+        } else {
+
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
           DRAWC_OTLINK_FT3B(sd, prim);
@@ -2758,10 +2758,10 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             *(u_char *)((int)prim + 7) = code;
           }
           {
-            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
+            u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
           }
         }
-      } } } }
+      } return; } }
 
 /* ---- DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache [retail DRAWC.CPP:2554-2644; native/byte verified, full SLD attribution open] ---- */
 /* Early guards keep bfct/clipW/clipH in retail's depth-2 regions and the
@@ -3411,12 +3411,12 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
   i = (int)obj->numFacet;
 
-  switch (envmap & 9) {
-    case 0: {
+  switch (envmap & 9)
+  { case 0:
 
       if ((envmap & 0x20U) == 0)
-      { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
-        while( true ) { i = i - 1; if (i == -1) {
+      {
+        while( true ) { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
             return;
           }
 
@@ -3488,7 +3488,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           if (sd->otz < 0) continue; if (sd->sub_otSize < sd->otz) continue;
 
 
-
+          {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -3526,19 +3526,19 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                 offsetU = sd->offsetU2;
                 offsetV = sd->offsetV2;
               }
-              {
-                u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
+
+              { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
               }
             } else {
-              u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
+              { u_short uv0; u_short uv1; u_short uv2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2; }
             }
-          }
+          } }
         }
       }
-
-
+      else
+      {
       while( true ) { i = i - 1; if (i == -1) break;
-        {
+
           Transformer_zFacet *facet = obj->facet + i;
 
           int id0 = facet->vertexId0;
@@ -3596,9 +3596,9 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
       }
       return;
-    }
-    case 1: { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; u_char code;
-      while( true ) { i = i - 1; if (i == -1) {
+
+    case 1:
+      while( true ) { POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
           return;
         }
 
@@ -3669,11 +3669,11 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         sd->otz = sd->otz + sd->sub_otz;
         if (sd->otz < 0) continue; if (sd->sub_otSize < sd->otz) continue;
 
+        {
 
-
-        if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+        if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0))
           {
-            short *z = (short *)&Nvertice[facet->vertexId0]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
+            { short *z = (short *)&Nvertice[facet->vertexId0]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
           } { short *z = (short *)&Nvertice[facet->vertexId1]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
           } { short *z = (short *)&Nvertice[facet->vertexId2]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
           }
@@ -3741,12 +3741,12 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             prim->clut = clut;
             prim->tpage = tpage;
           }
-          { u_char u = (sd->ePmx0).u0 + 0x40; u_char v = (sd->ePmx0).v0; DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
-          }
-        }
-        code = 0x24;
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
+
+        } }
 
 
+        {
 
 
         prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -3755,20 +3755,20 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           long xy0 = *(long *)&sd->dvx0; long xy1 = *(long *)&sd->dvx1; long xy2 = *(long *)&sd->dvx2; *(u_int *)&prim->x0 = xy0; *(u_int *)&prim->x1 = xy1; *(u_int *)&prim->x2 = xy2;
         }
         {
-
-          u_long color = sd->color;
+          u_long color; u_char code = 0x24;
+          color = sd->color;
 
           *(u_int *)&prim->r0 = color;
           prim->code = code;
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
-        }
+          u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
+        } }
       }
-    }
-    case 8: {
-      POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
-      while( true ) { i = i - 1; if (i == -1) {
+
+    case 8:
+
+      while( true ) { POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
           return;
         }
 
@@ -3901,8 +3901,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
             }
           }
-        }
-        else {
+        } else {
+
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
           DRAWC_OTLINK_FT3B(sd, prim);
@@ -3922,13 +3922,13 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             prim->code = code;
           }
           {
-            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
+            u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
           }
         }
       }
-    }
-    case 9: { POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
-      while( true ) { i = i - 1; if (i == -1) {
+
+    case 9:
+      while( true ) { POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2; i = i - 1; if (i == -1) {
           return;
         }
 
@@ -4029,11 +4029,11 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
         if ((envmap & 0x20U) != 0) { if ((facetFlag & 1) != 0) continue;
         }
+        {
 
-
-        if (((facetFlag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+        if (((facetFlag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0))
           {
-            short *z = (short *)&Nvertice[facet->vertexId0]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
+            { short *z = (short *)&Nvertice[facet->vertexId0]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
           } { short *z = (short *)&Nvertice[facet->vertexId1]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
           } { short *z = (short *)&Nvertice[facet->vertexId2]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
           }
@@ -4106,9 +4106,9 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             prim->clut = clut;
             prim->tpage = tpage;
           }
-          { u_char u = (sd->ePmx0).u0 + 0x40; u_char v = (sd->ePmx0).v0; DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
-          }
-        }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
+
+        } }
 
 
         if ((overlayFlag & 3) != 0)
@@ -4134,19 +4134,19 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             if ((facetFlag & 1) != 0) { code = 0x26;
             }
             *(u_int *)&prim->r0 = color;
-            prim->code = code;
+            prim->code = code; }
 
 
-            if ((facetFlag & 1) != 0) { prim->code = code | 2;
+            if ((facetFlag & 1) != 0) { prim->code = prim->code | 2;
             }
-          }
-          { Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
+          {
+            Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
 
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
             }
           }
-        }
-        else {
+        } else {
+
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
           DRAWC_OTLINK_FT3B(sd, prim);
@@ -4165,10 +4165,10 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             prim->code = code;
           }
           {
-            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
+            u_short uv0; u_short uv1; u_short uv2; Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
           }
         }
-      } } } }
+      } return; } }
 
 /* ---- DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache [retail DRAWC.CPP:3551-3869; byte verified, flag/UV debug/full SLD review open] ---- */
 /* rule-8 rewrite (w41-a3) -- the PrimHalo 322->29 recipe applied whole.
@@ -4594,8 +4594,8 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
 
     if ((overlayFlag & 3) != 0)
-    { int index; int which; Transformer_zOverlay *facetOverlay; which = (overlayFlag & 3) - 1;
-      index = facet->textureIndex;
+    { int index; int which; Transformer_zOverlay *facetOverlay;
+      which = (overlayFlag & 3) - 1; index = facet->textureIndex;
 
 
       facetOverlay = overlay + (index * 3 + which);

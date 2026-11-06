@@ -735,14 +735,14 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 
   if (menu != this->fCurrentMenu[i])
   {
-
-
-
-    if ((i == 0) && ((menu->fFlags & 0xf000) != this->fCurrentMusic)) {
-      this->fCurrentMusic = menu->fFlags & 0xf000;
+    if (i == 0)
+    {
+      const unsigned int music = menu->GetMusic();
+      if (music != this->fCurrentMusic) {
+      this->fCurrentMusic = music;
 
       this->UpdateMusic();
-    }
+    } }
 
 
     if ((menu->IsSubMenu() ^ 1) != 0) {

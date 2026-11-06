@@ -815,7 +815,9 @@ GetPSXPadValue_gotType:
  * the actual getters permits an ordinary short-circuit wait without the
  * unprovided waiting object. ticks already has its ISR volatile type in
  * vars.h; no qualifier is added. FE_Ticks is an inferred helper spelling,
- * not a uniquely retained retail name. Remaining scan scopes/tags stay open. */
+ * not a uniquely retained retail name. 2026-11-07: the scan is a plain
+ * `for (int i = 0; i < numoffsets; i++)` (for-scope = retail {13 holding i, body
+ * scope {17 }24 with mode, increment outside it); BYTE+SYM+SLD exact. */
 static inline int FE_Ticks(void) { return ticks; }
 #line 471 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void SetPads(void)
@@ -833,11 +835,11 @@ void SetPads(void)
     while (FE_Ticks() - starttick < 0x80 && PadGetState(pad) != 6) {}
     if (PadGetState(pad) == 6)
     {
-      int theanalogoffset; bool gotone; int numoffsets; {
-      int i; theanalogoffset = 0; gotone = false;
+      int theanalogoffset = 0; bool gotone; int numoffsets;
+      gotone = false;
       numoffsets = PadInfoMode(pad,4,-1);
 
-      i = 0; while (1) { if (i >= numoffsets) break;
+      for (int i = 0; i < numoffsets; i++) {
 
         int mode = PadInfoMode(pad,4,i);
         if (mode == LookingFor) {
@@ -846,8 +848,8 @@ void SetPads(void)
           gotone = true;
           theanalogoffset = i;
         }
-        i++;
-      } } if (gotone) {
+      }
+      if (gotone) {
         PadSetMainMode(pad,theanalogoffset,0);
       }
     } } return; }
@@ -1254,8 +1256,8 @@ void Front_InitGraphicsAndDisplayLoading(void)
 int Front_Menu(tFront_ProcessingType role)
 
 
-{ int result; int one; result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1;
-  one = 1;
+{ int result; int one;
+  result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1; one = 1;
 
 
 
@@ -1282,30 +1284,30 @@ int Front_Menu(tFront_ProcessingType role)
 
 
 
-  if (((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) && (tournamentManager.GetMoney() < one)) {
-    long extraMoney;
-    extraMoney = carManager.CheapestCarStockPrice(); tournamentManager.fMoney += extraMoney + one;
+  if (((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) && (tournamentManager.GetMoney() < one))
+  {
+    { long extraMoney = carManager.CheapestCarStockPrice() + one; tournamentManager.fMoney = tournamentManager.GetMoney() + extraMoney; }
   }
 
-  switch (role) {
+  switch (role)
+  { tMenuCommand tempCommand;
   case kFront_InitialLoad:
-
     LoadConfig();
   case kFront_QuitToGameSetup:
 
     if (gUseFrontend != 0) {
-      tMenuCommand tempCommand;
+
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
-      result = App()->RunFrontEnd();
+      result = FEApp->RunFrontEnd();
     }
     break;
   case kFront_QuitToPostGame:
+
+
+
+
+
     gCalculateVictory = (char)one;
-
-
-
-
-
 
     if ((frontEnd.raceType == RaceType_Tournament) && (GameSetup_gData.replayMode == 0)) {
 
@@ -1315,10 +1317,10 @@ int Front_Menu(tFront_ProcessingType role)
       tournamentManager.AdvanceToNextTrack();
       tournamentManager.UpdateAwardInformation();
     }
-
-    else if ((frontEnd.raceType == RaceType_PinkSlips) && (GameSetup_gData.replayMode == 0)) {
-      Car_tStats *dummyCars = Cars_gNewCarStatsList;
-
+    else if ((frontEnd.raceType == RaceType_PinkSlips) &&
+             (GameSetup_gData.replayMode == 0))
+    {
+      Car_tStats *dummyCars = Cars_NewCarStatsList();
       if (((dummyCars[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
 
 
@@ -1339,7 +1341,7 @@ int Front_Menu(tFront_ProcessingType role)
         frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
       }
     }
-    result = App()->RunPostGame();
+    result = FEApp->RunPostGame();
     break;
   }
 
@@ -1449,12 +1451,15 @@ int Front_GetLapsForType(void)
 
   switch (frontEnd.raceType) {
   case RaceType_Tournament:
+
+
     return CurrentTourney()->fNumLaps;
+    break;
+
   default:
-    return (uint)lapconv[
-        (byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
-  }
-}
+    return (uint)lapconv[(byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
+    break;
+  } }
 
 
 

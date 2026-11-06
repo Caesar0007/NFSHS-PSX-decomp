@@ -484,8 +484,8 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
     } else if (frontEnd.raceType == RaceType_Tournament)
     { menuDefs->iteratorGarageCar.SetFilter(0x40);
     }
-    else {
-      menuDefs->iteratorGarageCar.SetFilter(2); } break;
+    else { menuDefs->iteratorGarageCar.SetFilter(2); }
+    break;
 
 
   } if (frontEnd.carListType == '\0') {
@@ -1682,7 +1682,7 @@ void GenericMenuLoadGame(int player)
 #line 944 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_LoadGame(tMenuCommand &)
 {
-  if (MenuItem_IsDisabled(menuDefs->itemLoadGame)) {
+  if (menuDefs->itemLoadGame.GetFlags() & 1) {
     return;
   }
   tDialogYesNo AreYouSure; tMenuCommand(); Dialog_SetText(AreYouSure.SetChoices(0x321, 0x322, 0), TextSys_Word(0x2c0));

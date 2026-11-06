@@ -109,7 +109,6 @@ static inline tDialogYesNo *Dialog_AsYesNo(tDialogMessageString *dialog) { retur
 
 static inline void Dialog_SetText(tDialogMessageString *dialog, char *text) { dialog->string = text; }
 
-static inline bool MenuItem_IsDisabled(tMenuItem &item) { return (item.fFlags & 1) != 0; }
 
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 

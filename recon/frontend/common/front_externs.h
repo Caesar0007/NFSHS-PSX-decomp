@@ -108,6 +108,9 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cp
                                      front.cpp indexes Cars_gNewCarStatsList[0].finalPosition; the
                                      pointer decl would load the array's own first bytes (real struct
                                      data) as a bogus pointer VALUE and dereference it */
+/* retail Front_Menu SYM opens dummyCars' block with an inline-call pair at the declaration: the list comes from an
+   inline accessor (same spelling as femenudefs_externs.h / fetourn_externs.h; original name not retained) */
+static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 extern int CountryMeasurement[16];
 extern tCreditManager CreditManager;   /* W58-A1: real type -- Setup__14tCreditManager */
 extern GameSetup_tData GameSetup_gData;

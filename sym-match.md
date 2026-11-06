@@ -96,6 +96,16 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-11-07 Round 7 (agents GAME5/6/7, DRAW4/5/6, FRONT8-12; brief build/tmp/agent_round7.md + levers catalog §38). 19 commits dec4bf20..68dbfdd9, each gated in an isolated worktree (HEAD + that agent's files; C:/Temp/n4g, build/tmp/wtgate.sh): honest 299819/299819, 0 masked, 0 DROPPED, regcheck reg [] every time. Native SYM board (worktree, PAD.C's 5 fns not compared) CLEAN 2484 -> 2499, DIRTY 66.
+- User ruling: volatile allowed only for ISR-shared globals with oracle evidence (generic128HzClock; replaced the clock fence). fe3dmenu asm-label aliases -> plain externs.
+- Exact on BYTE+SYM+SLD this round incl.: Clock_MasterInterruptHandler, CheckForWipeOut (3 fences gone), SetupBlockade, DrawC_PrimClip, DrawW_DoObjects, FECheat_HandleActivation, SetMenu, SetPads, Front_GetLapsForType, 6 speech fns; SYM-clean: Hrz_LightningFlicker/Init2DRing, Hud_Draw321Num/BuildString, Flare_CarShapedHalo, DrawW_BuildSpikeBelt, CloseTargeting, LoadShapesAndMakePmx.
+- 34 goto LABEL records removed (retail has no goto anywhere): switch trees, else-if chains, duplicated tails that cross_jump merges, break/return.
+- Asm removed: clock fence, CheckForWipeOut x3, Instantiate3DCar x2, fe3dmenu 6 aliases. Measured as still needed: Flare_LensFlare x3, screenmemcard LoadIcon, Hud_BuildTach do{}while(0).
+- Devices (exact-only): DW_EmptyHook (draww DoObjects, user review), CheckForWipeOut playerChaseLevelIndex.
+- pad.c 98 -> 8 tags by layout; the last 8 = retail SYM relative-record drift after an absolute set at PAD_convert (not source).
+- Open, user decisions: front.cpp main-name policy (tAllScreens ctor 259 tags; evidence-bound policy tooling), SLINK /strip proof for tMenuItem inline copies, pad.c in the debug lane, DrawQuad held.
+Laws: catalog §38 + agent state files (GAME5/6/7, DRAW4/5/6 in DRAW_state.md, FRONT8/11 in FRONT_state.md, FRONT9/10/12_state.md).
+
 2026-11-06 Restore full byte match on top of 66cebac2 and land agents RODATA, GAME4, GAME5 plus the ISR volatile (orchestrator gate: honest 299819/299819, 0 masked RECON bytes (was 456), BLOB 2022/2022; vtable 1473 PASS; link-stripped 83/0; gdebug 181/181; SYM CLEAN 2488 | DIRTY 82; SLD board exact_tags 2481, exact_both 2431).
 - RODATA (root cause of the 1098 diff words at 66cebac2): a non-virtual inline member with a body (`tMenu::CurrentItem`) visible in the TU that defines the class's virtuals is emitted out of line there; .text grows and gen_ld silently DROPS the next TU into the catch-all, masking .rodata_front. Fix: `CurrentItem()` guarded by `NFS4_FE_CORE_TMENU_KEY_TU` (fe_core_tmenu.h / femenu_types.h), and the fecheats `cheat_AllBronze` body back to its 8a2a9a0e form (cost: FECheat_HandleActivation CLEAN -> DIRTY, the only regcheck regression). LAW: after any header change check genld_report for DROPPED.
 - GAME5: Fog_InitFogTriggers exact (count-up `for (int i = 0; i < 0x20; i++) openkeys[i] = 1;` -- loop.c hoists the invariant before strength-reduction's reversed init = retail order).

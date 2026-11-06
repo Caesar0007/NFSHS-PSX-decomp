@@ -17,7 +17,7 @@ extern "C" {
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (0x80055B54); its vtables' 8-byte,
  * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; } inline void Speech::MobileSpeaker::SetSpeedType(int type) { fSpeedType.flags = type; } inline void Speech::MobileSpeaker::ClearCarObj() { fCarObj = 0; }
-inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
+inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline void Speech::MobileSpeaker::SetPerp(Car_tObj *car) { fPerp = car; } inline bool Speech::MobileSpeaker::IsCar(Car_tObj *carObj) { return carObj == fCarObj; } inline bool Speech::MobileSpeaker::IsFree() { return fCarObj == 0; } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
  * demangled source names while binding the compiler-emitted ABI labels.
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
@@ -283,7 +283,7 @@ void Speech::CountLocations()
   if (d != (Speech_tLocationDescription *)0x0) {
 
 
-    while (d->name != (char *)0x0) { d = d + 1; if (0xf < this->fLocationCount) { return; }
+    for (; d->name != (char *)0x0; ) { d = d + 1; if (0xf < this->fLocationCount) { return; }
 
       this->fLocationCount = this->fLocationCount + 1;
     } } return;
@@ -565,32 +565,32 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 bool Speech::CheckCallSignBank(CallSignBank *bank,char *name,int id)
 
 { bool match; Speech_tCallSignDescription * d; int dispatchName;
+  match = false;
+
+  d = Speech_gCallSignDescription;
 
 
-  d = Speech_gCallSignDescription; match = false;
-
-
-  if (strncmp(name,d->AllUnits,strlen((u_long)d->AllUnits)) == 0) { bank->SetAllUnits(id);
-
+  if (strncmp(name,d->AllUnits,strlen((u_long)d->AllUnits)) == 0)
+  { bank->SetAllUnits(id);
 
     match = true; }
 
 
   dispatchName = GameSetup_gData.track % 5; if (strncmp(name,d->Dispatch[dispatchName],
 
-              strlen((u_long)d->Dispatch[dispatchName])) == 0) { bank->SetDispatch(id);
+              strlen((u_long)d->Dispatch[dispatchName])) == 0)
+  { bank->SetDispatch(id);
 
+    match = true; }
 
-    match = true; } { int i = 0;
+  for (int i = 0; ; i++) { if (0xf <= i) break;
 
-    while (true) { if (0xf <= i) break;
-
-      if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0) { bank->SetMobile(i,id);
-
+      if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0)
+      { bank->SetMobile(i,id);
 
         match = true; }
 
-      i = i + 1; } }
+      }
 
 
 
@@ -669,9 +669,9 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
 
 
 
-  if (locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size) != 0) { int filecount; char *c; c = header + 0x10;
-
-    bsize = size; filecount = this->ReadBE32(header + 8);
+  if (locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size) != 0)
+  { int filecount; char *c;
+    c = header + 0x10; bsize = size; filecount = this->ReadBE32(header + 8);
 
 
 
@@ -702,8 +702,8 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
 
 
 
-
-          bcount++; bsize += size; } }
+          bsize += size;
+          bcount++; } }
 
 
       c++;
@@ -1021,8 +1021,8 @@ Speech::Speech()
 
 
 
-  gettick(); }
-/* SYM-CODEGEN-CARRIER: dispatch -- materializes the result of the implicit
+  gettick();
+  return; } /* SYM-CODEGEN-CARRIER: dispatch -- materializes the result of the implicit
      DispatchSpeaker construction represented explicitly by this recovered
      class model.  Re-reading fDispatch adds two instructions and changes 14. */
 /* SYM-CODEGEN-CARRIER: mobile -- materializes the result of the implicit
@@ -2001,8 +2001,8 @@ void Speech::DispatchSpeaker::Ready(Car_tObj *carObj)
 
   Wing = Speech::Mobile(carObj);
 
-  if (this->Sub() != (Speaker *)0x0 && Wing != this->Sub()) { Wing->SetBlockade(this->Sub()->BlockadeSlot()->flags);
-
+  if (this->Sub() != (Speaker *)0x0 && Wing != this->Sub())
+  { Wing->SetBlockade(this->Sub()->BlockadeSlot()->flags);
 
     Wing->Engage(this->Sub()->Perp()); }
 
@@ -2242,8 +2242,8 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 
 
-  if (perp != this->Perp()) { this->SetPerp(perp);
-
+  if (perp != this->Perp())
+  { this->SetPerp(perp);
 
     this->SetCar(this->Perp());
 

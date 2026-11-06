@@ -20,17 +20,17 @@ extern "C" int sprintf(char *, const char *, ...);
 extern int          AI_elapsedTime;     /* H24: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern AIHigh_Base *highLevelAIObjs[];  /* H24: @0x8010CD38 (not in this TU's externs) */
 
-inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
-inline int AICop_PerpChaseInfo::BestChaseLevelIndex() { return bestChaseLevelIndex_; }
-inline int AICop_PerpChaseInfo::GetNumLevels() { return copGameInfo_->numLevels; }
+/* AICop_PerpChaseInfo getters: header inlines in aih_opp_externs.h */
+
+
 
 
 /* ---- CheckForWipeOut__15AIHigh_Opponent [retail AIH_OPP.CPP:38-94;
- * 120/120 byte PASS, native/source/SLD recovery still open] ---- */
-/* The historical allocator receipts below are measurements of earlier source
- * shapes, not proof that an omitted local or a particular device was original.
- * Current getters/early guards restore all19 scope tuples, but four extra
- * locals, hLoop ownership, const aliases and remaining fences need recovery. */
+ * BYTE + SYM + SLD EXACT (GAME6 2026-11-07): plain source, no fences] ---- */
+/* The historical allocator receipts below describe the RETIRED fenced basin.
+ * The plain loop (for-declared hLoop, direct Cars_gNumHumanRaceCars bound,
+ * literal 0xd5554 abs compare, header-inline AICop getters) is byte-exact
+ * with retail locals/regs/scopes; the carriers and asm fences are gone. */
 
 /* ==== W63-A12 (51 -> 50, ours 118 / oracle 120).  THE LICM QUESTION IS ANSWERED AND
    THE WHOLE $t-BAND IS NOW RETAIL-EXACT; the residual is ONE named razor.
@@ -430,19 +430,19 @@ inline int AICop_PerpChaseInfo::GetNumLevels() { return copGameInfo_->numLevels;
 
 #line 37 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 void AIHigh_Opponent::CheckForWipeOut()
-{ int perTickProb; int randVal; int oppLevel; int oppFines; int hLoop; int numRacers; oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();
+{ int perTickProb; int randVal; int oppLevel; int oppFines; oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();
 
 
 
   oppFines = this->carObj_->stats.numFines; if ((Cars_gNumCopCars == 0) ||
 
 
-      (simGlobal.gameTicks < this->carObj_->wipeOutEndTick)) return; if ((this->basicPerpInfo_.GetCrime() == CRIME_NONE) || (this->basicPerpInfo_.CopsAssigned(COP_REGULAR) +
+      (simGlobal.gameTicks < this->carObj_->wipeOutEndTick)) return;
 
 
 
-       this->basicPerpInfo_.CopsAssigned(COP_SUPER) == 0)) return;
-
+  if ((this->basicPerpInfo_.GetCrime() == CRIME_NONE) || (this->basicPerpInfo_.CopsAssigned(COP_REGULAR) + this->basicPerpInfo_.CopsAssigned(COP_SUPER) == 0))
+    return;
 
 
   if (simGlobal.gameTicks - this->carObj_->wipeOutEndTick <= 0x27f) return;
@@ -460,32 +460,32 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 
 
-      hLoop = 0; if (this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1) return; AIHigh_Base **const highAIList = highLevelAIObjs; __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this)); __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
+  if (this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1)
+    return;
+
+
+  for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++)
+  {
+    Car_tObj *thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
+    AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
+
+    /* DEVICE (exact-only): record-less const -- retail loads on 39, compares on 44, no SYM record */ const int playerChaseLevelIndex = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); int playFines = thisPlayerObj->stats.numFines;
+
+    if (0xd5554 < __builtin_abs(thisPlayerObj->currentSpeed))
+    {
+
+      if (((playerChaseLevelIndex < 2) && (oppLevel >= 3)) || (playFines - oppFines >= 2)) {
+        perTickProb = AI_elapsedTime * 116;
+
+        if (randVal < perTickProb)
+
+          this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;
+      }
+    }
 
 
 
-        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) { Car_tObj    *thisPlayerObj; int speedLimit; speedLimit = 0xd0000;
-
-          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop]; speedLimit = speedLimit | 0x5554; } while (0);
-          const int carIndex = thisPlayerObj->carIndex;
-
-
-
-          int playerCurrentSpeed = thisPlayerObj->currentSpeed; int highAIEntryAddress; do { highAIEntryAddress = (carIndex << 2) + (int)highAIList; } while (0); const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed); AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; int          playFines    = thisPlayerObj->stats.numFines; const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); if (speedLimit < absolutePlayerSpeed) {
-
-
-            if (playerChaseLevelIndex < 2 && !(oppLevel < 3)) { perTickProb = AI_elapsedTime * 116; if (randVal < perTickProb) this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0; } else if (2 <= playFines - oppFines) { perTickProb = AI_elapsedTime * 116;
-
-
-              if (randVal < perTickProb)
-
-                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0; } }
-
-
-
-
-
-        } __asm__("" : : "r"(numRacers),"r"(numRacers));
+  }
 }
 /* $t7, unconditional prologue load */
 /* $t6, unconditional prologue load (via carObj_ = $v1) */

@@ -207,18 +207,18 @@ void DeInitArtResources(void)
 
 /* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii [TRACK.CPP:225-359] ----
  * All211 word/file tags,19 regions and header/end match retail; supplied
- * locals retain their complete owners. This is not a full declaration seal:
- * emptyPalNum remains one unsupported INT REG record. Direct literal stores
- * still exchange two constant loads at211/211, including after this source
- * order/layout correction. Failed ordinary loop/address/root controls are
- * isolated in build/nc12/track_palette_source_20261024, not adopted.
+ * locals retain their complete owners. SYM exact (GAME6 2026-11-06): the
+ * palette clear is a COUNT-UP loop `for (pcnt = 0; pcnt < 0x80; pcnt++)`;
+ * loop.c reverses it into retail's count-down pointer form and hoists the -1
+ * before the reversed init, so the former emptyPalNum carrier is gone.
+ * Earlier failed controls: build/nc12/track_palette_source_20261024.
  * SourceRecoveryUnresolved: multiPalCount is the palette-entry count, advancing
  * only for ! shapes, independently of shape i and mipmapcounter. Its semantic
  * spelling and whether the original source used this named count, a pointer
  * or a macro-produced induction value are not supplied by optimized SYM.
  * No distinct original-object necessity is claimed from strength reduction.
- * emptyPalNum's original producer remains unresolved too, not exempted by the
- * failed literal controls. The SimpleMem literal/header type order is open.
+ * The SimpleMem literal/header type order is open.
+ *
  * Retail source initializes recolor_flag231 BEFORE cluttype235; stock still
  * schedules the clut load first. No new asm/volatile, fake use/scope or output
  * rewrite is introduced. Literal original macro/comment text is unproved. */
@@ -251,8 +251,8 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
 
 
   gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
-  { int pcnt; int emptyPalNum;
-    emptyPalNum = -1; for (pcnt = 0x7f; pcnt >= 0; pcnt--) { gTempMultiPalInfo[pcnt].palnum = emptyPalNum; }
+  { int pcnt;
+    for (pcnt = 0; pcnt < 0x80; pcnt++) { gTempMultiPalInfo[pcnt].palnum = -1; }
   }
   DrawSync(0);
 

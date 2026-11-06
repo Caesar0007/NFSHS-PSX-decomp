@@ -17,4 +17,10 @@ extern int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReact
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 int AIWorld_SplineDistance(Car_tObj *a, Car_tObj *b);
 
+/* AICop_PerpChaseInfo getters: header inlines (retail CheckForWipeOut records their nests at the
+   caller's line 31; a same-.cpp definition records its own line 1 -- GAME6 2026-11-07). */
+inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
+inline int AICop_PerpChaseInfo::BestChaseLevelIndex() { return bestChaseLevelIndex_; }
+inline int AICop_PerpChaseInfo::GetNumLevels() { return copGameInfo_->numLevels; }
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

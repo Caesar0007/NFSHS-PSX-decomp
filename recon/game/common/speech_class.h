@@ -188,7 +188,7 @@ struct Speech {
         SPCHNFSType_vs_KMH_MPH fSpeedType;
         int fSpeed, fUnit;
         Car_tObj *fCarObj, *fPerp;
-        inline void SetPerp(Car_tObj *car) { fPerp = car; }
+        inline void SetPerp(Car_tObj *car);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
         /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
         inline void MakeSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
@@ -200,8 +200,8 @@ struct Speech {
         inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }
         inline void ClearCarObj();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
         /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
-        inline bool IsCar(Car_tObj *carObj) { return carObj == fCarObj; }
-        inline bool IsFree() { return fCarObj == 0; }
+        inline bool IsCar(Car_tObj *carObj);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
+        inline bool IsFree();   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
         Car_tObj *Perp();
         int Unit();
         CallSignBank *CallSign();

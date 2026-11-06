@@ -466,11 +466,11 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
     }
   }
 
-  switch (frontEnd.raceType) {
+  switch (frontEnd.raceType)
+  {
   case '\x01':
-
-    if ((frontEnd.oppNumber == '\0') || (frontEnd.gameMode == '\x01')) {
-      menuDefs->iteratorCar1.SetFilter(9);
+    if ((frontEnd.oppNumber == '\0') || (frontEnd.gameMode == '\x01'))
+    { menuDefs->iteratorCar1.SetFilter(9);
     } else {
       menuDefs->iteratorCar1.SetFilter(1); } break;
   case '\x06':
@@ -479,15 +479,15 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
     break;
   default:
 
-    if (frontEnd.carListType == '\0') {
-      menuDefs->iteratorCar1.SetFilter(1);
-    } else if (frontEnd.raceType == RaceType_Tournament) {
-      menuDefs->iteratorGarageCar.SetFilter(0x40);
+    if (frontEnd.carListType == '\0')
+    { menuDefs->iteratorCar1.SetFilter(1);
+    } else if (frontEnd.raceType == RaceType_Tournament)
+    { menuDefs->iteratorGarageCar.SetFilter(0x40);
     }
     else {
-      menuDefs->iteratorGarageCar.SetFilter(2);
-    }
-    break;
+      menuDefs->iteratorGarageCar.SetFilter(2); } break;
+
+
   } if (frontEnd.carListType == '\0') {
 
 
@@ -501,9 +501,9 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
 
 
 
-    if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) { if (frontEnd.raceType == RaceType_HotPursuit) { if (frontEnd.oppNumber == '\x01') goto MX_GoToCar_oppFilterSetup;
-        goto MX_GoToCar_garageIter;
-      } } else { MX_GoToCar_garageIter: menuDefs->iteratorGarageCar.Decrement(kPlayerOne);
+    if (((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) >= 1) || ((frontEnd.raceType == RaceType_HotPursuit) && (frontEnd.oppNumber != '\x01'))) {
+
+      menuDefs->iteratorGarageCar.Decrement(kPlayerOne);
       menuDefs->iteratorGarageCar.Increment(kPlayerOne);
 
 
@@ -515,15 +515,15 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
       }
     }
   }
-MX_GoToCar_oppFilterSetup:
 
-  if (frontEnd.oppNumber == '\x01' && frontEnd.raceType != RaceType_Tournament) {
-
+  if (frontEnd.oppNumber == '\x01' &&
+      frontEnd.raceType != RaceType_Tournament)
+  {
     menuDefs->iteratorOpponentCar.Decrement(kPlayerBoth);
     menuDefs->iteratorOpponentCar.Increment(kPlayerBoth);
     menuDefs->iteratorOpponentCar.SetFilter(1);
+    return;
   }
-  return;
 }
 
 

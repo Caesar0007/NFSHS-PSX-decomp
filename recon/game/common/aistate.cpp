@@ -799,8 +799,8 @@ void AIState_Chase::CloseTargeting()
 
   if (bigLongPos * longTarget == -1) {
 
-
-    forceLatAction = latTarget; if (latTarget == 0) { forceLatAction = -1; } }
+    if (latTarget == 0)
+      forceLatAction = -1; else forceLatAction = latTarget; }
 
 
   else if ((latPos * latTarget == -1) && (bigLongPos == 0)) {
@@ -841,32 +841,32 @@ void AIState_Chase::CloseTargeting()
 
   if ((longPos < longTarget) || (forceLongAction == 1)) {
 
-    desiredSpeed = fixedmult(desiredSpeed,0x16666); } else if (((longTarget < longPos) || (forceLongAction == -1)) || ((0x140000 < this->longMetersBetween_ &&
+    desiredSpeed = fixedmult(desiredSpeed,0x16666); }
 
 
 
 
 
-           (((0x9ffff < this->longMetersBetween_ || (latPos != 0)) || (latTarget == 0)))))) {
-
-    desiredSpeed = fixedmult(desiredSpeed,this->CalculateCloseTargettingAheadSlowDownFactor()); } else {
-
-
-
-
-
-
-    if (forceLongAction == -2) { int superSlowDown;
-
-      if (this->aggressionLevel_ != 0) { superSlowDown = 0xa666; if (this->aggressionLevel_ == 1) { superSlowDown = 0xbae1; } } else { superSlowDown = 0xca3d; }
-      desiredSpeed = fixedmult(desiredSpeed,superSlowDown); } }
+  else if (((longTarget < longPos) || (forceLongAction == -1)) || ((0x140000 < this->longMetersBetween_ && (((0x9ffff < this->longMetersBetween_ || (latPos != 0)) || (latTarget == 0))))))
+  {
+    int slowDown = this->CalculateCloseTargettingAheadSlowDownFactor();
+    desiredSpeed = fixedmult(desiredSpeed,slowDown); }
 
 
 
 
 
+  else if (forceLongAction == -2)
+  {
+    int superSlowDown; if (this->aggressionLevel_ != 0) { superSlowDown = 0xa666; if (this->aggressionLevel_ == 1) { superSlowDown = 0xbae1; } } else { superSlowDown = 0xca3d; }
+    desiredSpeed = fixedmult(desiredSpeed,superSlowDown);
 
 
+
+
+
+
+  }
 
 
 
@@ -874,32 +874,32 @@ void AIState_Chase::CloseTargeting()
 
 
   AISpeeds_CalcDesiredSpeed(this->carObj_);
-  (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed); {
-    int t = (this->carObj_)->desiredSpeed; if (desiredSpeed < t) { t = desiredSpeed; } desiredSpeed = t; t = 0x50000;
-    if (0x4ffff < desiredSpeed) { t = desiredSpeed; }
-    desiredSpeed = t * dir;
-    (this->carObj_)->desiredSpeed = desiredSpeed; }
+  (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed);
+  desiredSpeed = (desiredSpeed < (this->carObj_)->desiredSpeed) ? desiredSpeed : (this->carObj_)->desiredSpeed;
+  desiredSpeed = (desiredSpeed < 0x50000) ? 0x50000 : desiredSpeed;
+  desiredSpeed = desiredSpeed * dir;
+  (this->carObj_)->desiredSpeed = desiredSpeed;
 
 
   AI_GenericBeginCycle(this->carObj_);
-  if (doLatAction) { int targettingStrength; int targetLanePosition; targettingStrength = 0xf0000;
+  if (doLatAction)
+  {
+    int targettingStrength; int targetLanePosition; targettingStrength = 0xf0000;
+
+    if (this->murderMode_ != 0)
+    { targettingStrength = 0x1e0000;
+
+      targetLanePosition = this->delayCar_.GetRoadPosition(); }
+    else
+
+    {
+      if (forceLatAction != 0)
+      { targetLanePosition = this->delayCar_.GetRoadPosition() +
+
+            ((this->targetCar_->N).dimension.x + 0x60000) * dir; }
 
 
-
-    if (this->murderMode_ != 0) {
-      targettingStrength = 0x1e0000;
-
-      targetLanePosition = this->delayCar_.GetRoadPosition(); } else {
-
-
-
-      if (forceLatAction != 0) { targetLanePosition = this->delayCar_.GetRoadPosition() +
-
-
-            ((this->targetCar_->N).dimension.x + 0x60000) * dir; } else {
-
-
-
+      else {
 
         targetLanePosition = this->delayCar_.GetRoadPosition() + this->relPosition_.x * dir; } targetLanePosition = -(int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
 

@@ -193,6 +193,7 @@ struct AICop_PerpChaseInfo {
     int ConfiguredEngagementLapTime(); /* inferred timing helpers; caller/receiver structure still under review */
     void InitializeChaseTimer(int lapTime);
     bool BlockadeDone(); /* inferred completed-blockade query from the retail guard inline pair */
+    void SetBlockadeDone(); /* inferred setter: retail SetupBlockade records a receiver-less inline pair at each blockadeDone_ = 1 store */
     inline void ResetEngagementTime();
     /* Inferred update spelling; retail retains the receiver/ticks/count inline
        boundary but no standalone linkage name for this operation. */

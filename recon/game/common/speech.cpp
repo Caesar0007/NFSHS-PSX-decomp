@@ -2415,10 +2415,10 @@ void Speech::MobileSpeaker::Lose()
     SPCHNFS_C_D_RDBLK_FAILED(this->Voice(),this->Colour(),this->Car());
   else if (Leader != 0)
 
-    SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(this->Voice()); else SPCHNFS_C_D_PERP_LOST(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
+    SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(this->Voice()); else
 
 
-                          this->Distance(),this->PerpName());
+    SPCHNFS_C_D_PERP_LOST(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),this->Distance(),this->PerpName());
 
   SPCH_PlaySpeech(); this->SetBlockade(0); this->SetArrest(0); this->SetUpdate(0);
 

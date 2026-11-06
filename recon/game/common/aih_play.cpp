@@ -19,7 +19,7 @@ static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
 
-inline Car_tObj *AIHigh_Base::GetCarObj() { return carObj_; }
+
 
 
 /* Retail aih_play.obj opens .rodata with this unreferenced class tag. */
@@ -263,7 +263,7 @@ void AIHigh_Player::SetupBlockade()
     blockadeSlice = blockade->roadblock.slice; requestSpikeBeltAtSlice = -1;
 
     if (pLevel->spikeBelt != 0) {
-      requestSpikeBeltAtSlice = blockadeSlice; } { int needed[2];
+      requestSpikeBeltAtSlice = blockadeSlice; }
 
 
 
@@ -276,7 +276,7 @@ void AIHigh_Player::SetupBlockade()
 
 
 
-    nCopsAvail[0] = 0;
+    { int needed[2]; nCopsAvail[0] = 0;
     nCopsAvail[1] = 0;
 
 
@@ -292,26 +292,26 @@ void AIHigh_Player::SetupBlockade()
           needed[thisCop->Type()]--;
           nCopsAvail[thisCop->Type()]++; }
 
-      } } blockadeCar = (AIHigh_Cop *)0x0;
+      } }
 
 
-    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; blockadeType = (randtemp >> 8 & 0xffff) % 5;
+    blockadeCar = (AIHigh_Cop *)0x0; randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; blockadeType = (randtemp >> 8 & 0xffff) % 5;
     blockadeFlags = (u_int)(u_char)gBlockadeTypes[blockadeType];
 
     saySpikeBelt = false;
 
 
-    posIndex = 0; AICop_PerpChaseInfo *chaseInfo; int one;
+    posIndex = 0;
 
 
-      for (copLoop = 0, one = 1, chaseInfo = &this->perpChaseInfo_; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop; blockade_t *blockade;
+      for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop; blockade_t *blockade;
 
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex]; if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
 
-          (thisCop->BlockadeMode() == one))
+          (thisCop->BlockadeMode() == 1))
           {
-        if ((thisCop->Type() == one) && (nCopsNeeded[1] != 0)) { int addToSlice;
-
+        if ((thisCop->Type() == 1) && (nCopsNeeded[1] != 0))
+          { int addToSlice;
           if (blockadeCar == (AIHigh_Cop *)0x0) {
             blockadeCar = thisCop; }
           nCopsNeeded[1] = nCopsNeeded[1] + -1; blockade = thisCop->Blockade();
@@ -319,13 +319,13 @@ void AIHigh_Player::SetupBlockade()
           blockade->blockadeSpeechFlags = 0;
           blockade->flags = blockadeFlags;
 
-          blockade->chaseLevel = chaseInfo->GetChaseLevelIndex();
+          blockade->chaseLevel = this->perpChaseInfo_.GetChaseLevelIndex();
           blockade->mode = 2;
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction; blockadeFlags = 0; blockade->slice = addToSlice >= 0 ? (blockadeSlice + addToSlice >= gNumSlices ? blockadeSlice + addToSlice - gNumSlices : blockadeSlice + addToSlice) : (blockadeSlice + addToSlice < 0 ? blockadeSlice + addToSlice + gNumSlices
                     : blockadeSlice + addToSlice);
           blockade->direction = this->carObj_->direction; totalRoadWidth = (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) * (BWorldSm_slices[blockade->slice].laneCount >> 4) + (BWorldSm_slices[blockade->slice].avgPavedWidthRt << 15) *
                        (BWorldSm_slices[blockade->slice].laneCount & 0xf);
-          if ((nCopsAvail[1] == one) && (nCopsAvail[0] == 0)) { blockade->latPos = ((u_int)totalRoadWidth >> 1) - (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+          if ((nCopsAvail[1] == 1) && (nCopsAvail[0] == 0)) { blockade->latPos = ((u_int)totalRoadWidth >> 1) - (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
 
                 (BWorldSm_slices[blockade->slice].laneCount >> 4);
             blockade->rotation = 0xff; } else {
@@ -347,7 +347,7 @@ void AIHigh_Player::SetupBlockade()
           randtemp = fastRandom * randSeed; blockade->releaseTime = ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999; fastRandom = randtemp & 0xffff; blockade->initialPlayerDistanceMetersInt =
 
               -(AIWorld_ApxSplineDistance(this->carObj_,blockade->slice) / 0x10000);
-          if (blockade->initialPlayerDistanceMetersInt * (this->carObj_)->direction < 0) { blockade->initialPlayerDistanceMetersInt = 0; } if (requestSpikeBeltAtSlice != -1) { saySpikeBelt = true; blockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice; requestSpikeBeltAtSlice = -1; } chaseInfo->blockadeDone_ = one;
+          if (blockade->initialPlayerDistanceMetersInt * (this->carObj_)->direction < 0) { blockade->initialPlayerDistanceMetersInt = 0; }
 
 
 
@@ -361,29 +361,29 @@ void AIHigh_Player::SetupBlockade()
 
 
 
-
-
+          if (requestSpikeBeltAtSlice != -1) { saySpikeBelt = true; blockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice; requestSpikeBeltAtSlice = -1; }
+          this->perpChaseInfo_.SetBlockadeDone();
 
           posIndex = posIndex + 1; }
 
 
-        else if (nCopsNeeded[0] != 0) { int addToSlice;
-
+        else if (nCopsNeeded[0] != 0)
+          { int addToSlice;
           if (blockadeCar == (AIHigh_Cop *)0x0) {
             blockadeCar = thisCop; }
           nCopsNeeded[0] = nCopsNeeded[0] + -1; blockade = thisCop->Blockade();
 
           blockade->blockadeSpeechFlags = 0;
-          blockade->flags = blockadeFlags; blockade->chaseLevel = chaseInfo->chaseLevelIndex_;
+          blockade->flags = blockadeFlags;
 
-
+          blockade->chaseLevel = this->perpChaseInfo_.GetChaseLevelIndex();
           blockade->mode = 2;
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction; blockadeFlags = 0; blockade->slice = addToSlice >= 0 ? (blockadeSlice + addToSlice >= gNumSlices ? blockadeSlice + addToSlice - gNumSlices : blockadeSlice + addToSlice) : (blockadeSlice + addToSlice < 0 ? blockadeSlice + addToSlice + gNumSlices
 
                     : blockadeSlice + addToSlice);
           blockade->direction = this->carObj_->direction;
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 300) {
-            blockade->reverse = one; } else {
+            blockade->reverse = 1; } else {
 
             blockade->reverse = 0; }
 
@@ -393,7 +393,7 @@ void AIHigh_Player::SetupBlockade()
             blockade->initialPlayerDistanceMetersInt = 0; } totalRoadWidth = (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) * (BWorldSm_slices[blockade->slice].laneCount >> 4) + (BWorldSm_slices[blockade->slice].avgPavedWidthRt << 15) *
 
                        (BWorldSm_slices[blockade->slice].laneCount & 0xf);
-          if ((nCopsAvail[0] == one) && (nCopsAvail[1] == 0)) { blockade->latPos = ((u_int)totalRoadWidth >> 1) - (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+          if ((nCopsAvail[0] == 1) && (nCopsAvail[1] == 0)) { blockade->latPos = ((u_int)totalRoadWidth >> 1) - (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
 
                 (BWorldSm_slices[blockade->slice].laneCount >> 4);
             blockade->rotation = 0xff; } else {
@@ -420,7 +420,7 @@ void AIHigh_Player::SetupBlockade()
 
             saySpikeBelt = true;
             blockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice;
-            requestSpikeBeltAtSlice = -1; } chaseInfo->blockadeDone_ = one;
+            requestSpikeBeltAtSlice = -1; } this->perpChaseInfo_.SetBlockadeDone();
 
 
           posIndex = posIndex + 1; } else { continue; } }
@@ -433,10 +433,10 @@ void AIHigh_Player::SetupBlockade()
     {
       blockadeCar->Blockade()->blockadeSpeechFlags = 1;
 
-      if (saySpikeBelt) {
-        Speech::Mobile(blockadeCar->GetCarObj())->SpikeBelt(); } else {
+      if (saySpikeBelt)
+        { Speech::Mobile(blockadeCar->GetCarObj())->SpikeBelt(); } else
 
-        Speech::Mobile(blockadeCar->GetCarObj())->RoadBlock(); }
+        { Speech::Mobile(blockadeCar->GetCarObj())->RoadBlock(); }
 
 
       Speech::Mobile(blockadeCar->GetCarObj())->Engage(this->carObj_);

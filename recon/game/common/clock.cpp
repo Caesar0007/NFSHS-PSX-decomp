@@ -38,23 +38,23 @@ void Clock_MasterInterruptHandler(void)
   long gp;
 
   savegp((u_int *)&gp);
-  /* DEBUG-ELIDED SOURCE VALUE: even128 -- retail SYM retains only `gp`; the
-     single-definition const stays in the root owner, so GCC drops its debug
-     row while retaining all 43 bytes.  Statement lines follow retail's SLD
-     (savegp +3, stop test +14, counters +16/+18, parity test +20 ...).
-     The volatile store to generic128HzClock keeps reorg from moving the
-     `addiu a0,%lo(...)` base into the parity bnez delay slot (retail: nop).
-     Receipts for the earlier fence and its falsified replacements are in
-     the CAMIN/GAME5 reports (direct parity in the if, if(!stopClock){...}
-     nesting with a single restoregp, statement orders, early return). */
+  /* Retail shape: no early return -- one if (stopClock == 0) { ... } and a
+     single restoregp, so no return_label follows the root block end and
+     sched1 hoists the end note to the head of the restoregp block (retail
+     SYM: root end +090).  Statement lines follow retail's SLD (savegp +3,
+     stop test +14, counters +16/+18, parity test +20 ...).  The volatile
+     store to generic128HzClock keeps reorg from moving the `addiu a0,%lo`
+     base into the parity bnez delay slot (retail: nop); this also made the
+     former record-less even128 const unnecessary (GAME5 round 7).
+     Earlier receipts: CAMIN/GAME5 reports. */
 
-  if (stopClock != 0) { restoregp(gp); return; }
+  if (stopClock == 0) {
 
   clock_realTime.time128Hz = clock_realTime.time128Hz + 1;
 
   generic128HzClock = generic128HzClock + 1;
 
-  const int even128 = clock_realTime.time128Hz & 1U; if (!even128) {
+  if (!(clock_realTime.time128Hz & 1U)) {
 
     clock_realTime.time64Hz = clock_realTime.time64Hz + 1;
     if (!(clock_realTime.time64Hz & 1U)) {
@@ -67,7 +67,7 @@ void Clock_MasterInterruptHandler(void)
       Input_Store();
     }
   }
-
+  }
 
 
 

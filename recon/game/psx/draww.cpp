@@ -3115,13 +3115,13 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           sd->zeroGTETransFlag = 1;
           sd->light = negOne;
           sd->quads = joinQuads;
-          DrawW_kCtrlWorld_High(sd); } } sd->vertices = (CCOORD16 *)chunkDat->objVertexBuf->GetData();
+          DrawW_kCtrlWorld_High(sd); } }
 
 
 
 
 
-
+      sd->vertices = (CCOORD16 *)chunkDat->objVertexBuf->GetData();
 
 
 
@@ -3132,13 +3132,13 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
       sd->quadCount = chunkDat->quadCounts[2];
       if (sd->quadCount)
-      {
+      { joinQuads = (Trk_Quad *)chunkDat->objQuadBuf->GetData();
 
+        sd->offset = 125;
+        sd->zeroGTETransFlag = 1;
+        sd->light = negOne;
 
-
-
-
-        joinQuads = (Trk_Quad *)chunkDat->objQuadBuf->GetData(); sd->offset = 125; sd->zeroGTETransFlag = 1; sd->light = negOne; sd->quads = joinQuads; DrawW_kCtrlWorld_High(sd);
+        sd->quads = joinQuads; DrawW_kCtrlWorld_High(sd);
       }
 
 
@@ -3151,13 +3151,13 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
       sd->quadCount = chunkDat->quadCounts[3];
       if (sd->quadCount)
-      {
+      { joinQuads = (Trk_Quad *)chunkDat->objQuadInstanceBuf->GetData();
 
+        sd->offset = 50;
+        sd->zeroGTETransFlag = 1;
+        sd->light = negOne;
 
-
-
-
-        joinQuads = (Trk_Quad *)chunkDat->objQuadInstanceBuf->GetData(); sd->offset = 50; sd->zeroGTETransFlag = 1; sd->light = negOne; sd->quads = joinQuads; DrawW_kCtrlWorld_High(sd);
+        sd->quads = joinQuads; DrawW_kCtrlWorld_High(sd);
       }
     }
 

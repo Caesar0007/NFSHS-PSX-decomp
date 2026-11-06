@@ -943,8 +943,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
   carType = carObj->carInfo->carType;
 
 
-  if (5 < carType - 0x16U) {
-    carObj->carInfo->Country = 0; }
+  const u_int t = carType - 0x16U;
+  if (5 < t) { carObj->carInfo->Country = 0; }
 
   if (R3DCar_InMenu == 0) {
 
@@ -1015,8 +1015,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
   if (((carObj->render).inside & 1U) != 0) { strcat(workFile,"h"); }
   else if (((carObj->render).medOnly != '\0') && (carType < 0x1c)) { strcat(workFile,"s"); }
 
-  if (R3DCar_LoadedScenePointer[0][carType] == (Transformer_zScene *)0x0) { int index;
-
+  if (R3DCar_LoadedScenePointer[0][carType] == (Transformer_zScene *)0x0)
+  { int index;
     index = (short)(carObj->render).colorIndex; R3DCar_LoadedScenePointer[0][carType] =
 
         R3DCar_ReadInCarData(workFile,carObj);
@@ -1026,9 +1026,9 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
     R3DCar_LoadedSceneColor[index >> 3][carType] = index & 8;
 
-    reload = 0; } else { if ((int)R3DCar_LoadedSceneCountry[carType] !=
+    reload = 0; }
 
-        (u_int)(u_char)(carObj->render).currentCountry) {
+  else if ((int)R3DCar_LoadedSceneCountry[carType] != (u_int)(u_char)(carObj->render).currentCountry) {
 
       (carObj->render).currentCountry = (carObj->render).currentCountry | 0x80; R3DCar_LoadedScenePointer[1][carType] =
 
@@ -1038,24 +1038,24 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       reload = 0; } else { int index; int color;
 
 
+        index = (short)(carObj->render).colorIndex;
+        color = index & 8;
+        index = index >> 3;
+
+        R3DCar_LoadedSceneCounter[0][carType]++;
+
+        if (R3DCar_LoadedSceneColor[index][carType] == color) {
+
+          (carObj->render).VRamX = R3DCar_LoadedSceneVRam[index][carType][0];
+          (carObj->render).VRamY = R3DCar_LoadedSceneVRam[index][carType][1];
+
+          reload = 1; } else {
 
 
+          R3DCar_LoadedSceneColor[index][carType] = color;
 
-
-
-
-      short (*loadedSceneColor)[2] = (short (*)[2])R3DCar_LoadedSceneColor; color = (u_int)(u_short)(carObj->render).colorIndex; R3DCar_LoadedSceneCounter[0][carType]++; __asm__("" : : "r"(loadedSceneColor)); index = (short)color >> 3; const int colorTypeOffset = carType << 1; __asm__("" : : "r"(colorTypeOffset)); index = ((index * 3) << 3) - (-index); color = color | (color & 3); if ((int)*(short *)(colorTypeOffset + (index << 2) + (u_int)loadedSceneColor) == (color &= 8)) { short (*loadedSceneVRam)[2][2];
-
-        loadedSceneVRam = (short (*)[2][2])R3DCar_LoadedSceneVRam; (carObj->render).VRamX = *(short *)((carType << 2) + (index << 3) + (u_int)loadedSceneVRam);
-
-
-        reload = 1; (carObj->render).VRamY = *(short *)((carType << 2) + (index << 3) + (u_int)loadedSceneVRam + 2); } else { *(short *)(colorTypeOffset + (index << 2) +
-
-
-                   (u_int)loadedSceneColor) = (short)color; reload = 0; } } } R3DCar_CalcCarDimensions(carObj,R3DCar_LoadedScenePointer[(u_char)(carObj->render).currentCountry >> 7]
-
-
-
+          reload = 0; } }
+  R3DCar_CalcCarDimensions(carObj,R3DCar_LoadedScenePointer[(u_char)(carObj->render).currentCountry >> 7]
 
 
                     [carType],carType);
@@ -1066,8 +1066,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
   Texture_palNum = 0;
 
-  if (carType < 0x1c) { int i; char infilenames[4][15]; char *shpfiles[4]; int index; int duplicateLicense; duplicateLicense = reload << 1; index = 0;
-
+  if (carType < 0x1c)
+  { int i; char infilenames[4][15]; char *shpfiles[4]; int index; int duplicateLicense; duplicateLicense = reload << 1; index = 0;
 
 
 
@@ -1121,31 +1121,31 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
     Texture_CarColor = ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
 
-    CarIO_UpdateCarTextureData(shpfiles[index],carObj,0); } else { char infilename[15];
-
-
+    CarIO_UpdateCarTextureData(shpfiles[index],carObj,0); }
+  else
+  { char infilename[15]; char *pshFile;
 
 
 
     strcpy(infilename,workFile);
-    strcat(infilename,".psh"); CarIO_ReadInCarTextureData(locatebig(R3DCar_BigFile,infilename), (Texture_CarColor = (u_short)(carObj->render).colorIndex & 7,carObj),
+    strcat(infilename,".psh");
 
 
 
 
 
-        reload | 0x88,0);
+    pshFile = locatebig(R3DCar_BigFile,infilename);
 
 
+    Texture_CarColor = (u_short)(carObj->render).colorIndex & 7;
 
-
-
+    CarIO_ReadInCarTextureData(pshFile,carObj,reload | 0x88,0);
 
     (carObj->render).palNum = (short)Texture_palNum; }
 
 
-  if (reload == 0) { int index;
-
+  if (reload == 0)
+  { int index;
     index = (short)(carObj->render).colorIndex >> 3;
 
     R3DCar_LoadedSceneVRam[index][carType][0] = (carObj->render).VRamX;
@@ -1485,19 +1485,19 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       if (((carObj->render).signalLight[0] & 0x80U) == 0) {
 
         (carObj->render).signalLight[0] = 0x80; (carObj->render).signalLight[1] = 0x88;
-        if (((carObj->control).lights & 2U) == 0) { R3DCar_TurnHeadLightOn(carObj,1); } } }
+        if (((carObj->control).lights & 2U) == 0) { R3DCar_TurnHeadLightOn(carObj,1); } }
 
 
-
-    else if (((carObj->render).signalLight[0] & 0x80U) != 0)
+    } else {
+    if (((carObj->render).signalLight[0] & 0x80U) != 0)
     {
       (carObj->render).signalLight[0] = 0; (carObj->render).signalLight[1] = 0;
-      if (((carObj->control).lights & 2U) == 0) { u_int lightOff;
+      if (((carObj->control).lights & 2U) == 0)
+        {
 
+          const u_int lightOff = (u_int)(carObj->control).lights & 4U;
 
-        lightOff = (u_int)(carObj->control).lights & 4U;
-
-        R3DCar_TurnHeadLightOff(carObj,lightOff == 0); } } }
+          R3DCar_TurnHeadLightOff(carObj,lightOff == 0); } } } }
 
 
 
@@ -1519,9 +1519,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
   if (((carObj->render).detail == 0) && ((0x1b < carType || ((carObj->render).medOnly != '\0')))) { (carObj->render).detail = 1; }
-  if (((carObj->render).detail == 2) && (carType == 0x1c)) { (carObj->render).detail = 1; } { coorddef car; coorddef pos;
+  if (((carObj->render).detail == 2) && (carType == 0x1c)) { (carObj->render).detail = 1; }
 
-  detailIndex = (carObj->render).detail + 2;
+  detailIndex = (carObj->render).detail + 2; { coorddef car; coorddef pos;
 
 
 
@@ -1547,10 +1547,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
       insideMat.m[0] = -insideMat.m[0];
       insideMat.m[1] = -insideMat.m[1];
-      insideMat.m[2] = -insideMat.m[2]; } { matrixtdef bodyIMat; matrixtdef matP; int roll;
+      insideMat.m[2] = -insideMat.m[2]; }
 
 
-
+    { matrixtdef bodyIMat; matrixtdef matP; int roll;
 
 
       roll = (carObj->render).bodyRoll;
@@ -1570,9 +1570,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
       Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
-      Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat); } } else { matrixtdef matP;
-
-
+      Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat); } }
+  else
+  { matrixtdef matP;
 
 
     fixedxformz(bodyMat.m,(carObj->render).bodyRoll);
@@ -1592,25 +1592,25 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     if (carType == 0x1c) {
 
       (carObj->N).wheelRot[0] = (carObj->N).wheelRot[0] + 0x1800U & 0xffff;
-      (carObj->N).wheelRot[1] = (carObj->N).wheelRot[1] + 0x1800U & 0xffff; } else { int vel; int spin; int rear; rear = 0;
-
-
-
+      (carObj->N).wheelRot[1] = (carObj->N).wheelRot[1] + 0x1800U & 0xffff; }
+    else
+    {
+      int vel; int spin; int rear;
       spin = __builtin_abs(carObj->wheelSpin);
 
 
-      while (1) { if (rear >= 2) break;
+      for (rear = 0; rear < 2; rear++) {
 
         if (Replay_ReplayMode != 2) { vel = (carObj->linearVel_ch).z >> 6; } else {
           vel = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed); }
 
+        if (((rear != 0) ? (spin == 1 || spin == 2) : (carObj->frontWheelSpin != 0)) &&
+            ((u_char)(carObj->control).gear != 1))
+        {
+          const int gear = (u_char)(carObj->control).gear; vel = (carObj->flywheelRpm << 0x10) / carObj->specs->velToRpmRatio[gear];
 
-        if (rear != 0) { if (spin - 1U < 2) goto R_ICFt_wheelspinRpmCalc; } else if (carObj->frontWheelSpin != 0) { R_ICFt_wheelspinRpmCalc: if ((u_char)(carObj->control).gear != 1) { vel = (carObj->flywheelRpm << 0x10) / carObj->specs->velToRpmRatio[
-
-                      (u_char)(carObj->control).gear];
-
-            if (Replay_ReplayMode != 2) { vel = vel << 9; } else {
-              vel = vel << (Replay_ReplayInterface.speed + 7U); } } }
+          if (Replay_ReplayMode != 2) { vel = vel << 9; } else {
+            vel = vel << (Replay_ReplayInterface.speed + 7U); } }
 
 
         if (carObj->wheelLock != 0)
@@ -1621,11 +1621,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
         if (vel < -0x1800) { vel = -0x1800; } if (0x1800 < vel) { vel = 0x1800; }
 
         (carObj->N).wheelRot[rear] = (carObj->N).wheelRot[rear] + vel & 0xffff;
-        rear = rear + 1; } } } { int steeringAngle;
+      } } }
 
 
 
-
+  { int steeringAngle;
     steeringAngle = (carObj->control).steering;
 
 
@@ -1641,10 +1641,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-    if (0x1e0000 < (carObj->linearVel_ch).z) { steeringAngle =
-
-          fixeddiv(steeringAngle << 0x10,fixedmult((carObj->linearVel_ch).z,0x888))
-            / 0x10000; }
+    if (0x1e0000 < (carObj->linearVel_ch).z)
+    {
+      const int d = fixedmult((carObj->linearVel_ch).z,0x888);
+      steeringAngle = fixeddiv(steeringAngle << 0x10,d) / 0x10000; }
 
 
     fixedxformy(steerMat.m,steeringAngle << 5); } { if (((carObj->control).desiredBrakeLevel != '\0') &&
@@ -1654,12 +1654,12 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
         ((carObj->control).hanno == 0)) { (carObj->render).brakeLight = (carObj->render).brakeLight | 1; } else {
-      (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfe; } } i = 0;
+      (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfe; } }
 
 
-  if (carType < 0x1c) {
-
-    for (; i < 0x39; i = i + 1) { short code; u_int lightFlags;
+  if (carType < 0x1c)
+  {
+    for (i = 0; i < 0x39; i = i + 1) { short code;
 
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
 
@@ -1684,8 +1684,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
         break; case 5:
 
 
-        lightFlags = (u_int)(u_short)(carObj->render).headLight;
-        goto R_ICFt_brakeAIBranch; case 6:
+        if (((carObj->render).headLight & 2U) == 0) { code = 0; }
+        break; case 6:
 
         if (((carObj->render).headLight & 0x20U) == 0) { code = 0; }
         break; case 0x14:
@@ -1714,10 +1714,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
         if ((carObj->render).brakeLight != 0) break;
-        goto R_ICFt_brakeLightCheck; case 0x11:
+        if ((cop_flag == 0) || ((carObj->AIFlags & 2U) == 0)) { code = 0; } break; case 0x11:
 
 
-        if ((carObj->control).gear == 0) break; R_ICFt_brakeLightCheck: if (cop_flag == 0) goto switchD_800b03ec_caseD_f; lightFlags = carObj->AIFlags; R_ICFt_brakeAIBranch: if ((lightFlags & 2) == 0) { code = 0; }
+        if ((carObj->control).gear == 0) break; if ((cop_flag == 0) || ((carObj->AIFlags & 2U) == 0)) { code = 0; }
         break; case 0x12:
 
 
@@ -1728,26 +1728,26 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
         if (cop_flag == 0) {
 
 
-          if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) break; if (R3DCar_SignalBrakeFlare[carType] == 0) goto switchD_800b03ec_caseD_f; if ((carObj->render).brakeLight == 0) { code = 0; } goto R_ICFt_postSwitchVis; }
+          if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) break; if ((R3DCar_SignalBrakeFlare[carType] == 0) || ((carObj->render).brakeLight == 0)) { code = 0; } break; }
 
 
         if ((*(u_int *)(carObj->render).signalLight & 0x800080) == 0) { code = 0; } else if (((carObj->render).damageParts & 4U) != 0) { code = 0; }
-        break; case 0xd: cfLbl1:
+        break; case 0xd:
 
 
         if (cop_flag == 0) break; if (((carObj->render).damageParts & 4U) != 0) { code = 0; }
-        break; default: goto switchD_800b03ec_caseD_8; case 0xf: goto switchD_800b03ec_caseD_f; case 0xe:
+        break; default: break; case 0xf: code = 0; break; case 0xe:
 
 
-        if (cop_flag == 0) goto switchD_800b03ec_caseD_f; R_ICFt_caseE_dmgCheck: if (((carObj->render).damageParts & 4U) != 0) { switchD_800b03ec_caseD_f: code = 0; switchD_800b03ec_caseD_8: ; } break; } R_ICFt_postSwitchVis:
-
-
-
+        if ((cop_flag == 0) || (((carObj->render).damageParts & 4U) != 0)) { code = 0; } break; }
 
 
 
-      switch (i) { case 6: case 7:
 
+
+
+      switch (i)
+      { case 6: case 7:
 
 
         if (((carObj->render).damageParts & 0x18U) != 0) { code = 0; }
@@ -1758,9 +1758,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-        if (((carObj->render).damageParts & 4U) != 0) { int damage;
+        if (((carObj->render).damageParts & 4U) != 0)
 
-
+        { int damage;
           damage = R3DCar_DamageSpoiler[carType];
 
           if (((carObj->render).upgradeFlags & 4U) != 0) { code = damage & 1; } else {
@@ -1768,7 +1768,7 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
           if (code != 0) { code = 0xb; } }
 
-        goto R_ICFt_postVisibility; case 10: case 11:
+        break; case 10: case 11:
 
 
 
@@ -1776,17 +1776,17 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
         if (((carObj->render).damageParts & 4U) != 0) {
 
-          code = 0; } break; } R_ICFt_postVisibility:
+          code = 0; }
 
 
 
-
+        break; }
 
 
       R3DCar_ObjectVisible[i] = code;
-    } } else {
-
-
+    } }
+  else
+  {
     for (i = 0; i < 0x39; i = i + 1) { short code;
 
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
@@ -1825,7 +1825,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
     obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
 
-    if ((obj->numFacet != 0) && (R3DCar_ObjectVisible[i] != '\0')) { matrixtdef tmpMat; coorddef translation; coorddef tmp; int suspensionOffset;
+    if ((obj->numFacet != 0) && (R3DCar_ObjectVisible[i] != '\0'))
+    { matrixtdef tmpMat; coorddef translation; coorddef tmp; int suspensionOffset;
 
 
 
@@ -1833,9 +1834,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-
-      if (0x2e < i) { int index;
-
+      if (0x2e < i)
+      { int index;
         index = R3DCar_Suspension[i + -0x2f];
 
         suspensionOffset = carObj->wheel[index].impactCompression;
@@ -1891,16 +1891,16 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
           Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat); Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
               (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
-          break; default: R3DCar_MATRIX3DT_Copy(orientMat.m, (int *)((int)R3DCar_orientMat + i * 0x24)); break; } } else {
+          break; default: R3DCar_MATRIX3DT_Copy(orientMat.m, (int *)((int)R3DCar_orientMat + i * 0x24)); break; } }
+      else
 
 
 
 
 
-
-
-        switch(i) { case 0x2f:
-
+      {
+        switch(i)
+        { case 0x2f:
 
           fixedxformx(tmpMat.m,(carObj->N).wheelRot[0]);
 
@@ -1941,10 +1941,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
               (int *)((int)R3DCar_orientMat + i * 0x24));
-          break; case 0x25: { int steeringAngle;
+          break; case 0x25:
 
 
-
+          { int steeringAngle;
             steeringAngle = (carObj->control).steering;
             if (rightHandDrive != 0) { steeringAngle = -steeringAngle; }
 
@@ -1953,10 +1953,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-          break; case 0x26: { matrixtdef matR; matrixtdef matP; int roll; int pitch;
+          break; case 0x26:
 
 
-
+          { matrixtdef matR; matrixtdef matP; int roll; int pitch;
 
 
             roll = (carObj->render).bodyRoll * 3 >> 1;
@@ -1970,11 +1970,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-          break; case 0x27: case 0x28: { matrixtdef matX; matrixtdef matY; int maxAngleFactor; int steeringAngle;
+          break; case 0x27: case 0x28:
 
 
 
-
+          { matrixtdef matX; matrixtdef matY; int maxAngleFactor; int steeringAngle;
 
 
 
@@ -1994,8 +1994,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
           break; default: R3DCar_MATRIX3DT_Copy(orientMat.m,
 
 
-              (int *)((int)R3DCar_orientMat + i * 0x24)); break; } } }
-
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break; } } }
 
 
 
@@ -2107,11 +2107,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 /* MATCH: index form -- oracle walker a2 is the strength-reduced giv of wheelRot[rear] */
 /* SYM blk 227 REG s0 (live across the fixed* calls) */
 /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-/* SOURCE-REVIEW-UNRESOLVED: lightFlags is absent from retail. Direct,
-         early-break, conditional and shared-zero forms still place the shared
-         bit test in a different block on the current source. That is not proof
-         a distinct original object existed; recover the common-test producer
-         without a replacement alias or generic naming exemption. */
+/* MATCH 2026-11-07 (DRAW6): lightFlags and every goto/label are gone. The shared bit test and
+         the shared `code = 0` come from cross-jumping `(a == 0) || (b == 0)` conditions (case 5,
+         0x10/0x11, 0xe, 0x13); if/else or early-break spellings of those arms do not cross-jump. */
 /* MATCH: case bodies in ORACLE VA order (jlabels 800B03F4..800B05B0):
          0/7, 1/2, 9, 10, 5, 6, 0x14, 0xc, 0xb, 3, 4, 0x10, 0x11, 0x12, 0x13, 0xd, 0xe
          + shared dmgCheck/visibility-join tail LAST (L800B05B8..L800B05D0) */
@@ -2329,11 +2327,11 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
 
   countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
 
-  rightHandDrive = 0; changeCar = 0; if ((carType < 0x1c) &&
-      (rightHandDrive = (int)*(signed char *)&R3DCar_ForceDriveSide[carType], rightHandDrive < 0)) {
+  rightHandDrive = 0; changeCar = 0;
+  if (carType < 0x1c) {
 
-
-    rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1; }
+    rightHandDrive = (int)*(signed char *)&R3DCar_ForceDriveSide[carType];
+    if (rightHandDrive < 0) rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1; }
 
 
   R3DCar_rightHandDrive = rightHandDrive;

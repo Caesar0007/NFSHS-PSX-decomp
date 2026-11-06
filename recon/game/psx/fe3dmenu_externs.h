@@ -10,32 +10,32 @@ extern char     bigBuf[];
 #define gScratchLastWord (*(int *)0x1F8003FC)
 /* w38-a9: Render_gMenuRenderFlag dropped -- it is the SCRATCHPAD field
    sd->head.mirror @0x1F80000C, not a linked symbol (see Draw_MenuRenderingView).
-   The remaining scalars use the UNSIZED-ARRAY ASM-LABEL VIEW: as plain `extern int`
-   scalars cc1plus emits the one-insn assembler macro `sw $r,sym` / self-temp
-   `lui $r,sym; lw $r,0($r)`, which maspsx/GNU-as expand with $at and which nothing
-   can CSE or schedule; the oracle instead materializes ONE %hi base per symbol in a
-   register (often callee-saved) and reuses it across calls.  The unsized-array form
-   makes the %hi an ordinary RTL pseudo (catalog "$at-macro store => wrong declared
-   shape" / IDT Ch9 unsized-extern rule).  Same storage, same symbol. */
-extern int      R3DCar_Clock_v[]              asm("R3DCar_Clock");
-extern int      R3DCar_ClockLast_v[]          asm("R3DCar_ClockLast");
-extern int      R3DCar_InMenu_v[]             asm("R3DCar_InMenu");
+   The remaining scalars are plain externs (2026-11-06 cleanup).  The former
+   unsized-array asm-label views (`R3DCar_Clock_v[] asm("R3DCar_Clock")` + #define)
+   were measured unnecessary under ASPSX 2.77: fe3dmenu.cpp verify_asm 3/3 PASS,
+   sldprobe 0 tag diffs / 0 ALIGN warnings and identical data with or without
+   them.  generic128HzClock is volatile everywhere: the timer ISR
+   Clock_MasterInterruptHandler (clock.cpp) writes it (user ruling 2026-11-06)
+   and readers re-load it. */
+extern int R3DCar_Clock;
+extern int R3DCar_ClockLast;
+extern int R3DCar_InMenu;
 /* generic128HzClock is the IRQ/VBlank-incremented 128Hz tick counter -> genuinely
    VOLATILE: the oracle RE-LOADS it inside the `if` body instead of reusing the value
    it just compared (catalog F "volatile IRQ-written status word"; a plain int lets
    cse.c forward the compare's load and drops that second `lw`). */
-extern volatile int generic128HzClock_v[]     asm("generic128HzClock");
-extern int      stackSpeedUpEnbabledFlag_v[]  asm("stackSpeedUpEnbabledFlag");
-extern u_long   gWSavePtr_v[]                 asm("gWSavePtr");
-#define R3DCar_Clock              (R3DCar_Clock_v[0])
-#define R3DCar_ClockLast          (R3DCar_ClockLast_v[0])
-#define R3DCar_InMenu             (R3DCar_InMenu_v[0])
-#define generic128HzClock         (generic128HzClock_v[0])
-#define stackSpeedUpEnbabledFlag  (stackSpeedUpEnbabledFlag_v[0])
+extern volatile int generic128HzClock;
+extern int stackSpeedUpEnbabledFlag;
+extern u_long gWSavePtr;
+
+
+
+
+
 /* showRoomFlag, gMenuRotate, Fe3D_spotVertex, Fe3D_lightsVertex: DEFINED in fe3dmenu.cpp (their first
    declaration fixes the emission order of the object's data) */
 extern bool showRoomFlag;
-#define gWSavePtr                 (gWSavePtr_v[0])
+
 
 /* PsyQ / EA fixed-point + matrix math */
 void Math_NormalizeVector(coorddef *);

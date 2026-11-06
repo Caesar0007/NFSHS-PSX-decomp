@@ -28,7 +28,11 @@ struct tMenu {
     virtual bool IsSubMenu();
     virtual void Draw();
     virtual void UpdateTransition();
+#ifndef NFS4_FE_CORE_TMENU_KEY_TU
+    // Not in FEMenu.obj's surface: that TU defines tMenu's virtuals, so g++ 2.8 would
+    // emit an out-of-line CurrentItem__5tMenu (absent from retail) and grow its .text.
     inline short CurrentItem() { return fCurrentItem; }
+#endif
 #ifdef NFS4_FEMENUDEFS_SURFACE
     // Inferred setter spelling: retail records child PTR tMenu in three
     // constructor inline pairs; the raw stores target fChildMenu.

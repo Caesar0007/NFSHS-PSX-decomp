@@ -2074,8 +2074,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   switch (envmap & 9) {
     case 0: {
       POLY_FT3 *prim; Transformer_zFacet *facet; int id0; int id1; int id2;
-      if ((envmap & 2U) == 0) {
-
+      if ((envmap & 2U) == 0)
+      {
         while( true ) { i = i - 1; if (i == -1) {
             return;
           }
@@ -2146,8 +2146,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
 
-            if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0) {
-
+            if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0)
+            {
               u_char offsetU = sd->offsetU1;
               u_char offsetV = sd->offsetV1;
 
@@ -2347,8 +2347,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
         }
 
 
-        if (*(int *)&sd->ePmx0 != 0) {
-
+        if (*(int *)&sd->ePmx0 != 0)
+        {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -2479,8 +2479,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 
 
-        if ((overlayFlag & 3) != 0) {
-
+        if ((overlayFlag & 3) != 0)
+        {
           int index = facet->textureIndex;
           int which = (overlayFlag & 3) - 1;
 
@@ -2591,8 +2591,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
         gte_stOTZm(sd->otz);
 
         overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10; overlayFlag = overlayRaw >> 0x10;
-        if (overlayFlag != 0) {
-
+        if (overlayFlag != 0)
+        {
           facetValue = (facetFlag = facet->flag);
           sd_otz = sd->otz;
           overlayFlag = overlayFlag & 0xff;
@@ -2668,8 +2668,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
         }
 
 
-        if (*(int *)&sd->ePmx0 != 0) {
-
+        if (*(int *)&sd->ePmx0 != 0)
+        {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -2706,8 +2706,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
         }
 
 
-        if ((overlayFlag & 3) != 0) {
-
+        if ((overlayFlag & 3) != 0)
+        {
           int index = facet->textureIndex;
           int which = (overlayFlag & 3) - 1;
 
@@ -3507,8 +3507,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             prim->code = code;
           }
 
-          if (((envmap & 2U) != 0) && (((u_short)facet->flag & 1) == 0)) {
-
+          if (((envmap & 2U) != 0) && (((u_short)facet->flag & 1) == 0))
+          {
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
 
             { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = sd->offsetU0; u_char v = sd->offsetV0; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
@@ -3516,8 +3516,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           } else {
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
 
-            if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0) {
-
+            if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0)
+            {
               u_char offsetU = sd->offsetU1;
               u_char offsetV = sd->offsetV1;
 
@@ -3571,8 +3571,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
             *(u_short *)&sd->u2 = uv2;
           }
 
-          if ((envmap & 2U) != 0) {
-
+          if ((envmap & 2U) != 0)
+          {
             int u = sd->offsetU0;
             int v = sd->offsetV0;
 
@@ -3713,8 +3713,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
 
 
-        if (*(int *)&sd->ePmx0 != 0) {
-
+        if (*(int *)&sd->ePmx0 != 0)
+        {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -3868,8 +3868,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
 
 
-        if ((overlayFlag & 3) != 0) {
-
+        if ((overlayFlag & 3) != 0)
+        {
           int index = facet->textureIndex;
           int which = (overlayFlag & 3) - 1;
 
@@ -4073,8 +4073,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
 
 
-        if (*(int *)&sd->ePmx0 != 0) {
-
+        if (*(int *)&sd->ePmx0 != 0)
+        {
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -4111,8 +4111,8 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
 
 
-        if ((overlayFlag & 3) != 0) {
-
+        if ((overlayFlag & 3) != 0)
+        {
           int index = facet->textureIndex;
           int which = (overlayFlag & 3) - 1;
 

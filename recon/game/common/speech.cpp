@@ -285,8 +285,8 @@ void Speech::CountLocations()
 
     while (d->name != (char *)0x0) { d = d + 1; if (0xf < this->fLocationCount) { return; }
 
-      this->fLocationCount = this->fLocationCount + 1; } } return;
-
+      this->fLocationCount = this->fLocationCount + 1;
+    } } return;
 
 }
 
@@ -305,13 +305,13 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
 
   d = Speech_gLocationDescription[GameSetup_gData.track]; match = 0;
 
-  if (d == (Speech_tLocationDescription *)0x0) { match = 0; } else {
-
+  if (d == (Speech_tLocationDescription *)0x0) { match = 0; } else
+  {
     for (int i = 0; i < this->fLocationCount; i = i + 1) {
 
 
-      if (strncmp(name,d->name,strlen((u_long)d->name)) == 0) {
-
+      if (strncmp(name,d->name,strlen((u_long)d->name)) == 0)
+      {
 
 
 
@@ -337,9 +337,9 @@ int Speech::LocationBank::Distance(int slice)
 {
   if (fStartSlice > fEndSlice) {
 
-    if (slice < fStartSlice && slice > fEndSlice)
+    if (slice < fStartSlice)
 
-
+      if (slice > fEndSlice)
       return SPEECH_MIN(fStartSlice - slice, slice - fEndSlice);
 
     return 0; }
@@ -361,8 +361,8 @@ int Speech::LocationBank::Distance(int slice)
 Speech::LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice)
 
 {
-  if (this->fLocationCount != 0) {
-
+  if (this->fLocationCount != 0)
+  {
     LocationBank *closestbank = (LocationBank *)0x0;
     int closestdistance = 10000;
 
@@ -370,8 +370,8 @@ Speech::LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice
 
       LocationBank *locationbank = &bank[i]; int distance;
 
-      if (locationbank->BankId() == -1) continue;
-
+      if (locationbank->BankId() == -1)
+        continue;
 
       distance = locationbank->Distance(slice);
 
@@ -453,8 +453,8 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
-    else if (GameSetup_gData.measurement == 1) {
-
+    else if (GameSetup_gData.measurement == 1)
+    {
 
 
       if (distance < 0xa6)
@@ -1403,19 +1403,19 @@ void Speech::DispatchSpeaker::Roger()
 
 
 
-  if (this->Sub() == 0 || this->Sub()->Perp() == 0 || this->Sub()->BlockadeFlags() != 0) {
-
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0 || this->Sub()->BlockadeFlags() != 0)
+  {
     SPCHNFS_D_A_CONFIRM(this->Confirm());
     SPCH_PlaySpeech(); }
 
-  else if (this->Sub()->ArrestFlags() != 0) {
-
+  else if (this->Sub()->ArrestFlags() != 0)
+  {
     this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
     SPCHNFS_D_C_PERP_APPREHENSION_REPLY(this->To(),this->Confirm(),this->PerpName());
     SPCH_PlaySpeech(); }
 
-  else if (this->Sub()->UpdateFlags() == 0) {
-
+  else if (this->Sub()->UpdateFlags() == 0)
+  {
     SPCHNFS_D_A_CONFIRM(this->Confirm());
     SPCH_PlaySpeech();
 
@@ -1537,8 +1537,8 @@ void Speech::DispatchSpeaker::Status()
   {
     int dist = this->Sub()->DistToPerp();
 
-    if (this->Sub()->HavePerp()) {
-
+    if (this->Sub()->HavePerp())
+    {
       if (dist > 0x15e0000)
       { this->Sub()->SetHavePerp(0); this->Sub()->SetUpdate(0);
 
@@ -1550,12 +1550,12 @@ void Speech::DispatchSpeaker::Status()
       this->Sub()->Engage(this->Sub()->Perp()); }
 
 
-  if (this->fStatusSub != 0) {
-
+  if (this->fStatusSub != 0)
+  {
     this->fStatusCount--;
 
-    if (this->fStatusCount == 0) {
-
+    if (this->fStatusCount == 0)
+    {
       if (this->fStatusSub == this)
 
         this->StatusReply();
@@ -1576,8 +1576,8 @@ void Speech::DispatchSpeaker::Status()
 
     this->fStatusCount--;
 
-  else if (this->Sub()->BlockadeFlags() == 0 && this->Sub()->ArrestFlags() == 0) {
-
+  else if (this->Sub()->BlockadeFlags() == 0 && this->Sub()->ArrestFlags() == 0)
+  {
 
 
 
@@ -1673,8 +1673,8 @@ void Speech::MobileSpeaker::Status()
 
 
 
-  if (this->ArrestFlags() == 1) {
-
+  if (this->ArrestFlags() == 1)
+  {
 
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
@@ -1683,8 +1683,8 @@ void Speech::MobileSpeaker::Status()
     SPCHNFS_C_D_PERP_APPREHENSION(this->Voice(),this->PerpName());
     SPCH_PlaySpeech(); }
 
-  else if ((*(u_int *)((int)this->CarObj() + 0x260) & 0x200) != 0 && this->UpdateFlags() == 0) {
-
+  else if ((*(u_int *)((int)this->CarObj() + 0x260) & 0x200) != 0 && this->UpdateFlags() == 0)
+  {
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
     SPCH_PlaySpeech();
@@ -1699,8 +1699,8 @@ void Speech::MobileSpeaker::Status()
     Speech::Dispatch()->Roger();
     Speech::Dispatch()->SetSub(saved); } else if (this->IsSuper() && this->UpdateFlags() == 0 && this->Sub() != 0 &&
 
-           (*(u_int *)((int)this->Sub()->CarObj() + 0x260) & 0x40) == 0) {
-
+           (*(u_int *)((int)this->Sub()->CarObj() + 0x260) & 0x40) == 0)
+           {
 
 
 
@@ -1712,8 +1712,8 @@ void Speech::MobileSpeaker::Status()
     SPCHNFS_S_C_SUPER_COP_CRITICISM(this->Voice());
     SPCH_PlaySpeech(); }
 
-  else if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Sub() == this) {
-
+  else if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Sub() == this)
+  {
     SPCHNFS_C_C_NEW_OFFICER_ENGAGING(this->Voice(),this->From());
     Speech::Dispatch()->Sub()->Roger(); } else {
 
@@ -1731,8 +1731,8 @@ void Speech::MobileSpeaker::Status()
     this->FindLocation(this->CarObj());
     this->SetSpeed(this->fPerp);
 
-    if (this->DistToPerp() < 0x280000) {
-
+    if (this->DistToPerp() < 0x280000)
+    {
       if (*(u_short *)((int)this->Perp() + 0x17c) > 0x40)
         SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(this->Voice());
       else if (this->UpdateFlags() == 1)
@@ -1742,8 +1742,8 @@ void Speech::MobileSpeaker::Status()
 
                                               this->Position(),this->Location()); }
 
-    else if (this->HavePerp()) {
-
+    else if (this->HavePerp())
+    {
       if (this->UpdateFlags() == 1) SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),
                                                 this->Colour(),this->Car(),this->PerpName());
       else if (this->UpdateFlags() == 8) SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(this->Voice(),this->Colour(),this->Car(),this->Position(),
@@ -1885,27 +1885,27 @@ void Speech::DispatchSpeaker::Report(Car_tObj *perp)
 { this->ClearSpeaker();
 
 
-  if (this->KnownPerp(perp) && this->Sub() != 0) {
+  if (this->KnownPerp(perp) && this->Sub() != 0)
+  {
 
 
-
-    if (!Speech::MultiplePerps()) {
-
+    if (!Speech::MultiplePerps())
+    {
 
 
 
 
       this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
       SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(this->Confirm(),this->To());
-      SPCH_PlaySpeech(); } } else {
+      SPCH_PlaySpeech(); } } else
 
 
 
+  {
 
 
-
-    if (!Speech::MultiplePerps()) {
-
+    if (!Speech::MultiplePerps())
+    {
 
 
 
@@ -1955,14 +1955,14 @@ void Speech::DispatchSpeaker::Deny()
   SPCH_PlaySpeech();
 
 
-  if (this->Sub()->BlockadeSlot()->flags != 0) {
-    SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(this->Sub()->BlockadeSlot()); } else {
+  if (this->Sub()->BlockadeSlot()->flags != 0)
+  { SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(this->Sub()->BlockadeSlot()); } else {
 
     SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY(); }
 
-  SPCH_PlaySpeech(); this->Sub()->SetBlockade(0); return;
+  SPCH_PlaySpeech(); this->Sub()->SetBlockade(0);
 
-
+  return;
 }
 
 /* ---- Grant__Q26Speech15DispatchSpeaker  [SPEECH.CPP:2079-2098] SLD-VERIFIED ---- */
@@ -1974,16 +1974,16 @@ void Speech::DispatchSpeaker::Grant()
 
 
 
-  if (this->Sub() == (Speaker *)0x0) { return; }
-
+  if (this->Sub() == (Speaker *)0x0) {
+    return; }
 
   if (this->Sub()->BlockadeSlot() == (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
     return; } this->ClearSpeaker();
 
 
 
-  if (Speech::MultiplePerps() == 0) {
-
+  if (Speech::MultiplePerps() == 0)
+  {
 
     SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(this->Sub()->BlockadeSlot(),this->Confirm());
     SPCH_PlaySpeech(); } return;
@@ -2047,8 +2047,8 @@ void Speech::MobileSpeaker::Activate(Car_tObj *carObj)
 
   a = &Speech_gCopAttr[this->fUnit];
 
-  if ((carObj->carFlags & 0x40U) != 0) {
-
+  if ((carObj->carFlags & 0x40U) != 0)
+  {
     this->fUnit = this->fUnit + 9;
     this->SetVoice(8); }
 
@@ -2078,8 +2078,8 @@ void Speech::MobileSpeaker::ReActivate()
 
   a = &Speech_gCopAttr[this->fUnit];
 
-  if ((this->fCarObj->carFlags & 0x40U) != 0) {
-
+  if ((this->fCarObj->carFlags & 0x40U) != 0)
+  {
     this->fUnit = this->fUnit + 9;
     this->SetVoice(8); }
 
@@ -2247,8 +2247,8 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
     this->SetCar(this->Perp());
 
-    if ((this->CarObj()->carFlags & 0x200) == 0) {
-
+    if ((this->CarObj()->carFlags & 0x200) == 0)
+    {
       Speaker *SubChain = Speech::Dispatch();
       while (SubChain->Sub() != 0) {
 
@@ -2262,10 +2262,10 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 
 
-    if (Speech::Dispatch()->Sub() == this) {
-
-      if ((this->CarObj()->carFlags & 0x200) != 0) {
-
+    if (Speech::Dispatch()->Sub() == this)
+    {
+      if ((this->CarObj()->carFlags & 0x200) != 0)
+      {
 
         Speech::Dispatch()->Report(perp); this->MakeSpeaker();
 
@@ -2275,14 +2275,14 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
         SPCH_PlaySpeech(); } } else if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 &&
 
 
-             (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0) {
-
+             (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0)
+             {
 
       this->SetSub(Speech::Dispatch()->Sub());
       Speech::Dispatch()->SetSub(this);
 
-      if (this->BlockadeFlags() == 0) {
-
+      if (this->BlockadeFlags() == 0)
+      {
         this->SetTo(this->CallSign()->AllUnits());
         SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
         SPCH_PlaySpeech();
@@ -2297,8 +2297,8 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
       Speaker *SubChain = Speech::Dispatch(); if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Perp() != 0 &&
 
 
-          (Speech::Dispatch()->Sub()->Perp()->carFlags & 4) == 0 && (this->Perp()->carFlags & 4) != 0) {
-
+          (Speech::Dispatch()->Sub()->Perp()->carFlags & 4) == 0 && (this->Perp()->carFlags & 4) != 0)
+          {
 
         this->SetSub(Speech::Dispatch()->Sub());
         Speech::Dispatch()->SetSub(this); } else {
@@ -2311,11 +2311,11 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 
 
-      if (this->BlockadeFlags() == 0) {
+      if (this->BlockadeFlags() == 0)
+      {
 
-
-        if (!Speech::Dispatch()->KnownPerp(perp) || Speech::Dispatch()->StatusCount() <= 0x17f) {
-
+        if (!Speech::Dispatch()->KnownPerp(perp) || Speech::Dispatch()->StatusCount() <= 0x17f)
+        {
           this->SetTo(this->CallSign()->Dispatch());
           SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
           SPCH_PlaySpeech();
@@ -2342,8 +2342,8 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 
 
-  else if (!Speech::MultiplePerps() && Speech::Dispatch()->StatusCount() < 0x160) {
-
+  else if (!Speech::MultiplePerps() && Speech::Dispatch()->StatusCount() < 0x160)
+  {
     this->SetCar(this->Perp());
 
     this->SetTo(this->CallSign()->Dispatch());
@@ -2376,25 +2376,25 @@ void Speech::MobileSpeaker::Lose()
 
 
 
-      this->BlockadeFlags() == 0 && this->ArrestFlags() == 0) {
-
+      this->BlockadeFlags() == 0 && this->ArrestFlags() == 0)
+      {
     Leader = Speech::Dispatch()->Sub();
-    this->SetTo(this->CallSign()->Mobile(Leader->Unit())); } else {
+    this->SetTo(this->CallSign()->Mobile(Leader->Unit())); } else
 
 
-
+  {
     Leader = 0;
     this->SetTo(this->CallSign()->Dispatch()); }
 
 
-  if (this->ArrestFlags() != 0) {
-
+  if (this->ArrestFlags() != 0)
+  {
 
     SPCHNFS_C_P_FALSE_ARREST_BULLHORN(this->Voice());
     SPCH_PlaySpeech(); }
 
-  else if (this->BlockadeFlags() == 0 && this->ArrestFlags() == 0 && Leader == 0 && Speech::Dispatch()->StatusCount() > 0x160) return;
-
+  else if (this->BlockadeFlags() == 0 && this->ArrestFlags() == 0 && Leader == 0 && Speech::Dispatch()->StatusCount() > 0x160)
+    return;
 
   SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
   SPCH_PlaySpeech();
@@ -2426,8 +2426,8 @@ void Speech::MobileSpeaker::Lose()
 
 
 
-  if (Leader == 0) {
-
+  if (Leader == 0)
+  {
 
     Speaker *saved = Speech::Dispatch()->Sub();
     Speech::Dispatch()->SetSub(this);
@@ -2464,8 +2464,8 @@ void Speech::MobileSpeaker::Catch(int ticket)
 
 
 
-  if (*(int *)((int)this->Perp() + 300) < 0) {
-
+  if (*(int *)((int)this->Perp() + 300) < 0)
+  {
 
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
@@ -2477,8 +2477,8 @@ void Speech::MobileSpeaker::Catch(int ticket)
     SPCHNFS_C_D_REQUEST_EMS(this->Voice(),this->Ambulance());
     SPCH_PlaySpeech(); }
 
-  else if (*(int *)((int)this->Perp() + 0x78c) != 0) {
-
+  else if (*(int *)((int)this->Perp() + 0x78c) != 0)
+  {
 
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
@@ -2489,10 +2489,10 @@ void Speech::MobileSpeaker::Catch(int ticket)
     SPCH_PlaySpeech(); this->SetAmbulance(0x20);
 
     SPCHNFS_C_D_REQUEST_EMS(this->Voice(),this->Ambulance());
-    SPCH_PlaySpeech(); } else { this->SetArrest(ticket);
+    SPCH_PlaySpeech(); } else
 
 
-
+  { this->SetArrest(ticket);
 
 
     if (ticket == 1)
@@ -2535,23 +2535,23 @@ void Speech::MobileSpeaker::RoadBlock()
 
 
 
-  if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub() != (Speaker *)this) {
+  if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub() != (Speaker *)this)
+  {
+    Speech::Dispatch()->Sub()->RoadBlock(); } else
 
-    Speech::Dispatch()->Sub()->RoadBlock(); } else {
 
-
-
+  {
     this->Promote();
-    if (Speech::MultiplePerps() == 0) { this->MakeSpeaker();
-
+    if (Speech::MultiplePerps() == 0)
+    { this->MakeSpeaker();
 
       this->SetTo(this->CallSign()->Dispatch()); SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),
                         this->Reverse());
       SPCH_PlaySpeech();
       SPCHNFS_C_D_REQ_RDBLK(this->Voice());
-      SPCH_PlaySpeech(); } this->SetBlockade(2); } return;
+      SPCH_PlaySpeech(); } this->SetBlockade(2);
 
-}
+  return; } }
 /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
 /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
 
@@ -2564,23 +2564,23 @@ void Speech::MobileSpeaker::SpikeBelt()
 
 
 
-  if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub() != (Speaker *)this) {
+  if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub() != (Speaker *)this)
+  {
+    Speech::Dispatch()->Sub()->SpikeBelt(); } else
 
-    Speech::Dispatch()->Sub()->SpikeBelt(); } else {
 
-
-
+  {
     this->Promote();
-    if (Speech::MultiplePerps() == 0) { this->MakeSpeaker();
-
+    if (Speech::MultiplePerps() == 0)
+    { this->MakeSpeaker();
 
       this->SetTo(this->CallSign()->Dispatch()); SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),
                         this->Reverse());
       SPCH_PlaySpeech();
       SPCHNFS_C_D_REQ_SPBLT(this->Voice());
-      SPCH_PlaySpeech(); } this->SetBlockade(1); } return;
+      SPCH_PlaySpeech(); } this->SetBlockade(1);
 
-}
+  return; } }
 /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
 /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
 
@@ -2627,8 +2627,8 @@ void Speech::MobileSpeaker::Roger()
 { this->MakeSpeaker();
 
 
-  if (this->Sub() != 0 && Speech::Dispatch()->StatusSub() == this->Sub()) {
-
+  if (this->Sub() != 0 && Speech::Dispatch()->StatusSub() == this->Sub())
+  {
 
     SPCH_PlaySpeech();
 
@@ -2639,10 +2639,10 @@ void Speech::MobileSpeaker::Roger()
 
     this->SetCar(this->Perp());
     SPCHNFS_C_C_IN_PURS_NEAR_PERP(this->Voice(),this->Colour(),this->Car());
-    SPCH_PlaySpeech(); } else {
+    SPCH_PlaySpeech(); } else
 
 
-
+  {
 
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_CONFIRM(this->Voice(),this->To(),this->Confirm());
@@ -2667,11 +2667,11 @@ void Speech::MobileSpeaker::Bullhorn()
 void Speech::MobileSpeaker::Purge()
 
 { Speaker *Chain;
-  if (this->fCarObj == (Car_tObj *)0x0) { return; } if ((*(u_int *)((int)this->CarObj() + 0x260) &
+  if (this->fCarObj == (Car_tObj *)0x0) return;
 
 
-       0x200) != 0) {
-
+  if ((*(u_int *)((int)this->CarObj() + 0x260) & 0x200) != 0)
+  {
 
     CopSpeak_Flush();
 
@@ -2732,7 +2732,7 @@ void Speech::MobileSpeaker::Purge()
   Chain = (Speaker *)Speech::Dispatch();
   while (Chain->Sub() != (Speaker *)this) {
 
-    if (Chain->Sub() == (Speaker *)0x0) { return; }
+    if (Chain->Sub() == (Speaker *)0x0) {
 
 
 
@@ -2742,11 +2742,11 @@ void Speech::MobileSpeaker::Purge()
 
 
 
+      return; }
 
+    Chain = Chain->Sub(); }
 
-    Chain = Chain->Sub(); } Chain->SetSub(this->Sub());
-
-
+  Chain->SetSub(this->Sub());
 
 
 

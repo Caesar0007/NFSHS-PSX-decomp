@@ -287,8 +287,8 @@ void AIHigh_Player::SetupBlockade()
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop; thisCop = (AIHigh_Cop *)highLevelAIObjs[
 
             Cars_gCopCarList[copLoop]->carIndex]; if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
-            (thisCop->BlockadeMode() == 1) && needed[thisCop->Type()] != 0) {
-
+            (thisCop->BlockadeMode() == 1) && needed[thisCop->Type()] != 0)
+            {
           needed[thisCop->Type()]--;
           nCopsAvail[thisCop->Type()]++; }
 
@@ -308,8 +308,8 @@ void AIHigh_Player::SetupBlockade()
 
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex]; if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
 
-          (thisCop->BlockadeMode() == one)) {
-
+          (thisCop->BlockadeMode() == one))
+          {
         if ((thisCop->Type() == one) && (nCopsNeeded[1] != 0)) { int addToSlice;
 
           if (blockadeCar == (AIHigh_Cop *)0x0) {
@@ -429,8 +429,8 @@ void AIHigh_Player::SetupBlockade()
 
       }
 
-    if (blockadeCar != (AIHigh_Cop *)0x0) {
-
+    if (blockadeCar != (AIHigh_Cop *)0x0)
+    {
       blockadeCar->Blockade()->blockadeSpeechFlags = 1;
 
       if (saySpikeBelt) {

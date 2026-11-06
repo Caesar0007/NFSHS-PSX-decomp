@@ -17,7 +17,7 @@ extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern copTuning_t copTuningInfo[];
-extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
+extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;
 extern int               Cars_gNumRaceCars;
 extern int            Cars_gNumCars;
 extern int            gNumSlices;

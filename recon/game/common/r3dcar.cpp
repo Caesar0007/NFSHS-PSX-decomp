@@ -993,8 +993,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
   (carObj->render).currentCountry = (char)carObj->carInfo->Country;
 
-  if (R3DCar_InMenu == 0) {
-
+  if (R3DCar_InMenu == 0)
+  {
   R3DCar_GetCarName(filename,carType,carObj->carInfo->Country);
 
   strcpy(bigname,Paths_Paths[0x18]);
@@ -1478,8 +1478,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     else if (((carObj->render).headLight & 0x20) != 0) { (carObj->render).headLight = (carObj->render).headLight | 0x80; } } }
 
 
-  if (cop_flag) {
-
+  if (cop_flag)
+  {
     if ((carObj->AIFlags & 2U) != 0) {
 
       if (((carObj->render).signalLight[0] & 0x80U) == 0) {
@@ -1489,8 +1489,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-    else if (((carObj->render).signalLight[0] & 0x80U) != 0) {
-
+    else if (((carObj->render).signalLight[0] & 0x80U) != 0)
+    {
       (carObj->render).signalLight[0] = 0; (carObj->render).signalLight[1] = 0;
       if (((carObj->control).lights & 2U) == 0) { u_int lightOff;
 
@@ -1539,8 +1539,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-  if (carType < 0x1c) {
-
+  if (carType < 0x1c)
+  {
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,insideMat.m);
 
     if (rightHandDrive != 0) {
@@ -1587,8 +1587,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-  if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
-
+  if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0))
+  {
     if (carType == 0x1c) {
 
       (carObj->N).wheelRot[0] = (carObj->N).wheelRot[0] + 0x1800U & 0xffff;
@@ -2726,8 +2726,8 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
 
   if (((R3DCar_InMenu & 0x80U) == 0) && (carType < 0)) { (carObj->render).detail = -1; }
 
-  if (-1 < (carObj->render).detail) {
-
+  if (-1 < (carObj->render).detail)
+  {
     if ((R3DCar_InMenu & 0x80U) == 0) {
 
       if (cop_flag != 0) {
@@ -2808,8 +2808,8 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
     Math_fasttransmult(&insideMat,&(Vi->cview).mrotationInv,&orientIMat);
 
 
-    if (carType < 0x1c) {
-
+    if (carType < 0x1c)
+    {
       for (i = 0; i < 0x39; i = i + 1) { short code;
 
         code = (signed char)R3DCar_ObjectInfo[i][detailIndex];

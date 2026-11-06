@@ -101,15 +101,14 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_AllNotRaced:
   case cheat_AllGold:
   case cheat_AllSilver:
-  case cheat_AllBronze:
-
-    for (i = 0; i < 0x40; i = i + 1) { FECheat_SetPlacement(i, cheat - cheat_AllNotRaced);
-    }
+  case cheat_AllBronze: {
+    char placement;
+    char *placements; i = 0; placement = (char)cheat + -0x1b; placements = (char *)&tournamentManager; FECheat_placement_test: if (0x3f < i) break; *(char *)((int)i + (int)placements + 0x1f0) = placement;
+    i = i + 1; goto FECheat_placement_test;
     break;
-
-
-
-  } return; }
+  }
+  }
+  return; }
 
 
 

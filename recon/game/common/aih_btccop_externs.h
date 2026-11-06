@@ -27,7 +27,7 @@ extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Sim_tSimSystemVar simVar;
 extern Trk_NewSlice  *BWorldSm_slices;
 extern int                 Cars_gNumTrafficCars;
-extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
+extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;
 extern int                AIInit_forceHumanHandBrake;
 extern int                AITune_driveSide;
 extern int               Cars_gNumRaceCars;

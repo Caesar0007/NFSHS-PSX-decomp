@@ -66,7 +66,7 @@ extern int   Sched_ExecuteCheck(int a, int b, int c, int d, int *e, int *f, int 
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
-extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
+extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;
 extern u_long              gWSavePtr;
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps

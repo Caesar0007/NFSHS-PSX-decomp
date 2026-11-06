@@ -25,7 +25,7 @@ extern char Night_gDrawLightning;
 extern coorddef * Chunk_chunkCenters;
 extern int                 Cars_gNumCopCars;
 extern int                 Object_customSliceNum;    /* 0x8013d2d4 */
-extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
+extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;
 extern int               Replay_ReplayMode;          /* replay.obj */
 extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
 extern unsigned long     gLargestUnused;  /* SYM 4b4f25: scalar ULONG, FEApp.obj */

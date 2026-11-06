@@ -19,7 +19,7 @@ extern u_char (*BWorldSm_slices)[32];
 #define AILIFE_SLICE_WIDTH_LF(i) BWorldSm_slices[(i)][0x1e]
 #define AILIFE_SLICE_WIDTH_RT(i) BWorldSm_slices[(i)][0x1f]
 extern int                 Cars_gNumCopCars;
-extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
+extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;
 extern int                AIInit_forceHumanHandBrake;
 extern int                AITune_driveSide;
 extern int            Cars_gNumCars;

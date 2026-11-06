@@ -58,6 +58,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 };
 
 #define NFS4_FE_CORE_FEMENU_METHODS
+#define NFS4_FE_CORE_TMENU_KEY_TU   /* FEMenu.obj owns tMenu's virtuals */
 #include "fe_core_tmenu.h"   /* retail order: ..., tMenuItemGoToMenuButton, tMenu */
 #undef NFS4_FE_CORE_FEMENU_METHODS
 

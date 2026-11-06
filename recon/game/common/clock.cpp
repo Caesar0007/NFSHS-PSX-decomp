@@ -18,7 +18,10 @@ Clock_tGameClock clock_realTime;   /* @0x80110c24  (bss(zero)) */
  * small-data owner by four bytes. */
 static int   clock_InterruptStarted = 0;   /* @0x8013c820  (SYM STAT) */
 int          stopClock;   /* @0x8013c824  (bss(zero)) */
-int          generic128HzClock;   /* @0x8013c828  (bss(zero)) */
+volatile int generic128HzClock;   /* @0x8013c828  (bss(zero)) -- ISR-shared (user ruling 2026-11-06):
+                                     written by this timer ISR, polled by r3dcar/fe3dmenu (their retail
+                                     code re-loads it, see r3dcar_externs.h). The volatile store also leaves
+                                     the parity bnez delay slot empty (retail nop) - replaces the old fence. */
 
 
 /* ---- intra-TU forward declarations ---- */
@@ -39,11 +42,11 @@ void Clock_MasterInterruptHandler(void)
      single-definition const stays in the root owner, so GCC drops its debug
      row while retaining all 43 bytes.  Statement lines follow retail's SLD
      (savegp +3, stop test +14, counters +16/+18, parity test +20 ...).
-     The zero-insn fence keeps reorg from stealing the `addiu a0,%lo(...)`
-     base materialization into the parity bnez delay slot (retail: nop).
-     Receipts for the falsified fence replacements are in the CAMIN reports
-     (direct parity in the if, retail if(!stopClock){...} nesting with a single
-     restoregp, statement orders, early-return, pointer local, switch). */
+     The volatile store to generic128HzClock keeps reorg from moving the
+     `addiu a0,%lo(...)` base into the parity bnez delay slot (retail: nop).
+     Receipts for the earlier fence and its falsified replacements are in
+     the CAMIN/GAME5 reports (direct parity in the if, if(!stopClock){...}
+     nesting with a single restoregp, statement orders, early return). */
 
   if (stopClock != 0) { restoregp(gp); return; }
 
@@ -51,7 +54,7 @@ void Clock_MasterInterruptHandler(void)
 
   generic128HzClock = generic128HzClock + 1;
 
-  const int even128 = clock_realTime.time128Hz & 1U; __asm__("" : : "i"(0)); if (!even128) {
+  const int even128 = clock_realTime.time128Hz & 1U; if (!even128) {
 
     clock_realTime.time64Hz = clock_realTime.time64Hz + 1;
     if (!(clock_realTime.time64Hz & 1U)) {

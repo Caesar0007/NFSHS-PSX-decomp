@@ -512,7 +512,7 @@ void Fog_InitFogTriggers(void)
 
 {
   int num_player;
-  int openval; Fog_gNumKeys = 0;
+  Fog_gNumKeys = 0;
 
   Fog_gHeadKey = (FogKey *)0x0;
 
@@ -520,8 +520,8 @@ void Fog_InitFogTriggers(void)
 
 
 
-  openval = 1; for (int i = 0x1f; -1 < i; i--) {
-    openkeys[i] = openval; }
+  for (int i = 0; i < 0x20; i++) {
+    openkeys[i] = 1; }
 
 
 

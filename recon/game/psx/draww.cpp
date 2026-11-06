@@ -1263,8 +1263,8 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
 
       x = x + 0x400;
       x = x >> 5;
-
-      index = (u_char)Night_gNightTbl[(z << 6) + x];
+      const int offset = (z << 6) + x; /* DEVICE (exact-only): record-less const = retail's table offset computed on its own line (r30) before the load (r31); fn BYTE+SYM+SLD exact */
+      index = (u_char)Night_gNightTbl[offset];
 
       lookup = (*coplookuptbl)[*idx][index >> 1]; *idx = lookup;
     }
@@ -3014,14 +3014,14 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       MATRIX &mB = sd->matB; mB.t[2] = 0; mB.t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(&mB);
 
 
-      if (sd->rezInd) {
-
+      if (sd->rezInd)
+      {
 
         Group *group = chunkDat->stripBuf;
 
 
-        if (group) {
-
+        if (group)
+        {
 
           sd->stripPtr = (Trk_NewStrip *)group->GetData();
 
@@ -3061,8 +3061,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       else {
         {
 
-          Group *lorez = chunkDat->lorezstripBuf; if (lorez) {
-
+          Group *lorez = chunkDat->lorezstripBuf; if (lorez)
+          {
 
 
             short lorezN = lorez->m_num_elements; Trk_NewStrip *lorezPtr = (Trk_NewStrip *)(lorez + 1);
@@ -3131,8 +3131,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 
       sd->quadCount = chunkDat->quadCounts[2];
-      if (sd->quadCount) {
-
+      if (sd->quadCount)
+      {
 
 
 
@@ -3150,8 +3150,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 
       sd->quadCount = chunkDat->quadCounts[3];
-      if (sd->quadCount) {
-
+      if (sd->quadCount)
+      {
 
 
 

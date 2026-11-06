@@ -57,6 +57,18 @@ void FeDraw_SetABRMode(int abr);
 bool IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void FETextRender_SetFont(int size);
 
+/* Text-definition colour lookup through the shared inline getter (fefades_externs.h
+ * spelling); retail DrawForeground records its empty caller-line inline block pair and
+ * leaves the lookup without a statement note of its own. */
+static inline int TextDefinitionColor(int type, int column)
+{
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
+/* Idle test of a modal dialog: retail DrawForeground records a second, record-free
+ * caller-line inline pair after IsVisible() around the fCurrentlyRunning read. */
+static inline bool DialogIdle(tDialogInteractive *dialog) { return dialog->fCurrentlyRunning == 0; }
+
 /* Existing inferred word-ID overload: actual text lookup and string-field
  * store, with no new class API/layout. Its exact original signature and
  * owner-header visibility are not uniquely retained by retail debug data. */

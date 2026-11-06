@@ -283,9 +283,9 @@ void tScreenControllerConfig::SwapInController()
 void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 
-{ tInsideBoxMenu *fSetMenu; bool setmenutonull; tDialogYesNo *dialog; fSetMenu = (tInsideBoxMenu *)0x0; dialog = &this->negconPopUp; dialog->SetString(0x20b); this->negconPopUp.SetChoices(0x20c,0x20d,1);
+{ tInsideBoxMenu *fSetMenu; bool setmenutonull; tDialogYesNo *dialog; dialog = &this->negconPopUp;
+  fSetMenu = (tInsideBoxMenu *)0x0; dialog->SetString(0x20b); this->negconPopUp.SetChoices(0x20c,0x20d,1);
   setmenutonull = false;
-
 
 
 
@@ -320,10 +320,10 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
         }
 
         {
-
+          this->fArrowFade = 0x80;
 
           setmenutonull = true;
-          firsttime = true; this->fArrowFade = 0x80; this->fCurrentController = '\0';
+          firsttime = true; this->fCurrentController = '\0';
         }
       }
       else {
@@ -334,9 +334,9 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
   case 0x41: { if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
         tGlobalMenuDefs *menuDefinitions;
-
+        this->fTimeOutStartTick = 0;
         this->fCurrentController = '\x04';
-        menuDefinitions = menuDefs; this->fTimeOutStartTick = 0; fSetMenu = &menuDefinitions->menuControllerDualShock; break;
+        menuDefinitions = menuDefs; fSetMenu = &menuDefinitions->menuControllerDualShock; break;
       }
       if ((PadGetState((this->player != 0) * 0x10) == 2) ||
           (((this->fTimeOutStartTick != 0) &&
@@ -348,8 +348,8 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 
 
-      if (this->fTimeOutStartTick == 0) {
-        this->fTimeOutStartTick = FE_Ticks();
+      if (this->fTimeOutStartTick == 0)
+      { this->fTimeOutStartTick = FE_Ticks();
       }
       break;
     }
@@ -367,8 +367,8 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
       }
     } break;
   default:
-    setmenutonull = true; this->fTimeOutStartTick = 0;
-
+    this->fTimeOutStartTick = 0;
+    setmenutonull = true;
     this->fCurrentController = '\x03';
     break;
   } }
@@ -1168,7 +1168,7 @@ void tScreenControllerConfig::DrawForeground()
     this->fFadeTextOut = 0;
     return;
   }
-  else {
+
     if (this->fArrowFade == 0) { this->fTextTypeOn = this->fTextTypeOn + 1;
     } if (100 < this->fTextTypeOn) { this->fTextTypeOn = 100;
     }
@@ -1176,23 +1176,23 @@ void tScreenControllerConfig::DrawForeground()
     if (this->fArrowFade != 0) {
       FETextRender_SetABR(1,true);
     }
-    { if (this->fTextController != '\0') {
-        int ColText;
+      if (this->fTextController != '\0')
+        { int ColText = TextDefinitionColor(0xb, 3);
         int ColText2;
 
-        ColText = kRGBVals[(byte)textDefinitions[0xb][3]];
+
 
         ColText2 = CalcFadeVal(ColText,0xffffff,100,(int)this->fArrowFade);
-        i = 0;
+
         ColText = CalcFadeVal(ColText,(int)this->fArrowFade);
 
 
-        for (; i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig]; i++) {
+        for (i = 0; i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig]; i++) {
 
 
           int TextIndex = (signed char)ControllerItemIndex[(byte)this->fTextController - 1]
-                                                          [(byte)this->fTextConfig][i][0]; if (TextIndex != -1) {
-            short *textLocationOut = TL;
+                                                          [(byte)this->fTextConfig][i][0]; if (TextIndex != -1)
+            { short *textLocationOut = TL;
             int copyCount = 4; short *textLocationIn = TextLocations[TextIndex]; do { *textLocationOut++ = *textLocationIn++; copyCount--; } while (copyCount != -1);
             int k;
 
@@ -1200,8 +1200,8 @@ void tScreenControllerConfig::DrawForeground()
             int textLength = strlen(TextSys_Word((int)TL[2]));
             sl = (short)textLength; k = MIN(this->fTextTypeOn,(short)textLength);
 
-            if (this->fTextTypeOn < (short)textLength) {
-              int howfarout;
+            if (this->fTextTypeOn < (short)textLength)
+            { int howfarout;
               sprintf(string2,TextSys_Word((int)TL[2]));
 
               if (TL[3] == 0) {
@@ -1252,37 +1252,37 @@ void tScreenControllerConfig::DrawForeground()
 
 
 
-            FETextRender_FullTextRGB(astringpointer,TL[0],TL[1],ColText,'\0',TL[3]);
+            { FETextRender_FullTextRGB(astringpointer,TL[0],TL[1],ColText,'\0',TL[3]);
 
 
-            k = textpixels(astringpointer) - strlen(astringpointer);
+            int w = textpixels(astringpointer) - strlen(astringpointer);
             PSXDrawSquare(0,(int)TL[0],(int)TL[1],
-                          (TL[3] != 0) ? -k : k,7);
+                          (TL[3] != 0) ? -w : w,7); }
           }
 
         }
       }
-    }
+
 
     for (i = 0; i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig];
          i++) {
-      int TextIndex = (byte)this->fTextController - 1; bool flag = false; tDialogYesNo *dialog = &this->negconPopUp; if (!((tDialogBase *)dialog)->IsVisible()) { flag = dialog->fCurrentlyRunning == 0; } if (flag && (TextIndex >= 0)) {
+      if (!this->negconPopUp.IsVisible() && DialogIdle(&this->negconPopUp) && ((byte)this->fTextController - 1 >= 0)) {
 
-        TextIndex = (signed char)ControllerItemIndex[TextIndex][(byte)this->fTextConfig][i][1]; if (TextIndex != -1) {
-          this->DrawArrow(ArrowLocations[TextIndex]);
+        if ((signed char)ControllerItemIndex[(byte)this->fTextController - 1][(byte)this->fTextConfig][i][1] != -1) {
+          this->DrawArrow(ArrowLocations[(signed char)ControllerItemIndex[(byte)this->fTextController - 1][(byte)this->fTextConfig][i][1]]);
         }
       } }
 
-    FETextRender_SetABR(0,false); fade = (short)((menuDefs->menuControllerConfig).fScreenFade >> 1);
+    FETextRender_SetABR(0,false); fade = (short)(menuDefs->menuControllerConfig.GetScreenFade()
 
-
+                                                  >> 1);
 
     if (0x80 < fade) { fade = 0x80;
     }
     for (i = 0; i < 2; i++) {
       ScaleShapeExtended(i + 0x16,0,0,0,(int)fade,0, (tDrawShapeExtended *)0x0); }
-  }
-  return;
+
+
 }
 
 /* ---- tScreenControllerConfig::GetShapeInfo  (screencontroller.cpp:1819) ---- */

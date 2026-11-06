@@ -241,7 +241,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
 
 
 
-  if (vid->id != 0x57444956) goto invalid;
+  if (vid->id != 0x57444956) return 0;
 
 
 
@@ -275,7 +275,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
 
 
     if (chunk == (struct STREAMCHUNKHDR *)0x0) {
-      return 0;
+      break;
     }
     videoupdatetime(vid);
 
@@ -312,7 +312,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
       return 1;
     }
   }
-invalid: return 0;
+  return 0;
 }
 
 /* lines 336-368: (static data / macros / comments - no emitted code) */

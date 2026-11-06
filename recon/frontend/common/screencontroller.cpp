@@ -699,9 +699,9 @@ void tScreenControllerConfig::DrawController()
     this->fAnimFadeController = this->fFadeController[0];
     this->fAnimFadeStart = this->AnimKeyPoints(false,1);
     this->fAnimFadeStop = this->AnimKeyPoints(false,0);
-    this->fAnimFadeFrame = this->fAnimFadeStart; goto DrawCtrl_ticksUpdate;
+    this->fAnimFadeFrame = this->fAnimFadeStart;
   }
-  if (this->fFade[1] != 0) { if (this->fAnimFade == 0) {
+  else if ((this->fFade[1] != 0) && (this->fAnimFade == 0)) {
 
       this->fFade[1] = 0;
       this->fAnimFade = 1;
@@ -711,13 +711,13 @@ void tScreenControllerConfig::DrawController()
       this->fAnimFadeStop = this->AnimKeyPoints(true,0);
       this->fAnimFadeFrame = this->fAnimFadeStart;
 
-      if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
+      if (this->fSwap != 0) {
 
+        this->SwapInController();
+        this->fSwap = 0; }
+  }
 
-      goto DrawCtrl_swapController;
-    }
-
-    if (this->fAnimFade == 1) { if (this->fFade[0] != 0) goto DrawCtrl_clearFade0;
+  else if ((this->fFade[1] != 0) && (this->fAnimFade == 1) && (this->fFade[0] == 0)) {
 
 
 
@@ -729,32 +729,32 @@ void tScreenControllerConfig::DrawController()
       this->fAnimFadeStop = this->AnimKeyPoints(true,0);
       this->fAnimFadeFrame = this->fAnimFadeStart;
 
-      if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
+      if (this->fSwap != 0) {
+
+        this->SwapInController();
+
+        this->fGotTick = 0; this->fSwap = 0; }
+  }
+
+
+  else if (this->fFade[0] != 0) {
+
+    this->fFade[0] = 0;
+    if (this->fSwap != 0) {
 
       this->SwapInController();
-      this->fGotTick = 0;
-      goto DrawCtrl_clearSwap;
-    }
+      this->fSwap = 0; }
   }
 
-  if (this->fFade[0] != 0) {
-DrawCtrl_clearFade0:
-    this->fFade[0] = 0;
-    if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
-
-
-    goto DrawCtrl_swapController;
-  }
-
-  if ((this->fFade[1] != 0) && (this->fAnimFade == 1)) {
+  else if ((this->fFade[1] != 0) && (this->fAnimFade == 1)) {
 
     this->fFade[1] = 0;
-    if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
-DrawCtrl_swapController:
-    this->SwapInController();
-DrawCtrl_clearSwap: this->fSwap = 0;
+    if (this->fSwap != 0) {
+
+      this->SwapInController();
+      this->fSwap = 0;
+    }
   }
-DrawCtrl_ticksUpdate:
 
 
 

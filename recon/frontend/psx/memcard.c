@@ -966,7 +966,7 @@ int MCRD_handlecardevents(int card)
 
   ret = MemCardSync(0,(long *)&cmd,(long *)&res);
 
-  if (ret == 0) { status = 0x15; goto MCRDhandleCard_end; } if (ret <= 0) { if (ret == -1) goto MCRDhandleCard_task; goto MCRDhandleCard_end; } else { if (ret != 1) goto MCRDhandleCard_end;
+  switch (ret) { case 0: status = 0x15; break; case 1:
 
 
 
@@ -1068,9 +1068,9 @@ int MCRD_handlecardevents(int card)
 
         pCI->status = -2;
         status = 5;
-        break; } break; } goto MCRDhandleCard_end;
-  }
-MCRDhandleCard_task:
+        break; } break; } break;
+  case -1:
+
 
 
 
@@ -1100,7 +1100,7 @@ MCRDhandleCard_task:
 
 
 
-        status = 0x17; goto MCRDhandleCard_end; }
+        status = 0x17; break; }
       status = 0x15;
     } else {
       status = 0x16;
@@ -1111,7 +1111,7 @@ MCRDhandleCard_task:
     break;
   case LOAD_CARD:
 
-    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    if (card != gMemCardInfo.fileinfo.cardnum) break;
 
     pCI->lasterror = 0;
     gMemCardInfo.bReady = 0;
@@ -1121,7 +1121,7 @@ MCRDhandleCard_task:
 
 
 
-    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    if (card != gMemCardInfo.fileinfo.cardnum) break;
 
     pCI->lasterror = 0;
     gMemCardInfo.bReady = 0;
@@ -1131,7 +1131,7 @@ MCRDhandleCard_task:
 
 
 
-    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    if (card != gMemCardInfo.fileinfo.cardnum) break;
 
     pCI->lasterror = 0;
     gMemCardInfo.bReady = 0;
@@ -1141,14 +1141,14 @@ MCRDhandleCard_task:
 
 
 
-    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    if (card != gMemCardInfo.fileinfo.cardnum) break;
 
     pCI->lasterror = 0;
     gMemCardInfo.bReady = 0;
     gMemCardInfo.task = NONE;
     return iMCRD_DoFileDelete(card);
   }
-MCRDhandleCard_end:
+  }
 
 
 
@@ -1534,15 +1534,15 @@ int iMCRD_HandleError(int func,int opResult,int card)
       { int numberoftries;
         int result;
         numberoftries = 0;
-        opResult = -1;
+        do {
 
-        result = iMCRD_FormatCard(card);
-        for (;;) {
-
-          if (result != opResult) goto iMCRDError_formatOK; numberoftries = numberoftries + 1; if (numberoftries >= 3) break;
           result = iMCRD_FormatCard(card);
-        } if (result != -1) {
-iMCRDError_formatOK:
+
+
+          if (result != -1) break; numberoftries = numberoftries + 1; } while (numberoftries < 3);
+
+        if (result != -1) {
+
           gMemCardInfo.task = WRITE_FILE;
           return 6;
         }

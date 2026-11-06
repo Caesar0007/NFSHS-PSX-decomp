@@ -882,7 +882,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
         }
         returnmessage = 0x28d;
 
-        SetPads(); goto finish_card_event; /* STRICT-CFG: success exit shares the late switch tail (else cross-jump retargets it) */
+        SetPads();
       }
       else {
 
@@ -899,7 +899,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 
 
-        finished = true; } break;
+      } finished = true; break;
     case 2:
     case 3:
     case 7:
@@ -941,7 +941,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
           }
         }
       }
-finish_card_event:
+
       finished = true;
     }
   }
@@ -1239,21 +1239,21 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
             break;
           }
         }
-        finished = true;
+
       }
       else {
         /* MATCH/CFG (w65-a1): retail's read-failure arm sets the code and joins
            the SHARED outer `finished = true` tail (branch word 5: ours +103 vs
            retail +88) -- see the case-3 arm below for the role swap this pairs
            with, and the jump-table proof in scratchpad/w65a1/RECEIPTS.md. */
+
+
+
         result = PinkSlipsError_LoadFailed;
-
-
-
-
-        goto finish_outer_card_case;
       }
-      break;
+      finished = true; break;
+
+
     case 2:
     case 0x10:
       {
@@ -1269,7 +1269,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           }
         }
       }
-finish_outer_card_case:
+
       finished = true;
 
       break;

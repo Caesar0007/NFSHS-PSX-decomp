@@ -1,22 +1,41 @@
 /* flare.obj's exact source-visible type surface reconstructed from SYM.
  * Its shared game graph is the already-exact color.obj surface; the records
  * below are precisely the named delta retained by the standalone flare owner. */
-#ifndef NFS4_GAME_PSX_FLARE_TYPES_H
+#if !defined(NFS4_GAME_PSX_FLARE_TYPES_H)   /* first pass */
 #define NFS4_GAME_PSX_FLARE_TYPES_H
+#define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_LINE_G2   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/flare_types.h"   /* retail: forceFocus/FLARE/C*Spec right after the BO types (second pass below) */
 #include "../common/color_types.h"
+#endif
+#if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_FLARE_EARLY_DONE)   /* second pass, from color_types.h */
+#define NFS4_FLARE_EARLY_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
+} forceFocus_t;
+#include "shared/FLARE_PIECE_DEF.h"
+#include "shared/FLARE_DEF.h"
+#include "shared/CHorizonSpec.h"
+#include "shared/CSkySpec.h"
+#include "shared/CNightSpec.h"
+#include "shared/CWeatherSpec.h"
+#include "shared/CFogSpec.h"
+#include "shared/CDepthCueSpec.h"
+#include "shared/CWorldColor.h"
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_FLARE_TAIL_DONE)   /* first pass, after color_types.h */
+#define NFS4_FLARE_TAIL_DONE
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 /* Canonical gmesetup.obj aggregate retained by flare.obj. */
 #include "shared/GameSetup_tData.h"
-
-
-
-
-
 
 
 
@@ -71,12 +90,7 @@
 
 
 
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
 
-#include "shared/FLARE_PIECE_DEF.h"
-#include "shared/FLARE_DEF.h"
 
 
 
@@ -85,32 +99,19 @@ typedef enum forceFocus_t {
 
 typedef struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; } Flare_tInfo;
 
-#include "shared/CHorizonSpec.h"
-
-
-
-
-#include "shared/CSkySpec.h"
 
 
 
 
 
 
-#include "shared/CNightSpec.h"
-#include "shared/CWeatherSpec.h"
-#include "shared/CFogSpec.h"
-#include "shared/CDepthCueSpec.h"
-#include "shared/CWorldColor.h"
+
+
+
+
 
 
 #include "shared/CTrackSpec.h"
-
-
-
-
-
-
 
 
 

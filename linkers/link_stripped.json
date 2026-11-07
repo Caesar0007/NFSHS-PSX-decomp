@@ -653,6 +653,12 @@
    "function": "TextDescription__10tPMenuItem",
    "source": "recon/game/common/mpause_types.h",
    "evidence": "Header inline member formerly hidden by `#pragma interface` (removed: user ruling 2026-11-07, no #pragma). This TU owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (Route C run 2026-11-07: NFS4.EXE and FRONT.BIN byte-identical to the retail disc files); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/game/common/aidatarecord.cpp.o",
+   "function": "__26AIDataRecord_CarTracking_t26AIDataRecord_WhichRecord_tc",
+   "source": "recon/game/common/aidatarecord_types.h",
+   "evidence": "LANE2 2026-11-07 (proposal): uncalled CarTracking ctor; its object copy explains retail's unreferenced .ctk literal (0x8005541C), the unlabelled file-local CarTracking vtable (0x80055430, no code reference anywhere in the image) and the local Get/dtor copies; SLINK /strip removes it (Route C receipt in build/tmp/v/LANE2_state.md)."
   }
  ]
 }

@@ -328,7 +328,7 @@ int AIDataRecord_TrackCurve_t::Get(int slice)
 }
 
 /* ---- __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t  CurveSpeedTable::ctor ---- */
-    /* retail keeps an UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp": a compiled-out record kind */
+    /* retail's UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp" = the stripped CarTracking ctor below */
 
 #line 615 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
@@ -340,7 +340,7 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   if (this->RecordMethod() == NORMAL_M) {
     sprintf(this->name_,"%s%s.qcs",Paths_Paths[4],carName);
   }
-  else { sprintf(this->name_,"%s%s.csp",Paths_Paths[5],carName); if (0) sprintf((char *)0,"%sTr%02d%c.ctk"); } return;
+  else { sprintf(this->name_,"%s%s.csp",Paths_Paths[5],carName); } return;
 }
 
 /* ---- Get__30AIDataRecord_CurveSpeedTable_ti ---- */
@@ -369,15 +369,22 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
     this->dataBuffer_[curveLoop] = speed / 0x10000;
   } }
 
-/* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] COVERED-SLD-PASS ---- */
-/* Always0. SYM attributes this definition to AIDATARECORD.H; physical header placement/key-function emission remains unproved. */
-
-#line 190 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
-int AIDataRecord_CarTracking_t::Get(int slice)
+/* ---- __26AIDataRecord_CarTracking_t... ctor (LANE2 2026-11-07): defined here, called by nobody -> SLINK /strip removed it
+ *      (LINK_STRIPPED).  Its object copy is what retail shows around it: the unreferenced "%sTr%02d%c.ctk" literal
+ *      (0x8005541C, right after ".csp"), the file-local CarTracking vtable it stores (0x80055430, no SYM label, no code
+ *      reference in the image) and, through that vtable, the local Get/dtor copies at the end of the object.
+ *      Members/arguments beyond the literal are not recoverable (no code survives). ---- */
+AIDataRecord_CarTracking_t::AIDataRecord_CarTracking_t(AIDataRecord_WhichRecord_t whichIsThis, char carLetter)
+  : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-
-  return 0;
+  this->numElements_ = gNumSlices;
+  this->bSize_ = this->numElements_;
+  sprintf(this->name_,"%sTr%02d%c.ctk",Paths_Paths[10],GameSetup_gData.track,carLetter);
 }
+
+/* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] COVERED-SLD-PASS ---- */
+/* Always0. Now in-class in aidatarecord_types.h (AIDATARECORD.H:190 anchor); emitted local through the CarTracking vtable. */
+
 
 /* The object ends with the five compiler-SYNTHESIZED derived destructors (0x8006D514..0x8006D5B4, the deferred-inline
  * batch, reverse class order) -- they have no source. */

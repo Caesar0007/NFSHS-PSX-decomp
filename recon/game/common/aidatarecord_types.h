@@ -5,6 +5,7 @@
 #include "color_types.h"
 
 #include "shared/Sched_tSchedule.h"
+#include "link_stripped.h"
 
 
 
@@ -212,11 +213,20 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
 
 
 
-typedef struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
-    /* SOURCE-REVIEW-UNRESOLVED: SYM places Get in AIDATARECORD.H; the current CPP body is not a proved original placement.
-     * Its definition/key-function emission producer remains open; retain current output until verified source restoration. */
-    virtual int Get(int slice);
-} AIDataRecord_CarTracking_t;
+struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
+    /* Get inline in the class (SYM: AIDATARECORD.H:191, kind 6 LOCAL, vtable unlabelled = no key method); plain `struct`
+     * (retail has 2 class-level TPDEFs = class name + the inline member, typedef form gave 3).  LANE2 2026-11-07. */
+#line 190 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
+    virtual int Get(int slice)
+{
+
+  return 0;
+}
+
+    AIDataRecord_CarTracking_t(AIDataRecord_WhichRecord_t which, char carLetter) LINK_STRIPPED;
+
+
+};
 
 typedef int CarLogic_tObservations[1][3];
 

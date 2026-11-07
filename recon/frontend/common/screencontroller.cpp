@@ -5,9 +5,31 @@
 #include "screencontroller.h"
 #include "screencontroller_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
+/* DrawController's range helpers are defined here, ahead of every file-scope #line anchor, so their
+   blocks carry this file's own name: retail records them as .cpp-inline pairs on line 1. */
+/* ORIGINAL-NAME-UNRESOLVED: retail DrawController records two .cpp-inline pairs (line-1 blocks) owning
+ * player INT (parameter) and range2/range1 INT + ret SHORT (body) for the NegCon dead-spot frames. */
+static inline short NegconShiftRange(int player)
+{
+  short ret; int range1; int range2; range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.leftshift; range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonII; ret = (short)range2; if (((range1 < 0) ? -range1 : range1) > ((range2 < 0) ? -range2 : range2)) { ret = (short)range1; }
+  return ret;
+}
+
+static inline short NegconButtonRange(int player)
+{
+  short ret; int range1; int range2; range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonI; range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.twist; ret = (short)range2; if (((range1 < 0) ? -range1 : range1) > ((range2 < 0) ? -range2 : range2)) { ret = (short)range1; }
+  return ret;
+}
+
+static inline short ControllerTwistRange(int player)
+{
+  /* Retail's inline pair owns player INT and range SHORT. Capture the actual
+   * byte before centering so range's REG2 record survives. Literal accessor
+   * spelling and the caller's deeper ownership remain source review. */
+  short range = gPadinfo.buf[player * 4].data.negcon.twist;
+  range -= 0x80;
+  return range;
+}
 
 
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
@@ -283,8 +305,8 @@ void tScreenControllerConfig::SwapInController()
 void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 
-{ tInsideBoxMenu *fSetMenu; bool setmenutonull; tDialogYesNo *dialog; dialog = &this->negconPopUp;
-  fSetMenu = (tInsideBoxMenu *)0x0; dialog->SetString(0x20b); this->negconPopUp.SetChoices(0x20c,0x20d,1);
+{ tInsideBoxMenu *fSetMenu; bool setmenutonull;
+  fSetMenu = (tInsideBoxMenu *)0x0; this->negconPopUp.SetString(0x20b); this->negconPopUp.SetChoices(0x20c,0x20d,1);
   setmenutonull = false;
 
 
@@ -304,10 +326,10 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   switch (gPadinfo.buf[(this->player != 0) * 4].ID)
   { case 0x23:
 
-
-      this->fTimeOutStartTick = 0; if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01')) { bool dialogIsIdle; int previousNegconChoice;
-
-        dialogIsIdle = false; if (!this->negconPopUp.IsVisible()) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice == -1) {
+      this->fTimeOutStartTick = 0;
+      if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01'))
+      {
+        if (!this->negconPopUp.IsVisible() && DialogIdle(&this->negconPopUp) && (this->negconChoice == -1)) {
 
           this->fCurrentController = '\0';
           this->fArrowFade = 0x80;
@@ -315,16 +337,16 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
           this->fCurrentController =
 
               this->negconChoice != 0 ? '\x02' : '\x01';
-          { tGlobalMenuDefs *menuDefinitions = menuDefs;
-            this->negconChoice = previousNegconChoice; fSetMenu = &menuDefinitions->menuControllerNegcon; } break; }
-        }
+          fSetMenu = &menuDefs->menuControllerNegcon;
+            this->negconChoice = -1; break; }
 
+        else
         {
-          this->fArrowFade = 0x80;
+          this->fArrowFade = 0x80; }
 
           setmenutonull = true;
           firsttime = true; this->fCurrentController = '\0';
-        }
+
       }
       else {
 
@@ -332,12 +354,12 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
       }
       break;
 
-  case 0x41: { if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
-        tGlobalMenuDefs *menuDefinitions;
+  case 0x41: if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
+
         this->fTimeOutStartTick = 0;
         this->fCurrentController = '\x04';
-        menuDefinitions = menuDefs; fSetMenu = &menuDefinitions->menuControllerDualShock; break;
-      }
+        fSetMenu = &menuDefs->menuControllerDualShock; break;
+      } else
       if ((PadGetState((this->player != 0) * 0x10) == 2) ||
           (((this->fTimeOutStartTick != 0) &&
             (PadGetState((this->player != 0) * 0x10) == 1)) && (0x60 < FE_Ticks() - this->fTimeOutStartTick)) || (this->fCurrentController == '\x03')) {
@@ -347,12 +369,12 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 
 
-
+      else {
       if (this->fTimeOutStartTick == 0)
       { this->fTimeOutStartTick = FE_Ticks();
-      }
+      } }
       break;
-    }
+
   case 0x53:
   case 0x73: this->fTimeOutStartTick = 0;
     if (PadGetState((this->player != 0) * 0x10) == 6) {
@@ -376,21 +398,21 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
     SetMenu(&menuDefs->itemControllerSettings,firsttime,fSetMenu);
   }
+
+
+
   if (((uint)((byte)this->fCurrentController - 5) < 2U) &&
 
 
+      ((byte)this->fTextConfig < 2))
+  { Menu_SetVerticalHelp(&menuDefs->menuControllerConfig,
+      1); } else
 
 
 
-      ((byte)this->fTextConfig < 2)) {
-    (menuDefs->menuControllerConfig).VertHelp = 1;
-  }
-  else {
 
-
-
-    (menuDefs->menuControllerConfig).VertHelp = 0;
-  } return; }
+  { Menu_SetVerticalHelp(&menuDefs->menuControllerConfig, 0);
+  return; } }
 
 /* ---- tScreenControllerConfig::CalcAnimFrame  (screencontroller.cpp:1086) ---- */
 /* MATCH: SLD has no `bound` local.  Keeping the low/high reflections as
@@ -496,15 +518,6 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
 
 }
 
-static inline short ControllerTwistRange(int player)
-{
-  /* Retail's inline pair owns player INT and range SHORT. Capture the actual
-   * byte before centering so range's REG2 record survives. Literal accessor
-   * spelling and the caller's deeper ownership remain source review. */
-  short range = gPadinfo.buf[player * 4].data.negcon.twist;
-  range -= 0x80;
-  return range;
-}
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
 /* 2026-10-09: the short range capture and real animation sibling branches
@@ -570,20 +583,20 @@ void tScreenControllerConfig::DrawController()
 
 {
   tDrawShapeExtended drawFlags;
-  short shakex;
-  short shakey;
-  short maxshakex; short maxshakey; int fadelevel; static int flare_intensity = 0;   /* initialized => .data (retail 0x800528c4 = 0, right before max_fi) */ static int max_fi = 3750; static int max_fidir = 250; bool shockModeActive; shakex = 0; shakey = 0; maxshakex = 0; maxshakey = 0;
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-  shockModeActive = false;
+  short shakex; short shakey;
+  short maxshakex; short maxshakey; int fadelevel; static int flare_intensity = 0;   /* initialized => .data (retail 0x800528c4 = 0, right before max_fi) */ static int max_fi = 3750; static int max_fidir = 250; shakex = 0; shakey = 0; maxshakex = 0; maxshakey = 0;
+
+
   if ((((this->fCurrentController == '\x04') &&
-       ((short)(menuDefs->menuControllerDualShock).fCurrentItem == 0)) ||
+       (menuDefs->menuControllerDualShock.CurrentItem() == 0)) ||
       ((this->fCurrentController == '\x06' &&
-       ((short)(menuDefs->menuControllerDualShockAnalog).fCurrentItem == 0)))) &&
+       (menuDefs->menuControllerDualShockAnalog.CurrentItem() == 0)))) &&
 
 
 
 
-     ((short)(menuDefs->menuControllerConfig).fCurrentItem == 1)) { shockModeActive = true; } if ((shockModeActive) && (frontEnd.shockMode[this->player] != '\0')) {
+     (menuDefs->menuControllerConfig.CurrentItem() == 1) && (frontEnd.shockMode[this->player] != '\0')) {
 
     if (this->fShakingItem != 0) {
 
@@ -596,15 +609,15 @@ void tScreenControllerConfig::DrawController()
     maxshakex = ((byte)frontEnd.shockMode[this->player] >> 5) + 2;
     maxshakey = ((byte)frontEnd.shockMode[this->player] >> 6) + 2;
   }
-  else {
-    bool shockImpactActive;
-    shockImpactActive = false;
-    if ((((this->fCurrentController == '\x04') &&
-         ((short)(menuDefs->menuControllerDualShock).fCurrentItem == 1)) ||
-        ((this->fCurrentController == '\x06' &&
-         ((short)(menuDefs->menuControllerDualShockAnalog).fCurrentItem == 1)))) &&
+  else
+  { if ((((this->fCurrentController == '\x04') &&
 
-       ((short)(menuDefs->menuControllerConfig).fCurrentItem == 1)) { shockImpactActive = true; } if ((shockImpactActive) && ((byte)frontEnd.shockImpact[this->player] != 0)) {
+
+         (menuDefs->menuControllerDualShock.CurrentItem() == 1)) ||
+        ((this->fCurrentController == '\x06' &&
+         (menuDefs->menuControllerDualShockAnalog.CurrentItem() == 1)))) &&
+
+       (menuDefs->menuControllerConfig.CurrentItem() == 1) && ((byte)frontEnd.shockImpact[this->player] != 0)) {
 
       this->SetActuators((uint)(byte)frontEnd.shockImpact[this->player] << 1);
       maxshakex = ((byte)frontEnd.shockImpact[this->player] >> 5) + 2;
@@ -626,10 +639,10 @@ void tScreenControllerConfig::DrawController()
 
   if ((maxshakex != 0) || (maxshakey != 0)) {
 
-    fadelevel = rand(); shakex = (short)(fadelevel % maxshakex) - (maxshakex >> 1);
-
-    fadelevel = rand(); shakey = (short)(fadelevel % maxshakey) - (maxshakey >> 1);
-  }
+    fadelevel = rand(); shakex = (short)(fadelevel % maxshakex);
+    shakex = shakex - (maxshakex >> 1);
+    fadelevel = rand(); shakey = (short)(fadelevel % maxshakey);
+    shakey = shakey - (maxshakey >> 1); }
 
 
 
@@ -760,13 +773,13 @@ void tScreenControllerConfig::DrawController()
 
 
 
-  if (this->fAnimFade != 0) {
-
-    if (this->fGotTick == 0) {
-
+  if (this->fAnimFade != 0)
+  {
+    if (this->fGotTick == 0)
+    {
       this->fGotTick = 1;
-      this->fPlayedInSound = 0; this->fStartTick = FE_Ticks();
-    }
+      this->fStartTick = FE_Ticks();
+      this->fPlayedInSound = 0; }
 
 
     if (((10 < FE_Ticks() - this->fStartTick) && (this->fPlayedInSound == 0)) && (this->fAnimFade == 1))
@@ -780,9 +793,9 @@ void tScreenControllerConfig::DrawController()
     if (((this->fAnimFadeStop < this->fAnimFadeFrame) && (this->fAnimFade == 1)) ||
 
        ((this->fAnimFadeFrame < this->fAnimFadeStop && (this->fAnimFade == -1)))) {
-      this->fGotTick = 0;
-      this->fAnimFadeFrame = this->fAnimFadeStop;
 
+      this->fAnimFadeFrame = this->fAnimFadeStop;
+      this->fGotTick = 0;
 
       if (this->fAnimFade == 1) {
 
@@ -811,12 +824,12 @@ void tScreenControllerConfig::DrawController()
     }
     this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFadeFrame),
                                fadelevel,fadelevel,0,0);
-  } else {
-  if (this->fAnim != 0) {
+  } else
+  { if (this->fAnim != 0)
+    {
 
-
-    if (this->fGotTick == 0) {
-
+    if (this->fGotTick == 0)
+    {
       AudioCmn_PlayFESFX(0xf);
       this->fGotTick = 1;
       this->fStartTick = FE_Ticks();
@@ -827,8 +840,8 @@ void tScreenControllerConfig::DrawController()
        ((this->fAnimFrame < this->fAnimStop && (this->fAnimStep == -1)))) {
 
       this->fAnim = 0;
-      this->fGotTick = 0; this->fAnimFrame = this->fAnimStop;
-    }
+      this->fAnimFrame = this->fAnimStop;
+      this->fGotTick = 0; }
     fadelevel = (int)(((float)(FE_Ticks() - this->fStartTick) /
                        (float)((((int)this->fAnimStop - (int)this->fAnimStart) * 6) *
 
@@ -844,33 +857,33 @@ void tScreenControllerConfig::DrawController()
     fadelevel = fadelevel + 10; if (fadelevel < 0) { fadelevel = 0; } if (0x80 < fadelevel) { fadelevel = 0x80;
     }
     this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFrame),0,fadelevel,0,0);
-  } else {
+  } else
 
 
+  {
+  if (
+      (u_int)((byte)this->fCurrentController - 5) < 2)
+  {
+    char frame = 0; if (((menuDefs->itemControllerSteeringRange2).fActive != 0) ||
 
 
-  if ((u_int)((byte)this->fCurrentController - 5) < 2) {
-    char frame = 0;
-    if (((menuDefs->itemControllerSteeringRange2).fActive != 0) ||
+       ((menuDefs->itemControllerDeadSpot2).fActive != 0))
+      {
+      const short ret = NegconShiftRange(this->player);
 
-
-       ((menuDefs->itemControllerDeadSpot2).fActive != 0)) {
-      int player = this->player; int range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.leftshift; int range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonII; short ret = (short)range2; if (((range1 < 0) ? -range1 : range1) > ((range2 < 0) ? -range2 : range2)) { ret = (short)range1; } if (ret >= 0) {
-
-
-
+      if (ret >= 0) {
         frame = ret / 0xd + 0x1a;
       }
       else { frame = -ret / 0xd + 0x24;
       }
     }
+
     if (((menuDefs->itemControllerSteeringRange1).fActive != 0) ||
+       ((menuDefs->itemControllerDeadSpot1).fActive != 0))
+      {
+      const short ret = NegconButtonRange(this->player);
 
-       ((menuDefs->itemControllerDeadSpot1).fActive != 0)) {
-      int player = this->player; int range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonI; int range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.twist; short ret = (short)range2; if (((range1 < 0) ? -range1 : range1) > ((range2 < 0) ? -range2 : range2)) { ret = (short)range1; } if (ret >= 0) {
-
-
-
+      if (ret >= 0) {
         frame = ret / 0xd + 0x2e;
       }
       else { frame = -ret / 0xd + 0x38;
@@ -1112,13 +1125,13 @@ void tScreenControllerConfig::DrawBackground()
             /* SYM-CODEGEN-CARRIER: textLength -- assigning strlen directly
                to the SYM SHORT `sl` is FAIL 151 at 411/410 and rotates the
                function's saved-register allocation. */
-            /* SYM-CODEGEN-CARRIER: textLocationOut
-               SYM-CODEGEN-CARRIER: copyCount
-               SYM-CODEGEN-CARRIER: textLocationIn
-               The constant-size memcpy form is FAIL 43 at 411/410; a direct
-               indexed loop is FAIL 182 at 414/410 and shrinks the retail
-               184-byte frame to 176.  These three value webs preserve the
-               halfword-pointer loop emitted by the retail source expansion. */
+            /* TL copy: retail's count-down halfword loop (counter 4 -> -1, the -1
+               re-materialized inside the loop) and the 184-byte frame are g++'s
+               build_vec_init expansion of an ARRAY ASSIGNMENT `TL = TextLocations[i];`
+               (g++ 2.8 extension, pedwarn "ANSI C++ forbids assignment of arrays").
+               It replaces the former textLocationOut/copyCount/textLocationIn
+               carrier webs (retail has no records for them).
+               (memcpy form FAIL 43; indexed loop FAIL 182, frame 176.) */
     /* The actual config store precedes fade clearing and return1699.
        This source exit retains the retail tail tags without selectedConfig.
        Receipt: build/tmp/v/controller_config_private_20261102/receipt.json. */
@@ -1192,8 +1205,8 @@ void tScreenControllerConfig::DrawForeground()
 
           int TextIndex = (signed char)ControllerItemIndex[(byte)this->fTextController - 1]
                                                           [(byte)this->fTextConfig][i][0]; if (TextIndex != -1)
-            { short *textLocationOut = TL;
-            int copyCount = 4; short *textLocationIn = TextLocations[TextIndex]; do { *textLocationOut++ = *textLocationIn++; copyCount--; } while (copyCount != -1);
+            {
+            TL = TextLocations[TextIndex];
             int k;
 
 

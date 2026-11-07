@@ -69,6 +69,14 @@ static inline int TextDefinitionColor(int type, int column)
  * caller-line inline pair after IsVisible() around the fCurrentlyRunning read. */
 static inline bool DialogIdle(tDialogInteractive *dialog) { return dialog->fCurrentlyRunning == 0; }
 
+/* Tick read: retail records a caller-line inline pair at every tick read in this TU
+ * (a .cpp-local inline would record line 1). */
+static inline int FE_Ticks(void) { return ticks; }
+
+/* ORIGINAL-NAME-UNRESOLVED: retail SetCurrentController records a receiver-free caller-line
+ * inline pair at each VertHelp store (tMenu::SetVerticalHelp is not on this TU's surface). */
+static inline void Menu_SetVerticalHelp(tMenu *menu, short help) { menu->VertHelp = help; }
+
 /* Existing inferred word-ID overload: actual text lookup and string-field
  * store, with no new class API/layout. Its exact original signature and
  * owner-header visibility are not uniquely retained by retail debug data. */

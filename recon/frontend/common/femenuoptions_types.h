@@ -2,6 +2,7 @@
 #define NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H   /* Owner-specific type surface for FeMenuOptions.obj. */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FeMenuOptions: frontend core before the MATRIX core (fe_core_types.h) */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail FeMenuOptions: track/tournament graph after the menu family */
 #define NFS4_FEMENUOPTIONS_OWNER   /* screendisplay_types.h: tOptionsMenu / tInsideBoxMenu inline copies LINK_STRIPPED */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -28,7 +29,6 @@ enum tMenuCommandType {
 #include "screencontroller_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 #undef NFS4_FEMENUOPTIONS_SURFACE
-
 /* Replace ScreenController's narrow foreign views with the records and exact
  * member slices required by FeMenuOptions. */
 #undef tFEApplication

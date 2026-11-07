@@ -2,6 +2,7 @@
  *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar; 58 fns.
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
+#define NFS4_FE_CORE_SCREENCARSELECT_METHODS
 #include "screencarselect.h"
 
 /* Canonical PsyQ 4.3 LIBGPU.H:104. Retail SLD groups each rectangle setup
@@ -1063,9 +1064,9 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
  * shape fade in t0, not an extra named text-fade argument: direct CalcFadeVal
  * arguments remove the latter handoff and direct fSpeechTicks reads remove
  * shapeTicks. CurrentMenu/GetPlayer supply both actual application receivers.
- * currentItemValue/validCarValue, overlayDirection, textBase, the absorption
- * expression and the existing fence remain unresolved, not original-source
- * exemptions. Combined removal was16dif/555; removing the fence with staged
+ * ASMF3: currentItem = CurrentMenu()->CurrentMenuItem() (inline return temp =
+ * retail s0->s2 copy) replaced currentItemValue/validCarValue, the absorption
+ * expression and the fence. overlayDirection/textBase remain unresolved. Combined removal was16dif/555; removing the fence with staged
  * pointers was18/557; direct overlay direction7/556. Direct text-ID routes:
  * negative-subtrahend6/557, unsigned-base2/557, textID accumulation134/557.
  * All failed/neutral code candidates were restored. No compiler floor claimed. */
@@ -1080,8 +1081,8 @@ void tScreenCarSelect::DrawForeground()
   short bShowStats;
   tMenuItem *currentItem;
   bool validCar; /* SYM: validCar (REG BOOL) closes the 8c fn-scope set */
-  tMenuItem *currentItemValue; bool validCarValue; int overlayDirection;
-  currentItemValue = FEApp->CurrentMenu(kPlayerOne)->fItemList[FEApp->CurrentMenu(kPlayerOne)->fCurrentItem]; validCarValue = this->GetCar(carInfo); currentItem = (tMenuItem *)((int)currentItemValue & ((int)currentItemValue | (int)menuDefs)); validCar = validCarValue; bShowStats = false;
+  int overlayDirection;
+  currentItem = FEApp->CurrentMenu(kPlayerOne)->CurrentMenuItem(); validCar = this->GetCar(carInfo); bShowStats = false;
   MenuItem_Disable(&menuDefs->itemOpponentUpgrades);
 
 
@@ -1089,7 +1090,7 @@ void tScreenCarSelect::DrawForeground()
   {
 
 
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemGarageCar;
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemGarageCar;
     MenuItem_Enable(&menuDefs->itemUpgradeCar);
 
 
@@ -1097,7 +1098,7 @@ void tScreenCarSelect::DrawForeground()
     if (((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) && (FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0))
     {
       MenuItem_Enable(&menuDefs->itemOpponentUpgrades); }
-    __asm__("" : : "r"(currentItem)); if ((validCar != 0) &&
+    if ((validCar != 0) &&
 
         (carInfo.fCarClass < 5))
     {
@@ -1114,7 +1115,7 @@ void tScreenCarSelect::DrawForeground()
   }
   else if (this->fState == 0)
   {
-    if ((tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemCar)
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemCar)
       bShowStats = true;
     MenuItem_Enable(&menuDefs->itemColor);
     MenuItem_Enable(&menuDefs->itemShowcase);
@@ -1126,7 +1127,7 @@ void tScreenCarSelect::DrawForeground()
   }
   else if (this->fState == 2)
   {
-    if ((tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemDealerCar)
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemDealerCar)
       bShowStats = true;
   }
   else if (this->fState == 3)

@@ -54,13 +54,13 @@ struct tCarManager {
     void GetPinkSlipsCar(short, tCarInfo &, short);
     short GetNumOwnedCars(short);
     short GetNumTourneyCars(short);
-    short GetNumPinkSlipsCars(short);
+    short GetNumPinkSlipsCars(short); tCarInfo *GetCarFromID(short);
 #endif
 #ifdef NFS4_FEMENUDEFS_SURFACE
     long PurchaseCar(short, short, short);
     long SellCar(short, short);
     long PurchaseUpgrade(short, short, short);
-    tCarInfo *GetCarFromID(short);
+
     void SetCarAvailable(tCarModels, bool);
     void AddToPinkSlipsList(short, short, short);
     void AddUpgradesToPinkSlipsList(short, short, short);

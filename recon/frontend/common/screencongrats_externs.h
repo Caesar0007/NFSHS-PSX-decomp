@@ -16,9 +16,9 @@ extern int  R3DCar_aSyncLoading;
 extern bool showRoomFlag; /* fe3dmenu.obj SYM EXT BOOL, scalar */
 
 /* external methods declared free-form (mgr/mgr2 = the implicit this) */
-tCarInfo *GetCarFromID(tCarManager *mgr, short carID) asm("GetCarFromID__11tCarManagers");
-void GetGarageCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum) asm("GetGarageCar__11tCarManagersR8tCarInfos");
-void GetPinkSlipsCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum) asm("GetPinkSlipsCar__11tCarManagersR8tCarInfos");
+
+
+
 void GetTrophyName(tTournamentManager *mgr, tTourneyInfo *tourn, tTrophySize size, char *buffer, int place) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 
 /* game C++ helpers + eaclib */

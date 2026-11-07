@@ -166,7 +166,7 @@ bool tScreenCongrats::GetCar(tCarInfo &carInfo)
 
 
 {
-  GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+  carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;
 }
@@ -555,7 +555,7 @@ bool tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
 
 
 {
-  GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1 - this->fWinner],&carInfo, 1 - this->fWinner);
+  carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - this->fWinner],carInfo, 1 - this->fWinner);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;
 }
@@ -682,7 +682,7 @@ bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
 
 
-    tCarInfo *const car = GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel); /* DEVICE (exact-only): retail tags the lookup (8) apart from the copy (9); const temp, no SYM record */
+    tCarInfo *const car = carManager.GetCarFromID((u_short)tInfo.fAwardCarModel); /* DEVICE (exact-only): retail tags the lookup (8) apart from the copy (9); const temp, no SYM record */
     blockmove(car,&carInfo,0xcc);
 
     carInfo.fUpgrades = tInfo.fAwardCarUpgrades;
@@ -690,7 +690,7 @@ bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
   }
   else {
-    GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   }
   return 1;
@@ -914,7 +914,7 @@ bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 {
 
 
-  tCarInfo *const car = GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar); /* DEVICE (exact-only): retail tags the lookup (3) apart from the copy (4); const temp, no SYM record */
+  tCarInfo *const car = carManager.GetCarFromID((ushort)(byte)frontEnd.congratsCopCar); /* DEVICE (exact-only): retail tags the lookup (3) apart from the copy (4); const temp, no SYM record */
   blockmove(car,&carInfo,0xcc);
   carInfo.fCountry = frontEnd.congratsCopCountry;
   return 1;
@@ -975,7 +975,7 @@ bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
   tAwardInformation tInfo;
 
   tournamentManager.GetAwardInformation(tInfo);
-  tCarInfo *const car = GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar); /* DEVICE (exact-only): retail tags the lookup (5) apart from the copy (6); const temp, no SYM record */
+  tCarInfo *const car = carManager.GetCarFromID((u_short)tInfo.fCompletedCar); /* DEVICE (exact-only): retail tags the lookup (5) apart from the copy (6); const temp, no SYM record */
   blockmove(car,&carInfo,0xcc);
   return 1;
 }

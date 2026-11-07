@@ -2237,9 +2237,9 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 #line 1934 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.CPP"
 bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 {
-  if (PinkSlipsScreenState[0] == CardLoadedFine && PinkSlipsScreenState[1] == CardLoadedFine) {
-    const tPlayer player = FEApp->GetPlayer();
-    carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
+  if (PinkSlipsScreenState[0] == CardLoadedFine && PinkSlipsScreenState[1] == CardLoadedFine)
+  {
+    tFEApplication *app = FEApp; /* DEVICE (exact-only): unused copy; its line-3 load note precedes the GetPlayer inline (cse folds the inline's FEApp load into it) -> retail {3 then-scope + {4 pairs, code tagged 3, `this` record kept */ const tPlayer player = FEApp->GetPlayer(); carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
 
     carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
 

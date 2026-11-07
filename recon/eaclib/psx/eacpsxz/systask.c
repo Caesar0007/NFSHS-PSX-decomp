@@ -13,15 +13,12 @@
 /* Names are independently recovered from the matched NFS2 systask.obj source;
  * raw NFS4 gp-relative references prove their VAs, while this stripped NFS4
  * member exposes no lexical data records.
- * SYM-GLOBAL-CARRIER: systemtasklock
- * SYM-GLOBAL-CARRIER: lastsystemtasktick */
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-int systemtasklock = 0;      /* @0x8013DC38: matched NFS2 systask.obj name; retail has it in INITIALISED small data (.sdata): the original wrote `= 0` */
-int lastsystemtasktick = 0;  /* @0x8013DC3C: matched NFS2 systask.obj name (same) */
-/* `libticks` comes from vars.h -- volatile there because it is IRQ-updated (tmrint.c);
+ * systemtasklock (@0x8013DC38) and lastsystemtasktick (@0x8013DC3C) are function-scope statics of their single users
+ * (addsystemtask / systemtask; STATICS 2026-11-07, user-approved): retail has no label at either address, and with -g1
+ * a function-scope static gets no .def -> ASPSX writes no symbol, while the file-scope `systemtasksubs` keeps its retail
+ * local (kind 6).  Same .sdata order (lock, tick), same code.  NFS2-PC systask.c had them at file scope.
+ * `libticks` comes from vars.h -- volatile there because it is IRQ-updated (tmrint.c);
  * the oracle re-reads it fresh at each use inside systemtask() rather than caching one value. */
-extern int systemtasklock;      /* live/re-entrant task-list lock */
-extern int lastsystemtasktick;  /* last tick the task list ran */
 /* Compact SYM records `systemtasksubs` as systask.obj-private BSS at
  * 0x8013E980; its exact 0x100-byte extent reaches `sndss` at 0x8013EA80.
  * The independently matched NFS2 EAC source supplies the original source
@@ -47,6 +44,7 @@ static SYSTEM_TASK_SUB systemtasksubs[SYSTEM_TASK_COUNT];
  *   skipped free slot, a plain register copy — only the +1/-1 bracket touches the global). */
 void addsystemtask(unsigned int (*taskFn)(int, int), int period, int delay)
 {
+    static int systemtasklock = 0;   /* @0x8013DC38: live/re-entrant task-list lock (.sdata: the original wrote `= 0`) */
     int  i;
     unsigned int (*fn)(int, int);
     int  found;
@@ -150,6 +148,7 @@ void delsystemtask(unsigned int (*taskFn)(int, int))
  *      left-to-right, and retail loads libticks BEFORE the 0x8(s0) deadline field. */
 unsigned int systemtask(int arg1)
 {
+    static int lastsystemtasktick = 0;   /* @0x8013DC3C: last tick the task list ran (.sdata, same) */
     unsigned int result = 0;
     if (lastsystemtasktick != libticks) {
         int i = 0;

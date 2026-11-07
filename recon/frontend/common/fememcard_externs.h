@@ -119,6 +119,13 @@ static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
    through an inline getter, not directly */
 static inline volatile int FE_Ticks(void) { return ticks; }
 
+/* header inline (retail Confirm records param `num` REG $18 in its pair at the caller line) */
+inline tDialogMessageString *tDialogMessageString::SetString(int num)
+{
+  string = TextSys_Word(num);
+  return this;
+}
+
 /* Retail fememcard.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 

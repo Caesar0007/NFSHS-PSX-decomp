@@ -112,4 +112,7 @@ inline void tDialogHelp::SetVariant(int variant) {
     this->variant = variant;
 }
 
+/* ORIGINAL-NAME-UNRESOLVED: retail DrawHelpIcons records a record-less inline pair at its VertHelp test (line 160). */
+static inline short Menu_VerticalHelp(tMenu *menu) { return menu->VertHelp; }
+
 #endif

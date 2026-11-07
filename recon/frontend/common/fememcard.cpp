@@ -209,20 +209,20 @@ static int Confirm(int Text,int yesText)
     if (FEApp->NoInputMemCardDialog.IsVisible()) {
       /* SYM-INLINE-THIS: Hide */
       FEApp->NoInputMemCardDialog.Hide();
-      putbackon = true; } { int num = Text; int yes = yesText; dialog->string = TextSys_Word(num); dialog->yesnowords[1] = 0x292;
+      putbackon = true; } dialog->SetString(Text); dialog->yesnowords[1] = 0x292;
 
 
 
 
-    dialog->yesnowords[0] = yes; dialog->fDefault = 0; if (FrontEnd().language == '\x03') {
+    dialog->yesnowords[0] = yesText; dialog->fDefault = 0; if (FrontEnd().language == '\x03') {
       dialog->OffsetX = 0; dialog->OffsetY = 10;
-    } } ret = (int)(short)Run((tDialogInteractive *)dialog);
+    } ret = (int)(short)Run((tDialogInteractive *)dialog);
 
-  if (ret == -1) {
-    tDialogMessageString *messageDialog = &FEApp->MemCardDialog; char *messageText = TextSys_Word(CURRENTPLAYER + 0x32b);
+  if (ret == -1)
+  { tDialogMessageString *messageDialog = &FEApp->MemCardDialog; char *messageText = TextSys_Word(CURRENTPLAYER + 0x32b);
     messageDialog->SetString(messageText);
     Display((tDialogBase *)&FEApp->MemCardDialog);
-    while (true) { if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+    while (!FEApp->MemCardDialog.IsFullyOpen()) {
       Redraw(FEApp);
     } Redraw(FEApp);
 
@@ -232,10 +232,10 @@ static int Confirm(int Text,int yesText)
 
     nomessage = 1;
   }
-  else if (putbackon) {
-
+  else if (putbackon)
+  {
     Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
-    while (true) { if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz, see above */
+    while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {
       Redraw(FEApp);
     }
   } Redraw(FEApp);
@@ -577,7 +577,7 @@ bool SaveGame(short player)
   short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; WarningDialog.string = TextSys_Word(player + 0x276);
 
   WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; Display((tDialogBase *)&WarningDialog);
-  while (true) { if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz -- see Confirm */
+  while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
     Redraw(FEApp);
   } finished = false; returnvalue = finished;   /* oracle: addu s6,s3,zero -- the false is a COPY of finished */ returnmessage = 0x28b; Redraw(FEApp);
 
@@ -731,7 +731,7 @@ bool SaveGame(short player)
     Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
     tDialogMessageString *dlgmsg = &FEApp->MemCardDialog; char *message = TextSys_Word(returnmessage + player);
     tDialogBase *displayDialog = (tDialogBase *)&FEApp->MemCardDialog; dlgmsg->SetString(message); Display(displayDialog);
-    while (true) { if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+    while (!FEApp->MemCardDialog.IsFullyOpen()) {
       Redraw(FEApp);
     } Redraw(FEApp);
   } while (0);
@@ -801,7 +801,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
     { WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32;
     }
     Display((tDialogBase *)&WarningDialog);
-    while (true) { if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz -- see Confirm */
+    while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
       Redraw(FEApp);
     } Redraw(FEApp);
   }
@@ -970,7 +970,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
       Hide((tDialogBase *)&FEApp->MemCardDialog);
       tDialogMessageString *dlgmsg = &FEApp->MemCardDialog; /* the three carriers above repeat here */ char *dialogText = TextSys_Word(returnmessage + player);
       tDialogBase *dialogBase = (tDialogBase *)&FEApp->MemCardDialog; dlgmsg->SetString(dialogText); /* SYM-INLINE-THIS: SetString */ Display(dialogBase);
-      while (true) { if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+      while (!FEApp->MemCardDialog.IsFullyOpen()) {
         Redraw(FEApp);
       } Redraw(FEApp);
     }
@@ -1360,7 +1360,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 
     Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
-    while (true) { if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
+    while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {   /* xori;beqz */
       Redraw(FEApp);
     } int count; count = 0; Redraw(FEApp); { tDialogNoInputMessage WarningDialog; WarningDialog.string = TextSys_Word(player + 0x276);
 
@@ -1370,7 +1370,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 
       WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; Display((tDialogBase *)&WarningDialog);
-      while (true) { if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
+      while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz */
         Redraw(FEApp);
       } Redraw(FEApp);
       do {

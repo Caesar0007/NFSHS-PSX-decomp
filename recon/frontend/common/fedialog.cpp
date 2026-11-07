@@ -727,6 +727,10 @@ void tDialogMessageString::CalculateDimensions()
    * unqualified name resolves to the derived override that shadows the base's
    * (§3.23c SILENT-SHADOW, here in its same-name-override form).  Explicit
    * base scope binds the call retail makes.  REAL RUNTIME BUG. */
+  /* FRONT13 (2026-11-07): BYTE+SYM+SLD exact.  Retail blocks = two root inline pairs and no if/else
+   * scopes: the closed-dialog arm is an early return (its base Draw call cross-jumps into the final one),
+   * the FE_Ticks read is a record-less root `const` declaration, the colour is TextDefinitionColor(8,4)
+   * (pair {22, code on the fFullyOpen line), and the centred x is plain `(u_short)left + ((short)width >> 1)`. */
 #line 604 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogMessageString::Draw()
 
@@ -737,7 +741,7 @@ void tDialogMessageString::Draw()
 
 
 
-  CalculateDimensions();
+  CalculateDimensions(); const int now = FE_Ticks();
 
 
 
@@ -745,18 +749,18 @@ void tDialogMessageString::Draw()
 
 
 
-  if (FE_Ticks() < startTicks + 0x32) {
+  if (now < startTicks + 0x32) {
 
 
 
-    fFullyOpen = 0;
+    fFullyOpen = 0; tDialogBase::Draw(); return;
   }
-  else { if (fFadeText != 0) {
+  if (fFadeText != 0) {
       fFullyOpen = 0;
     }
 
 
-    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
+    col = CalcFadeVal(TextDefinitionColor(8,4),fFadeText);
 
 
     r.x = left + 0x11; r.y = top + 10; r.w = width + -0x14; r.h = height - ((u_short)reservedheight + 8);
@@ -764,18 +768,18 @@ void tDialogMessageString::Draw()
     FETextRender_SetABR(1,true);
     if (Centerit != 0) {
       FETextRender_FullTextRGB(string,
-                 (short)(((u_int)(u_short)left +
-                          DialogMessageHalfWidth(this)) * 0x10000 >> 0x10),top + 8,col,'\0',2);
+                 (short)((u_short)left +
+                          ((short)width >> 1)),top + 8,col,'\0',2);
     }
     else {
 
       FETextRender_WordWrapTextRGB(string,r,col);
     }
     FETextRender_SetABR(0,false);
-  }
+
 
   tDialogBase::Draw();
-  return; }
+}
 
 
 
@@ -828,7 +832,9 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
   /* SYM: keyVal, command and debounce all live in the outer-loop block that
      opens at 0x80019848; `i` is one level further in (0x80019858). */
   /* The two SLD `player` entries are inlined formals sharing $s1 with `i`.
-     SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
+     FRONT13 (2026-11-07): BYTE+SYM+SLD exact.  Both `player` records are CurrentMenu(tPlayer) params (715 test,
+     717 call); the 715 IsVisible pair has no `this` record (address folded into the load).  `{` on its own
+     line after each if gives retail's then-scopes {714/{716/{723. */
 #line 681 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 short tDialogInteractive::Run()
 
@@ -862,17 +868,17 @@ short tDialogInteractive::Run()
       if (keyVal[i] == kInput_KeyType_NoKey) {
         keyVal[i] = kInput_KeyType_AlreadyProcessed;
       }
-      if (keyVal[i] == kInput_KeyType_Circle) {
-
-        if (DialogCanProcessCircle(FEApp,(tPlayer)i)) {
-          FEApp->CurrentMenu((tPlayer)i)->ProcessInput(
-              (tPlayer)i,keyVal[i],command);
+      if (keyVal[i] == kInput_KeyType_Circle)
+      {
+        if (!((tDialogBase *)&FEApp->helpPopup)->IsVisible() && FEApp->CurrentMenu((tPlayer)i) != (tMenu *)0x0)
+        {
+          FEApp->CurrentMenu((tPlayer)i)->ProcessInput((tPlayer)i,keyVal[i],command);
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
 
-      if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
-        /* SYM-INLINE-THIS: IsVisible */
+      if (keyVal[i] != kInput_KeyType_AlreadyProcessed)   /* SYM-INLINE-THIS: IsVisible */
+      {
         if (((tDialogBase *)&FEApp->helpPopup)->IsVisible()) {
 
           ((tDialogBase *)&FEApp->helpPopup)->Hide();
@@ -980,12 +986,16 @@ tDialogYesNo::tDialogYesNo() : tDialogInteractive() {
 /* ---- tDialogYesNo::Draw  [FEDIALOG.CPP:773-815] SLD-VERIFIED ---- */
 /* MATCH (2026-08-26): exact 98/98 and declaration-clean against SYM's sole
    locals `i`, `x`, `y`, and `col`.  CalculateDimensionsVirtual removes the raw
-   vtable alias.  DialogYesNoTextState plus DialogTextDefinitionsBase preserve
-   retail's hoisted palette bases and state-1/2 `lbu +51` without caller temps;
-   natural `yesnowords[i]` produces the retail pointer induction.  The SLD/IDA
+   vtable alias.  natural `yesnowords[i]` produces the retail pointer induction.  The SLD/IDA
    statement shape `y = top + height - 11` remains one expression, scheduling
    the subtraction in SetABR's delay slot and the short cast in TextSys_Word's
-   delay slot. */
+   delay slot.
+   FRONT13 (2026-11-07): SYM records + blocks exact.  Retail's FE_Ticks pair is a root SIBLING of the
+   if-scope (record-less `const int now = FE_Ticks();` declaration: inline code takes the previous note);
+   `{` on its own line gives the then-scope {15; one TextStateDef inline (state select + lbu +51 inside,
+   kRGBVals outside, kRGBVals expanded first = retail s7/s6) replaces the two helper inlines whose
+   params carried retail-absent dialog/item records.  Left: retail tags the kRGBVals/CalcFadeVal part
+   one line after the inline code (26/27); every one-statement layout tags both on the `;` line. */
 
 #line 770 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNo::Draw()
@@ -1001,11 +1011,11 @@ void tDialogYesNo::Draw()
 
   if (fFadeText != 0) {
     fFullyOpen = 0;
-  }
+  } const int now = FE_Ticks();
 
 
-  if (0x31 < FE_Ticks() - startTicks) {
-
+  if (0x31 < now - startTicks)
+  {
     x = left + (((u_short)width << 0x10) >> 0x12);
 
 
@@ -1016,9 +1026,9 @@ void tDialogYesNo::Draw()
 
 
     for (i = 0; i < 2; i++) {
-      col = CalcFadeVal(
-          kRGBVals[(u_char)DialogTextDefinitionsBase()
-              [DialogYesNoTextState(this,i) + 0x33]], fFadeText);
+
+      col = CalcFadeVal(kRGBVals[TextStateDef(8, (i == ReturnValue) ? 1 : 2)], fFadeText);
+
 
       y = top + height - 0xb;
       FETextRender_SetABR(1,true);
@@ -1043,17 +1053,20 @@ void tDialogYesNo::Draw()
 /* SLD: 824 player guard / 827 fFullyOpen guard (own line, own block) /
    831 the dispatch (a real switch -- gcc balance_case_nodes builds the
    ==0x800 root + <0x801 bound test tree over 4 case labels) /
-   834-836, 838-840, 844-846 the three arms in ascending source order. */
+   834-836, 838-840, 844-846 the three arms in ascending source order.
+   FRONT13 (2026-11-07): BYTE+SYM+SLD exact: both guards are early returns (retail has no player-if
+   scope; the fFullyOpen guard's if-scope ends 828 and holds the IsFullyOpen inline pair + its
+   tDialogMessageString `this` record); the switch sits at root, epilogue on the fn '}'. */
 #line 820 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command)
 
 
 {
-  if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
+  if ((specificPlayer != kPlayerBoth) && (fromPlayer != (tPlayer)specificPlayer))
+    return;
 
-
-    if ((fFullyOpen ^ 1) == 0) {   /* xori;bnez -- same idiom as fememcard.cpp */
-
+    if (!IsFullyOpen())
+      return;
 
 
       switch (keyVal) {
@@ -1074,14 +1087,10 @@ void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCo
         ((tDialogBase *)this)->Hide();
 
 
-
-
-
-
         break;
       }
-    }
-  }
+
+
 }
 
 

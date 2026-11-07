@@ -65,39 +65,18 @@ static inline int DialogHelpButtonY(short item)
   return (item - 1) * 0xf + 0xf;
 }
 
-static inline int DialogMessageHalfWidth(tDialogMessageString *dialog)
+/* same spelling as fefades_externs.h / screencontroller_externs.h: retail SYM records an inline pair per lookup */
+static inline int TextDefinitionColor(int type, int column)
 {
-  /* Draw's 8c record names only `col` and `r`.  This zero-local boundary
-     preserves retail's width-before-left load order without a halfw carrier. */
-  return (int)((u_int)(u_short)dialog->width << 0x10) >> 0x11;
+  return kRGBVals[(u_char)textDefinitions[type][column]];
 }
 
-/* Run's 8c record has no boolean local for this predicate, while SLD opens
-   nested inline scopes at retail lines 31/32.  The private helper spelling is
-   unavailable; this boundary preserves the proven materialized-bool shape. */
-static inline bool DialogCanProcessCircle(tFEApplication *app, tPlayer player)
+/* tDialogYesNo::Draw: retail selects text state 1/2 and reads textDefinitions[type][state + 3] inside one inline
+   (pair at the statement line, state select tagged with it), the kRGBVals lookup outside it.  The original
+   helper name is not recoverable (ORIGINAL-NAME-UNRESOLVED); the param keeps the 1/2 select un-folded. */
+static inline int TextStateDef(int type, int state)
 {
-  return app->helpPopup.currentlyOn == 0 &&
-         app->CurrentMenu(player) != (tMenu *)0x0;
-}
-
-/* Draw's retail load selects state 1/2 and then addresses the row-8 palette
-   state subarray.  SLD retains no caller temporary for that selection; the
-   exact private helper spelling is not recoverable. */
-static inline int DialogYesNoTextState(tDialogYesNo *dialog, int item)
-{
-  if (item == dialog->ReturnValue) {
-    return 1;
-  }
-  return 2;
-}
-
-static inline char *DialogTextDefinitionsBase()
-{
-  /* Keeping the array's unoffset base in its own zero-local inline boundary
-     reproduces retail's indexed `lbu +51`; folding the row offset into the
-     returned address is byte-different. */
-  return (char *)textDefinitions;
+  return (u_char)textDefinitions[type][state + 3];
 }
 
 static inline int DialogYesNoOpenElapsed(tDialogYesNo *dialog)

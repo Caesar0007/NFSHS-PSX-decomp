@@ -200,7 +200,7 @@ void tFEApplication::DrawHelpIcons()
   y = screenheight + -0x19;
 
 
-  if ((this->fCurrentMenu[0] != (tMenu *)0x0) && (this->fCurrentMenu[0]->VertHelp != 0)) {
+  if ((this->fCurrentMenu[0] != (tMenu *)0x0) && (Menu_VerticalHelp(this->fCurrentMenu[0]) != 0)) {
     char string [12];
     char string2 [2];
 

@@ -76,6 +76,11 @@ struct tDialogMessageString : public tDialogBase {
     inline void Display(int word);
 #endif
     tDialogMessageString();
+#if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_FEDIALOG_FULLYOPEN_SURFACE)
+    /* ORIGINAL-NAME-UNRESOLVED: retail tDialogYesNo::ProcessInput records an inline pair with a
+       tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
+    inline bool IsFullyOpen() { return fFullyOpen == true; }
+#endif
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 76 "recon/frontend/common/fedialog.h"

@@ -31,11 +31,11 @@ bool   movie24bit[5]  = { 1, 1, 1, 1, 1 }; /* SYM EXT ARY BOOL, 20 bytes */
 short  movieheight[5] = { 240, 240, 240, 240, 240 };
 short  moviewidth[5]  = { 640, 640, 640, 640, 640 };
 
-/* Movie.obj STAT helpers.  strInit's reconstructed pointer callback signature is
- * codegen-correct but does not reproduce PsyQ's exact GCC-v2 spelling by itself. */
+/* Movie.obj STAT helpers.  strInit's callbacks are `void (*)(...)`: g++ mangles that as
+ * PFe_v, the retail name strInit__FP6CdlLOCiPFe_vT2. */
 static void strSetDefDecEnv(DECENV *dec);
-static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
-  asm("strInit__FP6CdlLOCiPFe_vT2");
+static void strInit(CdlLOC *loc,int frame_size,void (*callback)(...),void (*endcallback)(...));
+
 static void strCallback(void);
 static int strNextVlc(DECENV *dec);
 static u_long *strNext(DECENV *dec);
@@ -57,60 +57,60 @@ char     gPlayerNum;     /* 0x80052a2f */
 short    download;       /* 0x80052a30; SYM EXT SHORT, scalar */
 CdlFILE  fp;             /* 0x80052a34 */
 static CdlLOC  loc __attribute__((section(".bss")));   /* 0x80052cf8 */
-extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
-extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");
-extern short   user_exit_v[] asm("user_exit");
-#define user_exit user_exit_v[0]  /* unsized view (see MATCH note below) */
-#define StCdIntrFlag StCdIntrFlag_v[0]
+
+
+
+
+
 static short     PPWTop __attribute__((section(".bss")));    /* 0x80052cfc; SYM STAT SHORT */
 static short     PPWBottom __attribute__((section(".bss"))); /* 0x80052cfe; SYM STAT SHORT */
 static short     gMode __attribute__((section(".bss")));     /* 0x80052d00 */
-static bool    gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04; SYM BOOL.  Accesses use the int-shaped unsized carrier below. */
+static bool    gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04; SYM BOOL */
 static short     gMovieHeight __attribute__((section(".bss"))); /* 0x80052d08; SYM STAT SHORT */
 static short     gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
 static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
 static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
-extern int width_v[] asm("width");
-#define gWidth width_v[0]
-extern int height_v[] asm("height");
-#define gHeight height_v[0]
-extern short PPWTop_v[] asm("PPWTop");
-#define PPWTop PPWTop_v[0]
-extern short PPWBottom_v[] asm("PPWBottom");
-#define PPWBottom PPWBottom_v[0]
-extern short gMode_v[] asm("gMode");
-#define gMode gMode_v[0]
-extern int gIsRGB24_v[] asm("gIsRGB24");
-#define gIsRGB24 gIsRGB24_v[0]
-extern short gMovieHeight_v[] asm("gMovieHeight");
-#define gMovieHeight gMovieHeight_v[0]
-extern short gMovieWidth_v[] asm("gMovieWidth");
-#define gMovieWidth gMovieWidth_v[0]
-extern u_long  gMovieFrame_v[] asm("gMovieFrame");
-extern u_long  gEndFrame_v[]   asm("gEndFrame");
-#define gMovieFrame gMovieFrame_v[0]
-#define gEndFrame   gEndFrame_v[0]
-/* MATCH: EVERY file-static above is reached through an UNSIZED-ARRAY view (asm-label
- * alias onto the same symbol).  The scalar form makes cc1 emit the single `lw/sw $r,sym`
- * ASSEMBLER MACRO (unschedulable, expands to a self-temp or an $at store); the unsized
- * form makes gcc lower %hi/%lo itself into a separate, schedulable register -- which is
- * what retail's aspsx build shows everywhere in this TU.  (catalog E/§3.12 #5.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 2026-11-07: the file statics are used under their own names and types.  The former
+ * unsized-array asm-label views (`PPWTop_v[]` aliased onto PPWTop + #define, 21 of them) were
+ * measured unnecessary: Movie.obj sections, relocations and the -g output are identical
+ * with or without them.
+ *
  * MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
  * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
 static bool    bMovieLoaded __attribute__((section(".bss"))); /* 0x80052d14; SYM BOOL */
 static bool    bStopMovie __attribute__((section(".bss")));   /* 0x80052d18; SYM BOOL */
 static int     bRewindMovie __attribute__((section(".bss"))); /* 0x80052d1c */
 static int     isFirstSlice __attribute__((section(".bss"))); /* 0x80052d20 */
-/* MATCH: unsized-array views onto the same four symbols -- the scalar form emits the
- * `sw $r,sym` ASSEMBLER MACRO ($at), the unsized-array form emits gcc's own lui+sw. */
-extern int     bMovieLoaded_v[] asm("bMovieLoaded");
-extern int     bStopMovie_v[]   asm("bStopMovie");
-extern int     bRewindMovie_v[] asm("bRewindMovie");
-extern int     isFirstSlice_v[] asm("isFirstSlice");
-#define bMovieLoaded bMovieLoaded_v[0]
-#define bStopMovie   bStopMovie_v[0]
-#define bRewindMovie bRewindMovie_v[0]
-#define isFirstSlice (*(long *)isFirstSlice_v)
+
+
+
+
+
+
+
+
+
+
 /* Same immediate `.bss` emission as its neighbours so it keeps its retail
  * position BETWEEN isFirstSlice and vlcbuf0 (a plain static would be a
  * deferred end-of-file .lcomm and land after sect_buff); 8-aligned like the
@@ -121,17 +121,17 @@ static u_long  *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c; SYM S
 static u_short *imgbuf __attribute__((section(".bss")));   /* 0x80052d60; SYM STAT PTR USHORT */
 static u_long  *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
 
-/* MATCH: unsized-array VIEWS onto the same storage (asm-label aliases).  Reading the
- * scalar form folds the %hi into the dest arg reg (self-temp `lui a0; lw a0,0(a0)`);
- * the unsized-array form forces the oracle's SEPARATE scratch (`lui v0; lw a0,0(v0)`).
- * §3.12 #5 / §3.15-CORRECTION. */
-extern u_long  *vlcbuf0_v[]  asm("vlcbuf0");
-extern u_long  *vlcbuf1_v[]  asm("vlcbuf1");
-extern u_short *imgbuf_v[]   asm("imgbuf");
-extern u_long  *sect_buff_v[] asm("sect_buff");
-#define vlcbuf0   vlcbuf0_v[0]
-#define vlcbuf1   vlcbuf1_v[0]
-#define sect_buff sect_buff_v[0]
+
+
+
+
+
+
+
+
+
+
+
 
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -168,7 +168,7 @@ void Movie_Init(char movie)
 
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
-  imgbuf_v[0] = (u_short *)reservememadr ("imgbuf",((u_int)((int)PPWTop << 5) / (u_int)(int)PPWBottom) * 0x1e0,0x10);
+  imgbuf = (u_short *)reservememadr ("imgbuf",((u_int)((int)PPWTop << 5) / (u_int)(int)PPWBottom) * 0x1e0,0x10);
   sect_buff = (u_long *)reservememadr("sect_buff",0x10000,0x10);
 
   Platform_ResetDCTBuffer();
@@ -212,7 +212,7 @@ void Movie_DeInit(void)
 
   purgememadr(vlcbuf0);
   purgememadr(vlcbuf1);
-  purgememadr(imgbuf_v[0]);
+  purgememadr(imgbuf);
   purgememadr(sect_buff);
 
   Platform_ResetDCTBuffer();
@@ -222,13 +222,13 @@ void Movie_DeInit(void)
 /* lines 201-205: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_SetDecodeOffset  (movie.cpp:206, code lines 206-212) ---- */
-#undef gMovieHeight
-  /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
-   * (real STAT owner), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
-   * schedulable and cc1 sinks the load past the `addiu s0,a0,8`; the scalar
-   * macro form is unschedulable and issues where retail has it.  (Same symbol
-   * uses the view form in strNext/Movie_Init -- both spellings are correct,
-   * pick per site.) */
+
+  /* gMovieHeight is read through the real STAT static, as everywhere in this TU
+   * (the former per-site unsized `_v[]` views were removed 2026-11-07: Movie.obj
+   * bytes and -g output identical without them).
+
+
+   */
   /* pointer-arithmetic element access, no RECT* temps (the SYM has none) */
   /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
    * two ClearImage arguments) and writes every field through them, in the order
@@ -245,7 +245,7 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   ClearImage(dec.rect + 1,'\0','\0','\0');
   DrawSync(0); return;
 }
-#define gMovieHeight gMovieHeight_v[0]
+
 
 /* lines 213-217: (static data / macros / comments - no emitted code) */
 
@@ -305,13 +305,13 @@ void Movie_Load(char movie)
 
 
 
-    loc_v[0].minute = file.pos.minute;
-    loc_v[0].second = file.pos.second;
-    loc_v[0].sector = file.pos.sector;
+    loc.minute = file.pos.minute;
+    loc.second = file.pos.second;
+    loc.sector = file.pos.sector;
 
     strSetDefDecEnv(&dec);
 
-    strInit(loc_v,0xfffffff,strCallback,(CallbackFunc)0x0);
+    strInit(&loc,0xfffffff,strCallback,(CallbackFunc)0x0);
 
     strNextVlc(&dec);
 
@@ -529,14 +529,14 @@ int play_movie(char movie)
    not source proof. vlcbuf0/1/imgbuf declarations now use their real STAT
    pointer names/types without redundant asm-name aliases. Their pre-existing
    native BSS VA offset is not certified retail-exact by this rename.
-   Other helpers' macro views are restored immediately after this body.
+   (The former helper macro views were removed 2026-11-07.)
    This matches the covered native+SLD contract, not uniquely original text.
    Remaining source aliases and global layout are separate open work. */
-#undef PPWTop
-#undef PPWBottom
-#undef vlcbuf0
-#undef vlcbuf1
-#undef gMovieHeight
+
+
+
+
+
 #line 417 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strSetDefDecEnv(DECENV *dec)
 
@@ -552,17 +552,17 @@ static void strSetDefDecEnv(DECENV *dec)
           gMovieHeight);
 }
 
-#define PPWTop PPWTop_v[0]
-#define PPWBottom PPWBottom_v[0]
-#define vlcbuf0 vlcbuf0_v[0]
-#define vlcbuf1 vlcbuf1_v[0]
-#define gMovieHeight gMovieHeight_v[0]
+
+
+
+
+
 
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
 /* ---- strInit__FP6CdlLOCiPFe_vT2  (movie.cpp:433, code lines 433-445) ---- */
 #line 430 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
-static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
+static void strInit(CdlLOC *loc,int frame_size,void (*callback)(...),void (*endcallback)(...))
 
 
 {
@@ -641,7 +641,7 @@ static void strCallback(void)
     dec.rectid = (u_int)(dec.rectid == 0);
     dec.slice.x = dec.rect[dec.rectid].x;
 
-    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2); }
+    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - height) / 2); }
 }
 
 /* lines 489-492: (static data / macros / comments - no emitted code) */
@@ -692,11 +692,11 @@ static int strNextVlc(DECENV *dec)
    three regions match, with no capture, fence, qualifier or output rewrite.
    PPWTop/Bottom real static names replace _d asm-name aliases; their native
    BSS addresses remain the pre-existing24-byte-below-retail layout backlog.
-   Macro suppression is local to this function; preserve existing array views
-   at its first ratio read and restore them for subsequent helpers.
+   (The former array-view macros and their local suppression were removed
+   2026-11-07: identical bytes and -g output.)
    Original labels/expression spelling and full SLD remain unsealed. */
-#undef PPWTop
-#undef PPWBottom
+
+
   /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
    * store), and the rewind block is laid out BEFORE the store block.
    * MATCH: no `fc` temp (the SYM lists none) -- the global has to be the FIRST
@@ -755,15 +755,15 @@ static u_long * strNext(DECENV *dec)
     gMovieFrame = sector->frameCount; }
 
 
-  if ((*(int *)(long long)width_v != (u_int)sector->width) || (gHeight != (u_int)sector->height))
+  if ((width != (u_int)sector->width) || (height != (u_int)sector->height))
   {
     RECT rect;   /* SYM `90 Block start line = 50` scopes rect to THIS block */
 
-    rect.x = 0; rect.y = 0; rect.h = 0x1e0; rect.w = (short)((PPWTop_v[0] * 0x280) / (int)PPWBottom_v[0]);
+    rect.x = 0; rect.y = 0; rect.h = 0x1e0; rect.w = (short)((PPWTop * 0x280) / (int)PPWBottom);
     ClearImage(&rect,'\0','\0','\0');
 
-    *(int *)(long long)width_v = (int)sector->width;
-    gHeight = (int)sector->height;
+    width = (int)sector->width;
+    height = (int)sector->height;
   }
 
   dec->rect[0].w = dec->rect[1].w = (short)((width * PPWTop) / (int)PPWBottom);
@@ -773,8 +773,8 @@ static u_long * strNext(DECENV *dec)
   return addr;
 }
 
-#define PPWTop PPWTop_v[0]
-#define PPWBottom PPWBottom_v[0]
+
+
 
 /* lines 601-603: (static data / macros / comments - no emitted code) */
 

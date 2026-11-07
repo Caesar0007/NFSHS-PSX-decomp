@@ -176,18 +176,18 @@ void tScreenTrackSelect::DrawBackground()
 
 
 
-  DrawShape_NFS4RoundRectangle(TextValue((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth),&r,0);
+  DrawShape_NFS4RoundRectangle(((tListIteratorTrack *)((char *)menuDefs + 0xc88))->tListIteratorTrack::TextValue((tPlayer)kPlayerBoth),r,0);
 
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[0],trackInfo);
 
   this->UpdateBrightness(trackInfo);
   this->UpdateVideoWall(trackInfo);
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if (((this->fSwapShapes.fFile != (char *)0x0) && (this->fVideoWall.GetTransitionDirection() != -1)) && (this->fBrightness == 0)) {
 
-      ::UploadSwapShapes((tScreen *)this,10);
-      TurnOn(&this->fVideoWall); }
+      this->UploadSwapShapes(10);
+      this->fVideoWall.TurnOn(); }
     
   
 
@@ -270,7 +270,7 @@ void tScreenTrackSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 {
   tTrackInformation trackInfo;
   
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[0],trackInfo);
 
   numPermShapes = 0x44;
   numSwapShapes = 10;
@@ -297,10 +297,10 @@ void tScreenTrackSelect::Initialize()
   
 
   frontEnd.pinkSlipsTrackIndex = '\0';
-  Decrement((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth);
-  Increment((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth);
+  ((tListIteratorTrack *)((char *)menuDefs + 0xc88))->tListIteratorTrack::Decrement((tPlayer)kPlayerBoth);
+  ((tListIteratorTrack *)((char *)menuDefs + 0xc88))->tListIteratorTrack::Increment((tPlayer)kPlayerBoth);
 
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[0],trackInfo);
 
 
 
@@ -323,18 +323,18 @@ void tScreenTrackSelect::Initialize()
   VIDEO_spoolfile(this->hVideo,moviename);
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
-  ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,
+  this->fVideoWall.Initialize(this->tvConfigs,this->fSwapShapes.fShapes,
 
 
                0,10,tvOrder,0x96);
-  SetAvailableText(&this->fVideoWall,0xf8,0x140,0x50);
-  SetAvailableIcon(&this->fVideoWall,0x26,10,0x136,0x3c,
+  this->fVideoWall.SetAvailableText(0xf8,0x140,0x50);
+  this->fVideoWall.SetAvailableIcon(0x26,10,0x136,0x3c,
                    this->fPermShapes.fShapes);
 
   this->fBrightness = 0;
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
-  TurnOn(&this->fVideoWall);
+  this->fVideoWall.TurnOn();
   this->fVideoTicks = FE_Ticks() - 0x100;
   this->fTicksSet = 1;
   this->fMovieTrack = (short)(signed char)trackInfo.fTrackID; return;
@@ -418,11 +418,11 @@ void tScreenTrackSelect::UpdateVideoWall(tTrackInformation &trackInfo)
 {
   if ((int)(signed char)trackInfo.fTrackID != (int)this->fPreviousTrack) {
 
-    ::AsyncLoadSwapShapeFile((tScreen *)this,trackInfo.fShapeName);
+    this->AsyncLoadSwapShapeFile(trackInfo.fShapeName);
     this->fTVsInitialized = 0;
 
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
-    TurnOff(&this->fVideoWall);
+    this->fVideoWall.TurnOff();
     this->SetBrightness(0);
     this->fTicksSet = 0; } return; }
 
@@ -435,12 +435,12 @@ void tScreenTrackSelect::DrawVideoWall()
 
 {
   tTrackInformation trackInfo;
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             &trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+             trackInfo);
   FETextRender_MenuTextPositionedJustify
             (trackInfo.fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords
             );
-  ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
+  this->DrawBackgroundImage(0,0x1c,this->fPermShapes.fShapes,0x96);
   PSXDrawTransSquare(0,0x140,0x1e,0xa0,10,1);
   FeDraw_SetABRMode(0);
 
@@ -448,14 +448,14 @@ void tScreenTrackSelect::DrawVideoWall()
 
     if (this->fTVsInitialized == 0) {
 
-    SetAvailable(&this->fVideoWall,(ushort)trackInfo.fAvailable);
-    UpdateImages(&this->fVideoWall);
+    this->fVideoWall.SetAvailable((ushort)trackInfo.fAvailable);
+    this->fVideoWall.UpdateImages();
     this->fTVsInitialized = 1;
   } }
 
 
-  ::UpdateTransition(&this->fVideoWall);
-  ::Draw(&this->fVideoWall); return;
+  this->fVideoWall.UpdateTransition();
+  this->fVideoWall.Draw(); return;
 }
 
 
@@ -473,7 +473,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand
 
   if (keyval == kInput_KeyType_Square)
   {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c));
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo); MenuItem_Enable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c));
 
 
 
@@ -493,7 +493,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand
   } else if (keyval == kInput_KeyType_Triangle)
   {
     if (!FEApp->CurrentMenu(0)->IsSubMenu())
-    { TurnOffInstant(&this->fVideoWall); } } }
+    { this->fVideoWall.TurnOffInstant(); } } }
 
 
 

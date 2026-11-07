@@ -5099,7 +5099,7 @@ void Hud_RenderHudView(void)
  *   exists; retail's separate-temp survives BECAUSE its high has the body use.  The
  *   wanted device must keep the entry high live into the body addiu WITHOUT letting cse
  *   equate the full lo_sum values (view-alias kills both, real-symbol kills neither). */
-extern int DashHUD_view[] __asm__("DashHUD_gInfo");
+
 
 /* ===== w72-a2: 13 STAYS (ours 72 / oracle 71).  THE SYMBOL-NODE MATRIX IS COMPLETE.
  * All eight (entry-test, body-set, tail-set) x {real `&DashHUD_gInfo`, asm-label view

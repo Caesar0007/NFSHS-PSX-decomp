@@ -22,10 +22,10 @@ static char gSwapFileName[16];                       /* STAT @0x80052c90 */
 /* --- base tScreen ctor/dtor + helpers --- */
 void tScreen_ctor(tScreen *s);
 void tScreen_dtor(tScreen *s);
-void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
-void  UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
-void  AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
+
+
+
+
 
 /* --- PSX video player --- */
 int  VIDEO_create(int w, int h, int a, int b, int c);
@@ -36,11 +36,11 @@ void VIDEO_startplayback(int h);
 void VIDEO_destroy(int h);
 
 /* --- FETv video-wall tiles --- */
-void InitTV(tTVConfig *cfg, tTexture_ShapeInfo *shapes, short n) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");
-void TurnOnTV(tTVConfig *cfg) asm("TurnOnTV__FR9tTVConfig");
-void TurnOffTV(tTVConfig *cfg) asm("TurnOffTV__FR9tTVConfig");
-void DrawTV(tTVConfig *cfg) asm("DrawTV__FR9tTVConfig");
-void DrawTVLines(tTVConfig *cfg) asm("DrawTVLines__FR9tTVConfig");
+void InitTV(tTVConfig &cfg, tTexture_ShapeInfo *shapes, short n);
+void TurnOnTV(tTVConfig &cfg);
+void TurnOffTV(tTVConfig &cfg);
+void DrawTV(tTVConfig &cfg);
+void DrawTVLines(tTVConfig &cfg);
 
 /* --- FE / game / PsyQ helpers --- */
 void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");

@@ -67,13 +67,13 @@ void tScreenTrackInfo::DrawBackground()
             (trackInfo->fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords);
 
 
-  ::DrawBackgroundImage((tScreen *)this,0,0x21,this->fPermShapes.fShapes,0);
+  this->DrawBackgroundImage(0,0x21,this->fPermShapes.fShapes,0);
   PSXDrawTransSquare(0,0x140,0x1e,0xa0,10,1);
   FeDraw_SetABRMode(0);
 
 
-  ::UpdateTransition(&this->fVideoWall);
-  ::Draw(&this->fVideoWall); return;
+  this->fVideoWall.UpdateTransition();
+  this->fVideoWall.Draw(); return;
 }
 
 /* ---- tScreenTrackInfo::Initialize  (screentrackinfo.cpp:97) ---- */
@@ -85,9 +85,9 @@ void tScreenTrackInfo::Initialize()
   this->tScreen::Initialize();
 
 
-  ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0);
-  UpdateImages(&this->fVideoWall);
-  TurnOn(&this->fVideoWall);
+  this->fVideoWall.Initialize(this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0);
+  this->fVideoWall.UpdateImages();
+  this->fVideoWall.TurnOn();
 }
 
 /* ---- tScreenTrackInfo::ProcessInput  (screentrackinfo.cpp:108) ---- */
@@ -104,7 +104,7 @@ void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 
   if (keyval == kInput_KeyType_Triangle)
   {
-    TurnOffInstant(&this->fVideoWall);
+    this->fVideoWall.TurnOffInstant();
 
     if (tournamentManager.CurrentTrack() == 0)
     {

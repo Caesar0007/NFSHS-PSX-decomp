@@ -26,20 +26,20 @@ tScreenTrackInfo *screenTrackInfo;
 
 /* tVideoWall methods (SYM mangled forms confirmed; called on this->fVideoWall).
  * Initialize sig per Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss */
-void Draw(tVideoWall *thisobj) asm("Draw__10tVideoWall");                                 /* Draw__10tVideoWall            */
-void UpdateTransition(tVideoWall *thisobj) asm("UpdateTransition__10tVideoWall");                     /* UpdateTransition__10tVideoWall */
-void TurnOn(tVideoWall *thisobj) asm("TurnOn__10tVideoWall");                               /* TurnOn__10tVideoWall          */
-void TurnOffInstant(tVideoWall *thisobj) asm("TurnOffInstant__10tVideoWall");                       /* TurnOffInstant__10tVideoWall  */
-void UpdateImages(tVideoWall *thisobj) asm("UpdateImages__10tVideoWall");                         /* UpdateImages__10tVideoWall    */
-void Initialize(tVideoWall *thisobj, tTVConfig *cfgs, tTexture_ShapeInfo *shapes,
-                short a, short b, short *order, short c) asm("Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss");
+                                 /* Draw__10tVideoWall            */
+                     /* UpdateTransition__10tVideoWall */
+                               /* TurnOn__10tVideoWall          */
+                       /* TurnOffInstant__10tVideoWall  */
+                         /* UpdateImages__10tVideoWall    */
+
+
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */
 void FETextRender_MenuTextPositionedJustify(short, short, short, short, int, int)
     asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void FETextRender_MenuTextPositioned(short, short, short, int, int)
     asm("FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType");
-void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
+
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void FeDraw_SetABRMode(int abr);                                /* FeDraw_SetABRMode__Fi */
 

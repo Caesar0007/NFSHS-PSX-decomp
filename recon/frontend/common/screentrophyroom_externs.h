@@ -25,15 +25,15 @@ void tScreen_ctor(tScreen *s);
 void tScreen_dtor(tScreen *s);
 
 /* --- tScreen helpers (base passed explicitly) --- */
-void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
-void  UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
-void  InitializeShapes(tScreen *s, tShapeInformation *shp, int n) asm("InitializeShapes__7tScreenR17tShapeInformationUi");
-void  AsyncLoadShapeFile(tScreen *s, char *name, tShapeInformation *shp) asm("AsyncLoadShapeFile__7tScreenPcR17tShapeInformation");
-void  AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
-void  FreeShapes(tScreen *s, tShapeInformation *shp) asm("FreeShapes__7tScreenR17tShapeInformation");
-void  PreLoad(tScreen *s) asm("PreLoad__7tScreen");
-void  ProcessInput(tScreen *s, tPlayer p, tInputKeyType &k, tMenuCommand &c) asm("ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand");
+
+
+
+
+
+
+
+
+
 
 /* --- FE / game / PsyQ helpers (de-namespaced) --- */
 void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");

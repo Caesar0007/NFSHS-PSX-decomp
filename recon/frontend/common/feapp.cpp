@@ -102,7 +102,7 @@ void tFEApplication::PerformMenuInitialization()
 
 
 {
-  extern void InitializeClass_noarg() asm("InitializeClass__11tDialogBase");
+
   this->fCurrentMusic = 0;
 
 
@@ -110,7 +110,7 @@ void tFEApplication::PerformMenuInitialization()
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
 
 
-  InitializeClass_noarg();
+  tDialogBase::InitializeClass();
 
 
 

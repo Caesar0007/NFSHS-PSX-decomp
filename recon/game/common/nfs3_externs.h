@@ -44,7 +44,7 @@ extern unsigned char bigBuf[];
 extern void trap(unsigned int);
                    /* GCC global-ctor caller (crt0) */
 /* libc / eaclib / libgpu / libetc (unmangled) */
-extern void restoretextdraw(void) asm("restoretextdraw");
+extern "C" void restoretextdraw(void);
 
 extern int AudioClc_StartUp(void);
 extern int AudioCmn_DeInit(void);

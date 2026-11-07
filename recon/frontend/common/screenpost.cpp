@@ -507,7 +507,7 @@ void tScreenTournamentStandings::DrawBackground()
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9, ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
 
 
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0); return;
+  this->DrawBackgroundImage(10,0x1d,gCurrentShapes,0); return;
 }
 
 
@@ -612,7 +612,7 @@ void tScreenPinkSlipStandings::DrawBackground()
   DrawShapeExtended(0x27,0x400,0,-1, (int)this->fScreenFadeVal,0,&drawflags);
 
 
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0); return;
+  this->DrawBackgroundImage(10,0x1d,gCurrentShapes,0); return;
 }
 
 
@@ -622,7 +622,7 @@ void tScreenPinkSlipStandings::DrawBackground()
 void tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 
-{ tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command); return;
+{ this->tScreen::ProcessInput(fromPlayer,keyval,command); return;
 }
 
 #line 406 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"

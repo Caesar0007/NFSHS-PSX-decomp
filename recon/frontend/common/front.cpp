@@ -1189,7 +1189,7 @@ int Front_Menu(tFront_ProcessingType role)
 
 
 { int result; int one;
-  result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1; one = 1;
+  result = kApp_Command_StartRace; tScreen::fSuppressLoadingText = 1; one = 1;
 
 
 

@@ -5702,16 +5702,16 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 
 
 
-/* MATCH (w46-a6, step A): UNSIZED ASM-LABEL VIEW of the depth-CLUT table.  The
-   sized `extern short gClutDepth[256][16]` decl gives loop.c a %hi/%lo pseudo
-   PAIR it hoists twice (inner loop then outer loop, -dL insns 723/724 -> 795/797
-   -> 809/811) so the address arrives in the prologue with a 226-insn live range
-   and eats a CALLEE-SAVED register.  The oracle materializes it at the use site
-   (`lui $t8,%hi(gClutDepth); addiu $t8,$t8,%lo(gClutDepth)` @0x800C9584) and
-   spends that callee-saved slot on `t = &fskid->t` ($s6) instead.  The unsized
-   view removes the symbol's pseudo pair entirely -> nothing to hoist (catalog
-   w45 §B/F "the unsized asm-label view KILLS a LICM address hoist"). */
-extern short gClutDepth_v[] __asm__("gClutDepth");
+/* 2026-11-07: the former unsized asm-label view of gClutDepth (w46-a6 step A) was removed;
+   its one remaining use reads the real `gClutDepth` table and draww.o + the -g output are
+   identical without it (the w46 LICM-hoist mechanism no longer depends on it). */
+
+
+
+
+
+
+
 
 /* ---- Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark  [DRAWW.CPP:2900-3038] covered SLD requires native comparison ---- */
 /* RECEIPT (w44-a7) -- THE WALKER REGRESSION IS EXPLAINED: A gClutDepth LICM
@@ -6473,7 +6473,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
               { int depth_index;
                 depth_index = (save_pre_otz - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
                 ((Draw_tGiveShelbyMoreCache *)sd)->distfog; if (depth_index < 0) { depth_index = 0; } else if (depth_index > 15) { depth_index = 0xf;
-                } *(short *)((int)prim + 0xe) = *(short *)((depth_index << 1) + (pmx->pad2 << 5) + (int)gClutDepth_v);
+                } *(short *)((int)prim + 0xe) = *(short *)((depth_index << 1) + (pmx->pad2 << 5) + (int)gClutDepth);
               }
               {
                 __asm__ volatile( "lw\t%0,4(%1)\n\t" "lw\t$12,0(%2)\n\t" "lw\t$13,0(%1)\n\t" "addiu\t$14,%0,52\n\t" "sll\t$12,$12,2\n\t" "addu\t$13,$13,$12\n\t" "sw\t$14,4(%1)\n\t" "lwl\t$14,2($13)\n\t" "lui\t$12,0x0C00\n\t" "srl\t$14,$14,8\n\t" "or\t$14,$14,$12\n\t" "sll\t$12,%0,8\n\t" "sw\t$14,0(%0)\n\t" "swl\t$12,2($13)" : "=&r"(prim) : "r"(sd), "r"(&sd->otz)

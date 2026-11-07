@@ -10,12 +10,12 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 #include "eaclib/psx/eacpsxz/vars.h"
 }
-/* MATCH: unsized asm-label view of `ticks` -- a bare scalar extern compiles to the
-   unschedulable `lw $r,sym` assembler macro (no %hi pseudo, so no CSE); the array
-   view restores cc1's own %hi/%lo split so the base survives in a callee-saved reg
-   across the poll loop (oracle $s2). */
-extern int ticks_v[] asm("ticks");
-#define ticks (ticks_v[0])
+/* `ticks` = eacpsxz/vars.h's own `extern volatile int ticks` (the former unsized
+   asm-label view `ticks_v[]` was removed 2026-11-07). */
+
+
+
+
 
 extern "C" {
 /* PsyQ libpress (MDEC) */

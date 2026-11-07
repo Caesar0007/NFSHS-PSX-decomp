@@ -132,7 +132,7 @@ void tScreenMain::SwapBackground(int num)
       this->fCurrentBG[this->fCurrentSlot] = num;
     }
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[this->fCurrentSlot]);
-    ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + this->fCurrentSlot);
+    this->AsyncLoadShapeFile(buffer,this->fVideoShapes[this->fCurrentSlot]);
     this->fCurrentSlot = 1 - this->fCurrentSlot;
 
 
@@ -192,7 +192,7 @@ void tScreenMain::SetState(tScreenMainState state)
 
     if ((state != kScreenMain_Credits) && Credits_Initialized(CreditManager) == 1) {
 
-      DeInit(&CreditManager);
+      CreditManager.DeInit();
     }
 
     this->fState = state;
@@ -237,7 +237,7 @@ void tScreenMain::SetState(tScreenMainState state)
         this->tvTransitions[i].bright = 0x80;
         this->tvTransitions[i].state = kScreenMain_Credits;
         i = i + 1; } while (i < 0x10);
-      Init(&CreditManager,this->fStartTicks);
+      CreditManager.Init(this->fStartTicks);
 
 
 
@@ -509,7 +509,7 @@ void tScreenMain::DrawBackground()
 
   for (i = animFade; i < 2; i++) {
 
-    ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + i);
+    this->IsShapeFileLoaded(this->fVideoShapes[i]);
     if (this->fVideoShapes[i].fFile != (char *)0x0)
     { bool bAllTVsOn;
       bAllTVsOn = true;
@@ -524,7 +524,7 @@ void tScreenMain::DrawBackground()
       if (bAllTVsOn) {
 
 
-        ::UploadShapes((tScreen *)this,this->fVideoShapes + i,i * 0xa6,0,0x10,0);
+        this->UploadShapes(this->fVideoShapes[i],i * 0xa6,0,0x10,0);
       }
     }
   }
@@ -537,7 +537,7 @@ void tScreenMain::DrawBackground()
     this->SetState(kScreenMain_Credits);
   }
 
-  ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
+  CreditManager.Draw(this->fState == kScreenMain_Credits);
 
   if (this->fState == kScreenMain_WarningImage)
   {
@@ -653,7 +653,7 @@ void tScreenMain::DrawBackground()
 
 
 
-  ::DrawBackgroundImage((tScreen *)this,2,0x1c,this->fPermShapes.fShapes,0);
+  this->DrawBackgroundImage(2,0x1c,this->fPermShapes.fShapes,0);
 
 
   this->DrawDropShadow();
@@ -676,17 +676,17 @@ void tScreenMain::DrawBackground()
       } while (nextAnimation == this->fPreviousAnim);
       this->fPreviousAnim = nextAnimation;
       sprintf(buffer,"yVda%02d",(int)nextAnimation);
-      ::AsyncLoadSwapShapeFile((tScreen *)this,buffer);
+      this->AsyncLoadSwapShapeFile(buffer);
     }
   }
 
 
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if (this->fSwapShapes.fFile != (char *)0x0)
   {
     this->fSwapShapes.fNumShapes = 10;
-    ::UploadSwapShapes((tScreen *)this,10);
+    this->UploadSwapShapes(10);
     this->fAnimTicks = FE_Ticks();
 
     this->fAnimLocation = (ushort)this->fAnimTicks & 3;
@@ -736,7 +736,7 @@ void tScreenMain::DrawBackground()
 
          (this->tvConfigs[tvOrder[j]].state == tv_StateOn)) {
 
-        TurnOffTV(this->tvConfigs + tvOrder[j]);
+        TurnOffTV(this->tvConfigs[tvOrder[j]]);
       }
       j++; if (x < j) break;
     }
@@ -756,7 +756,7 @@ void tScreenMain::DrawBackground()
       this->tvConfigs[i].tint = this->tvTransitions[i].tint;
 
       this->tvStates[i] = this->tvTransitions[i].state;
-      TurnOnTV(this->tvConfigs + i);
+      TurnOnTV(this->tvConfigs[i]);
       this->tvConfigs[i].destBrightness = this->tvTransitions[i].bright;
       this->fNumTVsInTransition = this->fNumTVsInTransition + -1;
     }
@@ -767,7 +767,7 @@ void tScreenMain::DrawBackground()
 
 
 
-    DrawTV(this->tvConfigs + i);
+    DrawTV(this->tvConfigs[i]);
   }
 
 
@@ -824,7 +824,7 @@ void tScreenMain::PreLoad()
 
 
     this->fVideoShapes[i].fShapes = (tTexture_ShapeInfo *)0x0;
-    ::InitializeShapes((tScreen *)this,this->fVideoShapes + i,0x10);
+    this->InitializeShapes(this->fVideoShapes[i],0x10);
     i = i + 1; } while (i < 2);
 
   this->fCurrentBG[0] = rand() % 0x1c;
@@ -834,7 +834,7 @@ void tScreenMain::PreLoad()
 
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[i]);
 
-    ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + i);
+    this->AsyncLoadShapeFile(buffer,this->fVideoShapes[i]);
     i = i + 1; } while (i < 2); return;
 }
 
@@ -877,13 +877,13 @@ void tScreenMain::Initialize()
 
     FeAudio_systemtask(0);
 
-    shapesLoaded = ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
+    shapesLoaded = this->IsShapeFileLoaded(*this->fVideoShapes);
     if (this->fVideoShapes[0].fFile != (char *)0x0) {
-      ::UploadShapes((tScreen *)this,this->fVideoShapes,0,0,0x10,0);
+      this->UploadShapes(*this->fVideoShapes,0,0,0x10,0);
     }
-    shapesLoaded = shapesLoaded && (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != 0);
+    shapesLoaded = shapesLoaded && (this->IsShapeFileLoaded(this->fVideoShapes[1]) != 0);
     if (this->fVideoShapes[1].fFile != (char *)0x0) {
-      ::UploadShapes((tScreen *)this,this->fVideoShapes + 1,0xa6,0,0x10,0); } } while (!shapesLoaded);
+      this->UploadShapes(this->fVideoShapes[1],0xa6,0,0x10,0); } } while (!shapesLoaded);
 
 
   this->fPreviousMovie = -1;
@@ -904,7 +904,7 @@ void tScreenMain::Initialize()
 
   this->fCurrentSlot = 0;
   i = 0;
-  do { InitTV(this->tvConfigs + i,this->fVideoShapes[this->fCurrentSlot].fShapes,i); i = i + 1; } while (i < 0x10);
+  do { InitTV(this->tvConfigs[i],this->fVideoShapes[this->fCurrentSlot].fShapes,i); i = i + 1; } while (i < 0x10);
 
 
   this->fState = kScreenMain_Off;
@@ -934,7 +934,7 @@ void tScreenMain::Cleanup()
   do {
 
 
-    ::FreeShapes((tScreen *)this,this->fVideoShapes + i); i = i + 1; } while (i < 2);
+    this->FreeShapes(this->fVideoShapes[i]); i = i + 1; } while (i < 2);
   this->tScreen::Cleanup();
 }
 

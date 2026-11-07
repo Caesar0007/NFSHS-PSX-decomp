@@ -97,8 +97,8 @@ void tScreenCarSelectTwoPlayer_ctor(tScreenCarSelectTwoPlayer*); void tScreenCar
 void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarSelect_dtor(tScreenPinkSlipsCarSelect*);
 
 /* ===== tScreen helpers (free-fn form) ===== */
-void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+
+
 /* W58-A1 (08A phantom fix): the tScreen / tCarManager / tTrackManager / tVideoWall /
  * tDialogBase / tFEApplication entry points below were free `(...)`- or `(void*)`-typed
  * decls that mangled every call site to a symbol the link can never resolve
@@ -108,16 +108,16 @@ bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tS
  * Removed here: UploadShapes, UploadSwapShapes, TransitionOff, TransitionOn,
  * SetAvailableIcon, SetOffset, SetValid, GetStockCar, GetNumPinkSlipsCars,
  * CalcUsedPrice, CheapestCarStockPrice, GetTrack, Hide, Display, Redraw. */
-void  FreeShapes(tScreen*, tShapeInformation*) asm("FreeShapes__7tScreenR17tShapeInformation");
-void  InitializeShapes(tScreen*, tShapeInformation*, int) asm("InitializeShapes__7tScreenR17tShapeInformationUi");
-void  AsyncLoadSwapShapeFile(tScreen*, char*) asm("AsyncLoadSwapShapeFile__7tScreenPc");
-void  AsyncLoadShapeFile(tScreen*, char*, tShapeInformation*) asm("AsyncLoadShapeFile__7tScreenPcR17tShapeInformation");
+
+
+
+
 
 /* ===== tVideoWall methods (free-fn form) ===== */
-void TurnOn(tVideoWall*) asm("TurnOn__10tVideoWall"); void TurnOff(tVideoWall*) asm("TurnOff__10tVideoWall"); void TurnOffInstant(tVideoWall*) asm("TurnOffInstant__10tVideoWall");
-void UpdateImages(tVideoWall*) asm("UpdateImages__10tVideoWall"); void UpdateTransition(tVideoWall*) asm("UpdateTransition__10tVideoWall"); void Draw(tVideoWall*) asm("Draw__10tVideoWall");
-void SetAvailable(tVideoWall*, unsigned short) asm("SetAvailable__10tVideoWalls"); void SetAvailableText(tVideoWall*, short, short, short) asm("SetAvailableText__10tVideoWallsss");
-void Initialize(tVideoWall*, tTVConfig*, tTexture_ShapeInfo*, short, short, short*, short) asm("Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss");
+
+
+
+
 
 /* ===== FE / game / PsyQ helpers ===== */
 int   CalcFadeVal(int, int);
@@ -173,7 +173,7 @@ extern "C" int gettick(void);
 extern "C" int sprintf(char *, const char *, ...);
 extern "C" void SetDrawArea(DR_AREA *, RECT *);
 
-void PreLoad(tScreen*) asm("PreLoad__7tScreen");
+
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }
 

@@ -120,7 +120,7 @@ TrophyRoomProc_keyLeftCheck:
     if (this->fNumTrophies <= this->fRealCurrentTourn[this->tier]) { this->fRealCurrentTourn[this->tier] = 0;
     }
   }
-  ::ProcessInput((tScreen *)this,fromPlayer,keyval,command); return;
+  this->tScreen::ProcessInput(fromPlayer,keyval,command); return;
 }
 
 
@@ -131,14 +131,14 @@ void tScreenTrophyRoom::PreLoad()
 
 
 {
-  ::PreLoad((tScreen *)this);
+  this->tScreen::PreLoad();
 
 
   (this->fTrophyShapes).fShapes = (tTexture_ShapeInfo *)0x0;
-  ::InitializeShapes((tScreen *)this,&this->fTrophyShapes,8);
+  this->InitializeShapes(this->fTrophyShapes,8);
 
-  ::AsyncLoadShapeFile((tScreen *)this,
-      frontEnd.tier != '\0' ? "zCase2" : "zCase",&this->fTrophyShapes);
+  this->AsyncLoadShapeFile(
+      frontEnd.tier != '\0' ? "zCase2" : "zCase",this->fTrophyShapes);
 }
 
 
@@ -200,7 +200,7 @@ void tScreenTrophyRoom::Initialize()
 
 
     systemtask(0);
-  } while (((int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes) ^ 1) != 0);
+  } while (((int)this->IsShapeFileLoaded(this->fTrophyShapes) ^ 1) != 0);
   this->tier = (uint)(byte)frontEnd.tier;
   this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
@@ -238,7 +238,7 @@ void tScreenTrophyRoom::Cleanup()
 
 
 {
-  ::FreeShapes((tScreen *)this,&this->fTrophyShapes);
+  this->FreeShapes(this->fTrophyShapes);
 
   this->tScreen::Cleanup(); return;
 }
@@ -291,15 +291,15 @@ void tScreenTrophyRoom::DrawBackground()
 
 
 
-  ::DrawBackgroundImage((tScreen *)this,0,0x18,gCurrentShapes,0);
+  this->DrawBackgroundImage(0,0x18,gCurrentShapes,0);
   PSXDrawBrightEndLine(0x232323,0x6a,0x39,300,1,3,(int)this->fScreenFadeVal,0x1e);
 
   this->LoadTrophy();
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if (this->fSwapShapes.fFile != (char *)0x0)
   {
-    ::UploadSwapShapes((tScreen *)this,0x20);
+    this->UploadSwapShapes(0x20);
 #line 193 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
     for ({ int dummy; for ({ extern int dummy; int drawFlagsPtr; int st; } 0; ) ; } 0; ) ; st = ticks;
 #line 194 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
@@ -364,7 +364,7 @@ void tScreenTrophyRoom::LoadTrophy()
 #line 245 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
     tTourneyInfo *const tourn = TourneyInTierSelf(((d = 0, (int)this) ?: 0));
     GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
+    this->AsyncLoadSwapShapeFile(gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }
 }

@@ -167,9 +167,9 @@ struct tListIteratorTrack : public tListIteratorIndexed {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tListIteratorTrack(char *, char *, tTrackManager *);
     ~tListIteratorTrack();
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
+#endif
+    short TextValue(tPlayer); void Increment(tPlayer); void Decrement(tPlayer);
+#ifdef NFS4_FEMENUDEFS_SURFACE
     bool ValidTrack(char);
 #endif
 };

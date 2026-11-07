@@ -140,9 +140,9 @@ void tScreenTrophyInfo::DrawBackground()
     FETextRender_WordWrapHeight(0x15b,TextSys_Word(tournID + 0x38d));
   }
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if (this->fSwapShapes.fFile != (char *)0x0) {
-    ::UploadSwapShapes((tScreen *)this,0x20);
+    this->UploadSwapShapes(0x20);
   }
   r.x = 0x23; r.y = 0x2d; r.w = 0x1c4; r.h = 100;
   FETextRender_WordWrapTextRGBJustify(TextSys_Word(tournID + 0x367),r,

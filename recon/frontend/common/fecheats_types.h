@@ -77,7 +77,7 @@ struct tTournamentManager {
     signed char fBestPlacement[64];
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
+    tAwardInformation fAwards; void SaveTournament(struct tSaveTournament &); void LoadTournament(struct tSaveTournament &);
 };
 
 #include "shared/tActiveLine.h"
@@ -108,7 +108,7 @@ struct tFEApplication {
     tDialogMessageStringWithTimeout MemCardDialog;
     tDialogNoInputMessage NoInputMemCardDialog;
     bool gotName[2], needName[2];
-    int speechToPlay[2];
+    int speechToPlay[2]; void Redraw(); void UpdateMusic();
 };
 
 /* The owner retains tSaveRecords but attributes this already-seen element tag

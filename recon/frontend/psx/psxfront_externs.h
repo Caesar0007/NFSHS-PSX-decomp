@@ -84,17 +84,17 @@ extern int Draw_gDoVSync[];
 extern int Draw_gPlayer1View[];  /* unsized array shape: forces the separate-%hi-scratch arg load (methodology 3.12 #5) */
 extern int Draw_gRearView[];
 extern char GameSetup_gCarNames[51][5];
-extern PSXFront_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
+extern PSXFront_GameSetupCodegenView GameSetup_gData;
 extern char *Paths_Paths[50];
 extern int R3DCar_InMenu[];
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
-extern PSXFront_DRenderCodegenView gCView asm("gCView");
+extern PSXFront_DRenderCodegenView gCView;
 /* P885: native SYM56d925 is PTR STRUCT/dims0, matching FEScreen's scalar
  * owner. The old unsized-array workaround was not the original storage shape;
  * preserve the actual shape-array indexing through this one pointer cell. */
 extern tTexture_ShapeInfo *gCurrentShapes;
-extern PSXFront_DFlipCodegenView gEnviro[2] asm("gEnviro");
+extern PSXFront_DFlipCodegenView gEnviro[2];
 extern int gFlip[];
 extern u_short gFontClut;
 extern int gMenuRotate[2];

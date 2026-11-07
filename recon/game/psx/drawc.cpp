@@ -4938,7 +4938,7 @@ void DrawC_ShadowPrim(Draw_tVertex *shadowVT,Draw_CarCache *sd)
 {
   POLY_FT4 *prim;
   Draw_tPixMap *shadowPmx;
-  shadowPmx = gShadowPixmap0;
+  shadowPmx = gShadowPixmap[0];
   if (R3DCar_InMenu != 0) shadowPmx = gMenuPixmap[1];
 
   ChangeTPage(&shadowPmx->tpage,2);
@@ -5108,7 +5108,7 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
 #line 4116 "C:/nfs4/GAME/PSX/DRAWC.CPP"
 void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
 {
-  Draw_tPixMap *shadowPmx; shadowPmx = gShadowPixmap0;
+  Draw_tPixMap *shadowPmx; shadowPmx = gShadowPixmap[0];
   if (R3DCar_InMenu != 0) shadowPmx = gMenuPixmap[1];
 
   ChangeTPage(&shadowPmx->tpage,2);

@@ -43,7 +43,7 @@ void FETextRender_FullText(char *sMenuText, short x, short y,
                            tMenuTextState textState, short justify)
     asm("FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates");
 void Flare_2DHalo(int x, int y, int scalex, int scaley, int type);
-void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
+
 void StatChk_ClearNewRecords(void);
 void Stattool_GetRecords(short nShowTrack, tRecordBuffer * TrackRecords);
 short Front_GetTrackRaced(void);

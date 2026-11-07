@@ -56,7 +56,7 @@ void tVideoWall::UpdateImages()
   i = 0;
   if (0 < this->fNumTVs) {
     do {
-      InitTV(this->fTVs + i,this->fTVShapes,(short)(this->fFirstTVShape + i));
+      InitTV(this->fTVs[i],this->fTVShapes,(short)(this->fFirstTVShape + i));
       this->fTVs[i].x = this->fTVs[i].x + this->fOffsetX;
       this->fTVs[i].y = this->fTVs[i].y + this->fOffsetY;
 
@@ -161,7 +161,7 @@ void tVideoWall::UpdateTransition()
       for (j = 0; (j < i) && (j < this->fNumTVs); j = j + 1) {
         if (((this->fTVs[this->tvOrder[j]].state == tv_StateOff) && (this->fValid != 0))
            && (this->fAvailable != 0)) {
-          TurnOnTV(this->fTVs + this->tvOrder[j]);
+          TurnOnTV(this->fTVs[this->tvOrder[j]]);
         } }
     }
 
@@ -172,7 +172,7 @@ void tVideoWall::UpdateTransition()
     for (j = 0; (j < i) && (j < this->fNumTVs); j = j + 1) {
 
       if (this->fTVs[this->tvOrder[j]].state == tv_StateOn) {
-        TurnOffTV(this->fTVs + this->tvOrder[j]);
+        TurnOffTV(this->fTVs[this->tvOrder[j]]);
       } }
     if (i >= this->fNumTVs) {
 
@@ -204,7 +204,7 @@ void tVideoWall::Draw()
   if (((this->fValid == 0) || (this->fAvailable == 0)) || (this->fAvailableBright != 0))
   { i = 0;
     if (0 < this->fNumTVs) {
-      do { DrawTVLines(this->fTVs + i); i = i + 1; } while (i < this->fNumTVs);
+      do { DrawTVLines(this->fTVs[i]); i = i + 1; } while (i < this->fNumTVs);
     }
     if (0 < this->fAvailableBright)
     {
@@ -234,7 +234,7 @@ void tVideoWall::Draw()
 
 
     i = 0; if (0 < this->fNumTVs) {
-      do { DrawTV(this->fTVs + i); i = i + 1; } while (i < this->fNumTVs); } } return; }
+      do { DrawTV(this->fTVs[i]); i = i + 1; } while (i < this->fNumTVs); } } return; }
 
 
 
@@ -262,7 +262,7 @@ void tVideoWall::TurnOffInstant()
   this->TurnOff();
   if (0 < this->fNumTVs) {
     i = 0;
-    do { TurnOffTV(this->fTVs + i);
+    do { TurnOffTV(this->fTVs[i]);
       i = i + 1; } while (i < this->fNumTVs); } return; }
 
 

@@ -40,21 +40,21 @@ void FETextRender_SetABR(int abr, bool trans);
 void Flare_2DHalo(int x, int y, int scalex, int scaley, int type);
 void Controller_SetRamp(void);
 void Front_ResetPSXController(int player, int config);
-void UploadSwapShapes(tScreen * thisobj, int numSwapShapes) asm("UploadSwapShapes__7tScreeni");
+
 int GetPSXPadValue(int value, int player);
 void PSXDrawSquare(int col, int x, int y, int w, int h);
 int CalcFadeVal(int col1, int col2, int amount);
 void FETextRender_FullTextRGB(char * sMenuText, short x, short y, int col, char size, short justify);
 int InGame_GetDevice(int control);
 char * TextSys_Word(int wordnum);
-void AsyncLoadSwapShapeFile(tScreen * thisobj, char * fileName) asm("AsyncLoadSwapShapeFile__7tScreenPc");
+
 void ScaleShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
-short Run(tDialogInteractive * thisobj) asm("Run__18tDialogInteractive");
+
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void AudioCmn_PlayFESFX(int SFXnum);
 void FeDraw_SetABRMode(int abr);
-bool IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+
 void FETextRender_SetFont(int size);
 
 /* Text-definition colour lookup through the shared inline getter (fefades_externs.h

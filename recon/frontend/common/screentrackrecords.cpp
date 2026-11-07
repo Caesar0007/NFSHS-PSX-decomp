@@ -284,7 +284,7 @@ void tScreenTrackRecords::DrawBackground()
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }
 
-  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0); return;
+  this->DrawBackgroundImage(0xb,0x1b,gCurrentShapes,0); return;
 }
 
 /* end of screentrackrec.cpp */

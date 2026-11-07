@@ -245,7 +245,7 @@ struct tVideoWall {
     short fAvailableX, fAvailableY;
     tTexture_ShapeInfo *fIconShapes;
     short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated;
+    bool fUpdated; void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void UpdateTransition(); void Draw(); void TurnOffInstant(); void TurnOn();
 };
 #endif
 

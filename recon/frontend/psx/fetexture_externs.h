@@ -12,7 +12,7 @@ extern "C" {
 int unpacksize(void *src);
 void unpack(void *src, void *dst);
 u_short GetClut(int x, int y);
-void Texture_GetClutId(unsigned int bpp, int *xclut, int *yclut)
-    asm("Texture_GetClutId__FiPiT1");
 }
+/* game/psx/texture.cpp: C++ linkage (retail Texture_GetClutId__FiPiT1) */
+void Texture_GetClutId(int bpp, int *xclut, int *yclut);
 #endif

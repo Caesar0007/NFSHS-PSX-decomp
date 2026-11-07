@@ -54,11 +54,11 @@ void tScreenPinkSlips::DrawBackground()
       textState = textState_Hilighted;
     }
 
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[i],trackInfo);
 
     frontEnd.pinkSlipsTrackIndex = (char)i;
-    FETextRender_MenuTextPositionedJustify( TextValue(&menuDefs->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0, textState,textType_FlybyHelp);
-    DrawShape_NFS4RoundRectangle(-1,&r,1);
+    FETextRender_MenuTextPositionedJustify( menuDefs->iteratorTrack.TextValue((tPlayer)kPlayerBoth),r.x + 10,r.y + 3,0, textState,textType_FlybyHelp);
+    DrawShape_NFS4RoundRectangle(-1,r,1);
     r.y = r.y + 0xe;
   }
 
@@ -67,13 +67,13 @@ void tScreenPinkSlips::DrawBackground()
   if (frontEnd.pinkSlipsTrackIndex != 0) {
     frontEnd.pinkSlipsTrackIndex -= 1;
   }
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
   this->UpdateVideoWall(trackInfo);
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < *(signed char *)&this->fTransitionDirection))
   {
-    ::UploadSwapShapes((tScreen *)this,4);
+    this->UploadSwapShapes(4);
     this->fTransitionDirection = '\x01';
     this->fTVTicks = FE_Ticks();
   }
@@ -145,7 +145,7 @@ void tScreenPinkSlips::DrawBackground()
 
 
   i = 0;
-  do { DrawTV(this->fTrackTVs + i); i = i + 1; } while (i < 8); return;
+  do { DrawTV(this->fTrackTVs[i]); i = i + 1; } while (i < 8); return;
 }
 
 
@@ -159,7 +159,7 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 {
   tTrackInformation trackInfo;
   
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[0],trackInfo);
 
   numPermShapes = 0x39;
   numSwapShapes = 4;
@@ -196,8 +196,8 @@ void tScreenPinkSlips::Initialize()
 
 
   frontEnd.pinkSlipsTrackIndex = '\0';
-  Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
-  Increment(&menuDefs->iteratorTrack,kPlayerBoth); this->fMenu = FEApp->CurrentMenu(0);
+  menuDefs->iteratorTrack.Decrement((tPlayer)kPlayerBoth);
+  menuDefs->iteratorTrack.Increment((tPlayer)kPlayerBoth); this->fMenu = FEApp->CurrentMenu(0);
 
 
 
@@ -209,7 +209,7 @@ void tScreenPinkSlips::Initialize()
 
 
 
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[0],trackInfo);
 
   sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
   this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
@@ -251,7 +251,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
   if ((signed char)(u_char)trackInfo.fTrackID != this->fPreviousTrack)
   {
     sprintf(gSwapFileName,"TR%02dPS",(signed char)(u_char)trackInfo.fTrackID);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
+    this->AsyncLoadSwapShapeFile(gSwapFileName);
     this->fTVsInitialized = 0;
 
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
@@ -285,7 +285,7 @@ void tScreenPinkSlips::DrawVideoWall()
 
     for (i = 0; i < 4; i = i + 1) {
 
-      InitTV(&this->fImageTVs[i],this->fSwapShapes.fShapes,i);
+      InitTV(this->fImageTVs[i],this->fSwapShapes.fShapes,i);
     }
     this->fTVsInitialized = 1;
   } }
@@ -297,7 +297,7 @@ void tScreenPinkSlips::DrawVideoWall()
     while ((j < i) && (j < 4)) {
 
       if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOff) {
-        TurnOnTV(&this->fImageTVs[imageTVOrder[j]]);
+        TurnOnTV(this->fImageTVs[imageTVOrder[j]]);
       } j = j + 1;
     }
   }
@@ -305,7 +305,7 @@ void tScreenPinkSlips::DrawVideoWall()
     j = 0; while ((j < i) && (j < 4)) {
 
       if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOn) {
-        TurnOffTV(&this->fImageTVs[imageTVOrder[j]]);
+        TurnOffTV(this->fImageTVs[imageTVOrder[j]]);
       } j = j + 1;
     } if (7 < i) {
       this->fTransitionDirection = 0;
@@ -313,7 +313,7 @@ void tScreenPinkSlips::DrawVideoWall()
   }
   for (i = 0; i < 4; i = i + 1) {
 
-    DrawTV(&this->fImageTVs[i]);
+    DrawTV(this->fImageTVs[i]);
   } return;
 }
 
@@ -330,7 +330,7 @@ void tScreenPinkSlips::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
 
   if (keyval == kInput_KeyType_Square)
   {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable(&menuDefs->itemTraffic);
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo); MenuItem_Enable(&menuDefs->itemTraffic);
 
 
 

@@ -285,7 +285,7 @@ void tScreenControllerConfig::SwapInController()
 
 {
   if ((this->CurrentlyLoadedArt == -1) || (strcmp(fileNames[(byte)this->fCurrentController], fileNames[this->CurrentlyLoadedArt]) != 0)) {
-    ::AsyncLoadSwapShapeFile((tScreen *)this,
+    this->AsyncLoadSwapShapeFile(
                              fileNames[(byte)this->fCurrentController]);
     this->CurrentlyLoadedArt = (ushort)(byte)this->fCurrentController; } return; }
 
@@ -652,10 +652,10 @@ void tScreenControllerConfig::DrawController()
 
 
 
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if (this->fSwapShapes.fFile != (char *)0x0) {
 
-    ::UploadSwapShapes((tScreen *)this,0x42);
+    this->UploadSwapShapes(0x42);
     return;
   }
   if ((this->fSwapShapes.fFlags & 1) == 0) {

@@ -32,8 +32,8 @@ extern int   AudioCmn_MusicLevel(int masterLevel);                  /* audiocmn.
 extern int   AudioCmn_PlaySound(int bnkID, int a, int b, int c, int d);   /* audiocmn.obj */
 
 /* ---- cross-TU functions (input / system) ---- */
-extern int   Input_Interface(int key, int debounce) asm("Input_Interface__FUli");
-extern void  InGame_ResetPSXController(u_int port, int config) asm("InGame_ResetPSXController__Fii");
+extern int   Input_Interface(u_long key, int debounce);
+extern void  InGame_ResetPSXController(int port, int config);
                                     /* libgpu */
 extern void  TextSys_LoadInGame(int language);                      /* textsys.obj */
 extern void  TextSys_UnloadWords(void);                             /* textsys.obj */

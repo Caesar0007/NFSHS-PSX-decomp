@@ -87,10 +87,10 @@ int TextSys_UnloadWords(void);
 int TextSys_Word(int);
 int __builtin_new(...);
 int s_lower(char *);
-extern "C" tFEApplication *tFEApplication_ctor(...) __asm__("__14tFEApplication");  /* real ctor symbol */
-extern "C" tFEApplication *tFEApplication_dtor(...) __asm__("___14tFEApplication"); /* real dtor symbol */
-extern "C" tGlobalMenuDefs *tGlobalMenuDefs_ctor(...) __asm__("__15tGlobalMenuDefs");  /* real ctor symbol */
-extern "C" tGlobalMenuDefs *tGlobalMenuDefs_dtor(...) __asm__("___15tGlobalMenuDefs"); /* real dtor symbol */
+
+
+
+
 tScreenAudio *tScreenAudio_ctor(...);
 tScreenCarSelect *tScreenCarSelect_ctor(...);
 tScreenCarSelect *tScreenCarSelect_dtor(...);
@@ -119,7 +119,7 @@ extern bool MEMCARDFRONTENDISINITTED;  /* SYM BOOL; CC1PLPSX bool is 4 bytes */
    game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94; every
    oracle reference is an ADDRESS materialization (`addiu`), never a load. */
 extern tRecordBuffer Stats_gTrackRecords[187];
-extern int _7tScreen_fSuppressLoadingText __asm__("_7tScreen.fSuppressLoadingText");   /* tScreen::fSuppressLoadingText, owned by fescreen.cpp */
+
 /* _usePlayerUpgrades removed W66-A5 (dead: 0 references, 0 SYM records). */
 extern int colourChosen[8];
 extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines it char (1B) packed

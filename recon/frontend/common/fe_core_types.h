@@ -157,7 +157,7 @@ struct tCarManager {
     u_char fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
 #ifdef NFS4_FE_CORE_FECHEATS_METHODS
-    void SetClassAvailable(tCarClassType, bool);
+    void SetClassAvailable(tCarClassType, bool); void SaveCars(struct tSaveCarInfo &); void LoadCars(struct tSaveCarInfo &, short); void LoadPinkSlipsCars(struct tSaveCarInfo &, short); void SavePinkSlipsCars(struct tSaveCarInfo &, short, short);
 #endif
 #if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || \
     defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FEMENUDEFS_SURFACE)

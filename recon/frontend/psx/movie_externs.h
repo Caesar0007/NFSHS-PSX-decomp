@@ -33,7 +33,6 @@ u_long * FntFlush(int id);   /* match real PsyQ libgpu.h proto (int, not long) *
 int LoadImage(RECT *rect, u_long *data);
 u_short PAD_state(int padID);
 void PAD_update(void);
-void Platform_ResetDCTBuffer(void) asm("Platform_ResetDCTBuffer__Fv");
 DISPENV *PutDispEnv(DISPENV *env);
 DRAWENV *PutDrawEnv(DRAWENV *env);
 void ResetCallback(void);
@@ -53,4 +52,5 @@ int Triangle();   /* sig unknown */
 void trap(int code);
 int VSync(int mode);
 }
+void Platform_ResetDCTBuffer(void);   /* C++ linkage (Platform_ResetDCTBuffer__Fv) */
 #endif

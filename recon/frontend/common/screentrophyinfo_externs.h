@@ -42,10 +42,10 @@ void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, int sz,
     __asm__("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 
 /* --- tScreen helpers (base passed explicitly) --- */
-bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp)
-    __asm__("IsShapeFileLoaded__7tScreenR17tShapeInformation");
-void UploadSwapShapes(tScreen *s, int n)
-    __asm__("UploadSwapShapes__7tScreeni");
+
+
+
+
 
 extern "C" unsigned int strlen(...);
 

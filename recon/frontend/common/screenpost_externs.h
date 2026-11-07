@@ -28,8 +28,8 @@ int TextSys_WordY(int);
 int CalcFadeVal(int, int);
 short TextValue(void *, tPlayer)
     asm("TextValue__23tListIteratorTournament7tPlayer");
-void DrawBackgroundImage(tScreen *, int, int, tTexture_ShapeInfo *, int)
-    asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
+
+
 void DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
 void PSXDrawSquare(int, int, int, int, int);
 int PSXDrawBrightEndLine(int, int, int, int, int, int, int, int);
@@ -43,8 +43,8 @@ int FETextRender_MenuTextPositionedJustifyFade(
 int AudioCmn_PlayFESFX(int);
 short Front_GetTrackRaced(void); /* owning Front.cpp/SYM result type */
 char *Stattool_GetAINameFromPersonality(tPersonalities);
-int tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &)
-    asm("ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand");
+
+
 
 /* ScreenPost.obj owns these zero-initialized frontend singletons. */
 tScreenTournamentStandings *screenTournamentStandings = 0;

@@ -121,7 +121,7 @@ void tScreenTournSelect::Initialize()
 
     for (j = 0; j < 2; j++) {
 
-      InitTV(&this->trophyTV[i * 2 + j],this->fPermShapes.fShapes,0);
+      InitTV(this->trophyTV[i * 2 + j],this->fPermShapes.fShapes,0);
       this->trophyTV[i * 2 + j].x = i * 0x4c + 0xa5;
       this->trophyTV[i * 2 + j].y = j * 0x25 + 0x8e;
       this->trophyTV[i * 2 + j].w = 0x4c;
@@ -162,7 +162,7 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
   if (tourn->fTrophyID != (signed char)this->fPreviousTrophy)
   {
     GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
+    this->AsyncLoadSwapShapeFile(gSwapFileName);
     this->fTVsInitialized = 0;
 
     this->fPreviousTrophy = tourn->fTrophyID;
@@ -193,7 +193,7 @@ void tScreenTournSelect::DrawVideoWall()
   tDrawShapeExtended drawFlags;
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
 
-  ::DrawBackgroundImage((tScreen *)this,0,0x22,this->fPermShapes.fShapes,0);
+  this->DrawBackgroundImage(0,0x22,this->fPermShapes.fShapes,0);
 
 
   i = 0xf4; do {
@@ -212,7 +212,7 @@ void tScreenTournSelect::DrawVideoWall()
     for (j = 0; (j < i) && (j < 4); j++) {
 
       if (this->trophyTV[trophyTVOrder[j]].state == tv_StateOff) {
-        TurnOnTV(this->trophyTV + trophyTVOrder[j]);
+        TurnOnTV(this->trophyTV[trophyTVOrder[j]]);
       } }
   }
   else {
@@ -220,7 +220,7 @@ void tScreenTournSelect::DrawVideoWall()
     for (j = 0; (j < i) && (j < 4); j++) {
 
       if (this->trophyTV[trophyTVOrder[j]].state == tv_StateOn) {
-        TurnOffTV(this->trophyTV + trophyTVOrder[j]);
+        TurnOffTV(this->trophyTV[trophyTVOrder[j]]);
       } }
     if (3 < i) {
       this->fTransitionDirection = 0;
@@ -237,7 +237,7 @@ void tScreenTournSelect::DrawVideoWall()
 
   i = 0; j = 0; do {
 
-    DrawTV(this->trophyTV + j);
+    DrawTV(this->trophyTV[j]);
     i = i + 1; j = j + 1; } while (i < 4);
   /* Oracle 8003FDF4-8003FE34: a0 = (FE_Ticks() >> 4) % 0x20, then 0x600,0xB6,0x93,0,0,&drawFlags. */
 
@@ -309,10 +309,10 @@ void tScreenTournSelect::DrawBackground()
     i++; } while (i < 3);
 
   this->UpdateVideoWall(tourn);
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  this->IsShapeFileLoaded(this->fSwapShapes);
   if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection))
   {
-    ::UploadSwapShapes((tScreen *)this,0x20);
+    this->UploadSwapShapes(0x20);
     this->fTransitionDirection = 1;
     this->fTVTicks = FE_Ticks();
   }
@@ -374,7 +374,7 @@ void tScreenTournSelect::DrawBackground()
   do {
 
 
-    DrawTVLines(&this->tvConfigs[i]); i++; } while (i < 8);
+    DrawTVLines(this->tvConfigs[i]); i++; } while (i < 8);
 
 
   r.x = 0x145; r.y = 0x2b; r.w = 0x13a; r.h = 10;
@@ -411,7 +411,7 @@ void tScreenTournSelect::DrawBackground()
 
   i = 0; do {
 
-    DrawTV(&this->tvConfigs[i]);
+    DrawTV(this->tvConfigs[i]);
     i++; } while (i < 8); return;
 }
 

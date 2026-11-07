@@ -29,7 +29,7 @@ struct tVideoWall {
     short fAvailableX, fAvailableY;
     tTexture_ShapeInfo *fIconShapes;
     short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated; inline short GetTransitionDirection() { return fTransitionDirection; }
+    bool fUpdated; inline short GetTransitionDirection() { return fTransitionDirection; } void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void SetAvailableText(short, short, short); void SetAvailableIcon(short, short, short, short, tTexture_ShapeInfo *); void SetAvailable(short); void UpdateTransition(); void Draw(); void TurnOff(); void TurnOffInstant(); void TurnOn();
 };
 
 #include "screentracks.h"

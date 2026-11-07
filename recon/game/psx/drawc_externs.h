@@ -46,7 +46,7 @@ extern DRAWENV *Draw_GetDRAWENV(int view, int buf);
 extern int Draw_gViewOtSize;
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
-extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *) asm("Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache");
+extern void Flare_CarShapedHalo(int, COORD16 *, COORD16 *, COORD16 *, short, int, Draw_FlareCache *);
 extern GameSetup_tData GameSetup_gData;
 extern DRender_tView gCView;
 extern void Night_AdditiveNightCalc(VECTOR *, CVECTOR *);
@@ -69,16 +69,16 @@ extern int            gFlip;             /* 0x8013d7b4 */
 extern Draw_tPixMap   *gMenuPixmap[8];          /* 0x80120fd0 */
 extern matrixtdef gNightMat;
 extern Draw_tPixMap *gShadowPixmap[2];
-/* per-TU SCALAR VIEW of gShadowPixmap[0] (asm-label alias, catalog wave-13
- * "unsized-array asm-label view" idiom).  The oracle reads this global with the
- * SELF-TEMP form `lui fp,%hi(sym); lw fp,%lo(sym)(fp)` = the scalar-load shape;
- * indexing the sized `[2]` array makes cc1plus materialize the base in a SEPARATE
- * scratch first (`lui v0; lw fp,%lo(v0)`), which costs the head coloring in BOTH
- * DrawC_ShadowPrim (41->31) and DrawC_ShadowPrimClip (287->277).  NOTE: no TU in
- * the tree ever references gShadowPixmap[1], so the owning definition
- * (game/common/genericpmx.cpp) may itself be a Ghidra `[2]` fiction -- left alone
- * here (out of scope); the alias gives this TU the retail shape without touching it. */
-extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
+/* drawc.cpp reads gShadowPixmap[0] through the real [2] array (2026-11-07: the former
+ * per-TU scalar asm-label view was removed; drawc.o is identical, the -g .s only changes
+ * `.extern gShadowPixmap, 4` -> 8 = the retail size, SYM EXT ARY PTR STRUCT size 8). */
+
+
+
+
+
+
+
 extern int gShowroomLights;  /* TODO type-refine */
 
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */

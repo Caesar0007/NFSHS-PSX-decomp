@@ -58,8 +58,8 @@ int Newton_CalculateSliceYaw(int slice);
 void Newton_UpdateRoadGeometry(BO_tNewtonObj *n);
 int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
 int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
-extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
-  asm("Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef");
+int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal);
+
 int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal);
 void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj);
 int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint);
@@ -69,33 +69,33 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n);
 void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards);
 void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards);
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction);
-extern "C" void Newton_InitBaseNewtonObj(BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,int dimX,int dimY,int dimZ)
-  asm("Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii");
-extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
-  asm("Newton_QDUpdateVel__FP13BO_tNewtonObj");
-extern "C" int Newton_OptzRotxform(matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,int reOrthoLimit,int *cumulatedRot)
-  asm("Newton_OptzRotxform__FP10matrixtdefiiiPiiT4");
-extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
-  asm("Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj");
-extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
-  asm("Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj");
-extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
-  asm("Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi");
-extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
-  asm("Newton_CalcRealShadowCoordinates__FP8Car_tObji");
-extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
-  asm("Newton_CheckForSpikeBelts__FP13BO_tNewtonObj");
-extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
-  asm("Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef");
-extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
-  asm("Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos");
-extern "C" int Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel)
-  asm("Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi");
+void Newton_InitBaseNewtonObj(BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,int dimX,int dimY,int dimZ);
+
+void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj);
+
+int Newton_OptzRotxform(matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,int reOrthoLimit,int *cumulatedRot);
+
+void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj);
+
+void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj);
+
+void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround);
+
+void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick);
+
+void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj);
+
+void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal);
+
+void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo);
+
+int Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel);
+
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj);
-extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
-  asm("Newton_LimitAngularVelocity__FP13BO_tNewtonObj");
-extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
-  asm("Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj");
+void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj);
+
+void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj);
+
 int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix);
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 
@@ -544,7 +544,7 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
  * Receipt:build/nc12/newton_elevation_source_20261029/final-proof.json. */
 
 #line 512 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
+int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
 
 
 {
@@ -1545,7 +1545,7 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
 
 
 #line 1417 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_InitBaseNewtonObj(
+void Newton_InitBaseNewtonObj(
     BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,
     int dimX,int dimY,int dimZ)
 {
@@ -1652,7 +1652,7 @@ extern "C" void Newton_InitBaseNewtonObj(
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
 
 #line 1513 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
+void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
 
 
 {
@@ -1709,7 +1709,7 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
 
 #line 1564 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" int Newton_OptzRotxform(
+int Newton_OptzRotxform(
     matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,
     int reOrthoLimit,int *cumulatedRot)
 
@@ -1774,7 +1774,7 @@ extern "C" int Newton_OptzRotxform(
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
 
 #line 1618 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
+void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
 
 
 {
@@ -1834,7 +1834,7 @@ extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
 
 #line 1667 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
+void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
 
 
 {
@@ -1901,7 +1901,7 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
 
 #line 1727 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
+void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
 
 
 {
@@ -1993,7 +1993,7 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
 
 #line 1827 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
+void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
 
 
 {
@@ -2061,7 +2061,7 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
 
 #line 1882 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
+void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 
 
 {
@@ -2112,7 +2112,7 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
  * Receipt:build/nc12/newton_barrier_source_20261029/final-proof.json. */
 
 #line 1919 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
+void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
 
 
 {
@@ -2161,7 +2161,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
 
 #line 2104 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
+void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
 
 
 {
@@ -2210,7 +2210,7 @@ extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *te
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
 
 #line 2140 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" int
+int
 Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel)
 
 
@@ -2461,7 +2461,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
 
 #line 2437 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
+void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
 
 
 {
@@ -2500,7 +2500,7 @@ extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
 
 
 #line 2465 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
-extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
+void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
 {
   int elevationOfGround; int objAltitude; int groundVel; int relativeClosingVelocity; coorddef normal; coorddef shadowNormal; int timeCount; int elapsedTime; int iTimeCount; int modifiedGravity;
 

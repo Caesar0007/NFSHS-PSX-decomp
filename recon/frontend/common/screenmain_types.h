@@ -62,7 +62,7 @@ struct tCreditManager {
     bool fCreditsInitialized, fRequestDeInit;
     int fNumCredits, fShowCreditNum, fCurrCredit;
     bool StartedTransition, StartedLines, StartedTextFade;
-    int fLineTicks, fStartTicks;
+    int fLineTicks, fStartTicks; void Init(int); void DeInit(); void Draw(bool);
 };
 
 struct tVertex {

@@ -2336,11 +2336,11 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
 
   R3DCar_rightHandDrive = rightHandDrive;
 
-  GameSetup_tCarData *const carInfoData = carObj->carInfo; carType = carInfoData->carType;
+  carType = carObj->carInfo->carType;
 
 
   const int copIndex0 = carType - 0x16; cop_flag = (u_int)copIndex0 < 6;
-  if (cop_flag == 0) { carInfoData->Country = 0; }
+  if (cop_flag == 0) { carObj->carInfo->Country = 0; }
 
 
 
@@ -3059,9 +3059,9 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      local-alloc quantity used by the sub-OT address chain. Replacing it with
      `(uVar20 != 0)` was measured at 30 diffs; dropping uVar20 instead removes
      one instruction and produces 21 diffs. */
-/* DEBUG-ELIDED VALUE: carInfoData -- spelling both accesses through carObj->carInfo
-     reloads the pointer before the Country store, producing 1056 instructions and
-     eight register/load diffs instead of the exact 1054-instruction function. */
+/* GAME17 2026-11-07: the former `GameSetup_tCarData *const carInfoData` is gone: both
+     accesses through carObj->carInfo are now byte-exact (1054) and drop the extra
+     GameSetup_tCarData TPDEF retail does not have in this function. */
 /* DEBUG-ELIDED VALUE: menuModeBit -- preserves the original 0x80 mask value for
      the post-address early branch while menuSubOtRow carries its normalized row index;
      collapsing the pair yields 1053 instructions and 21 diffs. */

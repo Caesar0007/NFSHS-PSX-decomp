@@ -2899,7 +2899,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 #line 1389 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 {
-  Draw_tGiveShelbyMoreCache *sd; int chunkCount; int buildInd; Chunk *chunkDat; coorddef *pChunkCp; Trk_Quad *joinQuads; int negOne; sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
+  Draw_tGiveShelbyMoreCache *sd; int chunkCount; int buildInd; Chunk *chunkDat; coorddef *pChunkCp; void *joinQuads; int negOne; sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
 
 
   chunkCount = BWorld_gChunkCount;
@@ -3011,7 +3011,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->trans.y = (-Vi->cview.translation.y + pChunkCp->y) >> 10;
       sd->trans.z = (-Vi->cview.translation.z + pChunkCp->z) >> 10;
 
-      MATRIX &mB = sd->matB; mB.t[2] = 0; mB.t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(&mB);
+      (sd->matB).t[0] = (&sd->matB)->t[1] = (&sd->matB)->t[2] = 0; gte_SetTransMatrix(&sd->matB);
 
 
       if (sd->rezInd)
@@ -3065,9 +3065,9 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           {
 
 
-            short lorezN = lorez->m_num_elements; Trk_NewStrip *lorezPtr = (Trk_NewStrip *)(lorez + 1);
+            short lorezN = lorez->m_num_elements; void *lorezPtr = (void *)(lorez + 1);
 
-            sd->stripPtr = lorezPtr;
+            sd->stripPtr = (Trk_NewStrip *)lorezPtr;
             sd->numStrips = lorezN;
 
 
@@ -3132,7 +3132,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
       sd->quadCount = chunkDat->quadCounts[2];
       if (sd->quadCount)
-      { joinQuads = (Trk_Quad *)chunkDat->objQuadBuf->GetData();
+      { joinQuads = chunkDat->objQuadBuf->GetData();
 
         sd->offset = 125;
         sd->zeroGTETransFlag = 1;
@@ -3151,7 +3151,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
       sd->quadCount = chunkDat->quadCounts[3];
       if (sd->quadCount)
-      { joinQuads = (Trk_Quad *)chunkDat->objQuadInstanceBuf->GetData();
+      { joinQuads = chunkDat->objQuadInstanceBuf->GetData();
 
         sd->offset = 50;
         sd->zeroGTETransFlag = 1;

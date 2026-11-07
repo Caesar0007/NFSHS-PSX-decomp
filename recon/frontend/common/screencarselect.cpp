@@ -664,12 +664,12 @@ void tScreenCarSelect::Initialize()
 
     tournamentManager.GetTrackToRace(tourneyTrack);
     trackByID = trackManager.GetTrackByID((short)tourneyTrack.fTrackNumber);
-    GameSetup_gData.track = (int)trackByID->fSimNumber; }
+    ((int *)&GameSetup_gData)[15] = (int)trackByID->fSimNumber; }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
 
                trackInfo);
-    GameSetup_gData.track = (int)trackInfo.fSimNumber;
+    ((int *)&GameSetup_gData)[15] = (int)trackInfo.fSimNumber;
   }
 
   gShowroomLights[0] = 1;

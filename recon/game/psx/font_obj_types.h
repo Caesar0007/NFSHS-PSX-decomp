@@ -88,12 +88,12 @@ typedef struct SHAPETABLEENTRY SHAPETABLEENTRY;
 #include "shared/PCOORD16.h"
 
 
-typedef struct PCOORD16 PCOORD16;
+
 
 #include "shared/COORD16.h"
 
 
-typedef struct COORD16 COORD16;
+
 
 #include "shared/PAD_PSX.h"
 
@@ -178,7 +178,7 @@ struct {
 
 
 
-typedef struct Draw_tCacheHeader Draw_tCacheHeader;
+
 
 #include "shared/Draw_CarVertex.h"
 

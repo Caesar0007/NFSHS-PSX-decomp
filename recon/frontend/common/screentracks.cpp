@@ -176,7 +176,7 @@ void tScreenTrackSelect::DrawBackground()
 
 
 
-  DrawShape_NFS4RoundRectangle(TextValue(&menuDefs->iteratorTrack,kPlayerBoth),&r,0);
+  DrawShape_NFS4RoundRectangle(TextValue((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth),&r,0);
 
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
 
@@ -297,8 +297,8 @@ void tScreenTrackSelect::Initialize()
   
 
   frontEnd.pinkSlipsTrackIndex = '\0';
-  Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
-  Increment(&menuDefs->iteratorTrack,kPlayerBoth);
+  Decrement((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth);
+  Increment((tListIteratorTrack *)((char *)menuDefs + 0xc88),kPlayerBoth);
 
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
 
@@ -473,22 +473,22 @@ void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand
 
   if (keyval == kInput_KeyType_Square)
   {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable(&menuDefs->itemTraffic);
+    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], &trackInfo); MenuItem_Enable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c));
 
 
 
 
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02'))
-    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    { MenuItem_Disable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c)); }
     if (2 < trackInfo.fTrackDifficulty)
-    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    { MenuItem_Disable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c)); }
     if (trackInfo.fIsEgg != '\0')
-    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    { MenuItem_Disable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c)); }
     if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit))
-    { MenuItem_Disable(&menuDefs->itemTraffic); }
+    { MenuItem_Disable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf4c)); }
     if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech())
-    { MenuItem_Enable(&menuDefs->itemLocalSpeech); } else
-    { MenuItem_Disable(&menuDefs->itemLocalSpeech); }
+    { MenuItem_Enable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf70)); } else
+    { MenuItem_Disable((tMenuItemOptionsTwoItemChoice *)((char *)menuDefs + 0xf70)); }
 
   } else if (keyval == kInput_KeyType_Triangle)
   {

@@ -1783,7 +1783,7 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
 
   if (carInfo.fCarClass == '\a') { if (frontEnd.raceType == RaceType_HotPursuit) { if (frontEnd.gameMode != '\x01') {
 
-        if (GameSetup_gData.finalPerpArrests > GameSetup_gData.numPerps) {
+        if (((matrixtdef *)&GameSetup_gData)->m[110] > ((matrixtdef *)&GameSetup_gData)->m[107]) {
           activateCar = carManager.GetCarFromID(
                                      (short)gCarActivation[(signed char)carInfo.fCarID + -0x16]
                                          [(signed char)frontEnd.carCountry[0][(signed char)carInfo.fCarID]]);
@@ -3678,7 +3678,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , menuItemUserName1(0x1f8)   /* +0x31B8 tUserNameMenuItem */
  , menuItemUserName2(0x1f8)   /* +0x3244 tUserNameMenuItem */
  , menuUserName(0x1120, (tScreen *)screenUserName, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x20, 10, (tMenuItem *)&menuItemUserName, 0)   /* +0x32D0 tOptionsMenu */
- , iteratorChangeTrophy(screenTrophyRoom->fTrophyList, &screenTrophyRoom->thisisuseless)   /* +0x3350 tListIterator */
+ , iteratorChangeTrophy((short *)((char *)screenTrophyRoom + 0xd8), (char *)screenTrophyRoom + 0xcc)   /* +0x3350 tListIterator */
  , itemChangeTrophy(0x5e, &iteratorChangeTrophy, -1, 0)   /* +0x3360 tBlankMenuItemNFS4LeftRightChoice */
  , menuTrophyRoom(0x4010, (tScreen *)screenTrophyRoom, (tMenu *)0x0, (tMenu *)0x0, 0, -1, (tMenuItem *)&itemChangeTrophy, 0)   /* +0x3388 tMenuNFS4Bottom */
  , itemPinkSlipStandingsForward(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_PinkSlipsContinue, 0, 10)   /* +0x3404 tMenuItemGoToMenuNFS4Button */

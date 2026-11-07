@@ -92,7 +92,7 @@ void tScreenTrophyRoom::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
   if (keyval == kInput_KeyType_Cross) {
 
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)&menuDefs->menuTrophyInfo;
+    command.nextMenu = (tMenu *)&(*(tMenuBlank *)((char *)menuDefs + 0x200));
   }
   if ((keyval != kInput_KeyType_Up) && (keyval != kInput_KeyType_Down))
   goto TrophyRoomProc_keyLeftCheck;

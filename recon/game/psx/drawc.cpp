@@ -4353,13 +4353,13 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
   if ((envmap & 1U) != 0)
   {
-    COORD16 *vt; PCOORD16 *tV; vt = Nvertice;
+    COORD16 *vt; Draw_CarVertex *tV; vt = Nvertice;
 
 
     gte_SetRotMatrix(&DrawC_gMatA);
     gte_SetTransMatrix(&DrawC_gMatA);
 
-    i = (u_int)obj->numVertex; tV = (PCOORD16 *)sd->tV;
+    i = (u_int)obj->numVertex; tV = sd->tV;
     while (1) { i = i - 1; if (i == -1) break;
       int u, v;
 
@@ -4370,8 +4370,8 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
       u = (sd->tv).vx;
       v = (sd->tv).vz; if (v < 0) { v = -v; }
-      ((char *)&tV->p)[0] = (char)u;
-      ((char *)&tV->p)[1] = (char)v;
+      tV->u = (char)u;
+      tV->v = (char)v;
 
       vt = vt + 1;
       tV = tV + 1;
@@ -5429,7 +5429,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
         return;
       } { short t1 = Fe3D_lightsVertex[index].x; short t2 = Fe3D_lightsVertex[index].y; short t3 = Fe3D_lightsVertex[index].z; __asm__("" : : ); (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
       } { short *z = (short *)(Fe3D_lightsVertex + iPlus); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
-      } { COORD16 *z1  = &Fe3D_lightsVertex[index + 1]; short t1 = z1->x; short t2 = z1->y; short t3 = z1->z; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
+      } { short *z1  = (short *)&Fe3D_lightsVertex[index + 1]; short t1 = z1[0]; short t2 = z1[1]; short t3 = z1[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
       } { short *z = (short *)&Fe3D_lightsVertex[iPlus + 1]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt3).x = t1; (sd->vt3).y = t2; (sd->vt3).z = t3;
       }
       for (; j < 2; j = j + 1) {

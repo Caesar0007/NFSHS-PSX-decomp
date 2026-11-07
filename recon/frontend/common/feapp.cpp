@@ -1371,7 +1371,7 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
               if ((u_int)(::ticks - ticks) >= 0x100) break;
               FeAudio_systemtask(0);
             }
-            GameSetup_gData.replayMode = 0;
+            ((int *)&GameSetup_gData)[9] = 0;
 
 
             this->PerformMenuDestruction();
@@ -1383,7 +1383,7 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
           case 8:
 
 
-            GameSetup_gData.replayMode = 2;
+            ((int *)&GameSetup_gData)[9] = 2;
 
 
             this->PerformMenuDestruction();

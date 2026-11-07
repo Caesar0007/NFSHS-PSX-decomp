@@ -2423,10 +2423,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
 
 
 
-
+  Draw_DCache *sd = (Draw_DCache *)0x1f800000; /* DEVICE (exact-only): record-less clip-header pointer (no hard reg, const-equivalent -> retail lui/lhu/sll/sra at both clip reads; retail TPDEF Draw_DCache before hsd) */
   Draw_HorizonCache *hsd = (Draw_HorizonCache *)0x1f800000;
 
-  Draw_tCacheHeader *hdr = (Draw_tCacheHeader *)0x1f800000; /* DEVICE (exact-only): record-less clip-header pointer (no hard reg, const-equivalent -> retail lui/lhu/sll/sra at both clip reads) */
+
 
 
 
@@ -2547,11 +2547,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
 
       if (!(mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0)) continue;
 
-      if (!(hdr->clipW >= mpts[0].vx || hdr->clipW >= mpts[1].vx || hdr->clipW >= mpts[2].vx || hdr->clipW >= mpts[3].vx)) continue;
+      if (!(sd->head.clipW >= mpts[0].vx || sd->head.clipW >= mpts[1].vx || sd->head.clipW >= mpts[2].vx || sd->head.clipW >= mpts[3].vx)) continue;
 
       if (!(mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0)) continue;
 
-      if (!(hdr->clipH >= mpts[0].vy || hdr->clipH >= mpts[1].vy || hdr->clipH >= mpts[2].vy || hdr->clipH >= mpts[3].vy)) continue;
+      if (!(sd->head.clipH >= mpts[0].vy || sd->head.clipH >= mpts[1].vy || sd->head.clipH >= mpts[2].vy || sd->head.clipH >= mpts[3].vy)) continue;
 
 
 

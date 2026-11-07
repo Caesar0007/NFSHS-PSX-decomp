@@ -34,12 +34,12 @@ struct tVideoWall {
 
 #include "screentracks.h"
 
-struct ScreenTracks_GlobalMenuDefsCodegenView {
-    char _beforeIteratorTrack[0xc88];
-    tListIteratorTrack iteratorTrack;
-    char _beforeItemTraffic[0xf4c - 0xca0];
-    tMenuItemOptionsTwoItemChoice itemTraffic, itemLocalSpeech;
-};
-#define tGlobalMenuDefs ScreenTracks_GlobalMenuDefsCodegenView
+/* tGlobalMenuDefs is recorded only in FEMenuDefs.obj; ScreenTracks reaches its members
+   (iteratorTrack @0xc88, itemTraffic @0xf4c, itemLocalSpeech @0xf70) through the
+   member types its own object records, so the class stays incomplete here. */
+struct tGlobalMenuDefs;
+
+
+
 
 #endif

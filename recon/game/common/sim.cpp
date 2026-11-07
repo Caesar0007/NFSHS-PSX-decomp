@@ -572,7 +572,7 @@ void Sim_MainGameLoop(void)
 
 
 {
-  int lastRealTick; int lastGoalTick; int one; GameSetup_tData *replaySetup; lastRealTick = clock_realTime.time64Hz + 10000;
+  int lastRealTick; int lastGoalTick; int one; void *replaySetup; lastRealTick = clock_realTime.time64Hz + 10000;
   lastGoalTick = 0;
 
   quitType = 1;
@@ -669,7 +669,7 @@ void Sim_MainGameLoop(void)
 
           Replay_ReplayInterface.depressed = 0;
           simVar.endSimGame = Replay_ReplayInterface.end;
-          if (replaySetup->instantReplay != 0) {
+          if (((GameSetup_tData *)replaySetup)->instantReplay != 0) {
             AudioCmn_UnPauseAndRestart();
           } else { if ((Replay_ReplayInterface.end != 0) && (simVar.quickPauseSim != 0)) {
               simVar.quickPauseSim = 0;
@@ -722,7 +722,7 @@ void Sim_MainGameLoop(void)
             }
           }
           else {
-            int i; char *gameSetup; i = 0; if (i > (int)(u_int)(replaySetup->commMode == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
+            int i; char *gameSetup; i = 0; if (i > (int)(u_int)(((GameSetup_tData *)replaySetup)->commMode == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
 SimMainLoop_inputLoop:
               if (Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0)
                 if (Replay_ReplayMode < 2) {

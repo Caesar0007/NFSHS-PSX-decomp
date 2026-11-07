@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRK_QUAD_H
 #define NFS4_SHARED_TRK_QUAD_H
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+typedef struct Trk_Quad { short material; u_char aPoints[4]; } Trk_Quad;
 #endif

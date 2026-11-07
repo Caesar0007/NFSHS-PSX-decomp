@@ -137,13 +137,13 @@ struct tFEApplication {
     tAppCommand RunFrontEnd();
 };
 
-/* These remaining foreign singleton views are unresolved source models.
- * Owning SYM types/fields must be restored, not exempted by matching offsets. */
-struct FeApp_GameSetupCodegenView {
-    int _beforeReplayMode[9];
-    int replayMode;
-};
-#define GameSetup_tData FeApp_GameSetupCodegenView
+/* GameSetup_tData is recorded only in its owners (gmesetup/replay); FEApp keeps it
+ * incomplete and stores GameSetup_gData.replayMode (int @0x24) through int*.
+ * The tGlobalMenuDefs view below is an unresolved source model (removing it costs
+ * the 2nd TPDEF tMenuItemGoToMenuNFS4Button its field re-emission supplies). */
+struct GameSetup_tData;
+
+
 
 struct FeApp_GlobalMenuDefsCodegenView {
     tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace;

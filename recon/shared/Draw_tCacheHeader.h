@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_DRAW_TCACHEHEADER_H
 #define NFS4_SHARED_DRAW_TCACHEHEADER_H
 
-struct Draw_tCacheHeader {
+typedef struct Draw_tCacheHeader {
     Draw_PrimStruct cprim;
     int mirror;
     short clipW, clipH;
-};
+} Draw_tCacheHeader;
 #endif

@@ -44,10 +44,10 @@ enum tMenuCommandType {
 #include "screentrophyroom.h"
 
 /* Remaining foreign menu view needs owning-SYM source restoration. */
-struct ScreenTrophyRoom_GlobalMenuDefsCodegenView {
-    char _beforeMenuTrophyInfo[0x200];
-    tMenuBlank menuTrophyInfo;
-};
-#define tGlobalMenuDefs ScreenTrophyRoom_GlobalMenuDefsCodegenView
+struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members reached by offset */
+
+
+
+
 
 #endif

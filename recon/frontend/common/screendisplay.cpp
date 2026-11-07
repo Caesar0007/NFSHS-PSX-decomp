@@ -18,7 +18,7 @@ void tScreenDisplay::DrawBackground()
 {
   int i;
   short fade;
-  fade = (short)(menuDefs->menuDisplayOptions.GetScreenFade() >> 1);
+  fade = (short)(((tOptionsMenu *)((char *)menuDefs + 0x2a68))->tOptionsMenu::GetScreenFade() >> 1);
   i = 0; if (0x80 < fade) { fade = 0x80;
   }
 

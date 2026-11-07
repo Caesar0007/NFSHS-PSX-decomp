@@ -39,11 +39,11 @@ typedef int FEMATRIX[4][4];
 struct DRender_tView;
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-struct ScreenCarSelect_GameSetupCodegenView {
-    int _beforeTrack[15];
-    int track;
-};
-#define GameSetup_tData ScreenCarSelect_GameSetupCodegenView
+struct GameSetup_tData;   /* incomplete here: owner object records it; members reached by offset */
+
+
+
+
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

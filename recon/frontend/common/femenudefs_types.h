@@ -48,24 +48,24 @@ struct tScreenTrackRecords;
 struct tScreenTrackSelect;
 struct tScreenTrophyInfo;
 #ifndef NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
-struct FEMenuDefs_ScreenTrophyRoomCodegenView {
-    char _beforeThisIsUseless[0xcc];
-    char thisisuseless;
-    char _beforeTrophyList[11];
-    short fTrophyList[64];
-};
-#define tScreenTrophyRoom FEMenuDefs_ScreenTrophyRoomCodegenView
+struct tScreenTrophyRoom;   /* incomplete here: owner object records it; members reached by offset */
+
+
+
+
+
+
 #endif
 
 /* SOURCE-REVIEW-UNRESOLVED: remaining foreign aggregate views are partial
  * reconstructions, not certified original types or generic review exemptions. */
 
 #ifndef NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
-struct FEMenuDefs_GameSetupCodegenView {
-    char _beforeNumPerps[0x1ac];
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-};
-#define GameSetup_tData FEMenuDefs_GameSetupCodegenView
+struct GameSetup_tData;   /* incomplete here: owner object records it; members reached by offset */
+
+
+
+
 #endif
 
 #include "shared/AudioMus_tSongEntry.h"

@@ -524,11 +524,11 @@ enum tScreenMainState {
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 /* Only this offset is used by ScreenDisplay.  The real aggregate owner is
  * reconstructed in FEMenuDefs; keep this compiler-boundary view explicit. */
-struct ScreenDisplay_GlobalMenuDefsCodegenView {
-    char _beforeMenuDisplayOptions[0x2a68];
-    tOptionsMenu menuDisplayOptions;
-};
-#define tGlobalMenuDefs ScreenDisplay_GlobalMenuDefsCodegenView
+struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members reached by offset */
+
+
+
+
 #endif
 
 struct SndBnk_t;

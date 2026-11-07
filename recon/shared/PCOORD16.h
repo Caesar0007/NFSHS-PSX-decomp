@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_PCOORD16_H
 #define NFS4_SHARED_PCOORD16_H
 
-struct PCOORD16 {
+typedef struct PCOORD16 {
     short x, y, z, p;
-};
+} PCOORD16;
 #endif

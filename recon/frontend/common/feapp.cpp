@@ -4,6 +4,7 @@
  */
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "../../lib/nfs4_new.h"
+#define NFS4_FEAPP_USERNAME_SETUP
 #include "feapp.h"
 
 
@@ -64,9 +65,6 @@ inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
   timeOutTicks = 0x480;
 }
 
-inline tDialogNoInputMessage::tDialogNoInputMessage()
-{
-}
 
 
 /* ---- tFEApplication::ctor  [FEAPP.CPP:89-95] SLD-VERIFIED ---- */
@@ -1056,12 +1054,12 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
     this->fPlayer = '\0'; while ((u_char)this->fPlayer < 2) {
 
 
-      if (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0) { wasSubMenu = 0; if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) { if (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) { if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) { wasSubMenu = (u_int) (this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0); } } if (wasSubMenu == 0) goto MainLoop_subMenuDetect;
+      if (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0) { wasSubMenu = 0; if ((this->fCurrentMenu[(u_char)this->fPlayer] == (tMenu *)0x0) || ((this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) && (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) && ((wasSubMenu = (this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) != 0))) {
           wasSubMenu = 0;
           if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
             wasSubMenu = this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu();
           }
-        }
+
 
         if (this->fTransitionToMenu[(u_char)this->fPlayer]->IsSubMenu() != 0) {
           this->fParentMenu[(u_char)this->fPlayer] = this->fCurrentMenu[(u_char)this->fPlayer];
@@ -1088,8 +1086,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
             this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->fChildMenu);
             needToSetChildMenu = false; } } demoLoopLastInputTick = ::ticks;
-      }
-MainLoop_subMenuDetect:
+      } }
+
 
 
 
@@ -1111,17 +1109,17 @@ MainLoop_subMenuDetect:
         }
       }
 
-      if (this->fTransitionToScreen[(u_char)this->fPlayer] != (tScreen *)0x0) { if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) { if ((this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() == 0) || (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0))
-          goto MainLoop_perPlayerFlagCheck;
+      if ((this->fTransitionToScreen[(u_char)this->fPlayer] != (tScreen *)0x0) && ((this->fCurrentScreen[(u_char)this->fPlayer] == (tScreen *)0x0) || ((this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0) && (this->fTransitionToMenu[(u_char)this->fPlayer] == (tMenu *)0x0)))) {
+
           if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
             this->fCurrentScreen[(u_char)this->fPlayer]->Cleanup();
-          } } this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
+          } this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
         gLargestUnused = largestunused();
         this->fCurrentScreen[(u_char)this->fPlayer]->Initialize();
         this->fTransitionToScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
         (this->fCurrentScreen[(u_char)this->fPlayer])->TransitionOn(kScreen_TransitionTypeScreen, (tMenu *)0x0);
       }
-MainLoop_perPlayerFlagCheck:
+
       bool perPlayer = false; if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
 
 
@@ -1191,23 +1189,23 @@ MainLoop_perPlayerFlagCheck:
             }
           }
 
-          if (command[i].type == 0) goto MainLoop_commandSwitchDefault;
-
-          switch(command[i].type) {
-          case 1:
+          if (command[i].type != 0)
+          {
+          switch(command[i].type)
+          { case 1:
 
 
             AudioCmn_PlayFESFX(0);
             this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] = this->fCurrentMenu[(u_char)this->fPlayer];
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
 
-            goto MainLoop_setMenuAndNext;
+            this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu); continue;
           case 2:
 
 
             AudioCmn_PlayFESFX(0);
             this->backDepth[(u_char)this->fPlayer] = 0;
-MainLoop_setMenuAndNext: this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
+this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
             continue;
           case 3:
 
@@ -1245,18 +1243,18 @@ MainLoop_setMenuAndNext: this->SetMenu((u_short)(u_char)this->fPlayer, command[i
 
 
 
-            if (this->fPlayer == '\0') { if ((this->backDepth[(u_char)this->fPlayer] == (int)stackBackupPin) && (this->fCurrentMenu[1] != (tMenu *)0x0)) {
+            if ((this->fPlayer == '\0') && ((this->backDepth[(u_char)this->fPlayer] == (int)stackBackupPin) && (this->fCurrentMenu[1] != (tMenu *)0x0))) {
 
                 if (this->fParentMenu[0] != (tMenu *)0x0) {
                   this->fParentMenu[0]->TransitionOff();
                 } if (this->fParentMenu[1] != (tMenu *)0x0) {
                   this->fParentMenu[1]->TransitionOff();
-                } stackBackupPin = -1; this->fCurrentMenu[1]->TransitionOff();
+                } this->fCurrentMenu[1]->TransitionOff();
                 (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-                this->backDepth[1] = 0;
-                goto MainLoop_afterStackPair;
+
+                stackBackupPin = -1; this->backDepth[1] = 0;
               }
-            } if ((this->fPlayer == '\x01') && (this->backDepth[(u_char)this->fPlayer] < 1) && (this->fCurrentMenu[1] != (tMenu *)0x0)) {
+             else if ((this->fPlayer == '\x01') && (this->backDepth[(u_char)this->fPlayer] < 1) && (this->fCurrentMenu[1] != (tMenu *)0x0)) {
 
               this->backDepth[0] = stackBackupPin + -1;
               this->fCurrentMenu[1]->TransitionOff();
@@ -1267,17 +1265,17 @@ MainLoop_setMenuAndNext: this->SetMenu((u_short)(u_char)this->fPlayer, command[i
               } (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
               stackBackupPin = -1; this->SetMenu(0,this->backList[0][this->backDepth[0]]);
             }
-MainLoop_afterStackPair:
 
 
-            if (this->backDepth[(u_char)this->fPlayer] < 1) goto MainLoop_noBack;
-MainLoop_doBack:
+
+            if (0 < this->backDepth[(u_char)this->fPlayer]) {
+
             AudioCmn_PlayFESFX(1);
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
             this->SetMenu((u_short)(u_char)this->fPlayer, this->backList[(u_int)(u_char)this->fPlayer] [this->backDepth[(u_char)this->fPlayer]]);
             if (this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu() != 0) {
-              this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1; } break;
-MainLoop_noBack:
+              this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1; } break; }
+
             if ((u_char)this->fPlayer != 1) break;
             AudioCmn_PlayFESFX(1);
             continue;
@@ -1293,8 +1291,8 @@ MainLoop_noBack:
             }
 
             this->waitingForOtherPlayer[1 - (u_int)(u_char)this->fPlayer] = 0;
-            if (FrontEnd().raceType != RaceType_PinkSlips) goto MainLoop_carInfoStockGarage;
-
+            if (frontEnd.raceType == RaceType_PinkSlips)
+            {
             AudioMus_StopSong(400);
 
 
@@ -1331,15 +1329,15 @@ MainLoop_noBack:
             DeInit_Memcard();
 
 
-            if (err == PinkSlipsNoError) goto MainLoop_carInfoPinkSlips;
+            if (err != PinkSlipsNoError) {
 
             this->UpdateMusic();
-            AudioMus_Volume((int)((u_int)(u_char)FrontEnd().musicVolume * 0x23) >> 6);
-            continue;
-            }
+            AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
+            continue; }
+            } }
           case 5:
           case 7:
-MainLoop_carInfoPinkSlips:
+
             {
             tCarInfo carInfo;
             u_long ticks;
@@ -1350,7 +1348,7 @@ MainLoop_carInfoPinkSlips:
 
 
             if (FrontEnd().raceType != RaceType_PinkSlips) {
-MainLoop_carInfoStockGarage:
+
               if (FrontEnd().carListType == '\0') {
                 carManager.GetStockCar((u_short)(u_char)FrontEnd().playerCar[(u_char)this->fPlayer],carInfo) ;
               }
@@ -1360,7 +1358,7 @@ MainLoop_carInfoStockGarage:
             else {
               carManager.GetPinkSlipsCar((u_short)(u_char)FrontEnd().pinkSlipsCar[(u_char)this->fPlayer], carInfo,(u_short)(u_char)this->fPlayer);
             }
-MainLoop_carInfoApplied:
+
             if (carInfo.fEnginePatch != 0) {
 
               AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch); } ticks = ::ticks;
@@ -1392,9 +1390,9 @@ MainLoop_carInfoApplied:
 
             return kApp_Command_StartReplay;
           }
-MainLoop_commandSwitchDefault:
+          }
           ;
-          __asm__("" : : "r"(&command[0]));
+
 
 
 
@@ -1404,7 +1402,7 @@ MainLoop_commandSwitchDefault:
           }
         }
       }
-MainLoop_nextPlayer: this->fPlayer = this->fPlayer + '\x01';
+this->fPlayer = this->fPlayer + '\x01';
     }
 
 
@@ -1554,14 +1552,14 @@ tAppCommand tFEApplication::RunPostGame()
 
 
 
-      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName1; item->fData = frontEnd.playerNameList[0]; item->fPlayer = 0; item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer1Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer1Name);
+      menuDefs->menuItemUserName1.SetUpP(0, frontEnd.playerNameList[0]); screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer1Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer1Name);
     }
     if (this->needName[1] != 0)
     {
 
 
 
-      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName2; item->fPlayer = 1; item->fData = frontEnd.playerNameList[1];   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer2Name);
+      menuDefs->menuItemUserName2.SetUpP(1, frontEnd.playerNameList[1]);   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer2Name);
     }
   }
 

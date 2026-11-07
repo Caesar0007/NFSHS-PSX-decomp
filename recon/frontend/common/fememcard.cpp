@@ -66,9 +66,6 @@ inline tDialogMessageString::tDialogMessageString()
   fFadeText = 0x80;
 }
 
-inline tDialogNoInputMessage::tDialogNoInputMessage()
-{
-}
 /* P884: Stats_gTrackRecords uses the native tRecordBuffer[187] declaration. */
 
 

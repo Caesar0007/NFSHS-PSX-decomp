@@ -813,7 +813,7 @@ void InitFrontEndStructure(void)
   int j;
 
   frontEnd.randomSeed = 0;
-  frontEnd.catchup = '\x01'; frontEnd.currentPlayer = '\0';
+  frontEnd.currentPlayer = '\0';
 
   frontEnd.cheatFlags = 0;
   frontEnd.cheatFlagsActive = 0;
@@ -830,7 +830,7 @@ void InitFrontEndStructure(void)
 
 
   frontEnd.skillLevel = '\0';
-
+  frontEnd.catchup = '\x01';
   frontEnd.headstart = '\x14';
 
 
@@ -897,11 +897,11 @@ void InitFrontEndStructure(void)
     frontEnd.pinkSlipsCash[i] = 0;
     frontEnd.pinkSlipsForfeit = -1;
 
-
+    frontEnd.cameraType[i][0] = '\0';
     frontEnd.cameraType[i][1] = '\x03';
     frontEnd.cameraType[i][2] = '\x06';
     frontEnd.cameraType[i][3] = '\a';
-    frontEnd.cameraType[i][0] = '\0';
+
     frontEnd.playerNameList[i][0] = '\0';
 
     for (j = 0; j < 4; j++) {
@@ -936,10 +936,10 @@ void InitFrontEndStructure(void)
 
   Front_ResetSettingsMenu(0);
   Front_ResetSettingsMenu(1);
-  frontEnd.oppNumber = '\x01';
-  frontEnd.audioMode = '\x02';
-  frontEnd.oppCar = '\0';
 
+
+  frontEnd.oppCar = '\0';
+  frontEnd.oppNumber = '\x01';
 
 
   frontEnd.language = '\0';
@@ -951,7 +951,7 @@ void InitFrontEndStructure(void)
   frontEnd.engineVolume = 'U';
   frontEnd.ambientVolume = 'U';
 
-
+  frontEnd.audioMode = '\x02';
   frontEnd.song = '\0';
   gMasterMusicLevel[0] = 0x55;
   gMasterSFXLevel[0] = 0x55;

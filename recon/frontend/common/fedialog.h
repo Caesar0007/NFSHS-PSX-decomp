@@ -102,7 +102,7 @@ struct tDialogBackUpOnly : public tDialogMessageString {
 struct tDialogNoInputMessage : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tDialogNoInputMessage();
+    /* implicit ctor (retail declares none: compiler-synthesized, no body block in SYM) */
 #line 233 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 92 "recon/frontend/common/fedialog.h"

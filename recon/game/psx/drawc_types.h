@@ -4,6 +4,8 @@
 #ifndef NFS4_GAME_PSX_DRAWC_TYPES_H
 #define NFS4_GAME_PSX_DRAWC_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
@@ -11,9 +13,7 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
 #undef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
-
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
-
 typedef int CarLogic_tObservations[1][3];
 typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];

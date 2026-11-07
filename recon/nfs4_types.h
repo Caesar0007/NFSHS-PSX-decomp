@@ -5,8 +5,6 @@
  * module headers (the old mega nfs4_types.h leaked hundreds of them into every object and was removed). */
 #ifndef NFS4_TYPES_H
 #define NFS4_TYPES_H
-
-
 /* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
  * filtering the private `_physadr` tag block itself. */
 typedef unsigned int size_t;
@@ -22,7 +20,9 @@ typedef unsigned short ushort;
  * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
  * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
 struct _physadr { int r[1]; };
-
+#ifdef NFS4_CORE_SPCH_FIRST   /* speech.obj: SPCHNFSType structs ahead of the core (speech_types.h) */
+#include "shared/spchnfs_first.h"
+#endif
 
 typedef struct _physadr *physadr;
 typedef long daddr_t;

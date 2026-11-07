@@ -1,7 +1,7 @@
 #ifndef NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H
 #define NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H   /* aih_btccop.obj's exact source-visible type surface reconstructed from SYM. */
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
-
 /* newton.obj's complete 87-record graph is a strict semantic subset. */
 #include "newton_types.h"
 
@@ -12,58 +12,58 @@ enum AIDataRecord_RecordMethod_t {
     TEST_M = 2
 };
 
-enum copType {
-    COP_REGULAR = 0,
-    COP_SUPER = 1
-};
+#include "shared/copType.h"
 
-enum cruiseMode_t {
-    CRUISE_ATSETSPEED = 0,
-    CRUISE_ATFACTOR = 1,
-    CRUISE_ATTRAFFICSPEED = 2
-};
 
-enum stateType_t {
-    STATE_NONE = 0,
-    STATE_PURGATORY = 1,
-    STATE_NORMAL = 2,
-    STATE_IDLE = 3,
-    STATE_CHASE = 4,
-    STATE_OFFROAD = 5,
-    STATE_ROVING_TRAFFIC = 6,
-    STATE_NONACTIVE = 7,
-    STATE_DONUTS = 8,
-    STATE_GOTOSLICE = 9,
-    STATE_CRUISE = 10
-};
 
-enum Wingman_Role {
-    ROLE_IDLE = 0,
-    ROLE_WINGMAN = 1,
-    ROLE_BLOCKADER = 2,
-    ROLE_BLOCKADER_SPIKEBELT = 3
-};
 
-typedef enum AIHigh_tAttackMode {
-    NO_ATTACK = 0,
-    REAR_END = 1,
-    SCRIPT_ATTACK = 2,
-    PROVOKED_ATTACK = 3
-} AIHigh_tAttackMode;
+#include "shared/cruiseMode_t.h"
 
-enum blockadeMode_t {
-    BLOCKADEMODE_NONE = 0,
-    BLOCKADEMODE_SETUP = 1,
-    BLOCKADEMODE_WAITING = 2,
-    BLOCKADEMODE_CHASE = 3,
-    BLOCKADEMODE_SETUP_FOR_OTHER = 4
-};
 
-typedef enum AIHigh_tDriveAwayMode {
-    DRIVEAWAY_NONE = 0,
-    DRIVEAWAY_RESET = 1,
-    DRIVEAWAY_NORESET = 2
-} AIHigh_tDriveAwayMode;
+
+
+
+#include "shared/stateType_t.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/Wingman_Role.h"
+
+
+
+
+
+
+#include "shared/AIHigh_tAttackMode.h"
+
+
+
+
+
+
+#include "shared/blockadeMode_t.h"
+
+
+
+
+
+
+
+#include "shared/AIHigh_tDriveAwayMode.h"
+
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,

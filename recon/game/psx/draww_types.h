@@ -4,29 +4,29 @@
 #ifndef NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
 #endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
-
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 #define gScratchLastWord   (*(int *)0x1F8003FC)
-
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
 } forceFocus_t;
-
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
 };
-
 typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];

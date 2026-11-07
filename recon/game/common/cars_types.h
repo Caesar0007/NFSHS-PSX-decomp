@@ -2,6 +2,7 @@
 #define NFS4_GAME_COMMON_CARS_TYPES_H   /* cars.obj's exact source-visible delta over the shared CopSpeak graph. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
 #define NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #define NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
@@ -19,7 +20,6 @@
 #undef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #undef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,

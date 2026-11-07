@@ -22,8 +22,8 @@ struct Car_tObj;
 #include "shared/SPCHNFSType_CONFIRM.h"
 #include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
 #include "shared/SPCHNFSType_REVINTRO.h"
-struct SPCHNFSType_vs_KMH_MPH { u_long flags; };
-struct SPCHNFSType_VOICE { u_long flags; };
+#include "shared/SPCHNFSType_vs_KMH_MPH.h"
+#include "shared/SPCHNFSType_VOICE.h"
 
 struct Speech {
     /* the nested classes: retail manglings are Q26Speech7Speaker, Q26Speech13MobileSpeaker, ... */

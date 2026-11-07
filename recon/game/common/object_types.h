@@ -1,7 +1,7 @@
 /* object.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
-
+#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #include "link_stripped.h"
 
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES

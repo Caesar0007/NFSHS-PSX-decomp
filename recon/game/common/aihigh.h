@@ -72,7 +72,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     inline int LastPullOverTime() { return lastPullOverTime_; } inline int NewTriggerProb() { return newTriggerProb_; }
     int ExchangeLastTriggerCheckSlice(int newSlice); /* inferred exchange name; supplied inline newSlice/temp records */
 };
-
+#include "shared/AIHigh_tAttackMode.h"
 struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
@@ -127,9 +127,9 @@ struct AIHigh_Opponent : public AIHigh_Player {
 
 /* Cop definitions: retail destructor records also identify AIHIGH.H.
    Method bodies and data-type dependencies are unchanged. */
+#include "shared/blockadeMode_t.h"
 #include "shared/blockade_t.h"
-
-
+#include "shared/AIHigh_tDriveAwayMode.h"
 
 
 

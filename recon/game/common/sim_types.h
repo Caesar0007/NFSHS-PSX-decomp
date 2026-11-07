@@ -2,13 +2,13 @@
 #ifndef NFS4_GAME_COMMON_SIM_TYPES_H
 #define NFS4_GAME_COMMON_SIM_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* sim.obj itself, not object.obj */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #endif
 #define NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #include "aih_hierarchy_types.h"
 #undef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
-
 #define gScratchLastWord (*(int *)0x1F8003FC)
 
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES

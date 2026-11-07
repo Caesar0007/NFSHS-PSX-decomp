@@ -2,8 +2,8 @@
 #define NFS4_GAME_COMMON_AIH_COP_TYPES_H   /* aih_cop.obj owner types; AIHigh_Cop uses the canonical AIHIGH.H definition. */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "aih_hierarchy_types.h"
-
 #include "shared/BW_tContext.h"
 #define NFS4_AIH_COP_OWNER   /* aihigh.h: AIHigh_Cop inline copies LINK_STRIPPED */
 #include "../../link_stripped.h"

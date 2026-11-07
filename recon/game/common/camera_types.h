@@ -2,16 +2,16 @@
 #define NFS4_GAME_COMMON_CAMERA_TYPES_H   /* Camera private type projection; owner-derived foreign bodies are noted below. */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
-
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
-
 /* Owner-derived bworldSm type: SYM1cec71..1cedc3,32 bytes. Camera's
  * surviving type stream does not preserve this foreign body; its original
  * header visibility remains a source-recovery question, not a sealed claim. */
 #include "shared/Trk_NewSlice.h"
-
 
 
 

@@ -17,12 +17,12 @@
 #ifndef _GAME_COMMON_AIDEBUG_H_
 #define _GAME_COMMON_AIDEBUG_H_
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "shared/MATRIX.h"
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_GROUP_COUNT_SETTER_DECL_ONLY
 #include "color_types.h"
 #undef NFS4_GROUP_COUNT_SETTER_DECL_ONLY
-
 
 /* These complete definitions are supplied by aidebug.obj's retail FILE block.
  * Reuse their shared source producers;the original include spellings/order

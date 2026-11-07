@@ -155,7 +155,7 @@ struct AIState_GotoSlice : public AIState_Normal {
     void Execute();
     int InTargetSliceRange(int);
 };
-
+#include "shared/cruiseMode_t.h"
 struct AIState_Cruise : public AIState_Normal {
     cruiseMode_t cruiseMode_;
     int cruiseSpeed_, cruiseFactor_;

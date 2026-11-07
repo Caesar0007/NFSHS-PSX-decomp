@@ -1,11 +1,11 @@
 /* aih_basiccop.obj's exact owner delta over the shared AI hierarchy graph. */
 #ifndef NFS4_GAME_COMMON_AIH_BASICCOP_TYPES_H
 #define NFS4_GAME_COMMON_AIH_BASICCOP_TYPES_H
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #include "aih_hierarchy_types.h"
-
 #include "shared/BW_tContext.h"
-
 
 
 

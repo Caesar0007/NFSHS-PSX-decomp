@@ -1,7 +1,7 @@
 /* scene.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_SCENE_TYPES_H
 #define NFS4_GAME_COMMON_SCENE_TYPES_H
-
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 
 #include "shared/Trk_ObjectDef.h"

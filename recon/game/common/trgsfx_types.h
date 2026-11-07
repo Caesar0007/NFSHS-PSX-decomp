@@ -2,8 +2,8 @@
 #define NFS4_GAME_COMMON_TRGSFX_TYPES_H   /* TrgSfx.obj's exact source-visible delta over the shared color graph. */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "color_types.h"
-
 #include "shared/POLY_GT4.h"
 
 

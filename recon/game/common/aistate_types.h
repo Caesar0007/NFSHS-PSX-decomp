@@ -83,11 +83,11 @@ struct AIDelayCar {
     int GetRoadPosition(); /* inferred getter for the three lateral-arm inline expansions */
 };
 
-enum cruiseMode_t {
-    CRUISE_ATSETSPEED = 0,
-    CRUISE_ATFACTOR = 1,
-    CRUISE_ATTRAFFICSPEED = 2
-};
+
+
+
+
+
 
 #include "aistate.h"
 

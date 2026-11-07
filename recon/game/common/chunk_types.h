@@ -3,14 +3,14 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* track.obj sees chunk without POLY_GT4 */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #endif
 #include "draw_leaf_types.h"
 #include "gamesetup_leaf_types.h"
 #include "group_types.h"
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/POLY_GT4.h"
-
-
 
 
 

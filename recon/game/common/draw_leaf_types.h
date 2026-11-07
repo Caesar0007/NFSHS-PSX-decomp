@@ -29,16 +29,16 @@ typedef struct matrixtdef MATRIX3DT;
 
 
 #include "shared/DRender_tCalcView.h"
-
-
-
+#ifdef NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (every includer) */
+#include "shared/DRender_tView.h"
+#endif
 
 
 
 #include "shared/Draw_SVertex.h"
-
-
-
+#ifdef NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct right after Draw_SVertex (every includer) */
+#include "shared/Draw_SubdivStruct.h"
+#endif
 
 
 

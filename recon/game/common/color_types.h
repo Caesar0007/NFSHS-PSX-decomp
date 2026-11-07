@@ -39,35 +39,35 @@ struct Group {
     inline void SetNumElements(int numElements);
 #endif
 };
-
+#ifdef NFS4_COLOR_TRK_OBJ   /* retail: track object types right after Group (owner first header) */
+#include "shared/Trk_ObjectDef.h"
+#ifdef NFS4_COLOR_TRK_SIMPLE
+#include "shared/Trk_SimpleInst.h"
+#endif
+#include "shared/Trk_CollideBoomInst.h"
+#endif
+#if defined(NFS4_COLOR_TRK_OBJ) || defined(NFS4_COLOR_TRK_ANIM)
+#include "shared/Trk_AnimateInst.h"
+#endif
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-
-
+#ifdef NFS4_COLOR_TRK_OBJ
+#ifdef NFS4_COLOR_TRK_SFX
+#include "shared/Trk_SFX.h"
+#endif
+#include "shared/Trk_SimObject.h"
+#endif
 #include "shared/RelCoord16.h"
+#ifdef NFS4_CORE_SUBDIV_TRKART   /* retail: Track_tArtresource/Track_tMaterial after RelCoord16 */
+#include "shared/Track_tArtresource.h"
+#include "shared/Track_tMaterial.h"
+#endif
 #include "shared/tSaveSurface.h"
-
 #include "shared/BWorldSm_Pos.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
 struct BO_tNewtonObj;
-
 #include "shared/BO_tNewtonCollisionInfo.h"
-
-
 
 
 

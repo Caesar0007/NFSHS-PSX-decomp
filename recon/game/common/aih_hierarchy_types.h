@@ -5,66 +5,10 @@
 #include "color_types.h"
 
 /* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
-enum copType {
-    COP_REGULAR = 0,
-    COP_SUPER = 1
-};
-
-typedef enum crimeType {
-    CRIME_NONE = 0,
-    CRIME_SPEEDER = 1,
-    CRIME_WRONGSIDE = 2,
-    CRIME_BUMPCOP = 3,
-    CRIME_SMASHCOP = 4
-} crimeType;
-
-enum cruiseMode_t {
-    CRUISE_ATSETSPEED = 0,
-    CRUISE_ATFACTOR = 1,
-    CRUISE_ATTRAFFICSPEED = 2
-};
-
-enum stateType_t {
-    STATE_NONE = 0,
-    STATE_PURGATORY = 1,
-    STATE_NORMAL = 2,
-    STATE_IDLE = 3,
-    STATE_CHASE = 4,
-    STATE_OFFROAD = 5,
-    STATE_ROVING_TRAFFIC = 6,
-    STATE_NONACTIVE = 7,
-    STATE_DONUTS = 8,
-    STATE_GOTOSLICE = 9,
-    STATE_CRUISE = 10
-};
-
-enum Wingman_Role {
-    ROLE_IDLE = 0,
-    ROLE_WINGMAN = 1,
-    ROLE_BLOCKADER = 2,
-    ROLE_BLOCKADER_SPIKEBELT = 3
-};
-
-typedef enum AIHigh_tAttackMode {
-    NO_ATTACK = 0,
-    REAR_END = 1,
-    SCRIPT_ATTACK = 2,
-    PROVOKED_ATTACK = 3
-} AIHigh_tAttackMode;
-
-enum blockadeMode_t {
-    BLOCKADEMODE_NONE = 0,
-    BLOCKADEMODE_SETUP = 1,
-    BLOCKADEMODE_WAITING = 2,
-    BLOCKADEMODE_CHASE = 3,
-    BLOCKADEMODE_SETUP_FOR_OTHER = 4
-};
-
-typedef enum AIHigh_tDriveAwayMode {
-    DRIVEAWAY_NONE = 0,
-    DRIVEAWAY_RESET = 1,
-    DRIVEAWAY_NORESET = 2
-} AIHigh_tDriveAwayMode;
+#ifdef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES   /* sim/object: the scene types ahead of the triggers, the cop info after the AIState classes */
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+#endif
 
 /* The common hierarchy header retains this anonymous enum without a typedef. */
 enum {
@@ -76,61 +20,26 @@ enum {
     PERPMODE_CHASEON = 5
 };
 
+#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES   /* retail: BrakeInfo, the cop info, then ModelConfig */
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
+#endif
+#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
+#include "aicop_info_types.h"
+#endif
+#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
+#include "shared/AIPhysic_ModelConfig_t.h"
+#endif
+
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"
 #include "shared/trigger_roadblock_t.h"
 #include "shared/trigger_offroad_t.h"
-
-
-
-
-
 #include "shared/trigger_trafficAccident_t.h"
-
-
-
-
 #include "shared/trigger_pathPosition_t.h"
-
-
-
 #include "shared/trigger_trafficPath_t.h"
-
-
-
-
-
 #include "shared/trigger_t.h"
 
-
-
-
-
-
-
-
 #include "shared/Sched_tSchedule.h"
-
-
-
-
-#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
-typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
-#include "shared/AIPhysic_ModelConfig_t.h"
-
-
-
-
-#endif
-
-#include "shared/SceneElem.h"
-
-
-
-
-
-
-#include "shared/SceneSortedElem.h"
 
 struct AIDelayCar {
     int delayFactor_;
@@ -143,63 +52,6 @@ struct AIDelayCar {
     void Update();
 };
 
-#include "shared/copLevel_t.h"
-
-
-
-
-
-
-
-
-#include "shared/copGame_t.h"
-
-struct AICop_BasicPerpInfo {
-    int copsAssigned_[2];
-    crimeType crime_;
-    AICop_BasicPerpInfo(); /* retail BasicPerp constructor records a member-initializer inline tree */
-    /* Names inferred from behavior: retail SYM records the inlined scopes,
-       not the original inline member identifiers. */
-    inline crimeType GetCrime() const { return crime_; }
-    inline void SetCrime(crimeType crime) { crime_ = crime; }
-    /* retail inlines a member here: AddChaser / RemoveChaser show the scope pair { this { } } (SYM Block records) */
-    inline void AddCop(copType type) { copsAssigned_[type]++; }
-    inline void RemoveCop(copType type) { copsAssigned_[type]--; }
-    inline int CopsAssigned(copType type) { return copsAssigned_[type]; }
-    /* Inferred reset/setter spellings; retail ClearForNewStage has an outer
-       reset pair containing two nested setter pairs, without extra locals. */
-    void SetCopsAssigned(copType type, int count);
-    void ClearCopsAssigned();
-};
-struct AICop_PerpChaseInfo {
-    int engagementTime_;
-    AICop_PerpChaseInfo(); /* retail player ctor has a pre-body chase-info initializer tree */
-    void SetCopGameInfo(copGame_t *copGameInfo); /* candidate initializer boundary from retail copGameInfo receiver records */
-    void ResetForCopGame(copGame_t *copGameInfo); /* inferred nested initialization mutator */
-    copGame_t *copGameInfo_;
-    int chaseLevelIndex_, bestChaseLevelIndex_;
-    copLevel_t *chaseLevel_;
-    int totalEngagementPercent_, blockadeDone_;
-    int engagementPercentIncreasePerTick_, copFreeTicks_;
-    inline int GetChaseLevelIndex();
-    inline int GetNumLevels();
-    int BestChaseLevelIndex(); /* inferred getter for the recorded best-level last-level test */
-    copGame_t *GetCopGameInfo(); /* inferred field accessor; no class storage or virtual slot */
-    inline copLevel_t *GetChaseLevel();
-    inline int GetChaseTime();
-    int RemainingEngagementTime(); /* inferred unscaled remaining fixed-point timer; GetChaseTime is the configured duration */
-    inline int IsLastChaseLevel();
-    inline void SetChaseLevel(int level);
-    int ConfiguredEngagementLapTime(); /* inferred timing helpers; caller/receiver structure still under review */
-    void InitializeChaseTimer(int lapTime);
-    bool BlockadeDone(); /* inferred completed-blockade query from the retail guard inline pair */
-    void SetBlockadeDone(); /* inferred setter: retail SetupBlockade records a receiver-less inline pair at each blockadeDone_ = 1 store */
-    inline void ResetEngagementTime();
-    /* Inferred update spelling; retail retains the receiver/ticks/count inline
-       boundary but no standalone linkage name for this operation. */
-    void AdvanceEngagement(int ticks, int movingBackwards, int totalCopsEngaged);
-};
-
 #include "aistate.h"
 
 /* AIState_Idle's empty inline ctor lives HERE, not in aistate.h: aistate.obj (Idle's key-function
@@ -208,6 +60,154 @@ inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_Base(carObj) {
     idleInPlaceFlag_ = idleInPlace;
 }
+#include "aicop_info_types.h"
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+#include "shared/stateType_t.h"
+#include "shared/Wingman_Role.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef struct AIHigh_Base {
     Car_tObj *carObj_;

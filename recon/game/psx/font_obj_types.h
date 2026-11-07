@@ -24,7 +24,10 @@ typedef struct charactertbl FONTFILECHAR;
 typedef struct charactertbl charactertbl;
 
 /* PsyQ SYS/TYPES.H, LIBGTE.H, and LIBGPU.H declarations retained by font.obj. */
+#define NFS4_CORE_FULL   /* retail font.obj: MATRIX first, SPRT + DR_MODE right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_SPRT
 #include "nfs4_types.h"
+#undef NFS4_CORE_FULL
 
 #include "shared/MATRIX.h"
 

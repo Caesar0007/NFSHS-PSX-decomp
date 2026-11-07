@@ -89,6 +89,8 @@ typedef struct AIPhysic_BrakeInfo {
     inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */
 } AIPhysic_BrakeInfo;
 
+#include "shared/AIPhysic_ModelConfig_t.h"   /* retail aiphysic.obj: ModelConfig, Config before Gear_t */
+#include "shared/AIPhysic_Config_t.h"
 typedef enum Gear_t {
     GEAR_REVERSE = 0,
     GEAR_NEUTRAL = 1,
@@ -106,12 +108,10 @@ enum eRampType {
     kRampType_NoInterpolate = 1
 };
 
-#include "shared/AIPhysic_ModelConfig_t.h"
 
 
 
 
-#include "shared/AIPhysic_Config_t.h"
 
 
 

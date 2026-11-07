@@ -1,16 +1,16 @@
 /* aihigh.obj's exact owner delta over the shared AI hierarchy graph. */
-#ifndef NFS4_GAME_COMMON_AIHIGH_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AIHIGH_TYPES_H)
 #define NFS4_GAME_COMMON_AIHIGH_TYPES_H
+#define NFS4_AIH_HIERARCHY_WINGMAN "aihigh_types.h"   /* retail aihigh.obj: AIHigh_CopGameType_t right after stateType_t (second pass below) */
+#define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #include "aih_hierarchy_types.h"
 
-enum AIHigh_CopGameType_t {
-    COP_GAME_NO = 0,
-    COP_GAME_PURSUIT = 1,
-    COP_GAME_BTC_1HC = 2,
-    COP_GAME_BTC_2HC = 3,
-    COP_GAME_BTC_1HC1HP = 4
-};
+
+
+
+
+
 
 
 #include "aistate.h"
@@ -72,4 +72,14 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
 
 typedef int CarLogic_tObservations[1][3];
 
+#elif !defined(NFS4_AIHIGH_WINGMAN_DONE)   /* second pass: aih_hierarchy_types.h NFS4_AIH_HIERARCHY_WINGMAN */
+#define NFS4_AIHIGH_WINGMAN_DONE
+enum AIHigh_CopGameType_t {
+    COP_GAME_NO = 0,
+    COP_GAME_PURSUIT = 1,
+    COP_GAME_BTC_1HC = 2,
+    COP_GAME_BTC_2HC = 3,
+    COP_GAME_BTC_1HC1HP = 4
+};
+#include "shared/Wingman_Role.h"
 #endif

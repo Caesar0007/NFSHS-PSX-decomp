@@ -40,9 +40,9 @@
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
 #include "shared/Sim_tSimGlobalVar.h"
 
-
-
-
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
+#include "shared/AI_tInfo.h"   /* retail ai.obj: BrakeInfo, AI_tInfo, ModelConfig ahead of the AIDataRecord family */
+#include "shared/AIPhysic_ModelConfig_t.h"
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
@@ -73,14 +73,14 @@ typedef struct AIDataRecord_BestLine_t : public AIDataRecord_t {
     }
 } AIDataRecord_BestLine_t;
 
-typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
-#include "shared/AIPhysic_ModelConfig_t.h"
 
 
 
 
 
-#include "shared/AI_tInfo.h"
+
+
+
 
 
 
@@ -112,10 +112,10 @@ typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; 
 
 
 
-struct AnimScript {
+typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-};
+} AnimScript;
 #include "shared/SceneElem.h"
 
 

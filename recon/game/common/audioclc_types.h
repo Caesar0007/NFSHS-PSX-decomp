@@ -1,4 +1,4 @@
-#ifndef NFS4_GAME_COMMON_AUDIOCLC_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AUDIOCLC_TYPES_H)
 #define NFS4_GAME_COMMON_AUDIOCLC_TYPES_H   /* audioclc.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE   /* speech.obj omits Sched_tSchedule */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
@@ -7,6 +7,7 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "audioclc_types.h"   /* retail audioclc.obj: SceneElem, SceneSortedElem right after Car_tObj (second pass below) */
 #endif
 #include "color_types.h"
 #define RaceType_HotPursuit 1
@@ -53,29 +54,24 @@
 
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
+#ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES   /* retail audioclc.obj: forceFocus_t right after the SND structs */
+enum forceFocus_t { FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2 };
+#define NFS4_FORCE_FOCUS_DONE
+#endif
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE
 #include "shared/Sched_tSchedule.h"
-
-
 
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #include "shared/Trk_AnimateInst.h"
 
-
-
-
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #include "shared/SceneElem.h"
-
-
-
-
 
 
 
@@ -221,4 +217,8 @@ typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
 
+#elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCLC_CAR_DONE)   /* second pass: color_types.h AFTER_CAR */
+#define NFS4_AUDIOCLC_CAR_DONE
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
 #endif

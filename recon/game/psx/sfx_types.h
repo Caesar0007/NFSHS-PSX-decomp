@@ -5,7 +5,6 @@
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
-#include "../common/gamesetup_leaf_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 /* GameSetup_tData: not in retail sfx.obj (GameSetup_gData is read through its word view) */
 
@@ -80,6 +79,7 @@ typedef struct Sfx_tCache {
 } Sfx_tCache;
 
 #include "shared/RelCoord16.h"
+#include "../common/gamesetup_leaf_types.h"   /* retail sfx.obj: GameSetup records right after RelCoord16 */
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;
 

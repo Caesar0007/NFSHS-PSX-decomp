@@ -64,11 +64,11 @@ inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_B
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"
 #include "shared/stateType_t.h"
-#include "shared/Wingman_Role.h"
 
-
-
-
+#ifndef NFS4_AIH_HIERARCHY_WINGMAN   /* aihigh.obj: its AIHigh_CopGameType_t between stateType_t and Wingman_Role (aihigh_types.h) */
+#define NFS4_AIH_HIERARCHY_WINGMAN "shared/Wingman_Role.h"
+#endif
+#include NFS4_AIH_HIERARCHY_WINGMAN
 
 
 

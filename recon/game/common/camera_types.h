@@ -166,7 +166,7 @@ struct camera_flags {
 
 
 
-#include "shared/kernpair.h"
+
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -188,6 +188,7 @@ struct camera_flags {
 
 
 #include "shared/Skidmark_Chunk.h"
+#include "shared/kernpair.h"   /* retail camera.obj: kernpair after the Skidmark types */
 
 
 

@@ -70,9 +70,9 @@ short DrawC_gOverlay[51];
  * Variant B (12-byte mode packet): copy 3 words from sd+OFF (prebuilt DR_MODE
  *   packet, word0 already carries the len byte); FUSED 24-bit link (extract/insert
  *   shifts cancel).  Fully fixed regs incl. $s0 (forces the s0 save). */
-#define DRAWC_OTLINK_FT3(sd_, primout_) __asm__ volatile( \
-    "lw\t%0,4(%1)\n\tlw\t$12,60(%1)\n\tlw\t$13,56(%1)\n\taddiu\t$14,%0,32\n\tsll\t$12,$12,2\n\taddu\t$13,$13,$12\n\tsw\t$14,4(%1)\n\tlwl\t$14,2($13)\n\tlui\t$12,0x0700\n\tsrl\t$14,$14,8\n\tor\t$14,$14,$12\n\tsll\t$12,%0,8\n\tsw\t$14,0(%0)\n\tswl\t$12,2($13)" \
-    : "=&r"(primout_) : "r"(sd_) : "$12", "$13", "$14", "memory")
+/* (Variant A's atomic 14-insn template DRAWC_OTLINK_FT3 had NO call site in this TU and
+ *  was removed 2026-11-07 (ASMBLK asm removal); every FT3 site uses the split form below,
+ *  with prim loaded by compiler code.) */
 /* split form: prim pre-loaded by COMPILER code (retail interleaves that lw with
  * neighbouring reg math, e.g. the overlay pTVar23 compute -- an atomic 14-insn
  * asm can't reproduce that); the asm does the remaining 13-insn link tail. */
@@ -2601,15 +2601,15 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
           sd_otz = sd_otz + sd->sub_otz;
           if (sd_otz < 0) continue; if (sd->sub_otSize < sd_otz) continue;
-
-            const int ff = facetValue & 0xfff; const int hi = facetValue & 0x3f0; facet_flag = ff;
+          {
+            int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0; facet_flag = ff;
             if (hi != 0) {
               facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
               overlayFlag = overlayFlag & ((u_int)ff >> 4);
               if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
                 }
               }
-            } sd->otz = sd_otz;
+            } } sd->otz = sd_otz;
         }
         else {
           sd->otz = sd->otz + sd->sub_otz;

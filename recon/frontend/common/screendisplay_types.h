@@ -40,6 +40,9 @@ struct tMenu; struct tDrawShapeExtended;
 #include "fescreen.h"
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
 #include "../../game/common/draw_leaf_types.h"
+#ifdef NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN   /* retail front: car graph right after tScreen, before tActiveLine */
+#include "screendisplay_carblock.h"
+#endif
 #include "shared/tActiveLine.h"
 #ifdef NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE   /* owner records right after tActiveLine (screenpost) */
 #include NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE
@@ -56,7 +59,13 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */
 #include "../../game/common/color_types.h"
 #endif
-#ifndef NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* else emitted after the tMenuNFS4/options family (below) */
+#if !defined(NFS4_SCREENDISPLAY_CARS_AFTER_MENUS) && !defined(NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN)   /* else emitted later (after the menu family) or earlier (after tScreen) */
+#include "screendisplay_carblock.h"
+#endif
+#ifdef NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail (screencongrats): color.obj graph right after the car graph */
+#include "../../game/common/color_types.h"
+#endif
+#ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
 
@@ -175,18 +184,9 @@ struct tMenu; struct tDrawShapeExtended;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+#ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU   /* owner records between the car/track block and the tMenuNFS4 family */
+#include NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU
+#endif
 struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
@@ -463,12 +463,12 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 #include NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS
 #endif
 #include "screendisplay_carblock.h"   /* NFS4_SCREENDISPLAY_CARS_AFTER_MENUS site (no-op otherwise: guarded) */
-enum tTVState {
-    tv_StateOff = 0,
-    tv_StateOn = 1,
-    tv_TransitionOn = 2,
-    tv_TransitionOff = 3
-};
+#include "shared/tTVState.h"   /* the enum (owners with an earlier mission/TV block include it before) */
+
+
+
+
+
 
 #include "shared/tTVConfig.h"
 

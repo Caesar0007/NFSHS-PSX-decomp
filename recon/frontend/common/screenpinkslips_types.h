@@ -3,8 +3,8 @@
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph right before the car/track graph */
+#include "screenpinkslips_keys.h"   /* FE_COLOR_LATE, COLOR_BEFORE_CARS, SND/CCOORD16/car keys, mission+TV hook */
+/* (ScreenTracks: screentracks_types.h) */
 #endif
 #define NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #include "screentournselect_types.h"

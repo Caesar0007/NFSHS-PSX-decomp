@@ -46,7 +46,7 @@ struct GameSetup_tData;   /* incomplete here: owner object records it; members r
 
 #endif
 
-#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
+#if !defined(NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE) && !defined(NFS4_SCREENCARSELECT_TAIL_LATE)   /* TAIL_LATE: screencarselect_tail.h */
 #include "shared/AudioMus_tSongEntry.h"
 #endif
 
@@ -223,7 +223,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
 };
 #line 219 "recon/frontend/common/screencarselect_types.h"
 #endif
-
+#include "screencarselect_tail.h"   /* color.obj graph after the car-select screens (+ AudioMus for ScreenCarSelect) */
 struct tScreenTournamentStandings : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);

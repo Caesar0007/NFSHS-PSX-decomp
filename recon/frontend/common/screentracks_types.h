@@ -5,6 +5,16 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph right before the car/track graph */
 #define NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
+#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 at its core place */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
+#define NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU "screentracks_early.h"   /* retail: mission + TV before the tMenuNFS4 family */
+/* tTVState comes from shared/tTVState.h (screentracks_early.h; screendisplay_types.h includes the same unit) */
+#define NFS4_PRIM_POLY_FT4   /* retail: POLY_FT4 right after DISPENV (nfs4_types.h) */
+#define NFS4_CORE_HOOK_AFTER_CD "shared/core_snd_after_cd.h"   /* retail: SND records right after the CD stream (nfs4_types.h) */
+#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs after tActiveLine, before the color graph */
+#define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* retail ScreenTracks records no tDrawShapeExtended */
+#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right after tActiveLine (menu items before it) */
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 

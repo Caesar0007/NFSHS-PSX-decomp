@@ -1,5 +1,8 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H   /* Owner-specific type surface for ScreenDisplay.obj. */
+#if !defined(NFS4_TYPES_H) && !defined(_FE_SCREENS_FEMENUOPTIONS_H_) && !defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE) && !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) && !(defined(NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H) && !defined(NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN))   /* owners reaching this graph before the platform core (screendisplay, screenusername, screencongrats, screencontroller, front, screenmain); measured worse elsewhere */
+#include "screendisplay_keys.h"
+#endif
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
@@ -68,9 +71,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
 
 
 

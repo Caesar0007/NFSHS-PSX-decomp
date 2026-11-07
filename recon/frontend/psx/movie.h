@@ -8,6 +8,7 @@
 #include "../../game/common/draw_leaf_types.h"
 #include "movie_types.h"
 #include "../../game/common/color_types.h"
+#include "movie_late.h"   /* retail: DECENV/CDSECTOR last */
 #include "movie_externs.h"
 
 /* MOVIE.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */

@@ -45,9 +45,7 @@ typedef u_short gid_t;
  * coorddef/matrixtdef before the CD stream, linedef/SHAPETABLEENTRY/PCOORD16/COORD16 after it.  The units are
  * include-guarded, so including them here only moves them earlier; the NFS4_HAVE_* flags keep each companion
  * typedef single. */
-/* Objects whose first header is the kernel and/or controller-pad graph (retail SYM: TCB EXEC DIRENTRY and/or
- * PAD_PSX..PAD_COMMON ahead of MATRIX/VECTOR), one macro defined by the owner's first header:
- * NFS4_CORE_KERNEL_FIRST, NFS4_CORE_PADS_FIRST, NFS4_CORE_KERNEL_PADS_FIRST, NFS4_CORE_PADS_KERNEL_FIRST. */
+/* Objects whose first header is the kernel and/or controller-pad graph (retail SYM: TCB EXEC DIRENTRY and/or PAD_PSX..PAD_COMMON ahead of MATRIX/VECTOR), one macro defined by the owner's first header: NFS4_CORE_KERNEL_FIRST, NFS4_CORE_PADS_FIRST, NFS4_CORE_KERNEL_PADS_FIRST, NFS4_CORE_PADS_KERNEL_FIRST. */
 #if defined(NFS4_CORE_KERNEL_FIRST) || defined(NFS4_CORE_KERNEL_PADS_FIRST)
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -60,6 +58,9 @@ typedef u_short gid_t;
 #include "shared/PAD_MOUSE.h"
 #include "shared/PAD_COMMON.h"
 #endif
+#ifdef NFS4_CORE_HOOK_AFTER_PADS   /* an owner's own types right after the early pads (device.obj: Input_tDeviceList) */
+#include NFS4_CORE_HOOK_AFTER_PADS
+#endif
 #ifdef NFS4_CORE_PADS_KERNEL_FIRST
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -68,7 +69,6 @@ typedef u_short gid_t;
 #ifdef NFS4_CORE_FULL
 #include "shared/MATRIX.h"
 #endif
-
 struct VECTOR {
     long vx, vy, vz, pad;
 };
@@ -272,6 +272,7 @@ typedef struct cdstreamstruct CDSTREAM;
 #endif
 #ifdef NFS4_CORE_EA   /* nfs2mem: kernpair right after the CD stream; movie: the kernel types, then kernpair, there. */
 #ifdef NFS4_CORE_KERNEL_KERN_AFTER_CD
+#include "frontend/psx/movie_cd_early.h"   /* movie.obj (the only owner of this key): CdlLOC/CdlFILE first */
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"

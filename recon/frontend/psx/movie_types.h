@@ -5,15 +5,15 @@
 #ifndef NFS4_FE_COLOR_LATE   /* Movie.obj contains color.obj's complete 71-record game/platform graph. */
 #include "../../game/common/color_types.h"
 #endif
-typedef struct CdlLOC {
-    u_char minute, second, sector, track;
-} CdlLOC;
+#include "movie_cd_early.h"
 
-typedef struct CdlFILE {
-    CdlLOC pos;
-    u_long size;
-    char name[16];
-} CdlFILE;
+
+
+
+
+
+
+
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -67,22 +67,22 @@ typedef struct SNDSAMPLEFORMAT {
     u_char channels, samplerep;
 } SNDSAMPLEFORMAT;
 
-typedef struct DECENV {
-    u_long *vlcbuf[2];
-    int vlcid;
-    u_short *imgbuf;
-    RECT rect[2];
-    int rectid;
-    RECT slice;
-    int isdone;
-} DECENV;
 
-typedef struct CDSECTOR {
-    u_short id, type, secCount, nSectors;
-    u_long frameCount, frameSize;
-    u_short width, height;
-    u_long headm, headv;
-} CDSECTOR;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 typedef u_short DECDCTTAB[34816];

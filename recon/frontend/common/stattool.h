@@ -4,6 +4,13 @@
 #ifndef _FE_COMMON_STATTOOL_H_
 #define _FE_COMMON_STATTOOL_H_
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "gamesetup_leaf_types.h"   /* retail Stattool.obj: GameSetup right after the pads */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#include "../../game/common/color_types.h"
+#include "shared/TCB.h"   /* retail: TCB/EXEC/DIRENTRY/CARD_FILE_HEADER right after the color graph */
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/CARD_FILE_HEADER.h"
 #include "stattool_types.h"
 #include "stattool_externs.h"
 

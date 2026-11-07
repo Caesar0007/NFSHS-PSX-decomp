@@ -4,14 +4,6 @@
 #ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
 #endif
-#define NFS4_FE_CORE_NO_CAR_TYPES
-#include "fe_core_types.h"
-#undef NFS4_FE_CORE_NO_CAR_TYPES
-
-#define NFS4_FE_INPUT_NO_PLAYER
-#include "fe_input_enums.h"
-#undef NFS4_FE_INPUT_NO_PLAYER
-
 enum tMenuTextType {
     textType_Title = 0,
     textType_FlybyHelp = 1,
@@ -37,6 +29,14 @@ enum tMenuTextState {
     textState_Hilighted = 2,
     textState_NumStates = 3
 };
+
+#define NFS4_FE_CORE_NO_CAR_TYPES
+#include "fe_core_types.h"
+#undef NFS4_FE_CORE_NO_CAR_TYPES
+
+#define NFS4_FE_INPUT_NO_PLAYER
+#include "fe_input_enums.h"
+#undef NFS4_FE_INPUT_NO_PLAYER
 
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"

@@ -896,39 +896,39 @@ void tScreenControllerConfig::DrawController()
     }
   }
   {
-  /* [SYM] `frame` (INT, $a1) lives in the block opened at SLD 322 and
-     closed at SLD 334 -- it does NOT reach the two tail arms below. */
+  /* Twist arms: the if-scope (319) spans the two tail arms (else-if chain). frame is set inside the condition,
+     before the || join, so both arms keep the (byte) andi; jump.c threads the goto and deletes its label. */
+
+  int frame; if (
+      ((u_int)((frame = (uint)(byte)this->fCurrentController) - 1) < 2) &&
+      (((menuDefs->itemControllerJoyRange).fActive != 0) || ((menuDefs->itemControllerCenterPoint).fActive != 0)))
+  { int rangeValue = ControllerTwistRange(this->player); int modeBase; byte controller;
 
 
 
-  int frame = (uint)(byte)this->fCurrentController; int rangeValue; int modeBase; byte controller; if (((u_int)(frame - 1) < 2) && (((menuDefs->itemControllerJoyRange).fActive != 0 || ((menuDefs->itemControllerCenterPoint).fActive != 0)))) {
-    rangeValue = ControllerTwistRange(this->player);
+    if (rangeValue >= 0xb) {
 
+      modeBase = 0x1a; controller = (byte)frame; if ((byte)this->fCurrentController == 2) { modeBase = 2; } DrawCtrl_calcModeTwo: if (controller == 2) { frame = modeBase + (rangeValue * 0xd) / 0x81; } else { frame = modeBase + (rangeValue << 3) / 0x81; }
+    } else if (modeBase = 0x23, rangeValue < -10) {
 
-
-    if (rangeValue < 0xb) goto DrawCtrl_smallAxis;
-    modeBase = 0x1a;
-    controller = (byte)frame; if ((byte)this->fCurrentController == 2) { modeBase = 2; } if (controller == 2) { DrawCtrl_calcModeTwo: frame = modeBase + (rangeValue * 0xd) / 0x81; goto DrawCtrl_axisDone;
-    } goto DrawCtrl_calcModeOther; DrawCtrl_smallAxis: modeBase = 0x23; if (rangeValue >= -10) {
-      goto DrawCtrl_zeroAxis;
-    } rangeValue = -rangeValue; controller = (byte)frame; if ((byte)this->fCurrentController == 2) { modeBase = 0x10; } if (controller == 2) goto DrawCtrl_calcModeTwo; DrawCtrl_calcModeOther: frame = modeBase + (rangeValue << 3) / 0x81; goto DrawCtrl_axisDone;
-DrawCtrl_zeroAxis: frame = (uint)(frame == 2);
-DrawCtrl_axisDone:
-    this->ActualDrawController(frame,0,0,0,0); return;
-  }
-  }
-  if (this->fCurrentController != '\0') {
-
-    this->ActualDrawController(0,0,0,(int)shakex,(int)shakey); return;
+      rangeValue = -rangeValue; controller = (byte)frame; if ((byte)this->fCurrentController == 2) { modeBase = 0x10; } if (controller == 2) goto DrawCtrl_calcModeTwo; frame = modeBase + (rangeValue << 3) / 0x81;
+    } else { frame = (uint)(frame == 2);
+    }
+    this->ActualDrawController(frame,0,0,0,0);
   }
 
+  else if (this->fCurrentController != '\0') {
+
+    this->ActualDrawController(0,0,0,(int)shakex,(int)shakey);
+  }
+  else {
 
   this->fTextController = '\0';
   this->fArrowFade = 0x80;
   this->fTextTypeOn = 0;
+  } } }
   }
-  }
-  return;
+
 }
 
 /* ---- tScreenControllerConfig::HorzVertLine  (screencontroller.cpp:1518) ---- */

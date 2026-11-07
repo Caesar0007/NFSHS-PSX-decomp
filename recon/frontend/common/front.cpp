@@ -587,12 +587,12 @@ int GetPSXPadValue(int value,int player)
   int type;
   int acc1;
   int acc2; PAD_update();
-  { int padBase = (int)&gPadinfo;   /* SOURCE-REVIEW-UNRESOLVED: no retail object row */ type = padBase + (player << 5); } if (((__typeof__(gPadinfo) *)type)->buf[0].nopad != '\0') {
-    goto GetPSXPadValue_noPad; } type = ((__typeof__(gPadinfo) *)type)->buf[0].ID; goto GetPSXPadValue_gotType;
-GetPSXPadValue_noPad:
+  { int padBase = (int)&gPadinfo;   /* SOURCE-REVIEW-UNRESOLVED: no retail object row */ type = padBase + (player << 5); } if (((__typeof__(gPadinfo) *)type)->buf[0].nopad == 0) {
+    type = ((__typeof__(gPadinfo) *)type)->buf[0].ID; }
+  else {
   type = 0;
-  goto GetPSXPadValue_gotType;
-GetPSXPadValue_gotType:
+  }
+
   switch (type) {
   case 0x53:
   case 0x73:
@@ -2727,8 +2727,9 @@ static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
   int valtopass; trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
   valtopass = 0;
 
-  const int speedMode = frontEnd.displaySpeed[0]; if (speedMode == 1) goto track_value_ready; if (speedMode < 2) goto use_country_measurement; if (speedMode != 2) goto use_country_measurement;
-  valtopass = 1;
+  switch (frontEnd.displaySpeed[0]) {
+  case 1: break;
+  case 2: valtopass = 1;
 
 
 
@@ -2736,11 +2737,10 @@ static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
 
 
 
-
-  goto track_value_ready;
-use_country_measurement:
+    break;
+  case 0: default:
   valtopass = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
-track_value_ready:
+  }
 
   *stream++ = 0x1a; *stream++ = valtopass;
   *stream++ = 0x18; *stream++ = (uint)streamData.track.fMirrored;

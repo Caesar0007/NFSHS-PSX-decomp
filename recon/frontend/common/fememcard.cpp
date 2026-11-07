@@ -576,7 +576,7 @@ bool SaveGame(short player)
   WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; Display((tDialogBase *)&WarningDialog);
   while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
     Redraw(FEApp);
-  } finished = false; returnvalue = finished;   /* oracle: addu s6,s3,zero -- the false is a COPY of finished */ returnmessage = 0x28b; Redraw(FEApp);
+  } finished = false; Redraw(FEApp);
 
   cardNum = player * 4 + 1;
 
@@ -587,10 +587,10 @@ bool SaveGame(short player)
 
 
 
+  returnvalue = finished;   /* oracle: addu s6,s3,zero -- the false is a COPY of finished */
 
 
-
-
+  returnmessage = 0x28b;
 
 
   MakeWayForMemoryCard();
@@ -672,17 +672,17 @@ bool SaveGame(short player)
     case 0xd:
     case 0x17:
       {
-        /* SYM-CODEGEN-CARRIER: status -- retail holds the loaded status in v1;
-           reusing recorded local `event` perturbs its earlier switch allocation. */
+        /* retail SaveGame preamble carries a CARDINFO_def TPDEF: the card pointer is a real local; its
+           single use as a load base is combined away (no SYM record), status stays in v1 via cse. */
 
 
-        int status = MCRD_getcard(player * 4 + 1)->status;
+        CARDINFO_def *card = MCRD_getcard(player * 4 + 1);
         returnmessage = 0x29d;
-        if (status != -3) {
+        if (card->status != -3) {
           returnmessage = 0x325;
 
 
-          if (status == -1) {
+          if (card->status == -1) {
 
             returnmessage = 0x32b;
           }

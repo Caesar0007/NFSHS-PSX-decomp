@@ -1,8 +1,10 @@
 /* Owner-specific type surface for ScreenPost.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
-
-/* ScreenPost's SYM records the command before completing tMenu. */
+#define NFS4_CORE_CCOORD16   /* retail: MATRIX core first, then the frontend core, then PCOORD16..Draw_* */
+#define NFS4_DRAW_LEAF_CORE_ONLY
+#include "../../game/common/draw_leaf_types.h"
+#include "fe_player_types.h"
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
@@ -18,10 +20,8 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 #include "shared/tMenuCommand.h"
-
-
-
-
+#define NFS4_FE_COLOR_LATE
+#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS
 /* physadr: the complete SDK type (retail size 4) */
 #define NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
 #define NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE

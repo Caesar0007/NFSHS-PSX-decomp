@@ -5,6 +5,22 @@
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #include "../../game/common/draw_leaf_types.h"
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_FE_CORE_FELINES_LATE   /* retail: MATRIX core, FE menu core, PCOORD16..Draw_*, then tTexture_ShapeInfo.. */
+#define NFS4_FE_CORE_CARS_LATE
+#include "fe_core_types.h"
+#undef NFS4_DRAW_LEAF_CORE_ONLY
+#include "../../game/common/draw_leaf_types.h"
+#include "felines_types.h"
+#include "shared/tActiveLine.h"
+#include "shared/tShapeInformation.h"
+typedef COORD16 FE3d_zVertex;
+typedef CVECTOR FE3d_zColor;
+typedef SVECTOR FE3d_zNormal;
+#include "shared/FE3d_zUV.h"
+#include "shared/FE3d_zFacet.h"
+#include "shared/FE3d_zObj.h"
+#define NFS4_FE3D_TYPES_DONE
+#include "shared/tDrawShapeExtended.h"
 
 /* Reuse the exact shared render/frontend graph while excluding input enums,
  * songs, saved-game and memory-card records, and dialogs. */

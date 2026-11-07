@@ -78,7 +78,7 @@ typedef char tMemIcon[15][3][192];
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && !defined(NFS4_FE3D_TYPES_DONE)
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;

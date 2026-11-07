@@ -1,7 +1,7 @@
 /* audio.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_AUDIO_TYPES_H
 #define NFS4_GAME_PSX_AUDIO_TYPES_H
-
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "../psx/audio_snd_early.h"
 #include "../common/color_types.h"
 #include "shared/SndBnk_t.h"
 

@@ -25,10 +25,10 @@ typedef struct matrixtdef MATRIX3DT;
 #include "shared/CCOORD16.h"
 #endif
 #include "game_common_pads_types.h"
-
+#ifdef NFS4_DRAW_LEAF_HOOK_AFTER_PADS   /* owner types between the pads and the draw leaf (audio.obj: SND system structs) */
+#include NFS4_DRAW_LEAF_HOOK_AFTER_PADS
+#endif
 #include "shared/Draw_tPixMap.h"
-
-
 
 
 

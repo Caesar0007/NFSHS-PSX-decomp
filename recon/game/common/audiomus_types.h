@@ -1,21 +1,21 @@
 /* audiomus.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_AUDIOMUS_TYPES_H
 #define NFS4_GAME_COMMON_AUDIOMUS_TYPES_H
-
+#include "shared/AudioMus_tSongEntry.h"   /* retail audiomus.obj: AudioMus types ahead of the core */
+#include "shared/AudioMus_tCurrentSong.h"
+#include "shared/AudioMus_tSongList.h"
 #include "color_types.h"
 
-#include "shared/AudioMus_tSongEntry.h"
 
 
 
 
 
-#include "shared/AudioMus_tCurrentSong.h"
 
 
 
 
-#include "shared/AudioMus_tSongList.h"
+
 
 
 

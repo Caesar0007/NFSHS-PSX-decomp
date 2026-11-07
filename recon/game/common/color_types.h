@@ -68,6 +68,9 @@ struct Group {
 #ifdef NFS4_COLOR_GS_AFTER_SAVE   /* retail: GameSetup right after tSaveSurface (owner first header) */
 #include "gamesetup_leaf_types.h"
 #endif
+#ifdef NFS4_COLOR_HOOK_AFTER_SAVE   /* retail skidmark.obj: the owner's TCB/EXEC/DIRENTRY/Skidmark block right after tSaveSurface */
+#include NFS4_COLOR_HOOK_AFTER_SAVE
+#endif
 #include "shared/BWorldSm_Pos.h"
 #ifdef NFS4_COLOR_SCHED_AFTER_BWSM   /* retail hud.obj: scheduler types between BWorldSm_Pos and the BO types */
 typedef void (*Sched_tFunctionPt)(void *);
@@ -84,9 +87,6 @@ struct BO_tNewtonObj;
 #include NFS4_COLOR_HOOK_AFTER_BO
 #undef NFS4_COLOR_IN_HOOK
 #endif
-
-
-
 
 
 

@@ -63,7 +63,7 @@ tPauseMenuDefs::tPauseMenuDefs()
     itemControllerSettings(8,&menuControllerConfig,0),
     menuOptions(&itemOptionsTitle,&itemAudioSettings,&itemControllerSettings,0),
     itemAudioSettingsTitle(10),
-    iteratorAudioMode(InGameSelectListAudioMode,&GameSetup_gData.userSetting.audioMode),
+    iteratorAudioMode(InGameSelectListAudioMode,&GameSetup_gData[29][1] /* userSetting.audioMode */),
     itemAudioSettingsAudioMode(0xb,&iteratorAudioMode),
     itemAudioSettingsMusicVolume(0xc,&gMasterMusicLevel,0x7f),
     itemAudioSettingsFXVolume(0xd,&gMasterSFXLevel,0x7f),
@@ -74,13 +74,13 @@ tPauseMenuDefs::tPauseMenuDefs()
                       &itemAudioSettingsMusicVolume,&itemAudioSettingsFXVolume,
                       &itemAudioSettingsSpeechVolume,&itemAudioSettingsEngineVolume,
                       &itemAudioSettingsAmbientVolume,0),
-    iteratorConfig(SelectListConfig,&GameSetup_gData.controllerData.controllerConfig[0],
+    iteratorConfig(SelectListConfig,&GameSetup_gData[12][0] /* controllerData.controllerConfig[0] */,
                    &Device_gPausePortIndex),
     itemControllerSettingsTitle(0x14),
     itemControllerConfig(0x15,&iteratorConfig),
-    itemControllerShockMode(0x1b,&GameSetup_gData.controllerData.shockMode[0],0x7f,
+    itemControllerShockMode(0x1b,&GameSetup_gData[21][0] /* controllerData.shockMode[0] */,0x7f,
                             &Device_gPausePortIndex),
-    itemControllerShockImpact(0x1c,&GameSetup_gData.controllerData.shockImpact[0],0x7f,
+    itemControllerShockImpact(0x1c,&GameSetup_gData[22][0] /* controllerData.shockImpact[0] */,0x7f,
                               &Device_gPausePortIndex),
     menuControllerConfig(&itemControllerSettingsTitle,&itemControllerConfig,
                          &itemControllerShockMode,&itemControllerShockImpact,0),
@@ -170,7 +170,7 @@ void MPause_MusicLogic(char active)
   sndover = 1;
   samp = 0x10;
 
-  switch (GameSetup_gData.userSetting.audioMode) {
+  switch (GameSetup_gData[29][1] /* userSetting.audioMode */) {
     case 0:
 
       gStereoMode = 1;
@@ -451,7 +451,7 @@ void MPause_InitMPause(void)
 
 
 {
-  int language = GameSetup_gData.userSetting.language;
+  int language = GameSetup_gData[28][0] /* userSetting.language */;
 
   TextSys_LoadInGame(language);
   gPauseMenuDefs = new tPauseMenuDefs;
@@ -478,12 +478,12 @@ void MPause_StartPauseMenu(void)
 
 
 
-  if ((GameSetup_gData.raceType != RaceType_PinkSlips) && (GameSetup_gData.raceType != RaceType_Tournament))
+  if ((GameSetup_gData[0][0] /* raceType */ != RaceType_PinkSlips) && (GameSetup_gData[0][0] /* raceType */ != RaceType_Tournament))
   { gPauseMenuDefs->itemRestart.Enable(); }
   else
   { gPauseMenuDefs->itemRestart.Disable(); }
 
-  if (GameSetup_gData.raceType == RaceType_PinkSlips)
+  if (GameSetup_gData[0][0] /* raceType */ == RaceType_PinkSlips)
   {
 
     gPauseMenuDefs->itemForfeitRace.Enable(); gPauseMenuDefs->itemQuitRace.Disable();
@@ -526,7 +526,7 @@ void MPause_EndPauseMenu(void)
 
 {
   InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
-      GameSetup_gData.controllerData.controllerConfig[ (u_char)Device_gPausePortIndex]); return;
+      GameSetup_gData[12][(u_char)Device_gPausePortIndex] /* controllerData.controllerConfig[ (u_char)Device_gPausePortIndex] */); return;
 }
 
 /* ---- MPause_KillMPause__Fv  [MPAUSE.CPP:605-610] SLD-VERIFIED ---- */

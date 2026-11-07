@@ -242,7 +242,7 @@ void InGame_ResetPSXController(int player,int config)
 
 
 
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
+  GameSetup_gData[12][player] /* controllerData.controllerConfig[player] */ = config;
 
 
 
@@ -273,7 +273,7 @@ void InGame_ResetPSXController(int player,int config)
     h[0x82 - hoff[player]] = InGame_GetPSXPadValue( (type == 1) ? (mappings[config][10][type] | 6) : mappings[config][10][type], player);
   }
 
-  if (GameSetup_gData.Time != 0) {
+  if (GameSetup_gData[10][1] /* Time */ != 0) {
 
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][9][type],player);
     h[0x54 - hoff[player]] = InGame_GetPSXPadValue( (type == 1) ? 6 : 0, player);

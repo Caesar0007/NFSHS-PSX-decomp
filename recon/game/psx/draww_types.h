@@ -164,7 +164,9 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical gmesetup.obj aggregate (SYM: GameSetup_tData, size 2600). */
+#ifdef NFS4_GAME_COMMON_BWORLD_TYPES_H   /* bworld keeps the struct; draww.obj records none */
 #include "shared/GameSetup_tData.h"
+#endif
 
 
 

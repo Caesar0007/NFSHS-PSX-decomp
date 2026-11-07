@@ -475,7 +475,7 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
                                this->IsDisabled(), textX);
 
   y = gPause_CurrentY;
-  if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
+  if ((selected != 0) && (GameSetup_gData[56] /* userSetting.language */ == 0))
   { struct PMenuTag { u_int addr : 24; u_int len : 8; }; POLY_GT4 *prim;
 
     prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1); Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
@@ -670,7 +670,7 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
         col = 0x808080; }
 
 
-    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
+    if ((selected != 0) && (GameSetup_gData[56] /* userSetting.language */ == 0))
     { POLY_GT4 *prim;
 
       prim = (POLY_GT4 *)Render_gPacketPtr; addPrim(Render_gPalettePtr, prim); Render_gPacketPtr = (u_char *)(prim + 1);

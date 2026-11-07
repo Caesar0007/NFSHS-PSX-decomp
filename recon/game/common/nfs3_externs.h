@@ -27,7 +27,7 @@ void *__builtin_new(unsigned int);
 #define Front_Menu Front_Menu__F21tFront_ProcessingType
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];
 extern char *Paths_Paths[];
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail nfs3.obj records no GameSetup_tData */
 // [owned->defined in nfs3.cpp] extern tfrontEnd frontEnd;
 extern Sim_tSimSystemVar simVar;
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */

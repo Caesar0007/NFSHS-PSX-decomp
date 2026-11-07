@@ -3230,7 +3230,7 @@ void DrawW_ResetAnimationTimer(void)
 #line 1703 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 {
-  int track = GameSetup_gData.track;
+  int track = GameSetup_gData[15] /* track */;
 
 
 
@@ -3319,7 +3319,7 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 #line 1783 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoObjectAnimations(void)
 {
-  int track = GameSetup_gData.track;
+  int track = GameSetup_gData[15] /* track */;
   int *trackPtr;
 
 
@@ -5596,7 +5596,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf))
+      if (((GameSetup_gData[21] /* Time */ == 0) && (GameSetup_gData[18] /* Weather */ == 0)) && (chunkDat->objSpecialInstanceBuf))
       {
 
 
@@ -5642,7 +5642,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-    if (((GameSetup_gData.track != 4) || (((0x27 < (u_int)(thisChunkInd - 1U) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) && ((GameSetup_gData.track != 0 || (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
+    if (((GameSetup_gData[15] /* track */ != 4) || (((0x27 < (u_int)(thisChunkInd - 1U) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) && ((GameSetup_gData[15] /* track */ != 0 || (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
 
       gChunkObjInfo.objInstanceBuf = gPersistObjInst;
       gChunkObjInfo.simObjs = 0;

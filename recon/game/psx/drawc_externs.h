@@ -47,7 +47,7 @@ extern int Draw_gViewOtSize;
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
 extern void Flare_CarShapedHalo(int, COORD16 *, COORD16 *, COORD16 *, short, int, Draw_FlareCache *);
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail drawc.obj records no GameSetup_tData */
 extern DRender_tView gCView;
 extern void Night_AdditiveNightCalc(VECTOR *, CVECTOR *);
 extern char          *Paths_Paths[];           /* 0x80116468 */

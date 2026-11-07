@@ -151,7 +151,10 @@ struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
 #endif
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
+#if defined(NFS4_GAME_COMMON_SPEECH_TYPES_H) || defined(NFS4_GAME_COMMON_CARS_TYPES_H) || \
+    (defined(NFS4_GAME_COMMON_AUDIOCMN_TYPES_H) && !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H))   /* carInfo[var] users keep the struct; audioclc/copspeak.obj record none */
 #include "shared/GameSetup_tData.h"
+#endif
 
 
 

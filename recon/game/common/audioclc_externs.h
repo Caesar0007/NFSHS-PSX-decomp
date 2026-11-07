@@ -12,7 +12,7 @@ extern "C" {
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[50][13]; /* 52-byte-row view (2600 bytes): retail audioclc.obj records no GameSetup_tData */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern bool Hud_BeTheCop;
 extern bool bSirenOn[];

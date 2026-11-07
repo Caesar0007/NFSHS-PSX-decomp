@@ -17,7 +17,7 @@
 
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail input.obj (GameSetup_gData is read through its word view) */
 
 
 

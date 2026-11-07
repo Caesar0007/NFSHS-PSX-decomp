@@ -12,7 +12,7 @@ extern Car_tObj       *Cars_gHumanRaceCarList[];/* 0x8010fa48 */
 extern int             Cars_gNumHumanRaceCars;  /* 0x8013c800 */
 extern int             Replay_ReplayMode;       /* 0x8013d3f4 */
 #include "shared/pad_module_globals.h"
-extern GameSetup_tData GameSetup_gData;          /* 0x801131ec */
+extern int GameSetup_gData[325][2]; /* word-pair view (2600 bytes): retail psxcontroller.obj records no GameSetup_tData */          /* 0x801131ec */
 
 extern "C" void PAD_update(void);
 

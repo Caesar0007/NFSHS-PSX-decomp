@@ -402,7 +402,7 @@ void Input_Update(void)
 
     r++;
 
-    if (GameSetup_gData.numPlayerRaceCars == 1) {
+    if (GameSetup_gData[242] /* numPlayerRaceCars */ == 1) {
 
       h += 76;
       i++;
@@ -433,7 +433,7 @@ void Input_Store(void)
   if (gSimQueue_BlockSelf != 0) return;
 
 
-  if (1 < GameSetup_gData.numPlayerRaceCars) {
+  if (1 < GameSetup_gData[242] /* numPlayerRaceCars */) {
 
 
 
@@ -441,8 +441,8 @@ void Input_Store(void)
     if (SimQueue_Put(0,Input_gResults))
       SimQueue_Put(1,&Input_gResults[1]);
   }
-  else if (GameSetup_gData.commMode == 0)
-    SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
+  else if (GameSetup_gData[3] /* commMode */ == 0)
+    SimQueue_Put(GameSetup_gData[7] /* localCar */,Input_gResults);
 }
 
 /* ---- Input_Fetch__Fi  [INPUT.CPP:456-457] SLD-VERIFIED ---- */

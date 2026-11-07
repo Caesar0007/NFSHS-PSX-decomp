@@ -46,7 +46,7 @@ typedef enum tInputKeyType {
 #include "shared/tPMenuCommandType.h"
 #endif
 /* Canonical gmesetup.obj aggregate used by the pause-menu source. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail mpause/pausemenu.obj (GameSetup_gData is read through word views) */
 
 
 

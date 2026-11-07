@@ -202,10 +202,10 @@ void AudioClc_StartUp(void)
 
 
 
-    if (GameSetup_gData.commMode >= 2) {
+    if (GameSetup_gData[0][3] /* commMode */ >= 2) {
 
-      if ((i == 0) && (GameSetup_gData.localCar < Cars_gNumHumanRaceCars)) {
-        p->source.car = Cars_gHumanRaceCarList[GameSetup_gData.localCar];
+      if ((i == 0) && (GameSetup_gData[0][7] /* localCar */ < Cars_gNumHumanRaceCars)) {
+        p->source.car = Cars_gHumanRaceCarList[GameSetup_gData[0][7] /* localCar */];
       }
     }
 
@@ -281,7 +281,7 @@ int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)
   x = temp.x / 256 * ((view->mrotation).m[0] / 256) + temp.y / 256 * ((view->mrotation).m[1] / 256) + temp.z / 256 * ((view->mrotation).m[2] / 256);
   y = temp.x / 256 * ((view->mrotation).m[6] / 256) + temp.y / 256 * ((view->mrotation).m[7] / 256) + temp.z / 256 * ((view->mrotation).m[8] / 256);
 
-  if (GameSetup_gData.mirrorTrack != 0) {
+  if (GameSetup_gData[0][11] /* mirrorTrack */ != 0) {
     x = -x;
   }
   return (intatan(x >> 8,y >> 8) << 6) & 0xffc0;
@@ -311,7 +311,7 @@ int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)
   x = (car->N).roadMatrix.m[6] / 256 * ((view->mrotation).m[0] / 256) + (car->N).roadMatrix.m[7] / 256 * ((view->mrotation).m[1] / 256) + (car->N).roadMatrix.m[8] / 256 * ((view->mrotation).m[2] / 256);
   y = (car->N).roadMatrix.m[6] / 256 * ((view->mrotation).m[6] / 256) + (car->N).roadMatrix.m[7] / 256 * ((view->mrotation).m[7] / 256) + (car->N).roadMatrix.m[8] / 256 * ((view->mrotation).m[8] / 256);
 
-  if (GameSetup_gData.mirrorTrack != 0) {
+  if (GameSetup_gData[0][11] /* mirrorTrack */ != 0) {
     x = -x;
   }
   return (intatan(x >> 8,y >> 8) << 6) & 0xffc0;
@@ -422,7 +422,7 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
   dst = AudioClc_CalcDistance(&AudioClc_gRenderView,&(car->N).position);
   dir = (((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) : 0x10000) >= -0x10000) ? ((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) : 0x10000) : -0x10000;
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[0][3] /* commMode */ == 1) {
     azimuth = 0x3fff; if (playerIndex == 0) { azimuth = 0xc000;
     }
   } else { azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&(car->N).position);
@@ -572,12 +572,12 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   else {
     facing = fixedmult((car->N).orientMat.m[6], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0xf)) + fixedmult((car->N).orientMat.m[7], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x10)) + fixedmult((car->N).orientMat.m[8], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x11));
 
-    if (GameSetup_gData.reverseTrack != 0) {
+    if (GameSetup_gData[0][12] /* reverseTrack */ != 0) {
       facing = -facing;
     }
   }
   if (((car->stats).finishType != 2) &&
-     (!((((GameSetup_gData.raceType == RaceType_HotPursuit || (GameSetup_gData.raceType == RaceType_Id5)) &&
+     (!((((GameSetup_gData[0][0] /* raceType */ == RaceType_HotPursuit || (GameSetup_gData[0][0] /* raceType */ == RaceType_Id5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((car->carFlags & 0x204U) == 4)))) &&
@@ -604,7 +604,7 @@ void AudioClc_SoundPlayersCar(int playerIndex)
 
   dop = AudioClc_CalcDopplerShiftRatio(&(car->N).position,&(car->N).linearVel);
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[0][3] /* commMode */ == 1) {
     azimuth = 0xc000; if (playerIndex != 0) { azimuth = 0x3fff;
     } } else if (Camera_gInfo[playerIndex].mode == 0) {
     azimuth = 0;
@@ -687,7 +687,7 @@ void AudioClc_SoundPlayersCar(int playerIndex)
           freeVoiceChannel(channel + 4);
         }
       }
-      else { if ((channel < 0) && (GameSetup_gData.commMode != 1) && (car->audio[c].surface1 != 10) && (car->audio[c].surface1 != 8)) {
+      else { if ((channel < 0) && (GameSetup_gData[0][3] /* commMode */ != 1) && (car->audio[c].surface1 != 10) && (car->audio[c].surface1 != 8)) {
           AudioCmn_SFX(channel,car->audio[c].surface1,
                        car->audio[c].surface2,car->audio[c].force,
                        dsquare,
@@ -791,7 +791,7 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 
   DRender_tCalcView *view = &AudioClc_gRenderView; for (i = 0, car = Cars_gList; i < Cars_gNumCars; i++, car++) { int searchdist;
 
-    if (GameSetup_gData.commMode == 1) {
+    if (GameSetup_gData[0][3] /* commMode */ == 1) {
 
       if (((*car)->carFlags & 4U) != 0) {
         continue;
@@ -917,18 +917,18 @@ void AudioClc_SoundCars(void)
 
   AudioClc_SoundSpeech();
   AudioCmn_UpdateThunder();
-  if ((GameSetup_gData.raceType == RaceType_HotPursuit || GameSetup_gData.raceType == RaceType_Id5) &&
+  if ((GameSetup_gData[0][0] /* raceType */ == RaceType_HotPursuit || GameSetup_gData[0][0] /* raceType */ == RaceType_Id5) &&
       ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) || (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) && HudBustedOverlay != 0) {
     {
       int i;
-      for (i = 0; i < GameSetup_gData.numPerps; i++) {
+      for (i = 0; i < GameSetup_gData[0][107] /* numPerps */; i++) {
 
-        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0), (void *)0);
-        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1), (void *)0);
+        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData[i][111] /* perpInfo[i].CarType */, 0), (void *)0);
+        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData[i][111] /* perpInfo[i].CarType */, 1), (void *)0);
       }
     }
   }
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[0][3] /* commMode */ == 1) {
     /* two-player split screen */
     Camera_GetAudioViewInfo(0, &AudioClc_gRenderView, &AudioClc_gCameraVelocity);
     AudioClc_GetClosestCars(0, 0, 2);

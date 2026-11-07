@@ -663,7 +663,7 @@ void CopSpeak_StartUp(void)
 
   CopSpeak_gNumTrackSfx = 0;
 
-  sprintf(filename,"%szzzw%s.viv",Paths_Paths[0x1c],GameSetup_gTrackNames + GameSetup_gData.track);
+  sprintf(filename,"%szzzw%s.viv",Paths_Paths[0x1c],GameSetup_gTrackNames + GameSetup_gData[15] /* track */);
 
   header = (char *)loadbigfileheader(filename,0x10);
 
@@ -699,7 +699,7 @@ void CopSpeak_StartUp(void)
 
 
 
-  switch (GameSetup_gData.userSetting.language) {
+  switch (GameSetup_gData[56] /* userSetting.language */) {
 
   case 2:
     SpeechLanguage = "fre";

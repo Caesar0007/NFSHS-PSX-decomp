@@ -510,7 +510,7 @@ AIHigh_BTC_Perp::CheckForActivation()
 
         else {
 
-          int carType = GameSetup_gData.perpInfo[carHigh->CurrentStage()].CarType;
+          int carType = GameSetup_gData[carHigh->CurrentStage()][111] /* perpInfo[carHigh->CurrentStage()].CarType */;
 
           if (carType == this->carObj_->carInfo->carType) {
             return carHigh; } } } }
@@ -735,7 +735,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
-        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData[0][2] /* skill */] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
 
                 if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
 
@@ -1076,7 +1076,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   ((this->carObj_)->render).headLight = 0;
   ((this->carObj_)->render).brakeLight = 0;
-  if (GameSetup_gData.Time != 0) {
+  if (GameSetup_gData[0][21] /* Time */ != 0) {
 
     ((this->carObj_)->render).headLight = 0x33;
     ((this->carObj_)->render).brakeLight = 2; }
@@ -1200,27 +1200,27 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
                           placementSpeed == PLACEMENTSPEED_FAST ? 0x1f1c71 : 0x11c71c,0);
 
-  Camera_Update(); (this->carObj_)->btcGlueModifier = fixedmult(GameSetup_gData.perpInfo[stage].GlueFactor,
+  Camera_Update(); (this->carObj_)->btcGlueModifier = fixedmult(GameSetup_gData[stage][123] /* perpInfo[stage].GlueFactor */,
 
 
 
 
 
 
-                AITune_BTC[GameSetup_gData.skill].glueMult); (this->carObj_)->speedFactor = fixedmult(GameSetup_gData.perpInfo[stage].SpeedFactor,
-                AITune_BTC[GameSetup_gData.skill].speedMult); ((this->carObj_)->N).mass = fixedmult(fixedmult(this->originalMass_, GameSetup_gData.perpInfo[stage].WeightFactor),
+                AITune_BTC[GameSetup_gData[0][2] /* skill */].glueMult); (this->carObj_)->speedFactor = fixedmult(GameSetup_gData[stage][121] /* perpInfo[stage].SpeedFactor */,
+                AITune_BTC[GameSetup_gData[0][2] /* skill */].speedMult); ((this->carObj_)->N).mass = fixedmult(fixedmult(this->originalMass_, GameSetup_gData[stage][122] /* perpInfo[stage].WeightFactor */),
 
-                AITune_BTC[GameSetup_gData.skill].weightMult);
+                AITune_BTC[GameSetup_gData[0][2] /* skill */].weightMult);
 
 
 
   ((this->carObj_)->N).massInv = fixeddiv(0x10000,((this->carObj_)->N).mass); AIPerson_SetPersonality(this->carObj_,
 
-             GameSetup_gData.perpInfo[stage].Personality); R3DCar_ChangeTrafficColor(this->carObj_,
+             GameSetup_gData[stage][115] /* perpInfo[stage].Personality */); R3DCar_ChangeTrafficColor(this->carObj_,
 
-             GameSetup_gData.perpInfo[stage].Colour); (this->carObj_)->carInfo->SpeechColour =
-       GameSetup_gData.perpInfo[stage].SpeechColour; (this->carObj_)->carInfo->HudColour =
-       GameSetup_gData.perpInfo[stage].HudColour;
+             GameSetup_gData[stage][112] /* perpInfo[stage].Colour */); (this->carObj_)->carInfo->SpeechColour =
+       GameSetup_gData[stage][113] /* perpInfo[stage].SpeechColour */; (this->carObj_)->carInfo->HudColour =
+       GameSetup_gData[stage][114] /* perpInfo[stage].HudColour */;
   Hud_InitMap();
 
 

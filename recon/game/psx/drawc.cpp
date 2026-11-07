@@ -235,7 +235,7 @@ void DrawC_ReadLightingData(void)
   char *RenderingFileData;
   char name [256];
 
-  int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = GameSetup_gData.track;
+  int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = GameSetup_gData[15] /* track */;
 
 
   sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);
@@ -1301,7 +1301,7 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
 
     sd->eAddZ = (((int)(carObj->N).positionXZ >> (eSpeed + 3)) & 0x3fU) + (int)DrawC_gEnvMapOffset[(sd->ePmx1).v0 >> 6];
 
-    if (((GameSetup_gData.Weather != 0) && (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) && (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
+    if (((GameSetup_gData[18] /* Weather */ != 0) && (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) && (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
       DrawC_gWetRoad = 1;
     } DrawC_gReflectOffset =
     (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);

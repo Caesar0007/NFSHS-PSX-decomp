@@ -224,7 +224,7 @@ void Weather_InitSplats(void)
   int i;
   for (i = 0;;) { int ySize; if (!(i < 0x13)) break;
 
-    ySize = (GameSetup_gData.commMode == 1) ? 0x78 : 0xf0;
+    ySize = (GameSetup_gData[3] /* commMode */ == 1) ? 0x78 : 0xf0;
 
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
     Weather_gSplatInfo[i].pos.vy = (short)((u_int)random() % ySize);
@@ -392,7 +392,7 @@ void Weather_InitStateControls(void)
 {
   int track;
 
-  track = GameSetup_gData.track;
+  track = GameSetup_gData[15] /* track */;
 
   Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[track];
   if ((track == 0) || (track == 4)) {
@@ -441,10 +441,10 @@ void Weather_Restart(void)
 
 
 {
-  if (GameSetup_gData.Weather != 0)
+  if (GameSetup_gData[18] /* Weather */ != 0)
   { int i;
 
-    if (GameSetup_gData.commMode != 1) {
+    if (GameSetup_gData[3] /* commMode */ != 1) {
       Weather_InitStateControls();
     }
     WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks; WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
@@ -520,7 +520,7 @@ void Weather_Init(void)
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
 
 
-  if (GameSetup_gData.Weather != 0)
+  if (GameSetup_gData[18] /* Weather */ != 0)
 
   { int i;
 
@@ -565,7 +565,7 @@ void Weather_Init(void)
 
     WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks; WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
 
-    if (GameSetup_gData.commMode == 1) {
+    if (GameSetup_gData[3] /* commMode */ == 1) {
 
       Weather_gPServer[1] = Weather_gPos + 0x4c;
       Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
@@ -607,7 +607,7 @@ void Weather_DeInit(void)
 
 {
 
-  if (GameSetup_gData.Weather != 0) {
+  if (GameSetup_gData[18] /* Weather */ != 0) {
 
 
 
@@ -1473,7 +1473,7 @@ void Weather_DoSplats
           }
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
-            q = (q = 0, (int)((unsigned int)&splats[i] | ((unsigned int)&splats[i] & 3u))) + ((q = 0) != 0); if (GameSetup_gData.commMode == 1) { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0 >> 1); } else { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0);
+            q = (q = 0, (int)((unsigned int)&splats[i] | ((unsigned int)&splats[i] & 3u))) + ((q = 0) != 0); if (GameSetup_gData[3] /* commMode */ == 1) { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0 >> 1); } else { ((Weather_tSplatInfo *)q)->pos.vy = (short)((u_int)random() % 0xf0);
             }
             splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
@@ -1841,7 +1841,7 @@ void Weather_DoWeather(DRender_tView *Vi)
   wd = *(Weather_gDrawnServer + player);
 
 
-  if (GameSetup_gData.commMode != 1)
+  if (GameSetup_gData[3] /* commMode */ != 1)
 
 
   if (0x20 < simGlobal.gameTicks - timechange) {
@@ -1920,7 +1920,7 @@ void Weather_BuildWeather(DRender_tView *Vi)
 
 {
 
-  if (GameSetup_gData.Weather != 0)
+  if (GameSetup_gData[18] /* Weather */ != 0)
 
 
 

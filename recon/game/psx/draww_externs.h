@@ -45,7 +45,7 @@ extern coorddef * Chunk_chunkCenters;
 extern CVECTOR * Chunk_lightTable;
 extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail draww.obj records no GameSetup_tData */
 extern u_char (* Night_gCopColor[2])[256][8];
 extern u_char (* Night_gCurrentNightColor)[256][16];   /* matches owner def night.cpp @0x8013da48 (was stale u_char***) */
 extern char * Night_gNightTbl;

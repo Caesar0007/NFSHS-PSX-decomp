@@ -37,7 +37,7 @@ extern int               Weather_gTrackIntensityLimit;         /* 0x8013dc0c */
  * per-element in weather.cpp with an asm()-label array view; no cross-TU extern. */
 
 /* ---- shared game globals (SYM Globals.jsonl; declared in their owning TUs) ---- */
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail weather.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;
 extern CTrackSpec        TrackSpec_gSpec;
 extern camera_info       Camera_gInfo[2];

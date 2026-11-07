@@ -10,7 +10,7 @@ extern AIHigh_Base *highLevelAIObjs[];
 extern AITune_BTC_t AITune_BTC[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[50][13]; /* 52-byte-row view (2600 bytes): retail aih_btcperp.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern camera_info       Camera_gInfo[2];            /* camera.obj */
 extern int            Cars_gNumCars;

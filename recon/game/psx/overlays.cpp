@@ -160,8 +160,8 @@ void RaceSummary(void)
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y;
-  HUD_STATS_POS_X = 8; if (GameSetup_gData.numLaps == 1) HUD_STATS_POS_X = 0x28;
-  HUD_STATS_SIZE_W = 0x130; if (GameSetup_gData.numLaps == 1) HUD_STATS_SIZE_W = 0xef;
+  HUD_STATS_POS_X = 8; if (GameSetup_gData[1] /* numLaps */ == 1) HUD_STATS_POS_X = 0x28;
+  HUD_STATS_SIZE_W = 0x130; if (GameSetup_gData[1] /* numLaps */ == 1) HUD_STATS_SIZE_W = 0xef;
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
 
   HUD_STATS_POS_Y = (short)(0x78 - (HUD_STATS_SIZE_H >> 1));
@@ -188,7 +188,7 @@ void RaceSummary(void)
   Font_TextXY(TextSys_Word(0x2e),colname,ty15);
   Font_TextXY(TextSys_Word(0x3a),colcar,ty15);
   Font_TextXY(TextSys_Word(0x3b),coltime,ty15);
-  if (GameSetup_gData.numLaps != 1) {
+  if (GameSetup_gData[1] /* numLaps */ != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,ty15);
   }
 
@@ -202,7 +202,7 @@ void RaceSummary(void)
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
-  if (GameSetup_gData.numLaps != 1) {
+  if (GameSetup_gData[1] /* numLaps */ != 1) {
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   }
   for (i = 0; i < Cars_gNumRaceCars; i = i + 1) {
@@ -233,9 +233,9 @@ void RaceSummary(void)
 
 
 
-      if (GameSetup_gData.pinkSlipsForfeit == i)
+      if (GameSetup_gData[46] /* pinkSlipsForfeit */ == i)
         sprintf(string,TextSys_Word(0x36));
-      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (Cars_gRaceCarList[i]->stats.finalNumArrests != 0))
+      else if ((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) && (Cars_gRaceCarList[i]->stats.finalNumArrests != 0))
         sprintf(string,TextSys_Word(0x3d));
       else if (Cars_gRaceCarList[i]->stats.finalFinishType == 2)
         Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalTotalTime,string);
@@ -244,7 +244,7 @@ void RaceSummary(void)
       Font_TextXY(string,coltime,ty17 + pos * 0xc);
 
 
-      if (GameSetup_gData.numLaps != 1) {
+      if (GameSetup_gData[1] /* numLaps */ != 1) {
 
         if (Cars_gRaceCarList[i]->stats.finalBestLap != 0)
           Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalBestLap,string);
@@ -773,11 +773,11 @@ void RaceStatistics(void)
   int colInset; int rowInset;
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   pitch = ((pitch = 0, 0x96) ?: 0); prod = ((prod = 0, Cars_gNumHumanRaceCars * pitch) ?: 0);
-  HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
-  one = ((one = 0, 1) ?: 0); HUD_STATS_SIZE_W = prod; if (GameSetup_gData.numLaps == one) {
+  HUD_STATS_SIZE_H = (GameSetup_gData[1] /* numLaps */ + 1) * 0xc + 0x28;
+  one = ((one = 0, 1) ?: 0); HUD_STATS_SIZE_W = prod; if (GameSetup_gData[1] /* numLaps */ == one) {
     HUD_STATS_SIZE_H -= 0xc;
   }
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+  if (GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   sizeH16 = ((sizeH16 = 0, (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10)) ?: 0); HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
@@ -791,7 +791,7 @@ void RaceStatistics(void)
   titleY = ((titleY = 0, 0x76 - (sizeH16 >> 0x11)) ?: 0);
   short HUD_STATS_HOTPURSUIT_Y;
 
-  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
+  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData[1] /* numLaps */ + 2) * 0xc + 0x13);
 
 
 
@@ -808,7 +808,7 @@ void RaceStatistics(void)
   short ty17 = titleY + 0x11;  /* REVIEW: record-less split temporary (retail tags this add on its own line) */
   Hud_FBuildF4(0,HUD_STATS_POS_X,ty17 + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
 
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+  if (GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
 
@@ -844,10 +844,10 @@ void RaceStatistics(void)
 
 
 
-    if (GameSetup_gData.numLaps != 1) {
+    if (GameSetup_gData[1] /* numLaps */ != 1) {
 
 
-     for (j = 0; (int)j < GameSetup_gData.numLaps; j = j + 1) {
+     for (j = 0; (int)j < GameSetup_gData[1] /* numLaps */; j = j + 1) {
 
         if ((int)j * 2 + 4 < StatsTimer[1]) {
 
@@ -871,28 +871,28 @@ void RaceStatistics(void)
     }
 
 
-    if (GameSetup_gData.numLaps * 2 + 4 < StatsTimer[1]) {
+    if (GameSetup_gData[1] /* numLaps */ * 2 + 4 < StatsTimer[1]) {
 
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
-      Font_TextXY(string,(int)col1, GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc : ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
+      Font_TextXY(string,(int)col1, GameSetup_gData[1] /* numLaps */ != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData[1] /* numLaps */ * 0xc + 0xc : ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData[1] /* numLaps */ * 0xc);
 
-      if (GameSetup_gData.pinkSlipsForfeit == i) {
+      if (GameSetup_gData[46] /* pinkSlipsForfeit */ == i) {
         sprintf(string,TextSys_Word(0x36));
       } else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
         Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
-      } else if ((GameSetup_gData.raceType == RaceType_HotPursuit) && ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
+      } else if ((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) && ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       } else {
         sprintf(string,TextSys_Word(0x35));
       }
-      Font_TextXY(string,col2 + 5, (GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
+      Font_TextXY(string,col2 + 5, (GameSetup_gData[1] /* numLaps */ != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData[1] /* numLaps */ * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
 
-    if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+    if (GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) {
 
 
-      if (GameSetup_gData.numLaps * 2 + 6 < StatsTimer[1]) {
+      if (GameSetup_gData[1] /* numLaps */ * 2 + 6 < StatsTimer[1]) {
 
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
@@ -902,7 +902,7 @@ void RaceStatistics(void)
       }
 
 
-      if (GameSetup_gData.numLaps * 2 + 8 < StatsTimer[1]) {
+      if (GameSetup_gData[1] /* numLaps */ * 2 + 8 < StatsTimer[1]) {
 
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
@@ -1486,9 +1486,9 @@ void Hud_RenderStatsView(void)
 {
   int screen; screen = simGlobal.gameTicks >> 9 & 1;
 
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) { if (GameSetup_gData.commMode == 1) goto HudStats_common;
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) { if (GameSetup_gData[3] /* commMode */ == 1) goto HudStats_common;
 HudStats_setUserZero: screen = 0; goto HudStats_finalize;
-  } if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
+  } if (GameSetup_gData[3] /* commMode */ != 1) goto HudStats_checkNumCars;
 HudStats_common:
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) { if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
     goto HudStats_setUserZero;
@@ -1498,12 +1498,12 @@ HudStats_common:
 
 
 
-  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero; if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
+  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero; if (GameSetup_gData[3] /* commMode */ != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
 
 
 
-  if (((*(Cars_gHumanRaceCarList + 1))->carFlags & 0x200U) == 0) goto HudStats_finalize; if (GameSetup_gData.commMode != 1) goto HudStats_finalize; if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
+  if (((*(Cars_gHumanRaceCarList + 1))->carFlags & 0x200U) == 0) goto HudStats_finalize; if (GameSetup_gData[3] /* commMode */ != 1) goto HudStats_finalize; if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;
   goto HudStats_finalize;
 HudStats_checkNumCars:
@@ -1535,7 +1535,7 @@ HudStats_finalize:
 
     StatsTimer[1] = StatsTimer[1] <= 10000 ? StatsTimer[1] : 10000;
 
-    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) { RaceStatistics(); } else if (GameSetup_gData.commMode == 1) {
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) { RaceStatistics(); } else if (GameSetup_gData[3] /* commMode */ == 1) {
 
       Hud_BTCStats(1,true);
     }

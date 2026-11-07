@@ -460,7 +460,7 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
   this->currentStage_ = -1;
   this->stageRepeatCount_ = 0;
   this->stageTimeMultiplier_ = 0x10000;
-  this->timeLeft_ = AITune_BTC[GameSetup_gData.skill].baseChaseTime;
+  this->timeLeft_ = AITune_BTC[GameSetup_gData[0][2] /* skill */].baseChaseTime;
 
   this->carObj_->unlap = 0;
 
@@ -673,7 +673,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 { int nextStageTime; int newLatPos; int throwAway;
   this->currentStage_ = this->currentStage_ + 1;
-  GameSetup_gData.perpArrests = GameSetup_gData.perpArrests + 1; if ((((u_int)(AIHigh_CopGameType - COP_GAME_BTC_1HC) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
+  GameSetup_gData[0][109] /* perpArrests */ = GameSetup_gData[0][109] /* perpArrests */ + 1; if ((((u_int)(AIHigh_CopGameType - COP_GAME_BTC_1HC) < 2) && (this->currentStage_ >= GameSetup_gData[0][107] /* numPerps */)) ||
 
 
 
@@ -765,7 +765,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
     nextStageTime = AIH_BTC_Cop_1HC1HP_StageTimes[this->currentStage_] << 5; } else {
 
-    nextStageTime = GameSetup_gData.perpInfo[this->currentStage_].TimeLimit << 5; }
+    nextStageTime = GameSetup_gData[this->currentStage_][116] /* perpInfo[this->currentStage_].TimeLimit */ << 5; }
   if (nextStageTime < 0) {
     nextStageTime = 0; }
 
@@ -941,10 +941,10 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
 
 { int wingmanActivationTime;
-  if (1 < (u_int)(this->freezeMode_ - 3)) { wingmanActivationTime = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
+  if (1 < (u_int)(this->freezeMode_ - 3)) { wingmanActivationTime = GameSetup_gData[this->currentStage_][117] /* perpInfo[this->currentStage_].WingmanTime */ * 0x40 +
 
 
-            AITune_BTC[GameSetup_gData.skill].wingmanTime;
+            AITune_BTC[GameSetup_gData[0][2] /* skill */].wingmanTime;
 
 
     Speech::Mobile(this->carObj_)->Backup();
@@ -986,13 +986,13 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
     if (spikeBeltRequest != 0) {
 
-      Speech::Mobile(this->carObj_)->SpikeBelt(); availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
-                      AITune_BTC[GameSetup_gData.skill].spikeBeltTime; } else {
+      Speech::Mobile(this->carObj_)->SpikeBelt(); availableTime = GameSetup_gData[this->currentStage_][118] /* perpInfo[this->currentStage_].SpikeBeltTime */ * 0x40 +
+                      AITune_BTC[GameSetup_gData[0][2] /* skill */].spikeBeltTime; } else {
 
 
 
-      Speech::Mobile(this->carObj_)->RoadBlock(); availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
-                      AITune_BTC[GameSetup_gData.skill].blockaderTime; }
+      Speech::Mobile(this->carObj_)->RoadBlock(); availableTime = GameSetup_gData[this->currentStage_][119] /* perpInfo[this->currentStage_].BlockadeCopTime */ * 0x40 +
+                      AITune_BTC[GameSetup_gData[0][2] /* skill */].blockaderTime; }
 
 
     if (this->chaseStartTime_ == 0) goto LAB_dispatch; if (availableTime < 1) goto LAB_dispatch; if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch; if (this->wingmanStatus_ != 5) {

@@ -21,7 +21,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/vars.h"
 }
 extern bool  ChangedEnabling;             /* PauseMenu.obj (SYM EXT BOOL 0x8013d2ec) */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[325][2]; /* word-pair view (2600 bytes): retail mpause.obj records no GameSetup_tData */
 
 /* ---- cross-TU functions (audio) ---- */
                                    /* sndpsxz */

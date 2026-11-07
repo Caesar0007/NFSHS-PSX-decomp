@@ -57,7 +57,7 @@ extern SndBnk_t gSndBnk[7];                        /* audiocmn.obj */
 extern char *Paths_Paths[50];                      /* paths.obj */
 extern char GameSetup_gCarNames[51][5];            /* gmesetup.obj */
 extern char GameSetup_gTrackNames[12][4];          /* gmesetup.obj */
-extern GameSetup_tData GameSetup_gData;            /* gmesetup.obj */
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail copspeak.obj records no GameSetup_tData */            /* gmesetup.obj */
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */

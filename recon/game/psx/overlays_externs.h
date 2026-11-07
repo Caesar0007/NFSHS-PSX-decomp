@@ -18,7 +18,7 @@ extern int            Cars_gNumRaceCars;       /* 0x8013c7f8 */
 extern int            Cars_gNumHumanRaceCars;  /* 0x8013c800 */
 extern Car_tObj      *Cars_gHumanRaceCarList[];/* 0x8010fa48 */
 extern Car_tObj      *Cars_gRaceCarList[];     /* 0x8010fa00 */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail overlays.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;
 extern tBTCPerpInfo   BTCPerpInfo[2][10];       /* 0x80120bc0 */
 extern int            FinalBTC_Countdown;       /* 0x8013d938 */

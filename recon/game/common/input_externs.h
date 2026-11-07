@@ -18,6 +18,6 @@ extern int  gSimQueue_BlockSelf;
 
 /* ---- sim.obj / gmesetup.obj ---- */
 extern Sim_tSimGlobalVar simGlobal;
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail input.obj records no GameSetup_tData */
 
 #endif /* INPUT_EXTERNS_H */

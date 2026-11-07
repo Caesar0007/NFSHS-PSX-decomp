@@ -12,7 +12,7 @@ extern void trap(int code);   /* gcc MIPS div/overflow break helper */
 
 /* ---- cross-TU globals ---- */
 extern bool             gMPauseUpdateNextTime;        /* mpause.obj; SYM BOOL */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail pausemenu.obj records no GameSetup_tData */
 extern HudPmx_tShape HudPmx_gShapes[];
 
 /* ---- cross-TU functions (demangled) ---- */

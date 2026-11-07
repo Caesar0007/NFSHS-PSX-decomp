@@ -9,7 +9,7 @@
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 /* Canonical GameSetup_gData aggregate used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail weather.obj (GameSetup_gData is read through its word view) */
 
 
 

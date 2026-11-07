@@ -175,12 +175,12 @@ static void NFS4_LoadPerps(void)
   u_long numMissions;
   u_long numCars;
   short i;
-  u_long j; GameSetup_tPerpData *perpInfo; if (0 < GameSetup_gData.numPerps) {
+  u_long j; GameSetup_tPerpData *perpInfo; if (0 < GameSetup_gData[107] /* numPerps */) {
     sprintf(filename,"%s%s",Paths_Paths[0x25],
 
 
 
-            GameSetup_gData.commMode != 1 ? "zHPurs.mis" : "zHPurs2.mis");
+            GameSetup_gData[3] /* commMode */ != 1 ? "zHPurs.mis" : "zHPurs2.mis");
     buffer = (char *)loadfileadr(filename,0x10);
 
 
@@ -206,13 +206,13 @@ static void NFS4_LoadPerps(void)
     data += numTiers * 4;
     data += numMissions * 20;
 
-    data += GameSetup_gData.stageOffset * 44;
+    data += GameSetup_gData[108] /* stageOffset */ * 44;
 
 
 
-    perpInfo = GameSetup_gData.perpInfo;
+    perpInfo = (GameSetup_tPerpData *)&GameSetup_gData[111] /* perpInfo */;
 
-    i = 0; if (0 < GameSetup_gData.numPerps) { carData = (tCarInfo *)(cars + 4); do {
+    i = 0; if (0 < GameSetup_gData[107] /* numPerps */) { carData = (tCarInfo *)(cars + 4); do {
 
 
 
@@ -239,7 +239,7 @@ static void NFS4_LoadPerps(void)
         perpInfo->Colour = (u_char)data[1];
         perpInfo->Personality = (u_char)data[2];
         perpInfo->TimeLimit = *(short *)(data + 4);
-        if (GameSetup_gData.commMode != 1) {
+        if (GameSetup_gData[3] /* commMode */ != 1) {
 
           perpInfo->WingmanTime = *(short *)(data + 6);
           perpInfo->SpikeBeltTime = *(short *)(data + 8);
@@ -263,7 +263,7 @@ static void NFS4_LoadPerps(void)
 
         data += 44;
         perpInfo++;
-        i++; } while (i < GameSetup_gData.numPerps);
+        i++; } while (i < GameSetup_gData[107] /* numPerps */);
     }
     purgememadr(buffer);
     purgememadr(cars);
@@ -347,7 +347,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   AudioCmn_LoadGameSamples();
 
   CopSpeak_StartUp();
-  if (GameSetup_gData.raceType == RaceType_HotPursuit)
+  if (GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit)
   { Speech_Create(); }
 
   Render_InitPauseMenu();
@@ -373,7 +373,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
 
 
 
-  if (((GameSetup_gData.commMode == 1) ? 0x13000 : 0xb000) < largestunused()) {
+  if (((GameSetup_gData[3] /* commMode */ == 1) ? 0x13000 : 0xb000) < largestunused()) {
     AudioMus_SysStartUp(0x6000,0x14000,"ymus");
   }
 
@@ -389,7 +389,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
 
 
 
-  AudioMus_BuildPlayList(GameSetup_gData.userSetting.numplaylistsongs,GameSetup_gData.userSetting.playlist);
+  AudioMus_BuildPlayList(GameSetup_gData[66] /* userSetting.numplaylistsongs */,&GameSetup_gData[67] /* userSetting.playlist */);
 
   largestunused(); return;
 }
@@ -443,7 +443,7 @@ void Nfs2_CleanUpGameModule(void)
 
 
 
-  if (0 < GameSetup_gData.numCars) { do {
+  if (0 < GameSetup_gData[241] /* numCars */) { do {
 
 
 
@@ -459,7 +459,7 @@ void Nfs2_CleanUpGameModule(void)
       Cars_gList[k]->stats.carNameIndex = Cars_gList[k]->carInfo->carNameIndex;
       Cars_gList[k]->stats.carFlags = Cars_gList[k]->carFlags;
       Cars_gNewCarStatsList[k] = Cars_gList[k]->stats;
-      k = k + 1; } while (k < GameSetup_gData.numCars);
+      k = k + 1; } while (k < GameSetup_gData[241] /* numCars */);
   }
 
 
@@ -1200,18 +1200,18 @@ int main(void)
       Sim_MainGameLoop();
 
 
-      if ((GameSetup_gData.replayMode < 2) || (GameSetup_gData.instantReplay != 0)) {
+      if ((GameSetup_gData[9] /* replayMode */ < 2) || (GameSetup_gData[10] /* instantReplay */ != 0)) {
 
-        if ((simVar.restartGame == 0) || (GameSetup_gData.instantReplay != 0)) {
-          GameSetup_gData.replayMode = 2;
+        if ((simVar.restartGame == 0) || (GameSetup_gData[10] /* instantReplay */ != 0)) {
+          GameSetup_gData[9] /* replayMode */ = 2;
           /* MATCH: retail lays the instantReplay!=0 arm as the FALL-THROUGH (its
-           * statsScreen=0 store rides the `j` delay slot) and branches to the ==0 body. */ if (GameSetup_gData.instantReplay != 0) {
+           * statsScreen=0 store rides the `j` delay slot) and branches to the ==0 body. */ if (GameSetup_gData[10] /* instantReplay */ != 0) {
             Replay_ReplayInterface.statsScreen = 0;
           }
           else {
             Replay_ReplayInterface.statsScreen = 1;
 
-            if ((1 < Stats_GetNumOpponents()) && (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0)))))))) {
+            if ((1 < Stats_GetNumOpponents()) && (((GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit && (GameSetup_gData[0] /* raceType */ != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0)))))))) {
 
               if ((Cars_gHumanRaceCarList[0]->stats).finalPosition == 1) {
                 AudioMus_PlaySong("win*");
@@ -1221,7 +1221,7 @@ int main(void)
           }
           Replay_ReplayMode = 2;
           simVar.restartGame = 1;
-          GameSetup_gData.instantReplay = 0;
+          GameSetup_gData[10] /* instantReplay */ = 0;
         }
       }
       else {
@@ -1263,14 +1263,14 @@ int main(void)
 
       Front_InitGraphicsAndDisplayLoading();
 
-      GameSetup_gData.replayMode = (int)oldReplayMode;
+      GameSetup_gData[9] /* replayMode */ = (int)oldReplayMode;
       Front_GetInGameVars();
       (&carManager)->LoadDescription();
       (&tournamentManager)->LoadDescription();
       (&trackManager)->LoadDescription();
 
       Front_Menu((quitType == 1) ? 2 : 1);
-      oldReplayMode = (short)GameSetup_gData.replayMode;
+      oldReplayMode = (short)GameSetup_gData[9] /* replayMode */;
 
 
       NFS3_CheckForFileOperations(); } } while( true );

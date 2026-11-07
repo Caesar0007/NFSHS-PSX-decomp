@@ -125,7 +125,7 @@ struct Speech {
 
 
 
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail aih_btcperp.obj (GameSetup_gData is read through its row view) */
 
 
 

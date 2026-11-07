@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_DRAW_TPIXMAP_H
 #define NFS4_SHARED_DRAW_TPIXMAP_H
 
-struct Draw_tPixMap {
+typedef struct Draw_tPixMap {
     u_char u0, v0;
     u_short clut;
     u_char u1, v1;
@@ -12,5 +12,5 @@ struct Draw_tPixMap {
     u_short pad2;
     u_char u3, v3;
     u_short flag;
-};
+} Draw_tPixMap;
 #endif

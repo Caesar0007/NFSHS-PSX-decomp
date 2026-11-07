@@ -149,7 +149,7 @@ struct {
 
 
 
-typedef struct Draw_tPixMap Draw_tPixMap;
+
 
 #include "shared/DRender_tCalcView.h"
 
@@ -157,7 +157,7 @@ typedef struct Draw_tPixMap Draw_tPixMap;
 
 
 
-typedef struct DRender_tCalcView DRender_tCalcView;
+
 
 #include "shared/Draw_SVertex.h"
 
@@ -165,13 +165,13 @@ typedef struct DRender_tCalcView DRender_tCalcView;
 
 
 
-typedef struct Draw_SVertex Draw_SVertex;
+
 
 #include "shared/Draw_PrimStruct.h"
 
 
 
-typedef struct Draw_PrimStruct Draw_PrimStruct;
+
 
 #include "shared/Draw_tCacheHeader.h"
 
@@ -184,7 +184,7 @@ typedef struct Draw_tCacheHeader Draw_tCacheHeader;
 
 
 
-typedef struct Draw_CarVertex Draw_CarVertex;
+
 
 struct cluttbl {
     unsigned int type : 8;

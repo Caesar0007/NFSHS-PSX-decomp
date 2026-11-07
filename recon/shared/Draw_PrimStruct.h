@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_DRAW_PRIMSTRUCT_H
 #define NFS4_SHARED_DRAW_PRIMSTRUCT_H
 
-struct Draw_PrimStruct {
+typedef struct Draw_PrimStruct {
     u_long *LastPrim;
     char *PrimPtr, *MPrimPtr;
-};
+} Draw_PrimStruct;
 #endif

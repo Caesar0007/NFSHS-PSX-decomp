@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_DRENDER_TCALCVIEW_H
 #define NFS4_SHARED_DRENDER_TCALCVIEW_H
 
-struct DRender_tCalcView {
+typedef struct DRender_tCalcView {
     coorddef translation;
     matrixtdef mrotation;
     coorddef translationInv;
     matrixtdef mrotationInv, mrotationInvRaw;
-};
+} DRender_tCalcView;
 #endif

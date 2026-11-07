@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_DRAW_SVERTEX_H
 #define NFS4_SHARED_DRAW_SVERTEX_H
 
-struct Draw_SVertex {
+typedef struct Draw_SVertex {
     short vx, vy, vz;
     u_char u, v;
     short dvx, dvy;
     u_char r, g, b, a;
-};
+} Draw_SVertex;
 #endif

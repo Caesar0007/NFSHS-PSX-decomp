@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_DRAW_CARVERTEX_H
 #define NFS4_SHARED_DRAW_CARVERTEX_H
 
-struct Draw_CarVertex {
+typedef struct Draw_CarVertex {
     COORD16 vt;
     char u, v;
-};
+} Draw_CarVertex;
 #endif

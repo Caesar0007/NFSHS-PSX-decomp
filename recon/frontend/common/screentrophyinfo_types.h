@@ -2,7 +2,7 @@
 #define NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H   /* Owner-specific type surface for ScreenTrophyInfo.obj. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail ScreenTrophyInfo object: tListIterator, Indexed, Range */
-
+#define NFS4_FE_COLOR_LATE   /* retail: color.obj graph after the track graph, before tMenuItemNFS4LeftRightChoice */
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph. */
 #include "../../game/common/color_types.h"
 #endif
@@ -48,7 +48,7 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
-
+#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE site (retail type order) */
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 };

@@ -27,31 +27,9 @@ typedef struct linedef LINE;
 
 
 
-#include "shared/PAD_PSX.h"
-
-
-
-
-#include "shared/PAD_NEGCON.h"
-
-
-
-
-
-
-
-#include "shared/PAD_ANALOG.h"
-
-
-
-
-#include "shared/PAD_MOUSE.h"
-
-
-
-
-
-#include "shared/PAD_COMMON.h"
+#ifndef NFS4_DRAW_LEAF_CORE_ONLY   /* CORE_ONLY: draw_leaf_types.h phase 2 includes it */
+#include "game_common_pads_types.h"
+#endif
 
 
 
@@ -61,18 +39,40 @@ typedef struct linedef LINE;
 
 
 
-struct {
-    char bActive, time;
-};
 
-typedef void *va_list;
-typedef int INTFN();
-typedef void MVI;
-typedef int EACHOOKCALLBACKFUNC();
-typedef int arg_t;
-typedef int boolean;
-typedef int fixed88;
-typedef int fixed824;
-typedef int fixed248;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

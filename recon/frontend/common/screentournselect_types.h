@@ -5,6 +5,7 @@
 #ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE   /* screentournselect only */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #include "../../game/common/draw_leaf_types.h"
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #endif
@@ -22,8 +23,7 @@
 #undef NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #include "../../game/common/color_types.h"   /* no-op unless NFS4_FE_COLOR_LATE (color.obj graph after the frontend graph) */
-/* These foreign enum tags are absent from this owner graph.  Keep the source constants while the extern boundary below preserves their retail names. */
-#ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
+#ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE   /* These foreign enum tags are absent from this owner graph.  Keep the source constants while the extern boundary below preserves their retail names. */
 #define tTrophySize int
 #define ts_Medium 1
 #endif

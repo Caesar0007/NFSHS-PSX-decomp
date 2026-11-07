@@ -13,9 +13,18 @@
 #ifndef NFS4_HAVE_MATRIX3DT
 typedef struct matrixtdef MATRIX3DT;
 #endif
+#endif
 
+/* Phase 2 (separate guard): a frontend surface that defines NFS4_DRAW_LEAF_CORE_ONLY gets only the core above here
+ * and re-includes this header after its screen graph (retail: PCOORD16 .. Draw_* after tScreen). */
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
+#ifdef NFS4_CORE_CCOORD16
+#include "shared/CCOORD16.h"
+#endif
+#include "game_common_pads_types.h"
 
 #include "shared/Draw_tPixMap.h"
 

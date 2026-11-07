@@ -1,10 +1,8 @@
-/* Owner-specific type surface for ScreenDisplay.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H   /* Owner-specific type surface for ScreenDisplay.obj. */
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "fe_core_types.h"
-#undef NFS4_FE_CORE_CARS_LATE
-/* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
+#undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
@@ -14,7 +12,6 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     void Draw(bool);
 #endif
 };
-
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
@@ -27,7 +24,6 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     void SetDimensions(short, short, short, short);
 #endif
 };
-
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
@@ -42,6 +38,8 @@ struct tDrawShapeExtended;
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
+#undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
+#include "../../game/common/draw_leaf_types.h"
 #include "shared/tActiveLine.h"
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #include "screendisplay.h"
@@ -52,11 +50,13 @@ struct tMenu;
 #endif
 #include "fedialog.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */
+#include "../../game/common/color_types.h"
+#endif
 #include "fe_core_cars.h"
 #define NFS4_FE_TRACK_NO_PLAYER
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
-
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
     int fCarListFilter;

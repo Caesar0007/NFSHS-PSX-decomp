@@ -20,7 +20,7 @@ typedef unsigned short ushort;
  * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
  * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
 struct _physadr { int r[1]; };
-#ifdef NFS4_CORE_SPCH_FIRST   /* speech.obj: SPCHNFSType structs ahead of the core (speech_types.h) */
+#if defined(NFS4_CORE_SPCH_FIRST) || defined(NFS4_CORE_SND_FIRST)   /* speech.obj / audiocmn.obj first-header structs ahead of the core (shared/spchnfs_first.h) */
 #include "shared/spchnfs_first.h"
 #endif
 
@@ -233,7 +233,7 @@ typedef struct cdstreamstruct CDSTREAM;
 typedef struct linedef LINE;
 #define NFS4_HAVE_LINE
 #include "shared/SHAPETABLEENTRY.h"
-#ifdef NFS4_CORE_FULL
+#if defined(NFS4_CORE_FULL) && !defined(NFS4_DRAW_LEAF_CORE_ONLY)   /* CORE_ONLY: draw_leaf_types.h phase 2 emits these */
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #ifdef NFS4_CORE_CCOORD16

@@ -1,7 +1,9 @@
 /* audiocmn.obj's exact source-visible delta over the shared AudioClc graph. */
 #ifndef NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
 #define NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
-
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
+#define NFS4_CORE_SND_FIRST   /* retail: SND* structs ahead of the core (nfs4_types.h) */
+#endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #ifndef NFS4_AUDIOCMN_KEEP_INPUT_DEVICE_CALL

@@ -8,6 +8,9 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
+#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_FT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
 #endif
@@ -21,19 +24,16 @@ typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
-
-
-
 #include "shared/DIRENTRY.h"
 
 
 
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
-struct POLY_FT3 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
-    short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
-    u_short pad1;
-};
+/* POLY_FT3: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_POLY_FT3, retail libgpu.h order) */
+
+
+
+
 #include "shared/POLY_FT4.h"
 
 

@@ -3,19 +3,19 @@
  * precisely the 17-name delta retained by the standalone HUD owner. */
 #ifndef NFS4_GAME_PSX_HUD_TYPES_H
 #define NFS4_GAME_PSX_HUD_TYPES_H
+#define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_SPRT   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_F3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_COLOR_SCHED_AFTER_BWSM   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
-
 typedef int CarLogic_tObservations[1][3];
-
 #include "shared/Sched_tSchedule.h"
-
-
-
 
 #include "shared/Sim_tSimGlobalVar.h"
 
@@ -116,9 +116,9 @@ typedef enum forceFocus_t {
 
 #include "shared/FLARE_PIECE_DEF.h"
 
-struct POLY_F3 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0,x1,y1,x2,y2;
-};
+/* POLY_F3: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_POLY_F3, retail libgpu.h order) */
+
+
 #include "shared/POLY_F4.h"
 
 

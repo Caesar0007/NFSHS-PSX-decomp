@@ -1,13 +1,13 @@
 /* Sfx.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_SFX_TYPES_H
 #define NFS4_GAME_PSX_SFX_TYPES_H
+#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 /* GameSetup_tData: not in retail sfx.obj (GameSetup_gData is read through its word view) */
-
 
 
 

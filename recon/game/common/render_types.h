@@ -1,13 +1,13 @@
 /* render.obj's exact source-visible extension of the shared night graph. */
 #ifndef NFS4_GAME_COMMON_RENDER_TYPES_H
 #define NFS4_GAME_COMMON_RENDER_TYPES_H
-
+#define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_DR_STP   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_NIGHT_OMIT_PRIVATE_TYPES
 #include "../psx/night_types.h"
 #undef NFS4_NIGHT_OMIT_PRIVATE_TYPES
-
 #define gScratchLastWord (*(int *)0x1F8003FC)
-
 #include "shared/BW_tContext.h"
 
 
@@ -73,7 +73,7 @@
 
 
 
-struct DR_STP { u_long tag; u_long code[2]; };
+/* DR_STP: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_DR_STP, retail libgpu.h order) */
 
 #include "shared/dflip.h"
 

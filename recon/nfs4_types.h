@@ -157,12 +157,60 @@ struct DISPENV {
 typedef struct DISPENV DISPENV;
 #endif
 #ifdef NFS4_CORE_FULL
+/* retail: the owner's libgpu.h primitives right after DISPENV, in libgpu.h order (NFS4_PRIM_* from the owner's first header) */
+#ifdef NFS4_PRIM_POLY_F3
+struct POLY_F3 {
+    u_long tag; u_char r0,g0,b0,code; short x0,y0,x1,y1,x2,y2;
+};
+#endif
+#ifdef NFS4_PRIM_POLY_F4
+#include "shared/POLY_F4.h"
+#endif
+#ifdef NFS4_PRIM_POLY_FT3
+struct POLY_FT3 {
+    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
+    short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
+    u_short pad1;
+};
+#endif
+#ifdef NFS4_PRIM_POLY_FT4
+#include "shared/POLY_FT4.h"
+#endif
+#ifdef NFS4_PRIM_POLY_G3
+#include "shared/POLY_G3.h"
+#endif
+#ifdef NFS4_PRIM_POLY_G4
+#include "shared/POLY_G4.h"
+#endif
+#ifdef NFS4_PRIM_POLY_GT3
+struct POLY_GT3 {
+    u_long tag;
+    u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
+    u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
+    u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
+};
+#endif
 #ifdef NFS4_CORE_POLY_GT4
 /* defined by the headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every
  * object that records it. */
 #include "shared/POLY_GT4.h"
 #endif
+#ifdef NFS4_PRIM_LINE_G2
+#include "shared/LINE_G2.h"
+#endif
+#ifdef NFS4_PRIM_SPRT
+#include "shared/SPRT.h"
+#endif
+#ifdef NFS4_PRIM_TILE_1
+struct TILE_1 { u_long tag; u_char r0,g0,b0,code; short x0,y0; };
+#endif
 #include "shared/DR_MODE.h"
+#ifdef NFS4_PRIM_DR_TWIN
+struct DR_TWIN { u_long tag, code[2]; };
+#endif
+#ifdef NFS4_PRIM_DR_STP
+struct DR_STP { u_long tag; u_long code[2]; };
+#endif
 #endif
 
 struct shapetbl {

@@ -2,7 +2,7 @@
 #define _NFILE_H_
 
 #include "eac_types.h"
-#include "../../../lib/nfile.h"
+/* internals (lib/nfile.h) -> nfile_private.h (library sources only) */
 
 extern int FILE_init(int handlecount, int memsize, int opcount);   /* @0x800EBBF4 */
 extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf);   /* @0x800EBC78 */

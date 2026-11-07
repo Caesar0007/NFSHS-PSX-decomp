@@ -3,7 +3,7 @@
 
 #include "eac_types.h"
 
-typedef int (*DecodeFn)(unsigned char **cursor);
+/* internals -> textset_private.h (library sources only; no retail game object records them) */
 
 extern void setfont(int fontId);   /* @0x800F2E94 */
 

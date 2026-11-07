@@ -10,7 +10,7 @@
 #define RaceType_HotPursuit 1
 #define RaceType_PinkSlips 6
 #define NFS4_FE_INPUT_NO_PLAYER
-#define NFS4_EA_PSX_INCOMPLETE_PHYSADR
+/* physadr: the complete SDK type (retail size 4) */
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FEMENUOPTIONS_SURFACE
 #define NFS4_FEMENUDEFS_SURFACE
@@ -22,7 +22,7 @@
 #undef NFS4_FEMENUOPTIONS_SURFACE
 #undef NFS4_FEMENUDEFS_SURFACE
 #undef NFS4_FE_CORE_FEMENU_METHODS
-#undef NFS4_EA_PSX_INCOMPLETE_PHYSADR
+
 #undef NFS4_FE_INPUT_NO_PLAYER
 
 /* These pointer-only foreign classes are used by the reconstructed extern

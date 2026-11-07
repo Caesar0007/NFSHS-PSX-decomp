@@ -20,7 +20,7 @@
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "fileroot.h"
+#include "fileroot_private.h"
 #include "systask.h"
 #include "cdfs.h"
 #include "devsys.h"

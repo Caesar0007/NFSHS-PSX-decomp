@@ -3,14 +3,14 @@
 
 #include "eac_types.h"
 
-typedef struct LoadArgs {
-    char *name;      /* +0x00  source filename                                   */
-    int   dest;      /* +0x04  fixed destination (loadfileat* family)            */
-    int   memclass;  /* +0x08  allocator class id (loadfile* / bigfile family)   */
-    int   abortval;  /* +0x0C  abort flag snapshot (0 for the "z" variants)      */
-} LoadArgs;
+/* internals -> nsync_private.h (library sources only; no retail game object records them) */
 
-extern int filesizeatomic(int retry, LoadArgs *a);   /* @0x800E5608 */
+
+
+
+
+
+
 extern int filesize(char *name);   /* @0x800E566C */
 extern int loadfileadrz(char *name, int memclass);   /* @0x800E57A8 */
 extern int loadfileadr(char *name, int memclass);   /* @0x800E57E8 */

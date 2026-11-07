@@ -24,7 +24,7 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "resize.h"
-#include "memstd.h"
+#include "memstd_private.h"
 #include "blkmov.h"
 
 extern MemClass *memclass[16];   /* @0x8013E900 (memstd.obj owns the table) */

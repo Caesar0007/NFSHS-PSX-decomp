@@ -23,7 +23,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "syncfile.h"
+#include "syncfile_private.h"
 #include "nfile.h"
 
 /* file-local functions (retail SYM: local labels) */

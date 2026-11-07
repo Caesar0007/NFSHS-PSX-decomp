@@ -14,10 +14,10 @@
 
 typedef struct matrixtdef matrixtdef;   /* C alias -- shared/matrixtdef.h owns the tag */
 
-/* trnsfrm.obj's private 3-vector result (transform writes it back through an
- * int* out-param of the same size). */
-typedef struct {
-    int x, y, z;
-} TransformResult;
+/* internals -> trnsfrm_private.h (library sources only; no retail game object records them) */
+
+
+
+
 
 #endif

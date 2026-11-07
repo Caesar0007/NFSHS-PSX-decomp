@@ -25,7 +25,7 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sstsetpr.h"
 }
 extern "C" {
-#include "eaclib/psx/spchpsxz/spchevnt.h"
+#include "eaclib/psx/spchpsxz/spch.h"
 }
 extern "C" {
 void *memcpy(...);

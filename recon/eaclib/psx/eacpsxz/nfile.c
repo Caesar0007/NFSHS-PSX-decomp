@@ -28,7 +28,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "nfile.h"
+#include "nfile_private.h"
 #include "fileroot.h"
 #include "memstd.h"
 #include "locatbig.h"

@@ -2,7 +2,7 @@
 #define _NASYNC_H_
 
 #include "eac_types.h"
-#include "../../../lib/nasync.h"
+/* internals (lib/nasync.h) -> nasync_private.h (library sources only) */
 
 extern void initasync(int numreq, int blocksize, int memclass);   /* @0x800F11B0 */
 extern int asyncloadfilecallback(char *name, int memclass, void (*cb)(int));   /* @0x800F12B0 */

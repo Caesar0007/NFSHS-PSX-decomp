@@ -27,7 +27,7 @@ int sprintf(...);
 
 /* ---- SPCH_ speech-runtime API: the SPCHPSXZ library's own headers (recon/eaclib/psx/spchpsxz) ---- */
 extern "C" {
-#include "eaclib/psx/spchpsxz/spch_externs.h"
+#include "eaclib/psx/spchpsxz/spch.h"
 }
 
 /* ---- audio ---- */

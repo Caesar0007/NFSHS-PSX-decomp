@@ -765,7 +765,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
   locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size);
 
   FILE_readsync(this->fFileHandle,offset,data,size,100);
-  SPCH_ResolveData((VoxEventDat *)data);
+  SPCH_ResolveData(data);
 
 
   id = 0; dt = 0;
@@ -822,7 +822,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         memcpy(data,hdata + offset - hoffset,size);
 
 
-        banknames[SPCH_AddBank((VoxBank *)data)] = name;
+        banknames[SPCH_AddBank(data)] = name;
         data += size;
         id++; } else {
 

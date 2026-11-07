@@ -20,7 +20,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "memstd.h"
+#include "memstd_private.h"
 #include "textcrnt.h"
 #include "callback.h"
 #include "blkfill.h"

@@ -14,7 +14,7 @@
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "matrix.h"
+#include "matrix_private.h"
 #include "fixdmult.h"
 #include "trnspos.h"
 #include "trnsmult.h"

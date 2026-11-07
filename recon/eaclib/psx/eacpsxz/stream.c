@@ -24,7 +24,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "stream.h"
+#include "stream_private.h"
 #include "syncfile.h"
 #include "callback.h"
 #include "systask.h"

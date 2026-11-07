@@ -21,7 +21,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "nasync.h"
+#include "nasync_private.h"
 #include "nfile.h"
 #include "memstd.h"
 #include "systask.h"

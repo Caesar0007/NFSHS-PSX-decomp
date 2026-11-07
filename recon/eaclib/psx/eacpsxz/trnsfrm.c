@@ -9,7 +9,7 @@
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "trnsfrm.h"
+#include "trnsfrm_private.h"
 #include "fixdmult.h"
 
 void transform(int *vec, int *mat, int *out)        /* @0x800EAED8 */

@@ -35,7 +35,7 @@
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "nsync.h"
+#include "nsync_private.h"
 #include "syncfile.h"
 #include "nfile.h"
 #include "blkmov.h"

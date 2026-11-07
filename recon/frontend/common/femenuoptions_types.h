@@ -18,7 +18,7 @@ enum tMenuCommandType {
 };
 #include "shared/tMenuCommand.h"
 
-#define NFS4_EA_PSX_INCOMPLETE_PHYSADR
+/* physadr: the complete SDK type (retail size 4) */
 #define NFS4_FEMENUOPTIONS_SURFACE
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE   /* tScreenControllerConfig `this` pair in the slider ProcessInput */
@@ -27,7 +27,7 @@ enum tMenuCommandType {
 #include "screencontroller_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 #undef NFS4_FEMENUOPTIONS_SURFACE
-#undef NFS4_EA_PSX_INCOMPLETE_PHYSADR
+
 
 /* Replace ScreenController's narrow foreign views with the records and exact
  * member slices required by FeMenuOptions. */

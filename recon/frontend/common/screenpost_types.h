@@ -22,13 +22,13 @@ enum tMenuCommandType {
 
 
 
-#define NFS4_EA_PSX_INCOMPLETE_PHYSADR
+/* physadr: the complete SDK type (retail size 4) */
 #define NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
 #define NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #include "screentournselect_types.h"
 #undef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #undef NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
-#undef NFS4_EA_PSX_INCOMPLETE_PHYSADR
+
 
 /* The linked SYM keeps the public array typedef but attributes the completed
  * element body elsewhere.  CC1PL requires the exact 20-byte body to form it. */

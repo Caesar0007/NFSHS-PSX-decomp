@@ -14,7 +14,7 @@
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "textset.h"
+#include "textset_private.h"
 #include "shpdepth.h"
 #include "getm.h"
 #include "textcode.h"

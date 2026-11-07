@@ -3,11 +3,11 @@
 
 #include "eac_types.h"
 
-typedef struct StreamFilter {
-    unsigned int mask;
-    unsigned int value;
-    unsigned int consumer;
-} StreamFilter;
+/* internals -> stream_private.h (library sources only; no retail game object records them) */
+
+
+
+
 
 extern int  STREAM_overhead(int numReq, int numFilters, int numConsumers);   /* @0x800FCDE0 */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, void *objbuf, int bufsize);   /* @0x800FCE14 */

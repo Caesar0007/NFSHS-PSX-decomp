@@ -29,7 +29,7 @@
 
 #include "../../../../eaclib/psx/eaclib_types.h"
 #include "../../../../eaclib/psx/eacpsxz/eac_types.h"
-#include "../../../../eaclib/psx/eacpsxz/memstd.h"
+#include "../../../../eaclib/psx/eacpsxz/memstd_private.h"
 #include "../../../../eaclib/psx/eacpsxz/textcrnt.h"
 #include "../../../../eaclib/psx/eacpsxz/callback.h"
 #include "../../../../eaclib/psx/eacpsxz/blkfill.h"

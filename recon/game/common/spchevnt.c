@@ -5,7 +5,7 @@
  *   code + SPCHNFSType_* field args, enqueues via SPCH_AddEvent. Unmangled C-linkage symbols.
  */
 
-#include "eaclib/psx/spchpsxz/spchevnt.h"
+#include "eaclib/psx/spchpsxz/spch.h"
 
 /* The 14 speech-token wrappers, as the retail debug records of these functions type them (Speech.obj's block: each is a
  * struct with the single member `unsigned long flags`; SPCHEVNT.C is C, so the tags need the typedef). */

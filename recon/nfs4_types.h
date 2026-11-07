@@ -137,13 +137,13 @@ typedef unsigned short u_short;
 typedef unsigned int   u_int;
 #include "shared/u_long.h"
 typedef unsigned short ushort;
-#ifdef NFS4_EA_PSX_INCOMPLETE_PHYSADR
-/* Some retail owners retain only the public pointer typedef.  Keep the SDK's
- * private referent incomplete so CC1 does not emit a foreign completed tag. */
-struct _physadr;
-#else
+/* The SDK's complete referent in every owner: retail records physadr at
+ * size 4 everywhere.  Its `_physadr` tag records are not in the SYM because
+ * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
+ * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
 struct _physadr { int r[1]; };
-#endif
+
+
 typedef struct _physadr *physadr;
 typedef long daddr_t;
 typedef char *caddr_t;

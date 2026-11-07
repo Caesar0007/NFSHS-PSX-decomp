@@ -1,6 +1,6 @@
-/* aih_basicperp.obj's exact owner delta over the shared AI hierarchy. */
 #ifndef NFS4_GAME_COMMON_AIH_BASICPERP_TYPES_H
-#define NFS4_GAME_COMMON_AIH_BASICPERP_TYPES_H
+#define NFS4_GAME_COMMON_AIH_BASICPERP_TYPES_H   /* aih_basicperp.obj's exact owner delta over the shared AI hierarchy. */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 
 /* Retail inlines these members here; other key-function TUs must not emit
    out-of-line copies merely because they include the shared hierarchy. */

@@ -1,7 +1,7 @@
-/* aih_cop.obj owner types; AIHigh_Cop uses the canonical AIHIGH.H definition. */
 #ifndef NFS4_GAME_COMMON_AIH_COP_TYPES_H
-#define NFS4_GAME_COMMON_AIH_COP_TYPES_H
-
+#define NFS4_GAME_COMMON_AIH_COP_TYPES_H   /* aih_cop.obj owner types; AIHigh_Cop uses the canonical AIHIGH.H definition. */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "aih_hierarchy_types.h"
 
 #include "shared/BW_tContext.h"

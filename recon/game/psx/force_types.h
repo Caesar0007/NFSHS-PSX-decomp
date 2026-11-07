@@ -1,7 +1,7 @@
 /* force.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_FORCE_TYPES_H
 #define NFS4_GAME_PSX_FORCE_TYPES_H
-
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */

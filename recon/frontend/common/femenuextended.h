@@ -1,7 +1,7 @@
-/* The retail inline-body SLD places this declaration in FEMENUEXTENDED.H.
- * Part selection is reconstruction-only include scaffolding; it preserves
- * declaration order while using the recorded physical source owner. */
+/* Retail inline-body SLD places this declaration in FEMENUEXTENDED.H; part selection = include scaffolding. */
 #ifndef NFS4_FEMENUEXTENDED_TYPE_PART
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
+#define NFS4_CORE_CCOORD16   /* retail femenuextended: CCOORD16 right after COORD16 */
 #include "femenuextended_types.h"
 #include "femenuextended_externs.h"
 #elif NFS4_FEMENUEXTENDED_TYPE_PART == 1

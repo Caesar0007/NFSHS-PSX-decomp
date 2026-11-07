@@ -3,7 +3,7 @@
  * font types (kernpair/KERN, font callback typedefs); no coorddef/linedef/SHAPETABLEENTRY and no EA scalar typedefs. */
 #ifndef _GAME_PSX_DEBUG_H_
 #define _GAME_PSX_DEBUG_H_
-
+#define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "nfs4_types.h"
 
 #include "shared/PAD_PSX.h"

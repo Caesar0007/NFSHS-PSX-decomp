@@ -2,5 +2,6 @@
  * the same type graph as felines.obj (124 type records), so the TU sees the same header set. */
 #ifndef _FRONTEND_COMMON_FECOLOR_H_
 #define _FRONTEND_COMMON_FECOLOR_H_
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #include "felines_types.h"
 #endif

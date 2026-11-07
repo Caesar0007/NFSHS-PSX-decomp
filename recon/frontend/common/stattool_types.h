@@ -1,6 +1,6 @@
-/* Owner-specific type surface for Stattool.obj. */
 #ifndef NFS4_FRONTEND_COMMON_STATTOOL_TYPES_H
-#define NFS4_FRONTEND_COMMON_STATTOOL_TYPES_H
+#define NFS4_FRONTEND_COMMON_STATTOOL_TYPES_H   /* Owner-specific type surface for Stattool.obj. */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 
 /* Statchk.obj's complete 89-record graph is a strict subset. */
 #include "statchk_types.h"

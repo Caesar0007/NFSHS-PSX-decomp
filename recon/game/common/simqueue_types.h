@@ -1,7 +1,7 @@
 /* simqueue.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
 #define NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
-
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 
 #include "shared/Input_tResults.h"

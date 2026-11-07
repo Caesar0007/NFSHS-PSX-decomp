@@ -1,8 +1,8 @@
-/* AudioTrk private type projection over the shared color graph; original
- * foreign-header visibility is not established by the surviving type stream. */
+/* AudioTrk private type projection over the shared color graph (foreign-header visibility not established). */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #ifndef NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
 #define NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "color_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */

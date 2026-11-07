@@ -1,6 +1,6 @@
-/* aih_traf.obj owner types; Cop/Traffic use canonical AIHIGH.H definitions. */
 #ifndef NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
-#define NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
+#define NFS4_GAME_COMMON_AIH_TRAF_TYPES_H   /* aih_traf.obj owner types; Cop/Traffic use canonical AIHIGH.H definitions. */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIH_TRAF_OWNER   /* aihigh.h: AIHigh_Traffic inline copies LINK_STRIPPED */
 #include "aih_hierarchy_types.h"
 #include "../../link_stripped.h"

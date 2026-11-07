@@ -943,8 +943,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
   carType = carObj->carInfo->carType;
 
 
-  const u_int t = carType - 0x16U;
-  if (5 < t) { carObj->carInfo->Country = 0; }
+  const int f = (carType - 0x16U) < 6;
+  if (!f) { carObj->carInfo->Country = 0; }
 
   if (R3DCar_InMenu == 0) {
 

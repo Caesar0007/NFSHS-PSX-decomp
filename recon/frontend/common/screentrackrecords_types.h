@@ -1,6 +1,6 @@
-/* Owner-specific type surface for ScreenTrackRecords.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H   /* Owner-specific type surface for ScreenTrackRecords.obj. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 /* Reuse the exact shared render/frontend graph while excluding input enums,
  * songs, saved-game and memory-card records, and dialogs. */

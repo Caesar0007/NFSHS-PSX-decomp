@@ -1,6 +1,7 @@
 /* frontend/psx/drawshp.h - reconstructed declarations for DRAWSHP.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_DRAWSHP_H_
 #define _FRONTEND_PSX_DRAWSHP_H_
+#define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "drawshp_types.h"
 #include "drawshp_externs.h"
 

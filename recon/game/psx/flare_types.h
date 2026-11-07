@@ -3,7 +3,8 @@
  * below are precisely the named delta retained by the standalone flare owner. */
 #ifndef NFS4_GAME_PSX_FLARE_TYPES_H
 #define NFS4_GAME_PSX_FLARE_TYPES_H
-
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)

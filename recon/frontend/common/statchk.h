@@ -2,6 +2,7 @@
 /* frontend/common/statchk.h - reconstructed declarations for STATCHK.CPP (C++ TU) */
 #ifndef _FE_COMMON_STATCHK_H_
 #define _FE_COMMON_STATCHK_H_
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "statchk_types.h"
 #include "statchk_externs.h"
 

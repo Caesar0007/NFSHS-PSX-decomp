@@ -1,6 +1,6 @@
-/* Owner-specific type surface for ScreenTrophyInfo.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H   /* Owner-specific type surface for ScreenTrophyInfo.obj. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail ScreenTrophyInfo object: tListIterator, Indexed, Range */
 
 /* The retail owner contains color.obj's complete 71-record graph. */

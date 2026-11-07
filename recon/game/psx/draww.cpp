@@ -923,9 +923,9 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   r_div = &gDiv;
 
 
-  if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3)) {
-    Draw_SVertex *v8; Draw_SVertex *v5; Draw_SVertex *v6; Draw_SVertex *v7; int t4;
-    t4 = (int)n++ * 16;
+  if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3))
+  {
+    Draw_SVertex *v8; Draw_SVertex *v5; Draw_SVertex *v6; Draw_SVertex *v7; int t4; t4 = (int)n++ * 16;
       short q = n + 1; short q1; short q2; v5 = &r_div->v[n];
       q1 = q + 1; v6 = &r_div->v[q];
       q2 = q + 2; v7 = &r_div->v[q1];
@@ -952,16 +952,16 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
       gte_stflg(&flag); if (flag < 0) { v8->a = 1; } else { v8->a = 0;
       }
     }
-    if (sd->doublelayer) {
-      POLY_GT3 *prim;
+    if (sd->doublelayer)
+    { POLY_GT3 *prim;
       int otz;
 
+      otz = sd->otz + 8;
 
 
 
 
-
-      sd->GT4Prim.code &= 0xf7; otz = sd->otz + 8;
+      sd->GT4Prim.code &= 0xf7;
 
       if (v0->a) goto DrawWSubdiv_edge1; if (v1->a) goto DrawWSubdiv_edge2; if (v4->a) goto DrawWSubdiv_edge1;
       {
@@ -1012,8 +1012,9 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
     DrawW_SubdividFacet(sd,l,v0,v4,v8,v7,n,subDivide);
     DrawW_SubdividFacet(sd,l,v4,v1,v5,v8,n,subDivide);
     DrawW_SubdividFacet(sd,l,v8,v5,v2,v6,n,subDivide);
-    DrawW_SubdividFacet(sd,l,v7,v8,v6,v3,n,subDivide); return;
+    DrawW_SubdividFacet(sd,l,v7,v8,v6,v3,n,subDivide);
   }
+  else
   {
 
 
@@ -1021,9 +1022,8 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
 
 
 
-
-    if (subDivide != 0) {
-      long bfct;
+    if (subDivide != 0)
+    { long bfct;
 
 
       gte_ldsxy3(*(int *)&v0->dvx,*(int *)&v1->dvx,*(int *)&v2->dvx);
@@ -1060,7 +1060,7 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
 
 
     sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u)); DrawW_AddSubdividPrimGT4((POLY_GT4 *)v4,v0,v1,v2,v3,sd);
-    return;
+
   }
 }
 
@@ -2899,7 +2899,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 #line 1389 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 {
-  Draw_tGiveShelbyMoreCache *sd; int chunkCount; int buildInd; Chunk *chunkDat; coorddef *pChunkCp; void *joinQuads; int negOne; sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
+  Draw_tGiveShelbyMoreCache *sd; int chunkCount; void *joinQuads; sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
 
 
   chunkCount = BWorld_gChunkCount;
@@ -2917,16 +2917,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
   sd->offsubdivid = 0;
 
-  buildInd = 0; negOne = -1; for (; buildInd < chunkCount; buildInd++) {
+  for (int buildInd = 0, negOne = -1; buildInd < chunkCount; buildInd++) {
+    Chunk *chunkDat;
+
+
+    if (!(buildList[buildInd].enableBits & 1U)) continue;
 
 
 
-    if (buildList[buildInd].enableBits & 1U) {
 
-
-
-
-      sd->artInfo = &gInitialArt;
+      sd->artInfo = &gInitialArt; { coorddef *pChunkCp;
 
       sd->chunkInd = buildList[buildInd].chunkInd;
 
@@ -2955,8 +2955,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->nightFlags = 0;
 
 
-      if (gNight_renderNight) {
-        coorddef tmp; coorddef tmp2; int cx; int cz; int dist;
+      if (gNight_renderNight)
+      { coorddef tmp; coorddef tmp2; int cx; int cz; int dist;
         int four = 4; sd->nightFlags = four;
 
 
@@ -2982,8 +2982,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
         }
 
-        if (BW_gCopCarObj) {
-          int dist;
+        if (BW_gCopCarObj)
+        { int dist;
           cx = (-BW_gCopCarObj->N.position.x + pChunkCp->x) >> 10;
           cz = (-BW_gCopCarObj->N.position.z + pChunkCp->z) >> 10;
 
@@ -3005,7 +3005,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       }
 
 
-
+      {
 
       sd->trans.x = (-Vi->cview.translation.x + pChunkCp->x) >> 10;
       sd->trans.y = (-Vi->cview.translation.y + pChunkCp->y) >> 10;
@@ -3050,22 +3050,22 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           if (sd->quadCount) {
 
             joinQuads = chunkDat->renderQuads[3];
-
-
-
-
-            goto DrawWTrough_setStateCallHigh;
+            sd->offset = 30;
+            sd->zeroGTETransFlag = 1;
+            sd->light = negOne;
+            sd->quads = joinQuads;
+            DrawW_kCtrlWorld_High(sd);
           }
         }
       }
-      else {
+      else
         {
 
-          Group *lorez = chunkDat->lorezstripBuf; if (lorez)
+          if (chunkDat->lorezstripBuf)
           {
 
 
-            short lorezN = lorez->m_num_elements; void *lorezPtr = (void *)(lorez + 1);
+            const short lorezN = chunkDat->lorezstripBuf->m_num_elements; void *const lorezPtr = (void *)(chunkDat->lorezstripBuf + 1);
 
             sd->stripPtr = (Trk_NewStrip *)lorezPtr;
             sd->numStrips = lorezN;
@@ -3087,7 +3087,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
               DrawW_StripDraw_High(sd);
             }
           }
-        }
+
 
 
 
@@ -3110,7 +3110,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         sd->quadCount = chunkDat->quadCounts[1];
         if (sd->quadCount) {
 
-          joinQuads = chunkDat->renderQuads[1]; DrawWTrough_setStateCallHigh:
+          joinQuads = chunkDat->renderQuads[1];
           sd->offset = 30;
           sd->zeroGTETransFlag = 1;
           sd->light = negOne;
@@ -3143,7 +3143,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-
+      {
 
 
 
@@ -3158,7 +3158,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         sd->light = negOne;
 
         sd->quads = joinQuads; DrawW_kCtrlWorld_High(sd);
-      }
+      } } }
     }
 
 

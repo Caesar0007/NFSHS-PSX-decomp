@@ -1,7 +1,7 @@
 /* sim.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_COMMON_SIM_TYPES_H
 #define NFS4_GAME_COMMON_SIM_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #include "aih_hierarchy_types.h"
 #undef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES

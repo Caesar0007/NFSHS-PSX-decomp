@@ -1,7 +1,7 @@
 /* fe3dmenu_externs.h -- externs for fe3dmenu.cpp (3D showroom/car render; PsyQ math + soft-float) */
 #ifndef FE3DMENU_EXTERNS_H
 #define FE3DMENU_EXTERNS_H
-
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "fe3dmenu_types.h"
 
 /* globals (SYM Globals.jsonl) */

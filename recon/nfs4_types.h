@@ -42,6 +42,26 @@ typedef u_short gid_t;
  * coorddef/matrixtdef before the CD stream, linedef/SHAPETABLEENTRY/PCOORD16/COORD16 after it.  The units are
  * include-guarded, so including them here only moves them earlier; the NFS4_HAVE_* flags keep each companion
  * typedef single. */
+/* Objects whose first header is the kernel and/or controller-pad graph (retail SYM: TCB EXEC DIRENTRY and/or
+ * PAD_PSX..PAD_COMMON ahead of MATRIX/VECTOR), one macro defined by the owner's first header:
+ * NFS4_CORE_KERNEL_FIRST, NFS4_CORE_PADS_FIRST, NFS4_CORE_KERNEL_PADS_FIRST, NFS4_CORE_PADS_KERNEL_FIRST. */
+#if defined(NFS4_CORE_KERNEL_FIRST) || defined(NFS4_CORE_KERNEL_PADS_FIRST)
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#endif
+#if defined(NFS4_CORE_PADS_FIRST) || defined(NFS4_CORE_KERNEL_PADS_FIRST) || defined(NFS4_CORE_PADS_KERNEL_FIRST)
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#endif
+#ifdef NFS4_CORE_PADS_KERNEL_FIRST
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#endif
 #ifdef NFS4_CORE_FULL
 #include "shared/MATRIX.h"
 #endif
@@ -137,6 +157,11 @@ struct DISPENV {
 typedef struct DISPENV DISPENV;
 #endif
 #ifdef NFS4_CORE_FULL
+#ifdef NFS4_CORE_POLY_GT4
+/* defined by the headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every
+ * object that records it. */
+#include "shared/POLY_GT4.h"
+#endif
 #include "shared/DR_MODE.h"
 #endif
 
@@ -186,6 +211,24 @@ struct cdstreamstruct {
 typedef struct cdstreamstruct CDSTREAM;
 #endif
 #ifdef NFS4_CORE_EA
+/* nfs2mem: kernpair right after the CD stream; movie: the kernel types, then kernpair, there. */
+#ifdef NFS4_CORE_KERNEL_KERN_AFTER_CD
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#endif
+#if defined(NFS4_CORE_KERN_AFTER_CD) || defined(NFS4_CORE_KERNEL_KERN_AFTER_CD)
+#include "shared/kernpair.h"
+#endif
+#ifdef NFS4_CORE_PADS_EARLY
+/* frontend family (fecars felines fefades fecolor femission fetracks fecheats fememcard femenudefs femenuextended
+ * femenuoptions screenpinkslips screentracks): retail emits the controller pads after the CD stream, before linedef. */
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#endif
 #include "shared/linedef.h"
 typedef struct linedef LINE;
 #define NFS4_HAVE_LINE

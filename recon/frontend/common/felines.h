@@ -1,6 +1,7 @@
 /* frontend/common/felines.h - reconstructed declarations for FELINES.CPP (C++ TU) */
 #ifndef _FRONTEND_COMMON_FELINES_H_
 #define _FRONTEND_COMMON_FELINES_H_
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #include "felines_types.h"
 #include "felines_externs.h"
 

@@ -1,10 +1,10 @@
 /* Owner-specific type surface for ScreenTournSelect.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H
-
-/* ScreenTournSelect retains the input-key record but not the foreign player
- * enum.  ScreenPost retains both records. */
-/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
+#ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE   /* screentournselect/pinkslips/tracks, not screenpost */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#endif
+/* ScreenTournSelect keeps the input-key record, not the foreign player enum; ScreenPost keeps both. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root parameter types */
 #include "fe_player_types.h"
 
 /* ScreenMemcard is the nearest exact implemented base graph.  Exclude its

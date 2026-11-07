@@ -1,6 +1,7 @@
 /* frontend/common/fefades.h - reconstructed declarations for FEFADES.CPP (C++ TU) */
 #ifndef _FRONTEND_COMMON_FEFADES_H_
 #define _FRONTEND_COMMON_FEFADES_H_
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #include "fefades_types.h"
 #include "fefades_externs.h"
 

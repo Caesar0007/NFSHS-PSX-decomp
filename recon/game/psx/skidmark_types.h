@@ -1,7 +1,7 @@
 /* Skidmark.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_SKIDMARK_TYPES_H
 #define NFS4_GAME_PSX_SKIDMARK_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "../common/color_types.h"
 
 #include "shared/POLY_GT4.h"

@@ -1,7 +1,7 @@
 /* Track.obj source-visible types; full supplied type-copy/order audit remains open. */
 #ifndef NFS4_GAME_COMMON_TRACK_TYPES_H
 #define NFS4_GAME_COMMON_TRACK_TYPES_H
-
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "chunk_types.h"
 #undef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES

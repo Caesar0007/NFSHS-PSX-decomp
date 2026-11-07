@@ -3,8 +3,12 @@
  * precisely the 19-name delta retained by the standalone DrawC owner. */
 #ifndef NFS4_GAME_PSX_DRAWC_TYPES_H
 #define NFS4_GAME_PSX_DRAWC_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
+#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#endif
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
 #undef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 

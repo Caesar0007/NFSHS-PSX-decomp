@@ -1,7 +1,7 @@
 /* PSXFront.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H
 #define NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 /* Fetools.obj contributes the exact 95-definition shared graph.  Its four
  * menu-only classes and Fecntl's Input_tDeviceCall typedef are absent from
  * PSXFront.obj and therefore omitted only for this composition. */

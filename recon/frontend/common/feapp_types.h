@@ -1,7 +1,7 @@
 /* Owner-specific type surface for FEApp.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEAPP_TYPES_H
 #define NFS4_FRONTEND_COMMON_FEAPP_TYPES_H
-
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 /* FEApp.obj emits tMenuCommand while tMenu is still opaque. */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED

@@ -1,7 +1,7 @@
 /* Exact 108-type source-visible intersection of the ten AI hierarchy owners. */
 #ifndef NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H
 #define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H
-
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 
 /* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */

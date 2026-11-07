@@ -1,9 +1,9 @@
-/* hrzsku.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_HRZSKU_TYPES_H
-#define NFS4_GAME_PSX_HRZSKU_TYPES_H
-
-#include "../common/gamesetup_leaf_types.h"
+#define NFS4_GAME_PSX_HRZSKU_TYPES_H   /* hrzsku.obj's exact source-visible type surface reconstructed from SYM. */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
+#include "../common/gamesetup_leaf_types.h"
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)

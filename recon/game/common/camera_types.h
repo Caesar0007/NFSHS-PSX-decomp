@@ -1,7 +1,7 @@
-/* Camera private type projection; owner-derived foreign bodies are noted below. */
 #ifndef NFS4_GAME_COMMON_CAMERA_TYPES_H
-#define NFS4_GAME_COMMON_CAMERA_TYPES_H
-
+#define NFS4_GAME_COMMON_CAMERA_TYPES_H   /* Camera private type projection; owner-derived foreign bodies are noted below. */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "color_types.h"
 
 #define RaceType_HotPursuit 1

@@ -1,7 +1,7 @@
-/* TrgSfx.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_TRGSFX_TYPES_H
-#define NFS4_GAME_COMMON_TRGSFX_TYPES_H
-
+#define NFS4_GAME_COMMON_TRGSFX_TYPES_H   /* TrgSfx.obj's exact source-visible delta over the shared color graph. */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "color_types.h"
 
 #include "shared/POLY_GT4.h"

@@ -1,7 +1,7 @@
-/* psxcontroller_externs.h -- externs for game/psx/psxcontroller.cpp (NFS4 in-game PSX pad mapping) */
 #ifndef _GAME_PSX_PSXCONTROLLER_EXTERNS_H_
-#define _GAME_PSX_PSXCONTROLLER_EXTERNS_H_
-
+#define _GAME_PSX_PSXCONTROLLER_EXTERNS_H_   /* psxcontroller_externs.h -- externs for game/psx/psxcontroller.cpp (NFS4 in-game PSX pad mapping) */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "psxcontroller_types.h"
 
 /* ---- globals ---- */

@@ -1,6 +1,6 @@
-/* Owner-specific type surface for ScreenAudio.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* Owner-specific type surface for ScreenAudio.obj. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 /* ScreenAudio retains the deep car/physics graph plus the common frontend
  * graph used by ScreenTrackInfo, but none of that owner's input/screen/video

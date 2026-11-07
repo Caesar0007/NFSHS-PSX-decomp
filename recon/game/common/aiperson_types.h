@@ -1,7 +1,7 @@
-/* Reconstructed aiperson types and the owner-proven shared GameSetup layout. */
 #ifndef NFS4_GAME_COMMON_AIPERSON_TYPES_H
-#define NFS4_GAME_COMMON_AIPERSON_TYPES_H
-
+#define NFS4_GAME_COMMON_AIPERSON_TYPES_H   /* Reconstructed aiperson types and the owner-proven shared GameSetup layout. */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
 #include "color_types.h"
 #undef NFS4_OWNER_DEFINES_UDFF_TYPES

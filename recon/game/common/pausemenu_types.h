@@ -1,7 +1,7 @@
 /* PauseMenu.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_COMMON_PAUSEMENU_TYPES_H
 #define NFS4_GAME_COMMON_PAUSEMENU_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 #define NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL
 #define NFS4_MPAUSE_PAUSEMENU_METHODS

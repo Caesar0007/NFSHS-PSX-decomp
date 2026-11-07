@@ -3,7 +3,8 @@
  * precisely the 17-name delta retained by the standalone HUD owner. */
 #ifndef NFS4_GAME_PSX_HUD_TYPES_H
 #define NFS4_GAME_PSX_HUD_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)

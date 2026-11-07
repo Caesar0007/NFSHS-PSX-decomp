@@ -4,7 +4,7 @@
  * TCB/EXEC/DIRENTRY. */
 #ifndef _GAME_PSX_NFS2MEM_H_
 #define _GAME_PSX_NFS2MEM_H_
-
+#define NFS4_CORE_KERN_AFTER_CD   /* retail type order (nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
 #include "shared/kernpair.h"
 

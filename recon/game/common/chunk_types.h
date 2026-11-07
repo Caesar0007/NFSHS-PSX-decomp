@@ -1,14 +1,14 @@
-/* chunk.obj source-visible types; full supplied type-copy/order audit remains open. */
 #ifndef NFS4_GAME_COMMON_CHUNK_TYPES_H
-#define NFS4_GAME_COMMON_CHUNK_TYPES_H
-
+#define NFS4_GAME_COMMON_CHUNK_TYPES_H   /* chunk.obj source-visible types; full supplied type-copy/order audit remains open. */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
+#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* track.obj sees chunk without POLY_GT4 */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#endif
 #include "draw_leaf_types.h"
 #include "gamesetup_leaf_types.h"
 #include "group_types.h"
-
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/POLY_GT4.h"
-
 
 
 

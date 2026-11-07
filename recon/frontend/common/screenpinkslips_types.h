@@ -1,7 +1,7 @@
-/* Owner-specific type surface for ScreenPinkSlips.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H
-
+#define NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H   /* Owner-specific type surface for ScreenPinkSlips.obj. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #include "screentournselect_types.h"
 #undef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE

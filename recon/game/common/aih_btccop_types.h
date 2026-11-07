@@ -1,6 +1,6 @@
-/* aih_btccop.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H
-#define NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H
+#define NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H   /* aih_btccop.obj's exact source-visible type surface reconstructed from SYM. */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 
 /* newton.obj's complete 87-record graph is a strict semantic subset. */
 #include "newton_types.h"

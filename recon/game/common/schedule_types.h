@@ -1,7 +1,7 @@
 /* schedule.obj's exact source-visible type surface. */
 #ifndef NFS4_GAME_COMMON_SCHEDULE_TYPES_H
 #define NFS4_GAME_COMMON_SCHEDULE_TYPES_H
-
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "game_common_min_types.h"
 
 typedef void (*Sched_tFunctionPt)(void *);

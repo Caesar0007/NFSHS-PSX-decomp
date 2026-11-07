@@ -1,11 +1,11 @@
-/* Canonical FEMENUOPTIONS.H definitions proven by retail destructor records.
- * The part selector is reconstruction-only include scaffolding: it preserves
- * the existing owner-specific type/declaration order while the surrounding
- * header dependency graph is still being restored. No #line directives.
- * Field layouts, declarations and inline bodies below are moved verbatim. */
+/* Canonical FEMENUOPTIONS.H definitions proven by retail destructor records.  The part selector is
+ * reconstruction-only include scaffolding: it preserves the existing owner-specific type/declaration order
+ * while the surrounding header dependency graph is still being restored. No #line directives. Field layouts, declarations and inline bodies below are moved verbatim. */
 #ifndef NFS4_FEMENUOPTIONS_TYPE_PART
 #ifndef _FE_SCREENS_FEMENUOPTIONS_H_
 #define _FE_SCREENS_FEMENUOPTIONS_H_
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "femenuoptions_externs.h"
 #endif
 #else

@@ -1,7 +1,7 @@
 /* aih_opp.cpp foreign views; the actual Opponent class is in aihigh.h. */
 #ifndef NFS4_GAME_COMMON_AIH_OPP_TYPES_H
 #define NFS4_GAME_COMMON_AIH_OPP_TYPES_H
-
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #include "aih_hierarchy_types.h"
 
 #include "aistate.h"

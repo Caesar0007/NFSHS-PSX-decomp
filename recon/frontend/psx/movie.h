@@ -1,6 +1,8 @@
 /* frontend/psx/movie.h - reconstructed declarations for MOVIE.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_MOVIE_H_
 #define _FRONTEND_PSX_MOVIE_H_
+#define NFS4_CORE_PADS_FIRST   /* retail type order (nfs4_types.h) */
+#define NFS4_CORE_KERNEL_KERN_AFTER_CD   /* retail type order (nfs4_types.h) */
 #include "movie_types.h"
 #include "movie_externs.h"
 

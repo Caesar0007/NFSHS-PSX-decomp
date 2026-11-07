@@ -1,7 +1,7 @@
 /* device_externs.h -- extern decls for game/psx/device.cpp (NFS4 PSX input/pad). */
 #ifndef DEVICE_EXTERNS_H
 #define DEVICE_EXTERNS_H
-
+#define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "device_types.h"
 
 /* ---- compiler builtin ---- */

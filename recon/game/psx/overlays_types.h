@@ -1,7 +1,7 @@
-/* overlays.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_OVERLAYS_TYPES_H
-#define NFS4_GAME_PSX_OVERLAYS_TYPES_H
-
+#define NFS4_GAME_PSX_OVERLAYS_TYPES_H   /* overlays.obj's exact source-visible type surface reconstructed from SYM. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 
 #define RaceType_HotPursuit 1

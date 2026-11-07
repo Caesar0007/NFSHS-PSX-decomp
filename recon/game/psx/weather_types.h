@@ -1,9 +1,9 @@
-/* Weather.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_WEATHER_TYPES_H
-#define NFS4_GAME_PSX_WEATHER_TYPES_H
-
-#include "../common/gamesetup_leaf_types.h"
+#define NFS4_GAME_PSX_WEATHER_TYPES_H   /* Weather.obj's exact source-visible type surface reconstructed from SYM. */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
+#include "../common/gamesetup_leaf_types.h"
 
 /* Canonical GameSetup_gData aggregate used by this translation unit. */
 #include "shared/GameSetup_tData.h"

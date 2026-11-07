@@ -3,7 +3,11 @@
  * complete DrawW owner delta, including the independent SDK typedef lane. */
 #ifndef NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#endif
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)

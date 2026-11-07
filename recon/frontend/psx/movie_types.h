@@ -15,24 +15,24 @@ typedef struct CdlFILE {
     char name[16];
 } CdlFILE;
 
-typedef struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-} TCB;
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
 
-typedef struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size;
-    u_long b_addr, b_size, s_addr, s_size, sp, fp, gp, ret, base;
-} EXEC;
 
-typedef struct DIRENTRY {
-    char name[20];
-    long attr, size;
-    struct DIRENTRY *next;
-    long head;
-    char system[4];
-} DIRENTRY;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/kernpair.h"
 

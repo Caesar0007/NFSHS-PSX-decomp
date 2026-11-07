@@ -1,11 +1,11 @@
-/* mpause.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_MPAUSE_TYPES_H
-#define NFS4_GAME_COMMON_MPAUSE_TYPES_H
+#define NFS4_GAME_COMMON_MPAUSE_TYPES_H   /* mpause.obj's exact source-visible delta over the shared color graph. */
+#ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES   /* mpause.obj itself, not pausemenu.obj */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#endif
 #include "link_stripped.h"   /* SLINK /strip removed the standalone copies of the inlines below (no #pragma) */
 #include "color_types.h"
-
 #include "shared/SndBnk_t.h"
-
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
 

@@ -2,6 +2,8 @@
 /* frontend/psx/psxfront.h - reconstructed declarations for PSXFRONT.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_PSXFRONT_H_
 #define _FRONTEND_PSX_PSXFRONT_H_
+#define NFS4_CORE_PADS_KERNEL_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "psxfront_types.h"
 
 /* PSXFRONT.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */

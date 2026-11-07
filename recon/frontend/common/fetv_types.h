@@ -2,7 +2,7 @@
  * graph and the PsyQ 4.3 GPU packet declarations. */
 #ifndef NFS4_FRONTEND_COMMON_FETV_TYPES_H
 #define NFS4_FRONTEND_COMMON_FETV_TYPES_H
-
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #include "../../game/common/draw_leaf_types.h"
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)

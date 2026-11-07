@@ -2,6 +2,7 @@
 /* frontend/common/stattool.h - reconstructed declarations for STATTOOL.CPP (C++ TU) */
 #ifndef _FE_COMMON_STATTOOL_H_
 #define _FE_COMMON_STATTOOL_H_
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "stattool_types.h"
 #include "stattool_externs.h"
 

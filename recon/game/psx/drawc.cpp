@@ -2601,15 +2601,15 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
           sd_otz = sd_otz + sd->sub_otz;
           if (sd_otz < 0) continue; if (sd->sub_otSize < sd_otz) continue;
-          {
-            int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0; facet_flag = ff;
+
+            const int ff = facetValue & 0xfff; const int hi = facetValue & 0x3f0; facet_flag = ff;
             if (hi != 0) {
               facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
               overlayFlag = overlayFlag & ((u_int)ff >> 4);
               if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
                 }
               }
-            } } sd->otz = sd_otz;
+            } sd->otz = sd_otz;
         }
         else {
           sd->otz = sd->otz + sd->sub_otz;

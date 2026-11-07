@@ -4,7 +4,7 @@
  * va_list..arg_t (the common game core of paths.obj without its trailing boolean/fixed* typedefs and anonymous struct). */
 #ifndef _GAME_PSX_PROFILE_H_
 #define _GAME_PSX_PROFILE_H_
-
+#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "nfs4_types.h"
 
 #include "shared/TCB.h"

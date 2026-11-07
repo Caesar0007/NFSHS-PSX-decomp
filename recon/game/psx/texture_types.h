@@ -2,8 +2,8 @@
 #ifndef NFS4_GAME_PSX_TEXTURE_TYPES_H
 #define NFS4_GAME_PSX_TEXTURE_TYPES_H
 
-#include "../common/gamesetup_leaf_types.h"
 #include "../common/draw_leaf_types.h"
+#include "../common/gamesetup_leaf_types.h"
 
 typedef struct Texture_pal8bit {
     int x, y;

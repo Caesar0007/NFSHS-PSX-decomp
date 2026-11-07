@@ -1,7 +1,7 @@
-/* Owner-specific type surface for ScreenTracks.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H   /* Owner-specific type surface for ScreenTracks.obj. */
 #define NFS4_SCREENTRACKS_OWNER   /* screentracks.h: this object owns tScreenTrackSelect (inline copies LINK_STRIPPED) */
+#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE

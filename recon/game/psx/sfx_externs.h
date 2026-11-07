@@ -16,7 +16,7 @@ extern Draw_tPixMap *gGrassPalette;    /* 0x8013d210 */
 extern Draw_tPixMap *gSnowPalette;     /* 0x8013d214 */
 extern Draw_tPixMap *gLeafPixmap;      /* 0x8013d218 */
 extern int           Draw_gViewOtSize; /* 0x8013d7b0  ordering-table size */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail sfx.obj records no GameSetup_tData (GAME15 / aicop_externs.h precedent) */
 
 /* ---- eaclib / math / gpu helpers ---- */
 extern void  TrsProj_SetPsxMatrix(matrixtdef *m, coorddef *trans);

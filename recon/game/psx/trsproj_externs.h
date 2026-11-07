@@ -11,7 +11,7 @@ extern "C" void SetGeomScreen(long h);   /* real libgte REG13 function (oracle: 
 /* ---- globals (SYM Globals.jsonl) ---- */
 /* TrsProj_precision (0x8013db9c) is TrsProj.obj-OWNED -> DEFINED in trsproj.cpp (=10), not externed. */
 extern long              Camera_gGeomScreen;    /* 0x8013c7dc */
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail trsproj.obj records no GameSetup_tData (GAME15 / aicop_externs.h precedent) */
 
 /* ---- eaclib transform (fixed-point matrix*vector; func_800EAED8) ---- */
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */

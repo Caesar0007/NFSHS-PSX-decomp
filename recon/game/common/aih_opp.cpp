@@ -686,7 +686,7 @@ void AIHigh_Opponent::HighExecute()
 
     if (attackMode_ == NO_ATTACK)
     { carObj_->desiredDirection =
-        GameSetup_gData.reverseTrack == 0 ? 1 : -1; this->SetState(new AIState_Normal(carObj_),
+        GameSetup_gData[12] /* reverseTrack */ == 0 ? 1 : -1; this->SetState(new AIState_Normal(carObj_),
         STATE_NORMAL);
 
       attackMode_ = NO_ATTACK; } break; }

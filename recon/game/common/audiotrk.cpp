@@ -253,7 +253,7 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
 #line 309 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
-  if (GameSetup_gData.commMode == 1)
+  if (GameSetup_gData[3] /* commMode */ == 1)
     return;
 
 

@@ -83,7 +83,7 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 
 
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
 
     TrsProj_SetProjection(0,0,0x140,0x78);

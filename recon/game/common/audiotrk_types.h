@@ -8,7 +8,7 @@
 #define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail audiotrk.obj (GameSetup_gData is read through its word view) */
 
 
 

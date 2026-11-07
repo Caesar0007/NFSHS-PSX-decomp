@@ -21,7 +21,7 @@ u_short PAD_state(int padID);
 
 extern CAudioList *gGameAudioList;
 extern DRender_tCalcView AudioClc_gRenderView;
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail audiotrk.obj records no GameSetup_tData (GAME15 / aicop_externs.h precedent) */
 extern Sim_tSimGlobalVar simGlobal;
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
 /* Owner-derived bworldSm type, SYM1cec71..1cedc3. The original foreign

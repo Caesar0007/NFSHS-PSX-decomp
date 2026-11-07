@@ -6,7 +6,7 @@
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail sfx.obj (GameSetup_gData is read through its word view) */
 
 
 

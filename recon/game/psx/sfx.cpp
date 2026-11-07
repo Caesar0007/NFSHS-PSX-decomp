@@ -365,7 +365,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     }
 
 
-    else if (GameSetup_gData.Time == 0) { *(int *)&prim->r0 = 0x2e181818;
+    else if (GameSetup_gData[21] /* Time */ == 0) { *(int *)&prim->r0 = 0x2e181818;
     } else { *(int *)&prim->r0 = 0x2e080808;
     }
 

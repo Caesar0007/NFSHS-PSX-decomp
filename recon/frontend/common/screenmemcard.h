@@ -1,3 +1,4 @@
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: car graph early, track/tournament graph after the menu family (screendisplay_carblock.h) */
 #ifndef _FE_SCREENS_SCREENMEMCARD_H_
 #define _FE_SCREENS_SCREENMEMCARD_H_   /* frontend/common/screenmemcard.h - reconstructed decls for ScreenMemcard.obj (C++ TU) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */

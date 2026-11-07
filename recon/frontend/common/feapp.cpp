@@ -598,31 +598,31 @@ void tFEApplication::Redraw()
   tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
 
-  if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0')) {
-    (menuDefs->itemMainTwoPlayerRace).fFlags = (menuDefs->itemMainTwoPlayerRace).fFlags | 1; tMenuCommand emptycommand; tInputKeyType JustOneToPass = kInput_KeyType_Up; if ((tMenuItemGoToMenuNFS4Button *) this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] == &menuDefs->itemMainTwoPlayerRace) {
+  if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0'))
+  { (menuDefs->itemMainTwoPlayerRace).Disable();
+    tMenuCommand emptycommand;
 
-
-
-
+    tInputKeyType JustOneToPass = kInput_KeyType_Up; if ((tMenuItemGoToMenuNFS4Button *) this->CurrentMenu(kPlayerOne)->CurrentMenuItem()
+        == &menuDefs->itemMainTwoPlayerRace)
       menuDefs->menuMain.ProcessInput(kPlayerOne,JustOneToPass,emptycommand);   /* member OBJECT: retail calls it directly (jal) */
-    }
   }
-  else { (menuDefs->itemMainTwoPlayerRace).fFlags = (menuDefs->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
-  }
-  if (gPadinfo.buf[0].nopad != '\0') {
-    (menuDefs->itemMainOnePlayerRace).fFlags = (menuDefs->itemMainOnePlayerRace).fFlags | 1; tMenuCommand emptycommand; tInputKeyType JustOneToPass = kInput_KeyType_Down; if ((tGlobalMenuDefs *)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] == menuDefs) {
 
+  else { (menuDefs->itemMainTwoPlayerRace).Enable(); }
 
+  if (gPadinfo.buf[0].nopad != '\0')
+  { (menuDefs->itemMainOnePlayerRace).Disable();
+    tMenuCommand emptycommand;
 
-
+    tInputKeyType JustOneToPass = kInput_KeyType_Down; if ((tGlobalMenuDefs *)this->CurrentMenu(kPlayerOne)->CurrentMenuItem()
+        == menuDefs)
       menuDefs->menuMain.ProcessInput(kPlayerOne,JustOneToPass,emptycommand);   /* member OBJECT: retail calls it directly (jal) */
-    }
   }
-  else { (menuDefs->itemMainOnePlayerRace).fFlags = (menuDefs->itemMainOnePlayerRace).fFlags & 0xfffffffe;
-  }
+
+  else { (menuDefs->itemMainOnePlayerRace).Enable(); }
+
   {
-  daprim = (DR_AREA *)Render_gPacketPtr; r.x = 0; r.y = *(short *)((char *)drenv + 2); r.w = 0x200; r.h = (short)screenheight;
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr, ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim; Render_gPacketPtr = (u_char *)daprim + 0xc;
+  r.x = 0; r.y = *(short *)((char *)drenv + 2); r.w = 0x200; r.h = (short)screenheight;
+  daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr, ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim; Render_gPacketPtr = (u_char *)daprim + 0xc;
   SetDrawArea(daprim,&r);
   } for (i = 1; i >= 0; i--) {
 
@@ -1431,11 +1431,10 @@ MainLoop_nextPlayer: this->fPlayer = this->fPlayer + '\x01';
   /* SYM: `command` is the only function-scope local; ret/dummyCars/i/
      nBestCarIndex live in the SLD line-5 block (the raceType guard). */
   /* SYM-CODEGEN-CARRIER: item
-   * SYM-CODEGEN-CARRIER: screen
    * At retail source line 112 the SYM emits nested inline `this` records for
-   * tUserNameMenuItem and tScreenUserName plus the real local `m`.  These two
-   * aliases represent those inlined receiver values, not caller-scope locals;
-   * spelling the receivers as repeated globals is FAIL 59 / 201 versus PASS 194. */
+   * tUserNameMenuItem ($3) and tScreenUserName ($6, param m $5).  The screen
+   * half is tScreenUserName::SetCallingMenu (feapp_types.h); `item` still stands
+   * for the tUserNameMenuItem inline receiver (proposed for femenuoptions.h). */
 #line 989 "C:/nfs4/FRONTEND/COMMON/FEAPP.CPP"
 tAppCommand tFEApplication::RunPostGame()
 
@@ -1449,7 +1448,7 @@ tAppCommand tFEApplication::RunPostGame()
     int i;
     short nBestCarIndex;
 
-    dummyCars = (Car_tStats *)Cars_gNewCarStatsList;
+    dummyCars = Cars_NewCarStatsList();
 
     StatChk_ClearNewRecords();
 
@@ -1555,14 +1554,14 @@ tAppCommand tFEApplication::RunPostGame()
 
 
 
-      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName1; tScreenUserName *screen = screenUserName; tOptionsMenu *m = &MenuDefs()->menuPostGamePlayer1Name; item->fData = frontEnd.playerNameList[0]; item->fPlayer = 0; item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screen->callingMenu = m; return this->MainLoop((tMenu *)m);
+      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName1; item->fData = frontEnd.playerNameList[0]; item->fPlayer = 0; item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer1Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer1Name);
     }
     if (this->needName[1] != 0)
     {
 
 
 
-      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName2; tScreenUserName *screen = screenUserName; tOptionsMenu *m = &MenuDefs()->menuPostGamePlayer2Name; item->fPlayer = 1; item->fData = frontEnd.playerNameList[1];   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screen->callingMenu = m; return this->MainLoop((tMenu *)m);
+      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName2; item->fPlayer = 1; item->fData = frontEnd.playerNameList[1];   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ item->fMaxStringLength = 7; item->fCurrentRow = 0; item->fCurrentColumn = 0; screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer2Name);
     }
   }
 

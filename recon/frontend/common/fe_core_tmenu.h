@@ -57,7 +57,7 @@ struct tMenu {
 #endif
 #ifdef NFS4_FE_CORE_FEAPP_METHODS
     inline tScreen *GetScreen() { return fScreen; } // ORIGINAL-NAME-UNRESOLVED: supplied receiver/field producer; inferred accessor spelling.
-    inline unsigned int GetMusic() { return fFlags & 0xf000; } // ORIGINAL-NAME-UNRESOLVED: retail SetMenu records this menu-receiver inline pair at the music test.
+    inline unsigned int GetMusic() { return fFlags & 0xf000; } /* ORIGINAL-NAME-UNRESOLVED: retail SetMenu records this menu-receiver inline pair at the music test. */ inline tMenuItem *CurrentMenuItem() { return fItemList[fCurrentItem]; } // ORIGINAL-NAME-UNRESOLVED: retail Redraw's record-less pair after CurrentMenu() (same line: later header lines unshifted).
 #endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     void tMenuConstructor(tMenuItem *firstItem, void *ap);

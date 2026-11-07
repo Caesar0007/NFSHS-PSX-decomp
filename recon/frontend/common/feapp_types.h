@@ -32,7 +32,9 @@ enum tMenuCommandType {
 #define NFS4_SCREENDISPLAY_FEAPP_METHODS
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #define NFS4_FE_CORE_FEAPP_METHODS
+#define NFS4_FE_CORE_MENUITEM_SETENABLED   /* tMenuItem::Disable()/Enable() -- retail Redraw's item pairs */
 #include "screenmemcard_types.h"
+#undef NFS4_FE_CORE_MENUITEM_SETENABLED
 #undef NFS4_FE_CORE_FEAPP_METHODS
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_SCREENDISPLAY_FEAPP_METHODS
@@ -92,7 +94,7 @@ struct tScreenUserName : public tScreen {
     char fRowList[10][9];
 
     void DrawVerticalLine(short, short, short);
-    void DrawHorizontalLine(short, short, short);
+    void DrawHorizontalLine(short, short, short); inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; } /* ORIGINAL-NAME-UNRESOLVED: retail RunPostGame records this screen pair (this $6, m $5) */
 };
 
 struct tFEApplication {

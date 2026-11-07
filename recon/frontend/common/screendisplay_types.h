@@ -41,6 +41,9 @@ struct tMenu; struct tDrawShapeExtended;
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
 #include "../../game/common/draw_leaf_types.h"
 #include "shared/tActiveLine.h"
+#ifdef NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE   /* owner records right after tActiveLine (screenpost) */
+#include NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE
+#endif
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #include "screendisplay.h"
 #endif
@@ -56,9 +59,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifndef NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* else emitted after the tMenuNFS4/options family (below) */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
 
 
 

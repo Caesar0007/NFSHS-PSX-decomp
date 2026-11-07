@@ -429,7 +429,7 @@ void tScreenTournamentStandings::DrawBackground()
 
                            (short)TextSys_WordY(0x2fd),(tMenuTextType)type,textState_Hilighted,2);
   i = (short)(frontEnd.tier != '\0' ?
-                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) : TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
+                menuDefs->iteratorSpecialEvent.TextValue((tPlayer)kPlayerBoth) : menuDefs->iteratorTournament.TextValue((tPlayer)kPlayerBoth));
   i += 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
 

@@ -26,16 +26,16 @@ char *TextSys_Word(int);
 int TextSys_WordX(int);
 int TextSys_WordY(int);
 int CalcFadeVal(int, int);
-short TextValue(void *, tPlayer)
-    asm("TextValue__23tListIteratorTournament7tPlayer");
+
+
 
 
 void DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
 void PSXDrawSquare(int, int, int, int, int);
 int PSXDrawBrightEndLine(int, int, int, int, int, int, int, int);
 int FeTools_FormatMoney(char *, long);
-int FETextRender_FullTextRGB(char *, short, short, int, char, short)
-    asm("FETextRender_FullTextRGB__FPcssics");
+int FETextRender_FullTextRGB(char *, short, short, int, char, short);
+
 int FETextRender_FullTextFade(int, char *, short, short,
                               tMenuTextType, tMenuTextState, short);
 int FETextRender_MenuTextPositionedJustifyFade(

@@ -61,7 +61,7 @@ void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
 int FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt)
     asm("FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType");
-short TextValue(tListIteratorTournament *it, tPlayer p) asm("TextValue__23tListIteratorTournament7tPlayer");
+
 
 extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);

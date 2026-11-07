@@ -21,9 +21,9 @@ extern tFEApplication *FEApp;
 #include "shared/pad_module_globals.h"
 extern int  mappings[3][13][3];         /* PSX->FE key mappings */
 /* menu helpers + Pad actuator (dumped overloads wrong-class/const; real call types per this TU) */
-void SetMenu(tMenuItemSlidingMenu *thisobj, bool i, void *menu) asm("SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu");
+
 /* Retail/owner definition returns BOOL; preserve its existing member ABI label. */
-bool TransitionIsFinished(tOptionsMenu *thisobj) asm("TransitionIsFinished__12tOptionsMenu");
+
 /* libmath soft-float runtime (REAL SYM fns @0x800f####; variadic: Ghidra splits doubles into int pairs) */
 extern "C" { double __muldf3(double,double); int __fixdfsi(double);
 int PadGetState(int);

@@ -396,7 +396,7 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   } }
 
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
-    SetMenu(&menuDefs->itemControllerSettings,firsttime,fSetMenu);
+    menuDefs->itemControllerSettings.SetMenu(firsttime,fSetMenu);
   }
 
 
@@ -1063,7 +1063,7 @@ void tScreenControllerConfig::DrawBackground()
   if (0x80 < fade) { fade = 0x80;
   }
   if ((this->fTransitionedIn == 0) &&
-     (::TransitionIsFinished(&menuDefs->menuControllerConfig) != false)) {
+     (menuDefs->menuControllerConfig.TransitionIsFinished() != false)) {
     this->fTransitionedIn = 1;
   }
   if (((fade < 0x81) && (this->fTransitioningIn == 0)) && (this->fCurrentController != '\0')
@@ -1076,7 +1076,7 @@ void tScreenControllerConfig::DrawBackground()
 
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
     this->fTransitioningIn = 1; }
-  if ((((int)::TransitionIsFinished(&menuDefs->menuControllerConfig) ^ 1) != 0) &&
+  if ((((int)menuDefs->menuControllerConfig.TransitionIsFinished() ^ 1) != 0) &&
 
       (this->fTransitionedIn != 0)) { if ((this->fTransitioningOut == 0) && (this->fCurrentController != '\0')) {
 
@@ -1156,7 +1156,7 @@ void tScreenControllerConfig::DrawForeground()
   brightstring[1] = '\0';
   if ((this->fFadeTextOut == 0) && (this->fAnim == 0) &&
       (this->fAnimFade == 0) && (*(int *)this->fFade == 0) &&
-      (::TransitionIsFinished(&menuDefs->menuControllerConfig) != 0) &&
+      (menuDefs->menuControllerConfig.TransitionIsFinished() != 0) &&
 
       (this->fTransitioningOut == 0)) {
 
@@ -1335,7 +1335,7 @@ void tScreenControllerConfig::Initialize()
   this->tScreen::Initialize();
 
   this->fCurrentController = '\0';
-  SetMenu(&menuDefs->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
+  menuDefs->itemControllerSettings.SetMenu(true,(tInsideBoxMenu *)0x0);
 
   this->SetCurrentController(true);
   this->SwapInController();

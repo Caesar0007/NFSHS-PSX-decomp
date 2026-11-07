@@ -1,9 +1,11 @@
 /* audiocmn.obj's exact source-visible delta over the shared AudioClc graph. */
-#ifndef NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AUDIOCMN_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
 #define NFS4_CORE_SND_FIRST   /* retail: SND* structs ahead of the core (nfs4_types.h) */
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (below) */
+#define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (below) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "audiocmn_types.h"   /* retail: SndBnk_t/Channels_t/s_type/AudioMus right after Car_tObj (pass below) */
 #endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
@@ -19,8 +21,11 @@
 #endif
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #undef NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
-
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
+#endif
+#if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES) && !defined(NFS4_AUDIOCMN_EARLY_DONE)   /* owner pass from color_types.h (after Car_tObj) */
+#define NFS4_AUDIOCMN_EARLY_DONE
+#include "shared/SndBnk_t.h"
+typedef struct Channels_t { int Partial, SFXnum; } Channels_t; /* Completed C/C++ alias restores the owning SYM producer,not a pointer-use workaround;see build/nc12/playsfx_roles_20261027/. */
 typedef enum s_type {
     kAsphalt = 0, kCarBody = 1, kTires = 2, kGravel = 3, kWall = 4,
     kSign = 5, kBush = 6, kBlowOut = 7, kBackFire = 8, kHorn = 9,
@@ -28,7 +33,11 @@ typedef enum s_type {
     kGrassWall = 14, kWallSpark = 15, kWetAsphalt = 16,
     kRaceTireOnAsphalt = 17, kRainTireOnAsphalt = 18
 } s_type;
+#include "shared/AudioMus_tSongEntry.h"
 #endif
+#if !defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCMN_TAIL_DONE)   /* first pass, after audioclc_types.h */
+#define NFS4_AUDIOCMN_TAIL_DONE
+
 
 #ifndef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #include "shared/SNDPLAYOPTS.h"
@@ -39,10 +48,6 @@ typedef enum s_type {
 
 #endif
 
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
-#include "shared/SndBnk_t.h"
-typedef struct Channels_t { int Partial, SFXnum; } Channels_t; /* Completed C/C++ alias restores the owning SYM producer,not a pointer-use workaround;see build/nc12/playsfx_roles_20261027/. */
-#endif
 #ifndef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #include "shared/AudioMus_tSongEntry.h"
 
@@ -64,20 +69,6 @@ struct CopSpeak_tRequest {
 };
 #endif
 
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
-struct AudioCmn_tReTrig {
-    int count, pan;
-    short delay, nextd;
-    int patch;
-    char bend, amp;
-    coorddef pos;
-};
-
-struct AudioCmn_tAsyncSfxSlot {
-    int bank, patch, handle, ticks, addr;
-    char *header;
-};
-#endif
 
 #include "shared/Sim_tSimGlobalVar.h"
 
@@ -88,6 +79,10 @@ struct AudioCmn_tAsyncSfxSlot {
 #include NFS4_AUDIOCMN_HOOK_BEFORE_FE
 #endif
 #include "shared/tTexture_ShapeInfo.h"
+#if defined(NFS4_AUDIOCLC_KERNPAIR_LATE) && !defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES)   /* retail audiocmn: kernpair right after tTexture_ShapeInfo */
+#include "shared/kernpair.h"
+typedef kernpair KERN;
+#endif
 
 
 
@@ -221,11 +216,20 @@ struct tCarManager {
 #include "shared/Skidmark_Segment.h"
 #include "shared/Skidmark_Chunk.h"
 #endif
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail: after the kernel/skidmark types */
+struct AudioCmn_tReTrig {
+    int count, pan;
+    short delay, nextd;
+    int patch;
+    char bend, amp;
+    coorddef pos;
+};
 
-
-
-
-
+struct AudioCmn_tAsyncSfxSlot {
+    int bank, patch, handle, ticks, addr;
+    char *header;
+};
+#endif
 
 
 
@@ -256,12 +260,8 @@ struct tCarManager {
  * that completed tag elsewhere. */
 #ifndef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
 #include "shared/tRecordBuffer.h"
-
-
-
 typedef tRecordBuffer tSaveRecords[187];
 #endif
-
 typedef long (*SampleRequestFuncPtr)();
 typedef long (*TestSentenceRuleFuncPtr)();
 typedef void (*SetSentenceRuleFuncPtr)();

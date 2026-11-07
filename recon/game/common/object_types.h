@@ -2,7 +2,7 @@
 #if !defined(NFS4_GAME_COMMON_OBJECT_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
-#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "object_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #include "link_stripped.h"

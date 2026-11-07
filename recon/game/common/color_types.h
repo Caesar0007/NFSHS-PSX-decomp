@@ -60,6 +60,9 @@ struct Group {
 #ifdef NFS4_COLOR_TRK_SFX
 #include "shared/Trk_SFX.h"
 #endif
+#ifdef NFS4_COLOR_TRK_LINE   /* retail draww: Trk_Line between Trk_NewSimSlice and Trk_SimObject (moved from draww_types.h) */
+typedef struct Trk_Line { u_char firstPoint, slice, type, quadIndex; } Trk_Line;
+#endif
 #include "shared/Trk_SimObject.h"
 #endif
 #include "shared/RelCoord16.h"
@@ -249,11 +252,6 @@ typedef struct Cars_tRenderInfo {
     u_char licenseOffsetU[2], licenseOffsetV[2];
     int rideHeight, upgradeHeight;
 } Cars_tRenderInfo;
-
-
-
-
-
 enum donutMode_t {
     DONUTMODE_NONE = 0,
     DONUTMODE_GOCENTER = 1,
@@ -261,15 +259,14 @@ enum donutMode_t {
     DONUTMODE_BURNOUT = 3
 };
 
-
-
-
-
 struct AIDataRecord_AccTable_t;
 struct AIDataRecord_CurveSpeedTable_t;
 struct AIPhysic_BrakeInfo;
-
+#ifdef NFS4_COLOR_CAR_STRUCT_ONLY   /* retail aihigh/aih_hum/aih_opp/aih_traf/aispeeds/object/sim: plain struct (one TPDEF) */
 struct Car_tObj {
+#else
+typedef struct Car_tObj {
+#endif
     BO_tNewtonObj N;
     char carName[9], carNameLocalized[9];
     int carIndex, humanIndex, sortIndex, carFlags, lap, unlap, roadSpan;
@@ -330,13 +327,16 @@ struct Car_tObj {
     Cars_tAudio audio[7];
     Cars_tRenderInfo render;
     int async_handle;
+#ifdef NFS4_COLOR_CAR_STRUCT_ONLY
 };
+#else
+} Car_tObj;   /* retail: C-style typedef = implicit + explicit TPDEF Car_tObj */
+#endif
 #ifdef NFS4_COLOR_HOOK_AFTER_CAR   /* retail hud: the owner's types right after Car_tObj (owner second pass) */
 #define NFS4_COLOR_IN_HOOK2
 #include NFS4_COLOR_HOOK_AFTER_CAR
 #undef NFS4_COLOR_IN_HOOK2
 #endif
-
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;
 typedef short (*tPA32)[32];

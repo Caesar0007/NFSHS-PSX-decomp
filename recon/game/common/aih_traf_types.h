@@ -1,5 +1,6 @@
 #ifndef NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
 #define NFS4_GAME_COMMON_AIH_TRAF_TYPES_H   /* aih_traf.obj owner types; Cop/Traffic use canonical AIHIGH.H definitions. */
+#define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIH_TRAF_OWNER   /* aihigh.h: AIHigh_Traffic inline copies LINK_STRIPPED */
 #include "aih_hierarchy_types.h"
@@ -7,7 +8,6 @@
 #define NFS4_AIHIGH_TYPE_PART 1
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART
-
 #define NFS4_AIHIGH_TYPE_PART 2
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART

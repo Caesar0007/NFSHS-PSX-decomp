@@ -30,10 +30,10 @@
 
 
 
-struct AnimScript {
+typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-};
+} AnimScript;
 #include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;

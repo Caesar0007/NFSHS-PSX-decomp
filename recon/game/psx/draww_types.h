@@ -5,13 +5,14 @@
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
-#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 /* GameSetup: declared at the end of the third pass below (retail: after Draw_tCtrlSkidmark) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_LINE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_HOOK_AFTER_BO "../psx/draww_types.h"   /* retail: forceFocus_t right after the BO types (second pass below) */
 #define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/draww_types.h"   /* retail: tBoundingSphere..Draw_tCtrlSkidmark right after tSaveSurface (third pass below) */
 #define NFS4_PRIM_POLY_GT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
@@ -79,7 +80,6 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #endif
 #include "shared/Trk_CollideBoomInst.h"
 #include "shared/Trk_AnimateInst.h"
-
 #include "shared/Trk_SimObject.h"
 
 
@@ -104,10 +104,10 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it in its BO pass */
 
-struct AnimScript {
+typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-};
+} AnimScript;
 #endif
 #include "shared/SceneElem.h"
 
@@ -288,7 +288,7 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 
 #include "shared/Track_tMaterial.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-typedef struct Trk_Line { u_char firstPoint, slice, type, quadIndex; } Trk_Line;
+/* Trk_Line: declared by color_types.h right before Trk_SimObject (NFS4_COLOR_TRK_LINE) */
 
 #include "shared/Draw_tGiveShelbyMoreCache.h"
 

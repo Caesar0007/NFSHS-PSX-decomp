@@ -432,10 +432,10 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 
 
-struct AnimScript {
+typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-};
+} AnimScript;
 
 
 

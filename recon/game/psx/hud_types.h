@@ -3,6 +3,7 @@
  * precisely the 17-name delta retained by the standalone HUD owner. */
 #if !defined(NFS4_GAME_PSX_HUD_TYPES_H)   /* first pass */
 #define NFS4_GAME_PSX_HUD_TYPES_H
+#define NFS4_DRVIEW_STRUCT_ONLY   /* retail: one TPDEF DRender_tView (shared/DRender_tView.h) */
 #define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
@@ -146,5 +147,4 @@ typedef int CarLogic_tObservations[1][3];
 #include "shared/SPRT.h"
 #include "shared/HudPmx_tShape.h"
 struct tSmallCoordXY { short x, y; };
-
 #endif

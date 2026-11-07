@@ -8,6 +8,7 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
+#define NFS4_DRVIEW_STRUCT_ONLY   /* retail: one TPDEF DRender_tView (shared/DRender_tView.h) */
 #define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_FT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
@@ -117,7 +118,6 @@ typedef enum forceFocus_t {
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/DrawC_tEnvMap.h"
 #endif
-
 #elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWC_BO_DONE)   /* second pass, color_types.h AFTER_BO */
 #define NFS4_DRAWC_BO_DONE
 typedef enum forceFocus_t {

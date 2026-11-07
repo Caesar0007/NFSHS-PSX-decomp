@@ -13,6 +13,7 @@
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_HOOK_AFTER_BO "../psx/flare_types.h"   /* retail: forceFocus/FLARE/C*Spec right after the BO types (second pass below) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_FlareCache.h"   /* retail: Draw_FlareCache right after Draw_tCacheHeader */
 #include "../common/color_types.h"
 #endif
 #if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_FLARE_EARLY_DONE)   /* second pass, from color_types.h */
@@ -102,7 +103,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 typedef struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; } Flare_tInfo;
-
 
 
 

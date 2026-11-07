@@ -50,16 +50,16 @@ typedef struct matrixtdef MATRIX3DT;
 #endif
 
 
-
 #include "shared/Draw_PrimStruct.h"
-
-
-
-
 #include "shared/Draw_tCacheHeader.h"
-#ifdef NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (every includer) */
-#include "shared/Draw_DCache.h"
+#ifdef NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER   /* owner types right after Draw_tCacheHeader (flare: Draw_FlareCache) */
+#define NFS4_DRAW_LEAF_IN_HOOK
+#include NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER
+#undef NFS4_DRAW_LEAF_IN_HOOK
 #endif
+
+
+
 
 
 #include "shared/Draw_CarVertex.h"

@@ -20,10 +20,10 @@ struct BW_tContextMgr {
     BW_tContext contexts[2];
 };
 struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
-struct AnimScript {
+typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-};
+} AnimScript;
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_BWORLD_TAIL_DONE)   /* first pass, after draww_types.h */
 #define NFS4_BWORLD_TAIL_DONE

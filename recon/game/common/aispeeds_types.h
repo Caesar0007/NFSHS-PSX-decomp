@@ -1,11 +1,11 @@
 #if !defined(NFS4_GAME_COMMON_AISPEEDS_TYPES_H)
 #define NFS4_GAME_COMMON_AISPEEDS_TYPES_H   /* aispeeds.obj's exact source-visible delta over the shared color graph. */
 #define NFS4_TRANSFORMER_Z_HOOK "../game/common/aispeeds_types.h"   /* retail aispeeds.obj: Udff types right after Transformer_zOverlay */
+#define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
 #include "color_types.h"
-
 /* The canonical 2600-byte SYM-owned GameSetup aggregate, also used by AIPERSON.
  * Replace the import's false int[] type; original per-TU header/debug visibility
  * remains a separate audit question, not an excuse to misdeclare the object. */

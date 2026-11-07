@@ -3,8 +3,16 @@
 #ifndef NFS4_SHARED_DRENDER_TVIEW_H
 #define NFS4_SHARED_DRENDER_TVIEW_H
 
+#ifdef NFS4_DRVIEW_STRUCT_ONLY   /* retail drawc/hud: plain struct (one TPDEF); elsewhere C-style typedef (two) */
 struct DRender_tView {
+#else
+typedef struct DRender_tView {
+#endif
     int id, player;
     DRender_tCalcView cview;
+#ifdef NFS4_DRVIEW_STRUCT_ONLY
 };
+#else
+} DRender_tView;
+#endif
 #endif

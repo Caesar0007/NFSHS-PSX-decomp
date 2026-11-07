@@ -1,7 +1,7 @@
 /* hud.obj's exact source-visible type surface reconstructed from SYM.
  * psxcontroller.obj is an exact 86-record subset; the records below are
  * precisely the 17-name delta retained by the standalone HUD owner. */
-#ifndef NFS4_GAME_PSX_HUD_TYPES_H
+#if !defined(NFS4_GAME_PSX_HUD_TYPES_H)   /* first pass */
 #define NFS4_GAME_PSX_HUD_TYPES_H
 #define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
@@ -11,7 +11,35 @@
 #define NFS4_COLOR_SCHED_AFTER_BWSM   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "../psx/hud_types.h"   /* retail: forceFocus/AIDataRecord/kernpair/AudioMus right after Car_tObj (second pass below) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "../psx/hud_after_carvertex.h"   /* retail: FLARE_PIECE_DEF, HudPmx_tShape right after Draw_CarVertex */
 #include "psxcontroller_types.h"
+#endif
+#if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_HUD_EARLY_DONE)   /* second pass, from color_types.h */
+#define NFS4_HUD_EARLY_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
+} forceFocus_t;
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0, RECORD_M = 1, TEST_M = 2
+};
+
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_;
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
+#include "shared/kernpair.h"
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/AudioMus_tCurrentSong.h"
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_HUD_TAIL_DONE)   /* first pass, after psxcontroller_types.h */
+#define NFS4_HUD_TAIL_DONE
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 typedef int CarLogic_tObservations[1][3];
@@ -37,27 +65,27 @@ typedef int CarLogic_tObservations[1][3];
 
 
 
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0, RECORD_M = 1, TEST_M = 2
-};
-
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_;
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
-
-#include "shared/AudioMus_tSongEntry.h"
 
 
 
 
-#include "shared/AudioMus_tCurrentSong.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -80,9 +108,9 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 
 
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
+
+
+
 
 #include "shared/camera_info.h"
 
@@ -109,40 +137,13 @@ typedef enum forceFocus_t {
 
 
 
-
-
-
-
-
 #include "shared/FLARE_PIECE_DEF.h"
-
 /* POLY_F3: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_POLY_F3, retail libgpu.h order) */
-
-
 #include "shared/POLY_F4.h"
-
-
 #include "shared/POLY_FT4.h"
-
-
-
-
 #include "shared/POLY_G4.h"
-
-
-
-
 #include "shared/POLY_GT4.h"
-
-
-
-
-
 #include "shared/SPRT.h"
-
-
-
-
 #include "shared/HudPmx_tShape.h"
 struct tSmallCoordXY { short x, y; };
 

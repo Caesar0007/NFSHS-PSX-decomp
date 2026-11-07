@@ -3,6 +3,7 @@
 #define NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
 #define NFS4_CORE_SND_FIRST   /* retail: SND* structs ahead of the core (nfs4_types.h) */
+#define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (below) */
 #endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
@@ -10,7 +11,6 @@
 #define NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
 #define NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
 #endif
-
 #include "audioclc_types.h"
 
 #ifdef NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
@@ -84,9 +84,9 @@ struct AudioCmn_tAsyncSfxSlot {
 
 
 #include "shared/tReplayInterface.h"
-
-
-
+#ifdef NFS4_AUDIOCMN_HOOK_BEFORE_FE   /* an includer's own types right before the frontend block (nfs3.obj: Speech classes, tTexture, kernpair) */
+#include NFS4_AUDIOCMN_HOOK_BEFORE_FE
+#endif
 #include "shared/tTexture_ShapeInfo.h"
 
 
@@ -162,7 +162,7 @@ enum tCarModels {
     cm_TourBus = 47, cm_LoggingTruck = 48, cm_TransitBus = 49,
     cm_NumCarModels = 50
 };
-
+#ifndef NFS4_AUDIOCMN_CAR_ORDER   /* nfs3.obj: tCarNameLength after tOwnedCarInfo, tPersonalities after tCarManager (its hooks below) */
 enum tCarNameLength {
     cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
 };
@@ -174,7 +174,7 @@ enum tPersonalities {
     kPersonalityCop2 = 6, kPersonalityCop3 = 7,
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
-
+#endif
 #include "shared/tCarInfo.h"
 
 
@@ -186,17 +186,12 @@ enum tPersonalities {
 
 
 
-
-
-
-
-
-
-
-
-
-
 #include "shared/tOwnedCarInfo.h"
+#ifdef NFS4_AUDIOCMN_CAR_ORDER
+#define NFS4_AUDIOCMN_IN_CAR 1
+#include NFS4_AUDIOCMN_CAR_ORDER
+#undef NFS4_AUDIOCMN_IN_CAR
+#endif
 
 struct tCarManager {
     u_long fNumCars;
@@ -212,15 +207,20 @@ struct tCarManager {
     void SetClassViewable(tCarClassType carClass, bool viewFlag);
 #endif
 };
+#ifdef NFS4_AUDIOCMN_CAR_ORDER
+#define NFS4_AUDIOCMN_IN_CAR 2
+#include NFS4_AUDIOCMN_CAR_ORDER
+#undef NFS4_AUDIOCMN_IN_CAR
+#endif
 
 #include "shared/tfrontEnd.h"
-
-
-
-
-
-
-
+#if defined(NFS4_AUDIOCLC_LATE_KERNEL) && !defined(NFS4_AUDIOCMN_KERNEL_LATER)   /* retail cars/audiocmn: the kernel/skidmark types right after tfrontEnd */
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#endif
 
 
 

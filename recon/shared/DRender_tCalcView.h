@@ -4,9 +4,9 @@
 #define NFS4_SHARED_DRENDER_TCALCVIEW_H
 
 typedef struct DRender_tCalcView {
-    coorddef translation;
-    matrixtdef mrotation;
-    coorddef translationInv;
-    matrixtdef mrotationInv, mrotationInvRaw;
+    struct coorddef translation;
+    struct matrixtdef mrotation;
+    struct coorddef translationInv;
+    struct matrixtdef mrotationInv, mrotationInvRaw;
 } DRender_tCalcView;
 #endif

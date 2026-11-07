@@ -8,4 +8,7 @@ struct PAD_MOUSE {
     char horizontalvalue, verticalvalue;
     u_char unused2[2];
 };
+#ifndef __cplusplus
+typedef struct PAD_MOUSE PAD_MOUSE;
+#endif
 #endif

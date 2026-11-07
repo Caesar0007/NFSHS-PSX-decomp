@@ -7,4 +7,7 @@ struct MATRIX {
     short m[3][3];
     long  t[3];
 };
+#ifndef __cplusplus
+typedef struct MATRIX MATRIX;
+#endif
 #endif

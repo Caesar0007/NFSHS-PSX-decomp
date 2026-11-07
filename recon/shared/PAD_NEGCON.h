@@ -10,4 +10,7 @@ struct PAD_NEGCON {
     u_char rightshift : 4;
     u_char twist, buttonI, buttonII, leftshift;
 };
+#ifndef __cplusplus
+typedef struct PAD_NEGCON PAD_NEGCON;
+#endif
 #endif

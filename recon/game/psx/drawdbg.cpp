@@ -5,11 +5,11 @@
  *   These debug globals are not referenced by the reconstructed game logic (the debug code
  *   paths are absent from this retail code image); they are materialized here because the obj
  *   faithfully owns this .bss data in the linked image. @0xVA breadcrumbs.
- *   TYPE/HEADER SURFACE NOT RESTORED:drawdbg.h currently exposes only u_long.
- *   Retail also supplies the wider game/SDK graph,Car_tObj's full body and
- *   two typedef copies. This object is outside the119 current native-debug
- *   input set. Zero functions is not a source/type-restoration certificate;
- *   restore genuine declarations/include context,not typedef-count padding.
+ *   TYPE SURFACE: drawdbg.h supplies the retail object's header graph (colour/car graph + PsyQ kernel
+ *   structs + font types); the per-TU census matches retail except the systemic TCB tag double and the
+ *   second Car_tObj typedef record (both tree-wide gaps, see build/tmp/v/TYPEONLY_state.md).
+ *
+ *
  */
 #include "drawdbg.h"
 

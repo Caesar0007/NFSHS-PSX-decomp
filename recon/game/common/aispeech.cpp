@@ -1,4 +1,4 @@
-/* game/common/aispeech.cpp -- TYPE-ONLY SOURCE/TYPING SURFACE NOT FULLY RESTORED.
+/* game/common/aispeech.cpp -- TYPE-ONLY TRANSLATION UNIT.
  *
  *   aispeech.obj (SYM FILE-block, nfs4-f-v3.txt lines 57009-58141) is a PURE TYPE-DEFINITION
  *   translation unit: it contributes ZERO .text functions and ZERO .data/.bss symbols to the
@@ -19,10 +19,10 @@
  *       speechIntensityType   (enum)
  *       speechSourceType      (enum)
  *   Their known definitions currently reside in color_types.h. That does NOT
- *   expose them in this TU:aispeech.h is still an empty reconstruction header.
- *   The wider retail type graph,including two Car_tObj typedef copies,has not
- *   been restored here or covered by the119 current native-debug input set.
- *   Restore genuine declaration/include contexts,not dummy typedef padding.
+ *   expose them by themselves: aispeech.h supplies the retail header graph (AITUNE.obj's graph without the
+ *   tuning types). Census = retail except the second Car_tObj typedef record (tree-wide gap,
+ *   build/tmp/v/TYPEONLY_state.md).
+ *
  *
  *   (The aispeech .text functions that USE these types -- AISpeech speech selection/dispatch --
  *   are reconstructed in the AI cluster's code TUs, not here; this TU is the header/type home.)

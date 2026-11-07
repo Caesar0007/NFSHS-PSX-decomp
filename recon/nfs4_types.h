@@ -75,6 +75,9 @@ struct DR_ENV {
 typedef struct DR_ENV DR_ENV;
 #endif
 
+/* NFS4_PSYQ_DDV_TYPES: the graphics-primitive subset seen by Ddvfont.obj (retail SYM block: VECTOR..DR_ENV and
+ * SYS/TYPES only -- no DRAWENV/DISPENV/shapetbl, no CD stream, no wchar_t/VOIDFN/file/thread typedefs). */
+#ifndef NFS4_PSYQ_DDV_TYPES
 struct DRAWENV {
     RECT    clip;
     short   ofs[2];
@@ -110,6 +113,9 @@ struct shapetbl {
 };
 typedef struct shapetbl SHAPE;
 
+/* NFS4_EAC_OLD_TYPES: the older EA/PsyQ header revision seen by the FRONTEND\PSX library objects (cache.obj):
+ * no CD-stream block, no wchar_t / file / thread typedefs, MEMBLOCK before VOIDFN (retail cache.obj SYM block). */
+#ifndef NFS4_EAC_OLD_TYPES
 struct cdstreamstruct {
     long id;
     char *start, *end, *write, *header, *get, *release;
@@ -126,6 +132,8 @@ struct cdstreamstruct {
     int  timer, blocktime, streamfull, getable, releaseable;
 };
 typedef struct cdstreamstruct CDSTREAM;
+#endif
+#endif /* NFS4_PSYQ_DDV_TYPES */
 
 /* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
  * filtering the private `_physadr` tag block itself. */
@@ -158,13 +166,19 @@ typedef u_short gid_t;
 /* The retail objects preserve two PsyQ header variants: frontend C++ TUs use
  * u_char, while game/PSX unpack.obj records u_long.  An owner may select the
  * latter without leaking it into already-exact neighbors. */
+#ifndef NFS4_PSYQ_DDV_TYPES
+#ifndef NFS4_EAC_OLD_TYPES
 #ifdef NFS4_PSYQ_WCHAR_TYPE
 typedef NFS4_PSYQ_WCHAR_TYPE wchar_t;
 #else
 typedef u_char wchar_t;
 #endif
+#else
+typedef unsigned char *MEMBLOCK;
+#endif
 
 typedef void (*VOIDFN)();
+#ifndef NFS4_EAC_OLD_TYPES
 typedef int FILEOP;
 typedef void FILE_CALLBACK();
 typedef int FILE_ATOM();
@@ -172,5 +186,7 @@ typedef void THREADPROC();
 typedef void THREAD2PROC();
 typedef int SYSTEMTASK();
 typedef int THREAD;
+#endif
+#endif /* NFS4_PSYQ_DDV_TYPES */
 
 #endif

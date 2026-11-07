@@ -1,8 +1,27 @@
-/* game/psx/drawdbg.h -- UNRESTORED retail type/include surface.
- * u_long supports the real data definition,but is not the whole retail
- * DrawDbg.obj type graph. Its Car_tObj body/two typedef copies and remaining
- * declarations need genuine header-context recovery,not dummy record padding. */
+/* game/psx/drawdbg.h -- DrawDbg.obj's type environment.
+ * The retail SYM block of DrawDbg.obj (249 type records) is the shared colour/car graph (aispeech.obj's block without
+ * Sched_tSchedule / CarLogic_tObservations) plus the PsyQ kernel structs TCB/EXEC/DIRENTRY and the font types
+ * (kernpair/KERN and the font callback typedefs).  Retail records Group three times (two inline members): the
+ * type-only owner sees only the declaration of Group's count setter (aidebug.h precedent).  u_long (gSavePtr) comes
+ * from nfs4_types.h through this graph. */
 #ifndef _GAME_PSX_DRAWDBG_H_
 #define _GAME_PSX_DRAWDBG_H_
-typedef unsigned long u_long;   /* the one type DrawDbg.obj needs */
+
+#define NFS4_GROUP_COUNT_SETTER_DECL_ONLY
+#include "../common/color_types.h"
+#undef NFS4_GROUP_COUNT_SETTER_DECL_ONLY
+
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/kernpair.h"
+
+typedef struct kernpair KERN;
+
+typedef void (*fontblit)();
+typedef int (*getcode)();
+typedef void (*fontblitbegin)();
+typedef void (*fontblitend)();
+typedef void (*adjustchar)();
+
 #endif /* _GAME_PSX_DRAWDBG_H_ */

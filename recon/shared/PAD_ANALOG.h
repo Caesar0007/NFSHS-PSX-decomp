@@ -7,4 +7,7 @@ struct PAD_ANALOG {
     u_short state;
     u_char rightx, righty, leftx, lefty;
 };
+#ifndef __cplusplus
+typedef struct PAD_ANALOG PAD_ANALOG;
+#endif
 #endif

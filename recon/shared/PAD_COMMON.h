@@ -12,4 +12,7 @@ struct PAD_COMMON {
         PAD_ANALOG analog;
     } data;
 };
+#ifndef __cplusplus
+typedef struct PAD_COMMON PAD_COMMON;
+#endif
 #endif

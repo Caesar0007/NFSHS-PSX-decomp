@@ -7,4 +7,7 @@ struct DR_MODE {
     u_long tag;
     u_long code[2];
 };
+#ifndef __cplusplus
+typedef struct DR_MODE DR_MODE;
+#endif
 #endif

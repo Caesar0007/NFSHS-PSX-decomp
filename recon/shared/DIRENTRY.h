@@ -6,7 +6,7 @@
 struct DIRENTRY {
     char name[20];
     long attr, size;
-    DIRENTRY *next;
+    struct DIRENTRY *next;
     long head;
     char system[4];
 };

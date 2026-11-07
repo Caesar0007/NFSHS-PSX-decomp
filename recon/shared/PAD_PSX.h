@@ -7,4 +7,7 @@ struct PAD_PSX {
     u_short state;
     u_short unused[2];
 };
+#ifndef __cplusplus
+typedef struct PAD_PSX PAD_PSX;
+#endif
 #endif

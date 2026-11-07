@@ -1,6 +1,7 @@
 /* frontend/psx/fetexture.h - reconstructed declarations for FETEXTURE.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_FETEXTURE_H_
 #define _FRONTEND_PSX_FETEXTURE_H_
+#include "shared/MATRIX.h"   /* retail FETexture.obj: MATRIX is the first type record */
 #include "fetexture_types.h"
 
 /* FETEXTURE.CPP is a C++ source (cfront-mangled in SYM) -> normal C++ linkage. */

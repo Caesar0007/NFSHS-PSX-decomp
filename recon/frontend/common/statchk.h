@@ -4,6 +4,7 @@
 #ifndef _FE_COMMON_STATCHK_H_
 #define _FE_COMMON_STATCHK_H_
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "gamesetup_leaf_types.h"   /* retail StatChk.obj: GameSetup right after the pads */
 #include "statchk_types.h"
 #include "statchk_externs.h"
 

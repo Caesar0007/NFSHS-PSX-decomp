@@ -1,6 +1,7 @@
 /* Owner-specific type surface for ScreenTrophyRoom.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: the full tMenu/tMenuItem inline-member sets (TPDEF x16 in every frontend object) */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_CORE_CCOORD16   /* retail: MATRIX core, PCOORD16..pads, input enums, tMenuCommand*, FE menu core, Draw_* */
@@ -10,7 +11,7 @@
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #define NFS4_FE_COLOR_LATE
-#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screentrophyroom_types.h"   /* retail: color graph + AudioMus after tCarManager */
 #define tTrophySize int
 #define ts_Small 0
 #define ts_Medium 1
@@ -32,6 +33,10 @@
 /* Foreign enum tags absent from this owner remain source constants. */
 /* Remaining foreign menu view needs owning-SYM source restoration. */
 struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members reached by offset */
+#elif defined(NFS4_FE_CORE_CARS_IN_HOOK) && !defined(NFS4_SCREENTROPHYROOM_CARS_DONE)   /* fe_core_cars hook */
+#define NFS4_SCREENTROPHYROOM_CARS_DONE
+#include "../../game/common/color_types.h"
+#include "shared/AudioMus_tSongEntry.h"
 #elif !defined(NFS4_SCREENTROPHYROOM_PADS_DONE)   /* second pass (draw_leaf hook after the pads) */
 #define NFS4_SCREENTROPHYROOM_PADS_DONE
 #include "fe_input_enums.h"

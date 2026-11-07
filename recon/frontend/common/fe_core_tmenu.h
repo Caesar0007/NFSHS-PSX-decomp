@@ -33,19 +33,19 @@ typedef struct tMenu {
     // emit an out-of-line CurrentItem__5tMenu (absent from retail) and grow its .text.
     inline short CurrentItem() { return fCurrentItem; }
 #endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     // Inferred setter spelling: retail records child PTR tMenu in three
     // constructor inline pairs; the raw stores target fChildMenu.
     inline void SetChildMenu(tMenu *child) { fChildMenu = child; }
     // Inferred tail setter, tested against retail's receiver-free inline pairs.
     inline void SetVerticalHelp(short help) { VertHelp = help; }
 #endif
-#ifdef NFS4_FE_CORE_FEDIALOG_METHODS
+#if defined(NFS4_FE_CORE_FEDIALOG_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
 #ifndef NFS4_FE_CORE_FEMENU_METHODS
     short GetNumberEnabledItems();
 #endif
     inline bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
-#ifdef NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
+#if defined(NFS4_FE_CORE_FEDIALOG_ITEM_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     // ORIGINAL-NAME-UNRESOLVED: retail CalculateDimensions' second record-less pair in the item-loop test (45).
     inline tMenuItem *Item(int n) { return fItemList[n]; }
 #endif
@@ -55,16 +55,16 @@ typedef struct tMenu {
                fOnButtonPress != 0x0;
     }
 #endif
-#if defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
+#if defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     // FEDialog: retail tDialogHelp::CalculateDimensions records this receiver-only inline pair (line 71).
     inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
 #endif
-#ifdef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
+#if defined(NFS4_FE_CORE_FEMENUOPTIONS_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     // ORIGINAL-NAME-UNRESOLVED: retail tUserNameMenuItem::ProcessInput records this receiver-free menu inline pair
     // after CurrentMenu() at its 0x100 flag test (byte load lbu +1 / andi 1 = constant mask inside the inline).
     inline unsigned int ExitsWithBack() { return fFlags & 0x100; }
 #endif
-#ifdef NFS4_FE_CORE_FEAPP_METHODS
+#if defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     inline tScreen *GetScreen() { return fScreen; } // ORIGINAL-NAME-UNRESOLVED: supplied receiver/field producer; inferred accessor spelling.
     inline unsigned int GetMusic() { return fFlags & 0xf000; } /* ORIGINAL-NAME-UNRESOLVED: retail SetMenu records this menu-receiver inline pair at the music test. */ inline tMenuItem *CurrentMenuItem() { return fItemList[fCurrentItem]; } // ORIGINAL-NAME-UNRESOLVED: retail Redraw's record-less pair after CurrentMenu() (same line: later header lines unshifted).
 #endif

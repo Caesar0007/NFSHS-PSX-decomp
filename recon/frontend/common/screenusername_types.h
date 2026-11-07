@@ -1,6 +1,7 @@
 /* Owner-specific type surface for ScreenUserName.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENUSERNAME_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENUSERNAME_TYPES_H
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: the full tMenu/tMenuItem inline-member sets (TPDEF x16 in every frontend object) */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: FE menu core BEFORE the MATRIX core, then FE3d, then ScreenDisplay graph */
@@ -22,8 +23,7 @@ typedef COORD16 FE3d_zVertex; typedef CVECTOR FE3d_zColor; typedef SVECTOR FE3d_
 struct tScreenUserName : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
+    void DrawBackground(); void Initialize();
     tOptionsMenu *callingMenu;
     short fTextFade;
     bool fInTransition;

@@ -91,12 +91,12 @@ typedef struct tMenuItem {
     virtual void TransitionOn();
     virtual bool TransitionIsFinished();
     virtual void UpdateTransition(bool);
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     // Inferred getter/setter spellings; no added storage or virtual slots.
     inline unsigned int GetFlags() { return fFlags; }
     inline void SetFlags(unsigned int flags) { fFlags = flags; }
 #endif
-#ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
+#if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     inline void SetTextDescription(unsigned int text) {
         fTextDescription = text;
     }
@@ -104,11 +104,11 @@ typedef struct tMenuItem {
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     void UpdateSelFade(bool); NFS4_FE_CORE_FEMENU_METHODS
 #endif
-#ifdef NFS4_FE_CORE_MENUITEM_SETENABLED
+#if defined(NFS4_FE_CORE_MENUITEM_SETENABLED) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     inline void Disable() { fFlags |= 1; }
     inline void Enable() { fFlags &= ~1; }
 #endif
-#ifdef NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
+#if defined(NFS4_FE_CORE_FEDIALOG_ITEM_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
     /* FEDialog only (tMenuItem's key TU FEMenu never sees these): retail tDialogHelp::CalculateDimensions records
        one receiver-free inline pair at each item flag test (47, 49). IsEnabled = the femenu_externs.h spelling;
        LeftRightFlag is ORIGINAL-NAME-UNRESOLVED. */

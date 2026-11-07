@@ -1,11 +1,14 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* Owner-specific type surface for ScreenAudio.obj. */
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
-/* ScreenAudio retains the deep car/physics graph plus the common frontend
- * graph used by ScreenTrackInfo, but none of that owner's input/screen/video
- * records. */
+/* ScreenAudio retains the deep car/physics graph plus the common frontend graph used by ScreenTrackInfo, */
+#ifndef NFS4_FE_COLOR_LATE   /* but none of that owner's input/screen/video records. */
 #include "../../game/common/color_types.h"
+#endif
 #define NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 #include "screentrackinfo_types.h"
 #undef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
@@ -50,4 +53,5 @@ struct ScreenAudio_GlobalMenuDefsCodegenView {
 };
 #define tGlobalMenuDefs ScreenAudio_GlobalMenuDefsCodegenView
 
+#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #endif

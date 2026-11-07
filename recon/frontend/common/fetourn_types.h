@@ -2,9 +2,9 @@
 #ifndef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H
 #define NFS4_FRONTEND_COMMON_FETOURN_TYPES_H
 
-/* The retail owner contains color.obj's complete 71-record graph. */
+#ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph. */
 #include "../../game/common/color_types.h"
-
+#endif
 /* Preserve the shared manager layout before declaring FETourn's real class
  * with the owner-specific method surface below. */
 #define tCarManager FETourn_CoreCarManagerCodegenView

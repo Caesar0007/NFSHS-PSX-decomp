@@ -1,5 +1,8 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H   /* Owner-specific type surface for ScreenTrackRecords.obj. */
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 /* Reuse the exact shared render/frontend graph while excluding input enums,
@@ -37,4 +40,5 @@ struct tRecordBuffer;
 
 typedef tRecordBuffer tSaveRecords[187];
 
+#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #endif

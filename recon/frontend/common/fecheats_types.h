@@ -39,9 +39,9 @@ typedef enum tCheatCode {
 } tCheatCode;
 #endif
 
-/* The retail owner contains color.obj's complete physics/AI/car graph. */
+#ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete physics/AI/car graph. */
 #include "../../game/common/color_types.h"
-
+#endif
 #define NFS4_TCARCLASSTYPE_DEFINED
 enum tCarClassType {
     cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,

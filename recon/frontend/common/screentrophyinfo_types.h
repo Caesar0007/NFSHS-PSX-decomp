@@ -3,9 +3,9 @@
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail ScreenTrophyInfo object: tListIterator, Indexed, Range */
 
-/* The retail owner contains color.obj's complete 71-record graph. */
+#ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph. */
 #include "../../game/common/color_types.h"
-
+#endif
 /* ScreenTrophyInfo retains the tournament/track layouts, but not the foreign
  * tPlayer method surface carried by FETracks. */
 #define NFS4_FE_TRACK_NO_PLAYER

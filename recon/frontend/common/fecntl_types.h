@@ -1,8 +1,9 @@
 /* Exact type-only surface emitted by Fecntl.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FECNTL_TYPES_H
 #define NFS4_FRONTEND_COMMON_FECNTL_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
+#endif
 #include "fe_core_types.h"
 
 struct tOldMenu;

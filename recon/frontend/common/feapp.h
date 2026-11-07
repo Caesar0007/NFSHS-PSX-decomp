@@ -1,4 +1,8 @@
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"
 #include "feapp_types.h"
+#include "../../game/common/color_types.h"
 #include "feapp_externs.h"
 /* same spelling as front_externs.h: retail RunPostGame records a record-less inline pair at its dummyCars read (996) */
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }

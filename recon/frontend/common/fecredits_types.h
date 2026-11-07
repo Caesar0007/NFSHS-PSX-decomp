@@ -1,8 +1,9 @@
 /* Owner-specific type surface for FECredits.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FECREDITS_TYPES_H
 #define NFS4_FRONTEND_COMMON_FECREDITS_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
+#endif
 #include "fe_core_types.h"
 
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))

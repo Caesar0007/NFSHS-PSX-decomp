@@ -1,9 +1,9 @@
 /* Owner-specific type surface for FETextRender.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FETEXTRENDER_TYPES_H
 #define NFS4_FRONTEND_COMMON_FETEXTRENDER_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
-
+#endif
 #define NFS4_FE_CORE_NO_CAR_TYPES
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_NO_CAR_TYPES

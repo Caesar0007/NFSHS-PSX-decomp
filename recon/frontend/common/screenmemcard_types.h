@@ -2,9 +2,9 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENMEMCARD_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENMEMCARD_TYPES_H
 
-/* The retail owner retains the complete color physics graph and the shared
- * ScreenDisplay frontend graph, but not ScreenDisplay's owner class/view. */
-#include "../../game/common/color_types.h"
+#ifndef NFS4_FE_COLOR_LATE   /* The retail owner retains the complete color physics graph and the shared */
+#include "../../game/common/color_types.h"   /* ScreenDisplay frontend graph, but not ScreenDisplay's owner class/view. */
+#endif
 #define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #define NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
 #include "screendisplay_types.h"

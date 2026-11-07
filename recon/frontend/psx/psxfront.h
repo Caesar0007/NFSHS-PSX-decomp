@@ -4,7 +4,11 @@
 #define _FRONTEND_PSX_PSXFRONT_H_
 #define NFS4_CORE_PADS_KERNEL_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"
 #include "psxfront_types.h"
+#include "../../game/common/color_types.h"
 
 /* PSXFRONT.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */
 void Quick_DD(int a,int b,int c);

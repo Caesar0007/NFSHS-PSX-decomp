@@ -1,9 +1,9 @@
 /* drawshp.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_FRONTEND_PSX_DRAWSHP_TYPES_H
 #define NFS4_FRONTEND_PSX_DRAWSHP_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
-
+#endif
 /* Scratchpad render cursors are fixed-address lvalues, not owned globals. */
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)

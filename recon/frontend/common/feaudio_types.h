@@ -1,9 +1,9 @@
 /* Owner-specific type surface for Feaudio.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEAUDIO_TYPES_H
 #define NFS4_FRONTEND_COMMON_FEAUDIO_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
-
+#endif
 /* Feaudio retains the menu/iterator core but not the car-manager tail. */
 #define NFS4_FE_CORE_NO_CAR_TYPES
 #include "fe_core_types.h"

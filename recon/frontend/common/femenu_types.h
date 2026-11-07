@@ -1,8 +1,8 @@
-/* Owner-specific type surface for FEMenu.obj. */
-#ifndef NFS4_FRONTEND_COMMON_FEMENU_TYPES_H
+#ifndef NFS4_FRONTEND_COMMON_FEMENU_TYPES_H   /* Owner-specific type surface for FEMenu.obj. */
 #define NFS4_FRONTEND_COMMON_FEMENU_TYPES_H
-
+#ifndef NFS4_FE_COLOR_LATE
 #include "../../game/common/color_types.h"
+#endif
 #include "fe_input_enums.h"
 
 struct tMenu;

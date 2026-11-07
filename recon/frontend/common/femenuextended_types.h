@@ -27,9 +27,9 @@ struct tMenu;
 #define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
-
-/* The retail owner contains color.obj's complete physics/AI/car graph. */
+#ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete physics/AI/car graph. */
 #include "../../game/common/color_types.h"
+#endif
 #include "../../game/psx/psyq_prim_macros.h"
 
 #include "shared/DR_AREA.h"

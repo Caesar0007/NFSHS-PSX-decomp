@@ -2,9 +2,9 @@
 #ifndef NFS4_FRONTEND_PSX_MOVIE_TYPES_H
 #define NFS4_FRONTEND_PSX_MOVIE_TYPES_H
 
-/* Movie.obj contains color.obj's complete 71-record game/platform graph. */
+#ifndef NFS4_FE_COLOR_LATE   /* Movie.obj contains color.obj's complete 71-record game/platform graph. */
 #include "../../game/common/color_types.h"
-
+#endif
 typedef struct CdlLOC {
     u_char minute, second, sector, track;
 } CdlLOC;

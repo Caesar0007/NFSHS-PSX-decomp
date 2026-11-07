@@ -20,6 +20,10 @@
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+#define NFS4_COLOR_SCHED_DONE   /* color_types.h: the scheduler types are already declared */
 #include "shared/FLARE_PIECE_DEF.h"
 #include "shared/FLARE_DEF.h"
 #include "shared/CHorizonSpec.h"
@@ -112,9 +116,5 @@ typedef struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; } Flare_tInfo;
 
 
 #include "shared/CTrackSpec.h"
-
-
-
-
 
 #endif

@@ -1,12 +1,13 @@
-#ifndef NFS4_GAME_COMMON_INPUT_TYPES_H
+#if !defined(NFS4_GAME_COMMON_INPUT_TYPES_H)
 #define NFS4_GAME_COMMON_INPUT_TYPES_H   /* input.obj's exact source-visible delta over the shared color graph. */
+#define NFS4_PADS_HOOK_AFTER "input_types.h"   /* retail input.obj: Input_tResults, scheduler, GameSetup records right after PAD_COMMON */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_BEFORE_GS   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "input_after_pads.h"   /* retail: Input_tResults, scheduler, GameSetup right after the pads */
 #include "color_types.h"
 #include "shared/Sched_tSchedule.h"
-
 
 
 
@@ -47,4 +48,12 @@
 
 typedef int Input_tDeviceCall(u_long value);
 
+#elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_INPUT_PADS_DONE)   /* second pass: game_common_pads_types.h */
+#define NFS4_INPUT_PADS_DONE
+#include "shared/Input_tResults.h"
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+#define NFS4_COLOR_SCHED_DONE
+#include "gamesetup_leaf_types.h"
 #endif

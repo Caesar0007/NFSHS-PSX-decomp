@@ -60,13 +60,20 @@ struct Group {
 #include "shared/Trk_SimObject.h"
 #endif
 #include "shared/RelCoord16.h"
+#ifdef NFS4_COLOR_HOOK_AFTER_RELCOORD   /* retail object/bworld/draww: the owner's Chunk right after RelCoord16/Group (owner pass) */
+#define NFS4_COLOR_IN_HOOK5
+#include NFS4_COLOR_HOOK_AFTER_RELCOORD
+#undef NFS4_COLOR_IN_HOOK5
+#endif
 #ifdef NFS4_CORE_SUBDIV_TRKART   /* retail: Track_tArtresource/Track_tMaterial after RelCoord16 */
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #endif
 #include "shared/tSaveSurface.h"
 #ifdef NFS4_COLOR_HOOK_AFTER_SAVE   /* retail skidmark.obj: the owner's TCB/EXEC/DIRENTRY/Skidmark block right after tSaveSurface */
+#define NFS4_COLOR_IN_HOOK3
 #include NFS4_COLOR_HOOK_AFTER_SAVE
+#undef NFS4_COLOR_IN_HOOK3
 #endif
 #ifdef NFS4_COLOR_GS_AFTER_SAVE   /* retail: GameSetup right after tSaveSurface (owner first header) */
 #include "gamesetup_leaf_types.h"
@@ -104,13 +111,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 #endif
 /* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
 #include "shared/Transformer_z.h"
-
-
-
-
-
-
-
 
 
 

@@ -5,20 +5,23 @@
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
+/* GameSetup: declared at the end of the third pass below (retail: after Draw_tCtrlSkidmark) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_HOOK_AFTER_BO "../psx/draww_types.h"   /* retail: forceFocus_t right after the BO types (second pass below) */
+#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/draww_types.h"   /* retail: tBoundingSphere..Draw_tCtrlSkidmark right after tSaveSurface (third pass below) */
 #define NFS4_PRIM_POLY_GT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_DR_TWIN   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #endif
+#define NFS4_COLOR_HOOK_AFTER_RELCOORD "../psx/draww_types.h"   /* retail: Chunk right after RelCoord16 (owner) / Group (bworld) (pass below) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 #endif
-#if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES)) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / in place (bworld) */
+#if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES)) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / in place (bworld) */
 #define NFS4_DRAWW_EARLY_DONE
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
@@ -26,7 +29,29 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 #endif
-#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWW_TAIL_DONE)   /* first pass, after color_types.h */
+#if defined(NFS4_COLOR_IN_HOOK3) && !defined(NFS4_DRAWW_SAVE_DONE)   /* third pass (owner), from color_types.h */
+#define NFS4_DRAWW_SAVE_DONE
+#include "shared/tBoundingSphere.h"
+#include "shared/Draw_tGiveShelbyMoreCache.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#include "shared/Draw_tCtrlSkidmark.h"
+#include "../common/gamesetup_leaf_types.h"
+#endif
+#if defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_CHUNK_DONE)   /* pass from color_types.h (after RelCoord16) */
+#define NFS4_DRAWW_CHUNK_DONE
+struct Chunk {
+    RelCoord16 boundPts[4], chunkboundPts[4];
+    u_char quadCounts[6], pad[2];
+    Trk_Quad *renderQuads[4];
+    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
+    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
+    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
+    short firstSimSliceInd, chunkInd;
+    Group *vertexBuf;
+};
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_COLOR_IN_HOOK3) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_TAIL_DONE)   /* first pass, after color_types.h */
 #define NFS4_DRAWW_TAIL_DONE
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
@@ -53,13 +78,7 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #include "shared/Trk_SimpleInst.h"
 #endif
 #include "shared/Trk_CollideBoomInst.h"
-
-
-
 #include "shared/Trk_AnimateInst.h"
-
-
-
 
 #include "shared/Trk_SimObject.h"
 
@@ -123,16 +142,6 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
 
 
 
-struct Chunk {
-    RelCoord16 boundPts[4], chunkboundPts[4];
-    u_char quadCounts[6], pad[2];
-    Trk_Quad *renderQuads[4];
-    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
-    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
-    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
-    short firstSimSliceInd, chunkInd;
-    Group *vertexBuf;
-};
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it right after the BO types */
 struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 #endif
@@ -330,21 +339,12 @@ struct ChunkObjectInfo {
 #include "shared/FLARE_PIECE_DEF.h"
 #include "shared/Sched_tSchedule.h"
 
-
-
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical sim.obj aggregate (SYM: Sim_tSimGlobalVar, size 24). */
 #include "shared/Sim_tSimGlobalVar.h"
-
-
-
 #include "shared/tBoundingSphere.h"
 #include "shared/tQuat.h"
 #include "shared/kernpair.h"
-
-
-
-
 typedef kernpair KERN;
 typedef void (*fontblit)();
 typedef int (*getcode)();

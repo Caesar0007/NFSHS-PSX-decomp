@@ -22,13 +22,13 @@
 
 
 
-typedef enum crimeType {
-    CRIME_NONE = 0,
-    CRIME_SPEEDER = 1,
-    CRIME_WRONGSIDE = 2,
-    CRIME_BUMPCOP = 3,
-    CRIME_SMASHCOP = 4
-} crimeType;
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP   /* aih_btccop_types.h declares these at their retail places */
+#include "shared/crimeType.h"
+#endif
+
+
+
+
 
 #include "shared/Sched_tSchedule.h"
 
@@ -44,25 +44,25 @@ typedef enum crimeType {
 #include "shared/AICop_spikeBelt_t.h"
 
 
-
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP
 typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
 #include "shared/AIPhysic_ModelConfig_t.h"
+#endif
 
 
-
-
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP
 #include "shared/BW_tContext.h"
+#endif
 
 
-
-
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP
 #include "shared/copLevel_t.h"
+#endif
 
 
-
-
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP
 #include "shared/copGame_t.h"
-
+#endif
 #include "shared/POLY_GT4.h"
 
 
@@ -79,24 +79,24 @@ typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; 
 
 
 #include "shared/Track_tMaterial.h"
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP
 #include "shared/Skidmark_Segment.h"
-
-
-
-
-
 #include "shared/Skidmark_Chunk.h"
-
-
-
-
-
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
-
-
-
 #include "shared/DIRENTRY.h"
+#endif
+
+
+
+
+
+
+
+
+
+
+
 
 
 

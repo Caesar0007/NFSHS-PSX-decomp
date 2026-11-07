@@ -7,7 +7,6 @@
 #undef NFS4_CORE_CCOORD16
 
 
-
 #include "shared/CCOORD16.h"
 #ifdef NFS4_COLOR_GROUP_LATE   /* retail: the track quad types and RelCoord16 ahead of Group (owner first header) */
 #include "shared/Trk_Quad.h"
@@ -16,7 +15,7 @@
 #include "shared/Trk_NewSimSlice.h"
 #include "shared/RelCoord16.h"
 #endif
-#ifdef NFS4_COLOR_GS_FIRST   /* retail: GameSetup ahead of Group (owner first header) */
+#if defined(NFS4_COLOR_GS_FIRST) && !defined(NFS4_COLOR_SCHED_BEFORE_GS)   /* retail: GameSetup ahead of Group (owner first header) */
 #include "gamesetup_leaf_types.h"
 #endif
 #ifdef NFS4_COLOR_SCHED_FIRST   /* retail: scheduler types ahead of Group (owner first header) */
@@ -26,8 +25,9 @@ typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tSchedule.h"
 #endif
 #endif
-
-
+#if defined(NFS4_COLOR_GS_FIRST) && defined(NFS4_COLOR_SCHED_BEFORE_GS)   /* retail input/nfs3: scheduler, then GameSetup */
+#include "gamesetup_leaf_types.h"
+#endif
 struct Group {
     int m_num_elements;
     inline void *GetData() { return this + 1; }
@@ -79,11 +79,11 @@ typedef void (*Sched_tFunctionPt)(void *);
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
 #include "shared/BO_tNewtonObj.h"
-
-
-
-
-
+#ifdef NFS4_COLOR_HOOK_AFTER_BO   /* retail object/bworld: the owner's anim/object types right after the BO types (owner second pass) */
+#define NFS4_COLOR_IN_HOOK
+#include NFS4_COLOR_HOOK_AFTER_BO
+#undef NFS4_COLOR_IN_HOOK
+#endif
 
 
 

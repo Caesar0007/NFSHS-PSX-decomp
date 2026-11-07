@@ -1,10 +1,10 @@
 #ifndef NFS4_GAME_COMMON_INPUT_TYPES_H
 #define NFS4_GAME_COMMON_INPUT_TYPES_H   /* input.obj's exact source-visible delta over the shared color graph. */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_SCHED_BEFORE_GS   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
-
 #include "shared/Sched_tSchedule.h"
 
 

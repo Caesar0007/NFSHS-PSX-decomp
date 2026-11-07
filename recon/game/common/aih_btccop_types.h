@@ -3,73 +3,28 @@
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 /* newton.obj's complete 87-record graph is a strict semantic subset. */
+#define NFS4_NEWTON_AS_AI_BTCCOP   /* retail: the cop/physics/kernel types at their aih_btccop places (newton_types.h) */
 #include "newton_types.h"
 
-/* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
+#include "shared/copLevel_t.h"
+#include "shared/copGame_t.h"
 #include "shared/copType.h"
-
-
-
-
-#include "shared/cruiseMode_t.h"
-
-
-
-
-
-#include "shared/stateType_t.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-#include "shared/Wingman_Role.h"
-
-
-
-
-
-
-#include "shared/AIHigh_tAttackMode.h"
-
-
-
-
-
-
-#include "shared/blockadeMode_t.h"
-
-
-
-
-
-
-
-#include "shared/AIHigh_tDriveAwayMode.h"
-
-
-
-
-
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
+#include "shared/crimeType.h"
+struct AICop_BasicPerpInfo {
+    int copsAssigned_[2];
+    crimeType crime_;
+    inline crimeType Crime() { return crime_; }   /* retail pair on the embedded info (computed `this`, no row) */
+};
+struct AICop_PerpChaseInfo {
+    int engagementTime_;
+    copGame_t *copGameInfo_;
+    int chaseLevelIndex_, bestChaseLevelIndex_;
+    copLevel_t *chaseLevel_;
+    int totalEngagementPercent_, blockadeDone_;
+    int engagementPercentIncreasePerTick_, copFreeTicks_;
+};
+#include "shared/AIPhysic_ModelConfig_t.h"
 
 /* This header's original anonymous enum survives in SYM without a typedef. */
 enum {
@@ -85,92 +40,10 @@ enum {
 #include "shared/trigger_simple_t.h"
 #include "shared/trigger_roadblock_t.h"
 #include "shared/trigger_offroad_t.h"
-
-
-
-
-
 #include "shared/trigger_trafficAccident_t.h"
-
-
-
-
 #include "shared/trigger_pathPosition_t.h"
-
-
-
 #include "shared/trigger_trafficPath_t.h"
-
-
-
-
-
 #include "shared/trigger_t.h"
-
-
-
-
-
-
-
-
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_;
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
-
-#include "shared/Trk_ObjectDef.h"
-#include "shared/Trk_CollideBoomInst.h"
-
-
-
-
-
-
-
-#include "shared/Trk_AnimateInst.h"
-
-
-
-
-#include "shared/Trk_SimObject.h"
-
-
-
-
-
-struct AnimScript {
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-};
-#include "shared/SceneElem.h"
-
-
-
-
-
-
-#include "shared/SceneSortedElem.h"
-#include "shared/AnimDef.h"
-struct DRender_tView;
-struct Draw_DCache;
-/* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
-struct ObjectAnim {
-    virtual ~ObjectAnim();
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-struct ObjectFinishedMultiAnim : public ObjectAnim { };
-struct ObjectFinishedSignAnim : public ObjectAnim {
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-};
 
 struct AIDelayCar {
     int delayFactor_;
@@ -183,21 +56,11 @@ struct AIDelayCar {
     void Update();
 };
 
-struct AICop_BasicPerpInfo {
-    int copsAssigned_[2];
-    crimeType crime_;
-    inline crimeType Crime() { return crime_; }   /* retail pair on the embedded info (computed `this`, no row) */
-};
-struct AICop_PerpChaseInfo {
-    int engagementTime_;
-    copGame_t *copGameInfo_;
-    int chaseLevelIndex_, bestChaseLevelIndex_;
-    copLevel_t *chaseLevel_;
-    int totalEngagementPercent_, blockadeDone_;
-    int engagementPercentIncreasePerTick_, copFreeTicks_;
-};
-
 #include "aistate.h"
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+#include "shared/stateType_t.h"
+#include "shared/Wingman_Role.h"
 
 /* AIState_Idle's empty inline ctor lives HERE, not in aistate.h: aistate.obj (Idle's key-function
    TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
@@ -210,6 +73,73 @@ inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDista
     return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&
            __builtin_abs(longMetersBetween_) < minLongMetersDistance;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 typedef struct AIHigh_Base {
@@ -282,7 +212,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     void CleanupBlockaders(int a);
     void HandlePullOver();
 };
-
+#include "shared/AIHigh_tAttackMode.h"
 struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
@@ -302,9 +232,9 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
     AIHigh_BTC_HumanCop *CheckForActivation();
 };
-
+#include "shared/blockadeMode_t.h"
 #include "shared/blockade_t.h"
-
+#include "shared/AIHigh_tDriveAwayMode.h"
 
 
 
@@ -410,7 +340,12 @@ struct AIHigh_Traffic : public AIHigh_Base {
     SceneElem *accidentData_;
     inline void SetForcePurgatory(int force) { forcePurgatory_ = force; }   /* retail pair: this AIHigh_Traffic */
 };
-
+#include "shared/BW_tContext.h"
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+} forceFocus_t;
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"
 #include "shared/SPCHNFSType_COLOUR.h"
@@ -455,6 +390,71 @@ struct Speech {
     };
     static Speaker *Dispatch();
     static Speaker *Mobile(Car_tObj *carObj);
+};
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0,
+    RECORD_M = 1,
+    TEST_M = 2
+};
+
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_;
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#include "shared/Trk_ObjectDef.h"
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
+
+struct AnimScript {
+    int baseTicks, baseFrame, flags, numParts;
+    Trk_AnimateInst **inst;
+};
+
+
+
+
+
+
+#include "shared/AnimDef.h"
+struct DRender_tView;
+struct Draw_DCache;
+/* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
+struct ObjectAnim {
+    virtual ~ObjectAnim();
+    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
+};
+struct ObjectFinishedMultiAnim : public ObjectAnim { };
+struct ObjectFinishedSignAnim : public ObjectAnim {
+    matrixtdef finalMatrix;
+    Trk_ObjectDef *objDef;
+    Trk_CollideBoomInst *objCollideInstance;
 };
 
 /* Canonical foreign aggregates used by this translation unit. */

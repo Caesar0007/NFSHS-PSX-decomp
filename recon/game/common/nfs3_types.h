@@ -12,6 +12,7 @@ typedef enum tCarClassType {
     cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
 } tCarClassType;
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_SCHED_BEFORE_GS   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #define NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #define NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
@@ -27,7 +28,6 @@ typedef enum tCarClassType {
 #undef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 #undef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
-
 typedef enum tTrackClassType {
     tct_Beginner = 0,
     tct_Intermediate = 1,

@@ -7,7 +7,7 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #endif
 #include "draw_leaf_types.h"
-#include "gamesetup_leaf_types.h"
+
 #include "group_types.h"
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/POLY_GT4.h"
@@ -84,15 +84,15 @@ struct Chunk {
 };
 
 #include "shared/Track_tArtresource.h"
-
-
-
-
-
-
-
 #include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"
+#include "gamesetup_leaf_types.h"   /* retail: GameSetup right after tSaveSurface (chunk.obj, track.obj) */
+#ifdef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* retail track.obj: the scheduler types right after GameSetup */
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+#endif
+
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/Skidmark_Segment.h"

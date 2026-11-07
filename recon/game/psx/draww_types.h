@@ -8,6 +8,7 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
 #endif
@@ -38,7 +39,6 @@ typedef struct AIDataRecord_t {
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #endif
-
 #include "shared/Trk_ObjectDef.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "shared/Trk_SimpleInst.h"

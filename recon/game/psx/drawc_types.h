@@ -9,6 +9,7 @@
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
+#define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
 #endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
@@ -18,7 +19,6 @@ typedef int CarLogic_tObservations[1][3];
 typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];
-
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 

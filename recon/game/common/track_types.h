@@ -40,7 +40,7 @@
 
 
 
-typedef void (*Sched_tFunctionPt)(void *);
+/* Sched_tFunctionPt/Sched_tFunctionSchedule/Sched_tSchedule: declared by chunk_types.h after GameSetup (retail order) */
 #include "shared/Sched_tFunctionSchedule.h"
 
 

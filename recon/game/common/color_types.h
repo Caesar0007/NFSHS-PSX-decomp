@@ -9,6 +9,13 @@
 
 
 #include "shared/CCOORD16.h"
+#ifdef NFS4_COLOR_GROUP_LATE   /* retail: the track quad types and RelCoord16 ahead of Group (owner first header) */
+#include "shared/Trk_Quad.h"
+#include "shared/Trk_NewStrip.h"
+#include "shared/Trk_NewSimQuad.h"
+#include "shared/Trk_NewSimSlice.h"
+#include "shared/RelCoord16.h"
+#endif
 #ifdef NFS4_COLOR_GS_FIRST   /* retail: GameSetup ahead of Group (owner first header) */
 #include "gamesetup_leaf_types.h"
 #endif
@@ -19,13 +26,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tSchedule.h"
 #endif
 #endif
-
-
-
-
-
-
-
 
 
 struct Group {
@@ -65,20 +65,20 @@ struct Group {
 #include "shared/Track_tMaterial.h"
 #endif
 #include "shared/tSaveSurface.h"
+#ifdef NFS4_COLOR_GS_AFTER_SAVE   /* retail: GameSetup right after tSaveSurface (owner first header) */
+#include "gamesetup_leaf_types.h"
+#endif
 #include "shared/BWorldSm_Pos.h"
+#ifdef NFS4_COLOR_SCHED_AFTER_BWSM   /* retail hud.obj: scheduler types between BWorldSm_Pos and the BO types */
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#ifdef NFS4_COLOR_SCHED_SCHEDULE
+#include "shared/Sched_tSchedule.h"
+#endif
+#endif
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
-
-
-
-
-
-
-
 #include "shared/BO_tNewtonObj.h"
-
-
-
 
 
 
@@ -99,7 +99,7 @@ struct BO_tNewtonObj;
 #ifdef NFS4_COLOR_GS_AFTER_BO   /* retail: GameSetup after the BO types, before the scheduler */
 #include "gamesetup_leaf_types.h"
 #endif
-#ifndef NFS4_COLOR_SCHED_FIRST
+#if !defined(NFS4_COLOR_SCHED_FIRST) && !defined(NFS4_COLOR_SCHED_AFTER_BWSM)
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
 #endif

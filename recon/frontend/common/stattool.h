@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_GS_EARLY   /* retail: GameSetup before tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail stattool object: tListIterator, Indexed, Range */
 /* frontend/common/stattool.h - reconstructed declarations for STATTOOL.CPP (C++ TU) */
 #ifndef _FE_COMMON_STATTOOL_H_

@@ -1,14 +1,15 @@
-/* Owner-specific type surface for ScreenTournSelect.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H
+#define NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H   /* Owner-specific type surface for ScreenTournSelect.obj. */
 #ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE   /* screentournselect/pinkslips/tracks, not screenpost */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE   /* screentournselect only */
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"
 #endif
-/* ScreenTournSelect keeps the input-key record, not the foreign player enum; ScreenPost keeps both. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root parameter types */
-#include "fe_player_types.h"
-
-/* ScreenMemcard is the nearest exact implemented base graph.  Exclude its
- * memory-card, saved-game, audio-song, and FE3d owner records here. */
+#endif
+#include "fe_player_types.h"   /* ScreenTournSelect keeps the input-key record, not the foreign player enum; ScreenPost keeps both. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root parameter types */
+/* ScreenMemcard is the nearest exact implemented base graph.  Exclude its memory-card, saved-game, audio-song, and FE3d owner records here. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #define NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 #ifdef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
@@ -20,9 +21,8 @@
 #endif
 #undef NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
-
-/* These foreign enum tags are absent from this owner graph.  Keep the source
- * constants while the extern boundary below preserves their retail names. */
+#include "../../game/common/color_types.h"   /* no-op unless NFS4_FE_COLOR_LATE (color.obj graph after the frontend graph) */
+/* These foreign enum tags are absent from this owner graph.  Keep the source constants while the extern boundary below preserves their retail names. */
 #ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #define tTrophySize int
 #define ts_Medium 1

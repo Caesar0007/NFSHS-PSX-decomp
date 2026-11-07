@@ -27,6 +27,7 @@ enum tMenuCommandType {
 /* physadr: the complete SDK type (retail size 4) */
 #define NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
 #define NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
+#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "screentournselect_types.h"   /* retail: standings classes right after tShapeInformation (INV-B pass) */
 #include "screentournselect_types.h"
 #undef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #undef NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
@@ -35,7 +36,6 @@ enum tMenuCommandType {
 /* The linked SYM keeps the public array typedef but attributes the completed
  * element body elsewhere.  CC1PL requires the exact 20-byte body to form it. */
 #include "shared/tRecordBuffer.h"
-
 
 typedef tRecordBuffer tSaveRecords[187];
 #endif

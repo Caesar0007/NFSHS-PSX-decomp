@@ -8,7 +8,7 @@
 void AIState_StartUp(void);
 void AIState_Restart(void);
 void AIState_CleanUp(void);
-
+#include "link_stripped.h"   /* SLINK /strip removed the standalone copies of the inlines below (no #pragma) */
 /* Real polymorphic classes (retail = cc1plus 2.8 vtables): every vtable is
  * {null}{Execute}{dtor}{TestForRelease}; AIState_Base's Execute is pure, its dtor and
  * TestForRelease are INLINE (so every TU that constructs a state gets a local copy of both
@@ -69,7 +69,7 @@ struct AIState_Chase : public AIState_Base {
     void DoSlowNitrous();
     void DoNitrous(int);
     void Execute();
-    int IsSlowingDown(); /* inferred predicate: current tick precedes slowDownEndTime_ */
+    int IsSlowingDown() LINK_STRIPPED; /* inferred predicate: current tick precedes slowDownEndTime_ */
     void FarTargeting();
     int CalculateCloseTargettingAheadSlowDownFactor();
     void CloseTargeting();
@@ -91,7 +91,7 @@ struct AIState_Offroad : public AIState_Base {
     AIState_Offroad(Car_tObj *, int, coorddef *, matrixtdef *, int, int, int);
     ~AIState_Offroad();
     void UnleashIfInRange(Car_tObj *);
-    void MarkLetGo(); /* inferred inline setter: retail records this at the letGo_ store */
+    void MarkLetGo() LINK_STRIPPED; /* inferred inline setter: retail records this at the letGo_ store */
     void Execute();
 };
 
@@ -167,7 +167,7 @@ struct AIState_Cruise : public AIState_Normal {
 /* Retail callers have nested inline Chase receiver records for the timer
    operations. These member spellings are inferred. GCC 2.8's interface form
    keeps their inline scopes without emitting non-retail standalone copies. */
-#pragma interface
+/* (no #pragma: user ruling 2026-11-07) */
 inline void AIState_Offroad::MarkLetGo() { letGo_ = 1; }
 
 /* Only the state owner surface supplies Sim_tSimGlobalVar. Keep the real

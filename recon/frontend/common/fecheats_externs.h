@@ -35,7 +35,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* The constructor body is recovered from FEApp's existing definition.  Its
  * owner-header visibility here is inferred from retained type declarations,
  * not claimed as the unique original include graph. */
-#pragma interface
+/* (no #pragma: user ruling 2026-11-07) */
 inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
 {
   timeOutTicks = 0x480;

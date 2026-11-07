@@ -72,7 +72,7 @@ static inline bool DialogIdle(tDialogInteractive *dialog) { return dialog->fCurr
 /* Existing inferred word-ID overload: actual text lookup and string-field
  * store, with no new class API/layout. Its exact original signature and
  * owner-header visibility are not uniquely retained by retail debug data. */
-#pragma interface
+/* (no #pragma: user ruling 2026-11-07) */
 inline tDialogMessageString *tDialogMessageString::SetString(int word)
 {
   string = TextSys_Word(word);

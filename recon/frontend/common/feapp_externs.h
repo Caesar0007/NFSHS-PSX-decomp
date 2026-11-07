@@ -107,7 +107,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* Inferred operation/name: retail DisplayHelp retains a tDialogHelp receiver
  * for the variant mutation, not a caller pointer capture.
  * The widened value parameter is unretained in the supplied inline records. */
-#pragma interface
+/* (no #pragma: user ruling 2026-11-07) */
 inline void tDialogHelp::SetVariant(int variant) {
     this->variant = variant;
 }

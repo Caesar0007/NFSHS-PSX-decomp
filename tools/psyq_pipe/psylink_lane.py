@@ -250,7 +250,7 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     # OFFICIAL keeps all bodies/declarations for the real linker to strip.
     # Do not let that projection lose a following KEPT function's declaration.
     discarded_symbols = source_discarded_symbols(lines) if not OFFICIAL else set()
-    stripping = False
+    stripping = False; strip_body = False
     for ln in lines:
         s = ln.strip()
         if not OFFICIAL:
@@ -289,9 +289,22 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
         # LINK_STRIPPED skip below swallowed everything up to the next bare directive -- libgpu FntFlush (796 B) vanished
         base = base_section(re.sub(rb'\s*#.*$', b'', s))
         if base is None and stripping:
+            # 2026-11-07: g++ writes the TU's trailing global/static DATA .def records after its last deferred inline copy, i.e.
+            # inside the stripped region when that copy is LINK_STRIPPED (pausemenu: ChangedEnabling, gPause_CurrentY lost).
+            # Keep a data .def outside any .ent/.end (C++ TUs only: the C EA-library objects' data carry no type records in
+            # retail); function records and everything inside a body stay skipped.
+            if s.startswith(b'.ent'):
+                strip_body = True
+            elif s.startswith(b'.end') and not s.startswith(b'.endef'):
+                strip_body = False
+            elif not strip_body and str(src).endswith(('.cpp', '.cpp.s')) and s.startswith(b'.def') and re.search(rb'\.scl\s+[23];', s):
+                t = re.search(rb'\.type\s+0x([0-9a-fA-F]+);', s)
+                if t and (int(t.group(1), 16) >> 4) & 3 != 2:     # first derived level != FCN: a data object
+                    out.append(ln)
             continue          # body of a LINK_STRIPPED function: retail's final link removed it (tool unknown), so it is not assembled here
         if base is not None:
             stripping = base == b'strip.text'
+            strip_body = False
             if stripping:
                 continue
             if front and base in (b'.text', b'.rdata', b'.data', b'.bss'):

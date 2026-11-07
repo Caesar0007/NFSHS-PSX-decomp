@@ -1,7 +1,7 @@
 /* mpause.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_MPAUSE_TYPES_H
 #define NFS4_GAME_COMMON_MPAUSE_TYPES_H
-
+#include "link_stripped.h"   /* SLINK /strip removed the standalone copies of the inlines below (no #pragma) */
 #include "color_types.h"
 
 #include "shared/SndBnk_t.h"
@@ -123,10 +123,10 @@ struct tPMenuItem {
     virtual void Draw(bool) = 0;
     bool IsEnabled();
     bool IsDisabled();
-    void Enable(); /* inferred member spelling, also used by sibling tMenuItem */
-    void Disable(); /* inferred member spelling, also used by sibling tMenuItem */
-    unsigned int TextDescription(); /* inferred getter: retail nests this item receiver in the menu getter */
-    void SetTextDescription(unsigned int); /* sibling tMenuItem uses this setter spelling */
+    void Enable() LINK_STRIPPED; /* inferred member spelling, also used by sibling tMenuItem */
+    void Disable() LINK_STRIPPED; /* inferred member spelling, also used by sibling tMenuItem */
+    unsigned int TextDescription() LINK_STRIPPED; /* inferred getter: retail nests this item receiver in the menu getter */
+    void SetTextDescription(unsigned int) LINK_STRIPPED; /* sibling tMenuItem uses this setter spelling */
 };
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);
@@ -173,8 +173,8 @@ struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {
 };
 struct tPMenuItemCommandButton : public tPMenuItemInteractive {
     tPMenuCommandType fCommand;
-    void SetCommand(tPMenuCommandType); /* inferred setter for the confirmation command */
-    void SetConfirmation(bool); /* inferred: kMPause_CommandConfirmationFlag controls the confirmation path */
+    void SetCommand(tPMenuCommandType) LINK_STRIPPED; /* inferred setter for the confirmation command */
+    void SetConfirmation(bool) LINK_STRIPPED; /* inferred: kMPause_CommandConfirmationFlag controls the confirmation path */
     tPMenuItemCommandButton(unsigned int, tPMenuCommandType);
     ~tPMenuItemCommandButton();
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
@@ -199,11 +199,11 @@ struct tPMenu {
     void CheckForDisabled();
     virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
     virtual void Draw();
-    int CurrentItem(); /* inferred accessor: retail records this at the current-item reads */
-    unsigned int CurrentItemText(); /* inferred getter for the selected item's description */
-    void SetCurrentItem(int); /* inferred setter: retail records the confirmation-menu receiver */
-    void SetHighlight(bool); /* inferred setter: retail records this in both highlight arms */
-    int NumItems(); /* inferred inline count getter: retail records this at both count reads */
+    int CurrentItem() LINK_STRIPPED; /* inferred accessor: retail records this at the current-item reads */
+    unsigned int CurrentItemText() LINK_STRIPPED; /* inferred getter for the selected item's description */
+    void SetCurrentItem(int) LINK_STRIPPED; /* inferred setter: retail records the confirmation-menu receiver */
+    void SetHighlight(bool) LINK_STRIPPED; /* inferred setter: retail records this in both highlight arms */
+    int NumItems() LINK_STRIPPED; /* inferred inline count getter: retail records this at both count reads */
     int NumEnabledItems();
     int ItemEnabledNum(int);
 };
@@ -249,7 +249,7 @@ typedef void (*adjustchar)();
 /* The inline receiver pairs at NumEnabledItems' two count reads establish
    a getter on tPMenu. Its spelling is inferred; the interface definition
    retains the debug scopes without an extra standalone body. */
-#pragma interface
+/* (no #pragma: user ruling 2026-11-07) */
 inline int tPMenu::NumItems() { return fNumItems; }
 inline int tPMenu::CurrentItem() { return fCurrentItem; }
 inline void tPMenu::SetHighlight(bool highlight) { fHighlight = highlight; }

@@ -3,7 +3,7 @@
  *   RangeIndexed) list iterators; tMenuItem(+Interactive/LeftRightChoice/LeftRightSlider/
  *   GoToMenuButton) menu items; tMenu container; + free DrawSlider (GPU slider widget).
  *   Member defs; base ctors via member-init-lists; manual _vf vtable dispatch; ref params. */
-#define NFS4_FE_LIST_RANGE_INLINE   /* tListIterator range accessors; standalone copies LINK_STRIPPED */
+#define NFS4_FE_LIST_OWNER   /* FEMenu.obj: every tListIterator class; range-accessor copies LINK_STRIPPED */
 #include "femenu.h"
 
 

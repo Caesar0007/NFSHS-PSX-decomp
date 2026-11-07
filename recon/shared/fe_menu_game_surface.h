@@ -18,6 +18,11 @@ typedef struct tListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
+    /* the four inline accessors (one tListIterator record each, as retail records 6 in these objects too) */
+    int MinValue() { return (unsigned char)fMinValue; }
+    int MaxValue() { return (unsigned char)fMaxValue; }
+    int Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
+    short Selection(int i) { return fSelectionList[i]; }
 } tListIterator;
 struct tListIteratorRange : public tListIterator {};
 

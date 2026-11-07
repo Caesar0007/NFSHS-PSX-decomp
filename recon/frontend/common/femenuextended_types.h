@@ -23,7 +23,7 @@ struct tMenu;
 #include "shared/tMenuCommand.h"
 
 #define NFS4_FE_CORE_FEMENU_METHODS
-#define NFS4_FE_LIST_SELECTION_INLINE   /* tListIterator::Selection(i) -- retail's tListIterator `this` pairs */
+#define NFS4_FE_LIST_NO_INDEXED   /* FEMenuExtended.obj: tListIterator + Range only */
 #define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS

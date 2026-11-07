@@ -23,22 +23,29 @@ typedef struct tListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
-#ifdef NFS4_FE_LIST_RANGE_INLINE
+#if defined(NFS4_FE_LIST_OWNER) || defined(NFS4_FE_LIST_RANGE_INLINE)
 #include "../../link_stripped.h"   /* SLINK /strip removed the standalone copies: build/tmp/v/strip_proof_20261107.md */
-    inline int MinValue() LINK_STRIPPED;
-    inline int MaxValue() LINK_STRIPPED;
-    inline int Range() LINK_STRIPPED;
+#define NFS4_FE_LIST_STRIP LINK_STRIPPED
+#else
+#define NFS4_FE_LIST_STRIP
 #endif
-#ifdef NFS4_FE_LIST_SELECTION_INLINE
+    inline int MinValue() NFS4_FE_LIST_STRIP; inline int MaxValue() NFS4_FE_LIST_STRIP; inline int Range() NFS4_FE_LIST_STRIP;
+#ifndef NFS4_FE_LIST_OWNER   /* FEMenu.obj: Selection's standalone copy has no /strip proof yet (retail FEMenu 19 vs 18) */
     inline short Selection(int i) { return fSelectionList[i]; }
 #endif
 } tListIterator;
-#ifdef NFS4_FE_LIST_RANGE_INLINE
 inline int tListIterator::MinValue() { return (unsigned char)fMinValue; }
 inline int tListIterator::MaxValue() { return (unsigned char)fMaxValue; }
 inline int tListIterator::Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
-#endif
+#undef NFS4_FE_LIST_STRIP
+/* The four inline accessors exist in every object: retail records tListIterator 6 times wherever it is declared
+ * (2 for the typedef'd class + 1 per inline member definition); FEMenu/FEMenuOptions/FEMenuExtended keep their `this`
+ * pairs.  FEMenu.obj defines the virtuals, so it emits standalone copies, which /strip removed. */
 
+/* Per-object class sets (retail SYM): base + Range everywhere; Indexed + RangeIndexed in the screen/menu-definition
+ * objects (the default here); Indexed alone where the TU header defines NFS4_FE_LIST_NO_RANGE_INDEXED; neither under
+ * NFS4_FE_LIST_NO_INDEXED; DoubleIndexed and MultiPlayer only in FEMenu.obj (NFS4_FE_LIST_OWNER). */
+#ifndef NFS4_FE_LIST_NO_INDEXED
 struct tListIteratorIndexed : public tListIterator {
     char *fIndex;
     tListIteratorIndexed(short *selection, char *valPtr, char *index);
@@ -49,6 +56,9 @@ struct tListIteratorIndexed : public tListIterator {
     void Decrement(tPlayer);
 };
 
+#endif
+
+#ifdef NFS4_FE_LIST_OWNER
 struct tListIteratorDoubleIndexed : public tListIterator {
     char *fIndex1;
     int index1multiplier;
@@ -68,6 +78,8 @@ struct tListIteratorMultiPlayer : public tListIterator {
     void Decrement(tPlayer);
 };
 
+#endif
+
 struct tListIteratorRange : public tListIterator {
     tListIteratorRange(char minValue, char maxValue, char *valPtr);
     ~tListIteratorRange();
@@ -77,6 +89,7 @@ struct tListIteratorRange : public tListIterator {
     void Decrement(tPlayer);
 };
 
+#if !defined(NFS4_FE_LIST_NO_INDEXED) && !defined(NFS4_FE_LIST_NO_RANGE_INDEXED)
 struct tListIteratorRangeIndexed : public tListIteratorRange {
     char *fIndex;
     tListIteratorRangeIndexed(char minValue, char maxValue, char *valPtr, char *index);
@@ -85,5 +98,7 @@ struct tListIteratorRangeIndexed : public tListIteratorRange {
     void Increment(tPlayer);
     void Decrement(tPlayer);
 };
+
+#endif
 
 #endif

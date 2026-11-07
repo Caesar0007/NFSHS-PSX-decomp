@@ -1,6 +1,7 @@
 /* Owner-specific type tail for FEScreen.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H
 #define NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H
+#define NFS4_FE_LIST_NO_INDEXED   /* retail FEScreen object: tListIterator + Range only */
 
 struct tMenu;
 

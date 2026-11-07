@@ -9,17 +9,17 @@
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
 
-enum tPMenuCommandType {
-    kMPause_NoEvent = 0,
-    kMPause_Continue = 1,
-    kMPause_Restart = 2,
-    kMPause_QuitToGameSetup = 3,
-    kMPause_QuitToRaceSummary = 4,
-    kMPause_ForfeitToRaceSummary = 5,
-    kMPause_GoToMenu = 6,
-    kMPause_BackupMenu = 7,
-    kMPause_CommandConfirmationFlag = 256
-};
+#ifndef NFS4_MPAUSE_PAUSEMENU_ORDER   /* pausemenu.obj: after its frontend block (second pass below) */
+#include "shared/tPMenuCommandType.h"
+#endif
+
+
+
+
+
+
+
+
 
 typedef enum tInputKeyType {
     kInput_KeyType_NoKey = 0,
@@ -39,14 +39,14 @@ typedef enum tInputKeyType {
     kInput_KeyType_Start = 8192,
     kInput_KeyType_Select = 16384
 } tInputKeyType;
-
+#ifdef NFS4_MPAUSE_PAUSEMENU_ORDER   /* pausemenu.obj second pass: kernpair/tTexture/frontend block, then tPMenuCommandType */
+#define NFS4_MPAUSE_IN_PAUSEMENU
+#include "pausemenu_types.h"
+#undef NFS4_MPAUSE_IN_PAUSEMENU
+#include "shared/tPMenuCommandType.h"
+#endif
 /* Canonical gmesetup.obj aggregate used by the pause-menu source. */
 #include "shared/GameSetup_tData.h"
-
-
-
-
-
 
 
 
@@ -82,9 +82,9 @@ typedef enum tPlayer {
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 #endif
+#ifndef NFS4_MPAUSE_PAUSEMENU_ORDER   /* pausemenu.obj: AudioMus after the pause classes (below) */
 #include "shared/AudioMus_tSongEntry.h"
-
-
+#endif
 
 
 
@@ -207,7 +207,6 @@ struct tPMenu {
     int NumEnabledItems();
     int ItemEnabledNum(int);
 };
-
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 struct tPauseMenuDefs {
     tPauseMenuDefs();
@@ -236,8 +235,9 @@ struct tPauseMenuDefs {
     tPMenuItemCommandButton itemConfirmNo, itemConfirmYes;
     tPMenu menuConfirmYesNo;
 };
+#elif defined(NFS4_MPAUSE_PAUSEMENU_ORDER)
+#include "shared/AudioMus_tSongEntry.h"
 #endif
-
 #include "shared/kernpair.h"
 typedef kernpair KERN;
 typedef void (*fontblit)();

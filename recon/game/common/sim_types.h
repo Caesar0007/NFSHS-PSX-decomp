@@ -1,10 +1,12 @@
 /* sim.obj's exact source-visible type surface reconstructed from SYM. */
-#ifndef NFS4_GAME_COMMON_SIM_TYPES_H
+#if !defined(NFS4_GAME_COMMON_SIM_TYPES_H) && !defined(NFS4_PADS_IN_HOOK)
 #define NFS4_GAME_COMMON_SIM_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* sim.obj itself, not object.obj */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_PADS_HOOK_AFTER "sim_types.h"   /* retail sim.obj: scheduler + Sim_tSim*Var right after PAD_COMMON */
+#define NFS4_AIH_HIERARCHY_HOOK_SCENE "sim_types.h"   /* retail sim.obj: forceFocus_t, scene pair, AudioMus, BW_tContext after Car_tObj */
 #endif
 #define NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #include "aih_hierarchy_types.h"
@@ -12,13 +14,7 @@
 #define gScratchLastWord (*(int *)0x1F8003FC)
 
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
 
-#include "shared/AudioMus_tSongEntry.h"
 
 
 
@@ -32,6 +28,8 @@ typedef enum forceFocus_t {
 
 
 
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
 
 
@@ -42,7 +40,6 @@ typedef enum forceFocus_t {
 
 #include "shared/Draw_SubdivStruct.h"
 
-#include "shared/EXEC.h"
 
 
 
@@ -79,7 +76,6 @@ typedef enum forceFocus_t {
 
 
 
-#include "shared/TCB.h"
 
 #include "shared/Track_tArtresource.h"
 
@@ -122,4 +118,23 @@ typedef int Input_tDeviceCall();
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 
+#elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_SIM_PADS_DONE)
+#define NFS4_SIM_PADS_DONE
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+#define NFS4_COLOR_SCHED_DONE
+#include "shared/Sim_tSimGlobalVar.h"
+#include "shared/Sim_tSimSystemVar.h"
+#elif defined(NFS4_AIH_IN_SCENE_HOOK) && !defined(NFS4_SIM_SCENE_DONE)
+#define NFS4_SIM_SCENE_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+} forceFocus_t;
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/BW_tContext.h"
 #endif

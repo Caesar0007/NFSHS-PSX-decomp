@@ -29,11 +29,11 @@
 
 
 #include "shared/PAD_COMMON.h"
-
-
-
-
-
+#ifdef NFS4_PADS_HOOK_AFTER   /* an owner's own types right after PAD_COMMON (owner second pass; retail gmesetup.obj) */
+#define NFS4_PADS_IN_HOOK
+#include NFS4_PADS_HOOK_AFTER
+#undef NFS4_PADS_IN_HOOK
+#endif
 
 
 

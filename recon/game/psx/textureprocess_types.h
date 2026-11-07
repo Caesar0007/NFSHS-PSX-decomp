@@ -1,41 +1,22 @@
 /* TextureProcess.obj's exact source-visible type surface reconstructed from
  * the retail SYM.  The completed GameSetup_tData and CTrackSpec records belong
  * to other objects; textureprocess only emits their component/header types. */
-#ifndef NFS4_GAME_PSX_TEXTUREPROCESS_TYPES_H
+#if !defined(NFS4_GAME_PSX_TEXTUREPROCESS_TYPES_H) && !defined(NFS4_COLOR_IN_HOOK)
 #define NFS4_GAME_PSX_TEXTUREPROCESS_TYPES_H
-
-#include "../common/color_types.h"
-
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
-
+/* retail TextureProcess.obj: the C*Spec block right after the draw leaf (before Group), forceFocus_t right after
+ * BO_tNewtonObj (second pass through color_types.h's NFS4_COLOR_HOOK_AFTER_BO). */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/textureprocess_types.h"
+#define NFS4_CORE_CCOORD16
+#include "../common/draw_leaf_types.h"
+#undef NFS4_CORE_CCOORD16
 #include "shared/CHorizonSpec.h"
-
-
-
-
-
 #include "shared/CSkySpec.h"
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/CNightSpec.h"
 #include "shared/CWeatherSpec.h"
 #include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
 #include "shared/CWorldColor.h"
+#include "../common/color_types.h"
 
 
 
@@ -61,4 +42,11 @@ typedef struct FogKey {
     FogKey *next, *prev;
 } FogKey;
 
+#elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_TEXTUREPROCESS_HOOK_DONE)
+#define NFS4_TEXTUREPROCESS_HOOK_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+} forceFocus_t;
 #endif

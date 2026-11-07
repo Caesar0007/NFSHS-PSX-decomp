@@ -20,13 +20,13 @@
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/DRender_tView.h"
-
-
-
-
 #include "shared/Draw_SubdivStruct.h"
 #endif
-
+#ifdef NFS4_CHUNK_HOOK   /* track.obj: Trk_Material right after the draw leaf (owner second pass, 1..3) */
+#define NFS4_CHUNK_IN_HOOK 1
+#include NFS4_CHUNK_HOOK
+#undef NFS4_CHUNK_IN_HOOK
+#endif
 #include "shared/Trk_ObjectDef.h"
 
 
@@ -58,17 +58,13 @@
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-
-
-
 #include "shared/Trk_SimObject.h"
-
-
-
-
-
 #include "shared/RelCoord16.h"
-
+#ifdef NFS4_CHUNK_HOOK   /* track.obj: TrackHeader between RelCoord16 and Chunk */
+#define NFS4_CHUNK_IN_HOOK 2
+#include NFS4_CHUNK_HOOK
+#undef NFS4_CHUNK_IN_HOOK
+#endif
 struct Chunk {
     RelCoord16 boundPts[4], chunkboundPts[4];
     u_char quadCounts[6];
@@ -79,19 +75,23 @@ struct Chunk {
     Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
     short firstSimSliceInd, chunkInd;
     Group *vertexBuf;
-
     void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
 };
-
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"
+#ifdef NFS4_CHUNK_HOOK   /* track.obj: SaveSurface, tBoundingSphere right after tSaveSurface */
+#define NFS4_CHUNK_IN_HOOK 3
+#include NFS4_CHUNK_HOOK
+#undef NFS4_CHUNK_IN_HOOK
+#endif
 #include "gamesetup_leaf_types.h"   /* retail: GameSetup right after tSaveSurface (chunk.obj, track.obj) */
 #ifdef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* retail track.obj: the scheduler types right after GameSetup */
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"
 #endif
+
 
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES

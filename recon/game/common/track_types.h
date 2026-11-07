@@ -1,12 +1,15 @@
 /* Track.obj source-visible types; full supplied type-copy/order audit remains open. */
-#ifndef NFS4_GAME_COMMON_TRACK_TYPES_H
+#if !defined(NFS4_GAME_COMMON_TRACK_TYPES_H) && !defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_CHUNK_IN_HOOK)
 #define NFS4_GAME_COMMON_TRACK_TYPES_H
+#define NFS4_PADS_HOOK_AFTER "track_types.h"   /* retail track.obj: SimpleMem SerializedGroup Group right after PAD_COMMON */
+#define NFS4_CHUNK_HOOK "track_types.h"   /* Trk_Material / TrackHeader / SaveSurface+tBoundingSphere inside chunk_types.h */
+#define NFS4_GROUP_KERNEL_LATE
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "chunk_types.h"
 #undef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 
-#include "shared/BW_tContext.h"
+
 
 
 
@@ -35,6 +38,10 @@
 #include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
 #include "shared/CWorldColor.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/BW_tContext.h"
 
 
 
@@ -51,26 +58,6 @@
 
 
 
-typedef struct Trk_Material {
-    short shapeIndex;
-    u_char flag, uvFlag, r, g, b;
-    char textureCount;
-    u_char interval;
-    char pad;
-} Trk_Material;
-struct TrackHeader {
-    int type, version, maxMetaChunkSize, maxGeomCollSize;
-    int maxFullSize, maxSplitSize, metaChunkCount, chunkCount;
-};
-struct SaveSurface {
-    short fCount, fMaxCount;
-    tSaveSurface *fStack;
-    SaveSurface(int numEntries);
-    ~SaveSurface();
-    void Save(Trk_NewSimQuad *simQuad);
-    void RestoreAll();
-};
-#include "shared/tBoundingSphere.h"
 struct Track_MipMap {
     u_short code[2];
     int shapeParentIndex, mipMapIndex;
@@ -124,4 +111,30 @@ struct Track_tMaterialController {
 
 
 
+#elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_TRACK_PADS_DONE)
+#define NFS4_TRACK_PADS_DONE
+#include "group_types.h"
+#elif defined(NFS4_CHUNK_IN_HOOK) && NFS4_CHUNK_IN_HOOK == 1
+typedef struct Trk_Material {
+    short shapeIndex;
+    u_char flag, uvFlag, r, g, b;
+    char textureCount;
+    u_char interval;
+    char pad;
+} Trk_Material;
+#elif defined(NFS4_CHUNK_IN_HOOK) && NFS4_CHUNK_IN_HOOK == 2
+struct TrackHeader {
+    int type, version, maxMetaChunkSize, maxGeomCollSize;
+    int maxFullSize, maxSplitSize, metaChunkCount, chunkCount;
+};
+#elif defined(NFS4_CHUNK_IN_HOOK) && NFS4_CHUNK_IN_HOOK == 3
+struct SaveSurface {
+    short fCount, fMaxCount;
+    tSaveSurface *fStack;
+    SaveSurface(int numEntries);
+    ~SaveSurface();
+    void Save(Trk_NewSimQuad *simQuad);
+    void RestoreAll();
+};
+#include "shared/tBoundingSphere.h"
 #endif

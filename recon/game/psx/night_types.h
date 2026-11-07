@@ -60,7 +60,7 @@
 
 
 #include "shared/Skidmark_Chunk.h"
-
+#ifndef NFS4_NIGHT_RENDER_LATE   /* render.obj: forceFocus_t via the BO hook, C*Spec late, no CTrackSpec (render_types.h) */
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
@@ -86,7 +86,7 @@ typedef enum forceFocus_t {
 
 
 #include "shared/CTrackSpec.h"
-
+#endif
 
 
 

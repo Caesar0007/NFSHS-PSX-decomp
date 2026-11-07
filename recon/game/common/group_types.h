@@ -31,7 +31,7 @@ struct Group {
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
 };
-
+#ifndef NFS4_GROUP_KERNEL_LATE   /* track.obj: TCB/EXEC/DIRENTRY late (track_types.h) */
 #include "shared/TCB.h"
 
 
@@ -44,7 +44,7 @@ struct Group {
 
 
 #include "shared/DIRENTRY.h"
-
+#endif
 
 
 

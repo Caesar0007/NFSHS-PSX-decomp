@@ -3,14 +3,16 @@
 #define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
-
-/* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
 #ifdef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES   /* sim/object: the scene types ahead of the triggers, the cop info after the AIState classes */
+#ifdef NFS4_AIH_HIERARCHY_HOOK_SCENE   /* sim.obj: its forceFocus_t / scene / AudioMus / BW_tContext run here (owner second pass) */
+#define NFS4_AIH_IN_SCENE_HOOK
+#include NFS4_AIH_HIERARCHY_HOOK_SCENE
+#undef NFS4_AIH_IN_SCENE_HOOK
+#endif
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"
 #endif
-
-/* The common hierarchy header retains this anonymous enum without a typedef. */
+/* The common hierarchy header retains this anonymous enum without a typedef.  (GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry.) */
 enum {
     PERPMODE_CRUISE = 0,
     PERPMODE_FAST = 1,
@@ -19,16 +21,14 @@ enum {
     PERPMODE_ESCAPE = 4,
     PERPMODE_CHASEON = 5
 };
-
 #ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES   /* retail: BrakeInfo, the cop info, then ModelConfig */
 typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
-#endif
-#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #include "aicop_info_types.h"
-#endif
-#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #include "shared/AIPhysic_ModelConfig_t.h"
 #endif
+
+
+
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"

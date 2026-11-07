@@ -1,6 +1,7 @@
 /* PauseMenu.obj's exact source-visible type surface reconstructed from SYM. */
-#ifndef NFS4_GAME_COMMON_PAUSEMENU_TYPES_H
+#if !defined(NFS4_GAME_COMMON_PAUSEMENU_TYPES_H)
 #define NFS4_GAME_COMMON_PAUSEMENU_TYPES_H
+#define NFS4_MPAUSE_PAUSEMENU_ORDER   /* retail pausemenu.obj: kernpair tTexture frontend after tInputKeyType (mpause_types.h second pass) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 #define NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL
@@ -21,6 +22,61 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Canonical hudpmx.obj aggregate used by this translation unit. */
+#include "shared/HudPmx_tShape.h"
+
+
+
+
+#elif defined(NFS4_MPAUSE_IN_PAUSEMENU) && !defined(NFS4_PAUSEMENU_FE_DONE)
+#define NFS4_PAUSEMENU_FE_DONE
+#include "shared/kernpair.h"
 #include "shared/tTexture_ShapeInfo.h"
 
 
@@ -104,17 +160,7 @@ typedef enum tCarModels {
     cm_NumCarModels = 50
 } tCarModels;
 
-typedef enum tCarNameLength {
-    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
-} tCarNameLength;
 
-typedef enum tPersonalities {
-    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
-    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
-    kPersonalityMenace = 4, kPersonalityCop1 = 5,
-    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
-    kPersonalityTraffic = 8, kPersonalityNUM = 9
-} tPersonalities;
 
 #include "shared/tCarInfo.h"
 
@@ -138,6 +184,9 @@ typedef enum tPersonalities {
 
 
 #include "shared/tOwnedCarInfo.h"
+typedef enum tCarNameLength {
+    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
+} tCarNameLength;
 
 
 
@@ -150,58 +199,13 @@ struct tCarManager {
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
 };
+typedef enum tPersonalities {
+    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
+    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
+    kPersonalityMenace = 4, kPersonalityCop1 = 5,
+    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
+    kPersonalityTraffic = 8, kPersonalityNUM = 9
+} tPersonalities;
 
 #include "shared/tfrontEnd.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Canonical hudpmx.obj aggregate used by this translation unit. */
-#include "shared/HudPmx_tShape.h"
-
-
-
-
 #endif

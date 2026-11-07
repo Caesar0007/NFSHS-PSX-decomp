@@ -1,6 +1,9 @@
 /* gmesetup.obj source-visible types; full supplied type-copy/order audit remains open. */
-#ifndef NFS4_GAME_COMMON_GMESETUP_TYPES_H
+#if !defined(NFS4_GAME_COMMON_GMESETUP_TYPES_H) && !defined(NFS4_PADS_IN_HOOK)
 #define NFS4_GAME_COMMON_GMESETUP_TYPES_H
+#ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS   /* retail gmesetup.obj: GameSetup records, FEI_tList, Transformer_* right after PAD_COMMON */
+#define NFS4_PADS_HOOK_AFTER "gmesetup_types.h"
+#endif
 
 #include "color_types.h"
 
@@ -31,7 +34,13 @@
 
 #endif
 
+#ifdef NFS4_GMESETUP_HOOK_BEFORE_FE   /* an includer's own types between Car_tObj and the frontend block (r3dcar.obj) */
+#define NFS4_GMESETUP_IN_FE_HOOK
+#include NFS4_GMESETUP_HOOK_BEFORE_FE
+#undef NFS4_GMESETUP_IN_FE_HOOK
+#endif
 #include "shared/tTexture_ShapeInfo.h"
+#include "shared/kernpair.h"
 
 
 
@@ -114,15 +123,7 @@ typedef enum tCarModels {
     cm_NumCarModels = 50
 } tCarModels;
 
-typedef enum tCarNameLength { cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2 } tCarNameLength;
 
-typedef enum tPersonalities {
-    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
-    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
-    kPersonalityMenace = 4, kPersonalityCop1 = 5,
-    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
-    kPersonalityTraffic = 8, kPersonalityNUM = 9
-} tPersonalities;
 
 #include "shared/tCarInfo.h"
 
@@ -146,6 +147,7 @@ typedef enum tPersonalities {
 
 
 #include "shared/tOwnedCarInfo.h"
+typedef enum tCarNameLength { cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2 } tCarNameLength;
 
 
 
@@ -158,6 +160,13 @@ struct tCarManager {
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
 };
+typedef enum tPersonalities {
+    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
+    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
+    kPersonalityMenace = 4, kPersonalityCop1 = 5,
+    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
+    kPersonalityTraffic = 8, kPersonalityNUM = 9
+} tPersonalities;
 
 #include "shared/tfrontEnd.h"
 
@@ -203,7 +212,6 @@ struct tCarManager {
 
 
 
-#include "shared/kernpair.h"
 
 
 
@@ -222,4 +230,10 @@ typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
 
+#elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_GMESETUP_PADS_DONE)
+#define NFS4_GMESETUP_PADS_DONE
+#include "gamesetup_leaf_types.h"
+#include "shared/GameSetup_tData.h"
+#include "shared/FEI_tList.h"
+#include "shared/Transformer_z.h"
 #endif

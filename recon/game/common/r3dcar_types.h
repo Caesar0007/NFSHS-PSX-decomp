@@ -1,6 +1,11 @@
 /* R3DCar.obj's exact source-visible extension of the shared DrawC graph. */
-#ifndef NFS4_GAME_COMMON_R3DCAR_TYPES_H
+#if !defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)
 #define NFS4_GAME_COMMON_R3DCAR_TYPES_H
+#define NFS4_GMESETUP_HOOK_BEFORE_FE "r3dcar_types.h"   /* retail r3dcar.obj: forceFocus_t TCB EXEC DIRENTRY Skidmark_* right after Car_tObj */
+#define NFS4_TRANSFORMER_Z_HOOK "../game/common/r3dcar_types.h"   /* retail: Transformer_zScene right after Transformer_zOverlay */
+#define NFS4_DRAWC_R3DCAR_FF_EARLY
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail r3dcar.obj: Draw_tVertex right after Draw_tPixMap (draw_leaf_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
 
 #define NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "../psx/drawc_types.h"
@@ -20,10 +25,6 @@ struct Texture_pal8bit;
 
 
 
-typedef struct Transformer_zScene {
-    Transformer_zObj *obj[57];
-    Transformer_zOverlay overlay[90];
-} Transformer_zScene;
 
 typedef struct R3DCar_tEnvMapInfo {
     int eScaleX, eScaleY, rideHeight, upgradeHeight;
@@ -88,4 +89,20 @@ typedef struct R3DCar_tEnvMapInfo {
 
 typedef int Input_tDeviceCall();
 
+#elif defined(NFS4_GMESETUP_IN_FE_HOOK) && !defined(NFS4_R3DCAR_FE_DONE)
+#define NFS4_R3DCAR_FE_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
+} forceFocus_t;
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#elif defined(NFS4_TRANSFORMER_IN_HOOK) && !defined(NFS4_R3DCAR_TZ_DONE)
+#define NFS4_R3DCAR_TZ_DONE
+typedef struct Transformer_zScene {
+    Transformer_zObj *obj[57];
+    Transformer_zOverlay overlay[90];
+} Transformer_zScene;
 #endif

@@ -5341,14 +5341,14 @@ void DrawC_SpotPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        whole a0/a1/a2/t0 band rotates by one. */
 /* MATCH (w45-a4, 16 -> 14): compare operand order IS load order --
          retail loads PrimPtr (+4) BEFORE MPrimPtr (+8). */
-/* MATCH (w46-a3, 4 -> 2): ZERO-INSN SCHED FENCE, position IS the dial
-           (catalog w45 fence grammar).  Retail loads x(0) before y(2) here;
-           sched2's ready list drained the other way for us and every spelling
-           family was already falsified (all 4 store orders, load order yxz,
-           pointer-local).  A bare `__asm__("" : : )` placed BETWEEN the three
-           loads and the three stores pins the load order to retail's without
-           emitting anything.  Measured at this basin: before-block 4,
-           after-t1 14, HERE 2, after-block 6, extra t1 consumer 14. */
+/* MATCH (ASMF3, 2 -> 0): `j = 0;` sits AFTER the PrimPtr/MPrimPtr return
+           guard (reorg steals it into the beqz delay slot).  Written before the
+           guard, sched2 sees the vt0 loads at the head of a block whose next
+           insns reuse v1/v0/a0 (iPlus*6 chain) and issues y before x; with the
+           a3 store in that block the loads drain in source order x,y,z.  This
+           replaced the zero-insn `__asm__("" : : )` fence that used to sit
+           between the three loads and the three stores (2 diffs without it,
+           ASMF1 receipts: every store/load order and loop-note probe). */
 /* SYM-CODEGEN-CARRIER: z1 -- address GIV avoids the offset-GIV plus per-iteration add */
 
 
@@ -5424,10 +5424,10 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 
       int iPlus = index + 2;
       if (iPlus == 0x40) { iPlus = 0;
-      } j = 0;
+      }
       if (!((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr)) {
         return;
-      } { short t1 = Fe3D_lightsVertex[index].x; short t2 = Fe3D_lightsVertex[index].y; short t3 = Fe3D_lightsVertex[index].z; __asm__("" : : ); (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
+      } j = 0; { short t1 = Fe3D_lightsVertex[index].x; short t2 = Fe3D_lightsVertex[index].y; short t3 = Fe3D_lightsVertex[index].z; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
       } { short *z = (short *)(Fe3D_lightsVertex + iPlus); short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
       } { short *z1  = (short *)&Fe3D_lightsVertex[index + 1]; short t1 = z1[0]; short t2 = z1[1]; short t3 = z1[2]; (sd->vt2).x = t1; (sd->vt2).y = t2; (sd->vt2).z = t3;
       } { short *z = (short *)&Fe3D_lightsVertex[iPlus + 1]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt3).x = t1; (sd->vt3).y = t2; (sd->vt3).z = t3;

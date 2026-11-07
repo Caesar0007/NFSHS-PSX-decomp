@@ -43,26 +43,26 @@
 
 
 
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
 
 
-#include "shared/RelCoord16.h"
+
+
+
+
+
 
 struct Group {
     int m_num_elements;
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
 };
-
+#include "shared/Trk_Quad.h"
+#include "shared/Trk_NewStrip.h"
+#include "shared/Trk_NewSimQuad.h"
+#include "shared/Trk_NewSimSlice.h"
+#include "shared/RelCoord16.h"
 #include "shared/tSaveSurface.h"
-
 #include "shared/BWorldSm_Pos.h"
-
-
-
 
 
 
@@ -85,14 +85,14 @@ struct BO_tNewtonObj;
 
 
 #include "shared/BO_tNewtonObj.h"
-
-
-
-
-
-
-
-
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+} forceFocus_t;
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
 
 
 
@@ -136,11 +136,18 @@ struct BO_tNewtonObj;
 #include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
 #include "shared/CWorldColor.h"
-
-
-
-
-
+#include "shared/kernpair.h"
+enum Weather_tState {
+    Weather_kSnow = 0,
+    Weather_kRain = 1
+};
+typedef struct Weather_tSys {
+    int num[2];
+    SVECTOR velocity;
+    long hdist;
+    short znear, zfar, length, bottom, top, height, width;
+} Weather_tSys;
+struct Weather_tSplatInfo { DVECTOR pos; int startTick; };
 #include "shared/CTrackSpec.h"
 
 
@@ -153,13 +160,6 @@ struct BO_tNewtonObj;
 
 
 
-typedef void (*Sched_tFunctionPt)(void *);
-#include "shared/Sched_tFunctionSchedule.h"
-
-
-
-
-#include "shared/Sched_tSchedule.h"
 
 
 
@@ -198,22 +198,22 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 
-typedef struct Weather_tSys {
-    int num[2];
-    SVECTOR velocity;
-    long hdist;
-    short znear, zfar, length, bottom, top, height, width;
-} Weather_tSys;
-struct Weather_tSplatInfo { DVECTOR pos; int startTick; };
-enum Weather_tState {
-    Weather_kSnow = 0,
-    Weather_kRain = 1
-};
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/camera_info.h"
 
@@ -245,7 +245,7 @@ typedef enum forceFocus_t {
 
 
 
-#include "shared/kernpair.h"
+
 
 
 

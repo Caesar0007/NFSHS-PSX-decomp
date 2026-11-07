@@ -100,7 +100,7 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
-  int *spec; /* SOURCE-REVIEW-UNRESOLVED: direct global views change base anchoring. */
+  /* DEVICE (exact-only, record-neutral): the fog color (TrackSpec_gSpec+0x14) is read through the TU's existing CSkySpec type (frontcolors[3] = +0x14) -- a COMPONENT_REF base forces &TrackSpec_gSpec into a pseudo (retail la v1 + copy fp, no spec record). No new type record. */
   char *sourcedata;
   int contrasttemp;
   sourcedata = data;
@@ -115,7 +115,7 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 
 
 
-  j = 0; spec = TrackSpec_gSpec; while (1) { if (!(j < numentry)) break;
+  j = 0; while (1) { if (!(j < numentry)) break;
     u_short color;
     int r;
     int g;
@@ -131,9 +131,9 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
       g = (color >> 2) & 0xf8;
       r = (color & 0x1f) * 8;
       {
-      int temp; temp = r - fixedmult(r - ((CFogSpec *)(spec + 4))->color.r,contrasttemp); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
-      } { int temp; temp = g - fixedmult(g - ((CFogSpec *)(spec + 4))->color.g,contrasttemp); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
-      } { int temp; temp = b - fixedmult(b - ((CFogSpec *)(spec + 4))->color.b,contrasttemp); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
+      int temp; temp = r - fixedmult(r - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].r,contrasttemp); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      } { int temp; temp = g - fixedmult(g - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].g,contrasttemp); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      } { int temp; temp = b - fixedmult(b - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].b,contrasttemp); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
 

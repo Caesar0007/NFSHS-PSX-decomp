@@ -29,16 +29,16 @@ struct Speech {
     /* the nested classes: retail manglings are Q26Speech7Speaker, Q26Speech13MobileSpeaker, ... */
     struct CarBankName;
 
-    struct CarBank {
+    typedef struct CarBank {
         int fFull, fMake, fModel;
         CarBank() : fFull(-1), fMake(-1), fModel(-1) {}
         bool Check(char *name, int id, CarBankName *bankname);
         /* getters: Speaker::SetCar reads them through GetCarBank()'s temporary (variable-free pairs) */
         inline int Full() { return fFull; }
         inline int Model() { return fModel; }
-    };
+    } CarBank;
 
-    struct LocationBank {
+    typedef struct LocationBank {
         int fStartSlice, fEndSlice, fBankId;
         char *fName;
         LocationBank() : fBankId(-1) {}
@@ -50,9 +50,9 @@ struct Speech {
         }
         inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */
         int Distance(int slice);
-    };
+    } LocationBank;
 
-    struct CallSignBank {
+    typedef struct CallSignBank {
         int fAllUnits, fDispatch;
         int fMobile[15];
         inline void SetAllUnits(int bankid) { fAllUnits = bankid; }
@@ -61,7 +61,7 @@ struct Speech {
         inline int AllUnits() { return fAllUnits; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
         inline int Mobile(int unit) { return fMobile[unit]; }
-    };
+    } CallSignBank;
 
     struct Speaker {
         SPCHNFSType_POSITION fPosition;
@@ -194,7 +194,7 @@ struct Speech {
         inline void MakeSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
         inline void DelayStatus(int delay);   /* Catch: `this` pair around Speech::SetDelayedStatus (defined in speech.cpp) */
         inline SPCHNFSType_VOICE *Voice();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
-        inline void SetVoice(int Voice) { fVoice.flags = Voice; }
+        inline void SetVoice(int Voice);   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
         inline void SetSpeedType(int type);   /* defined in speech.cpp (retail SPEECH.CPP inline) */
         inline int Speed() { return fSpeed; }
         inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }

@@ -28,7 +28,7 @@ int textnpixels(char *str, int n)
   int i;
 
 
-  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- every direct/cast/index form folds to %hi/%lo(currentfont+160) (FAIL 5, 36/37); a stmt-expr base ({ currentfont; }) + 0xa0 = PASS but +6 blocks (GAME11) */ i = 0;
+  i = 0;
 
 
 
@@ -38,9 +38,9 @@ int textnpixels(char *str, int n)
   stringlen = 0; while (i < n) {
 
       struct charactertbl *ch;
-      fontbase = currentfont;
+      /* DEVICE (exact-only, record-neutral): the decoder fn-ptr at currentfont+0xa0 read through the TU's existing DRAWENV type (dr_env.code[32] = +0xa0) -- a COMPONENT_REF base forces &currentfont into a pseudo that loop.c hoists (retail s3, no record); pointer/array/int forms fold to %hi/%lo(currentfont+160). No new type record. */
 
-      code = (*(getcode *)(fontbase + 0xa0))(&str);
+      code = (*(getcode)((DRAWENV *)currentfont)->dr_env.code[32])(&str);
       if (code == 0) {
         break;
       }

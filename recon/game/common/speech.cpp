@@ -17,7 +17,7 @@ extern "C" {
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (0x80055B54); its vtables' 8-byte,
  * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; } inline void Speech::MobileSpeaker::SetSpeedType(int type) { fSpeedType.flags = type; } inline void Speech::MobileSpeaker::ClearCarObj() { fCarObj = 0; }
-inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline void Speech::MobileSpeaker::SetPerp(Car_tObj *car) { fPerp = car; } inline bool Speech::MobileSpeaker::IsCar(Car_tObj *carObj) { return carObj == fCarObj; } inline bool Speech::MobileSpeaker::IsFree() { return fCarObj == 0; } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
+inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline void Speech::MobileSpeaker::SetPerp(Car_tObj *car) { fPerp = car; } inline bool Speech::MobileSpeaker::IsCar(Car_tObj *carObj) { return carObj == fCarObj; } inline bool Speech::MobileSpeaker::IsFree() { return fCarObj == 0; } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } inline void Speech::MobileSpeaker::SetVoice(int Voice) { fVoice.flags = Voice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
  * demangled source names while binding the compiler-emitted ABI labels.
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
@@ -1421,17 +1421,17 @@ void Speech::DispatchSpeaker::Roger()
 
     this->SetCar(this->Sub()->Perp());
     SPCHNFS_D_C_PERP_LOST_CONFIRM(this->Colour(),this->Car());
-    SPCH_PlaySpeech(); } else {
+    SPCH_PlaySpeech(); } else
 
 
-
+  {
     this->SetCar(this->Sub()->Perp());
     this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
 
-    if (this->Sub()->DistToPerp() < 0x280000) SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),
-                                            this->PerpName()); else SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),
+    if (this->Sub()->DistToPerp() < 0x280000)
+      SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),this->PerpName()); else
 
-                                            this->PerpName());
+      SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),this->PerpName());
 
     SPCH_PlaySpeech(); } }
 
@@ -1530,8 +1530,8 @@ void Speech::DispatchSpeaker::Status()
 
 {
 
-  if (this->Sub() == 0 || this->Sub()->Perp() == 0) return;
-
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0)
+    return;
 
   if ((this->Sub()->CarObj()->carFlags & 0x200) != 0)
   {
@@ -1562,10 +1562,10 @@ void Speech::DispatchSpeaker::Status()
 
       else if (this->Sub() != 0 && this->fStatusSub == this->Sub()->Sub())
 
-        this->fStatusSub->Status(); else {
+        this->fStatusSub->Status(); else
 
 
-
+        {
         this->fStatusSub->Status(); this->ClearSpeaker();
 
         this->Roger(); } } }
@@ -1697,9 +1697,9 @@ void Speech::MobileSpeaker::Status()
     Speaker *saved = Speech::Dispatch()->Sub();
     Speech::Dispatch()->SetSub(this);
     Speech::Dispatch()->Roger();
-    Speech::Dispatch()->SetSub(saved); } else if (this->IsSuper() && this->UpdateFlags() == 0 && this->Sub() != 0 &&
+    Speech::Dispatch()->SetSub(saved); } else
 
-           (*(u_int *)((int)this->Sub()->CarObj() + 0x260) & 0x40) == 0)
+  if (this->IsSuper() && this->UpdateFlags() == 0 && this->Sub() != 0 && (*(u_int *)((int)this->Sub()->CarObj() + 0x260) & 0x40) == 0)
            {
 
 
@@ -1715,10 +1715,10 @@ void Speech::MobileSpeaker::Status()
   else if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Sub() == this)
   {
     SPCHNFS_C_C_NEW_OFFICER_ENGAGING(this->Voice(),this->From());
-    Speech::Dispatch()->Sub()->Roger(); } else {
+    Speech::Dispatch()->Sub()->Roger(); } else
 
 
-
+  {
 
 
 
@@ -1737,24 +1737,24 @@ void Speech::MobileSpeaker::Status()
         SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(this->Voice());
       else if (this->UpdateFlags() == 1)
         SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(this->Voice(),this->Position(),this->Location(),this->Distance());
-      else if (this->UpdateFlags() == 8) SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(this->Voice(),this->Colour(),this->Car(),this->Distance(),
+      else if (this->UpdateFlags() == 8)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else
 
-
-                                              this->Position(),this->Location()); }
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(this->Voice(),this->Colour(),this->Car(),this->Distance(),this->Position(),this->Location()); }
 
     else if (this->HavePerp())
     {
-      if (this->UpdateFlags() == 1) SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),
-                                                this->Colour(),this->Car(),this->PerpName());
-      else if (this->UpdateFlags() == 8) SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(this->Voice(),this->Colour(),this->Car(),this->Position(),
+      if (this->UpdateFlags() == 1)
+        SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),this->Colour(),this->Car(),this->PerpName());
+      else if (this->UpdateFlags() == 8)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else
+
+        SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),this->Distance()); } else
 
 
-                                                this->Location(),this->Distance()); } else {
-
-
-
-      if (this->UpdateFlags() == 1) SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),
-                                                this->Colour(),this->Car());
+    {
+      if (this->UpdateFlags() == 1)
+        SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),this->Colour(),this->Car());
       else if (this->UpdateFlags() == 8)
         SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType()); else
 
@@ -2272,10 +2272,10 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
         this->SetTo(this->CallSign()->Dispatch());
         this->FindLocation(this->Perp()); SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(this->Voice(),this->To(),this->Colour(),this->Car(), this->Distance(),this->Position(),this->Location(),
                                                this->Confirm());
-        SPCH_PlaySpeech(); } } else if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 &&
+        SPCH_PlaySpeech(); } } else
 
 
-             (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0)
+  if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 && (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0)
              {
 
       this->SetSub(Speech::Dispatch()->Sub());
@@ -2288,11 +2288,11 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
         SPCH_PlaySpeech();
 
         SPCHNFS_S_C_SUPER_COP_ARRIVAL(this->Voice());
-        SPCH_PlaySpeech(); } } else {
+        SPCH_PlaySpeech(); } } else
 
 
 
-
+    {
 
       Speaker *SubChain = Speech::Dispatch(); if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Perp() != 0 &&
 
@@ -2301,14 +2301,14 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
           {
 
         this->SetSub(Speech::Dispatch()->Sub());
-        Speech::Dispatch()->SetSub(this); } else {
+        Speech::Dispatch()->SetSub(this); } else
 
 
-
+      {
 
         while (SubChain->Sub() != 0)
-          SubChain = SubChain->Sub(); SubChain->SetSub(this); }
-
+          SubChain = SubChain->Sub();
+        SubChain->SetSub(this); }
 
 
       if (this->BlockadeFlags() == 0)
@@ -2323,10 +2323,10 @@ void Speech::MobileSpeaker::Engage(Car_tObj *perp)
           this->FindLocation(this->Perp());
           this->SetSpeed(this->Perp());
 
-          if (Speech::Dispatch()->KnownPerp(this->Perp())) SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),
-                                     this->Position(),this->Location(),this->PerpName()); else SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),this->Colour(),this->Car(),this->Position(), this->Location(),this->Distance(),this->Speed(),
+          if (Speech::Dispatch()->KnownPerp(this->Perp()))
+            SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),this->Position(),this->Location(),this->PerpName()); else
 
-
+            SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),this->Colour(),this->Car(),this->Position(), this->Location(),this->Distance(),this->Speed(),
                                              this->SpeedType(),this->PerpName());
 
           SPCH_PlaySpeech();

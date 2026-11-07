@@ -1218,7 +1218,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     }
     if ((flags & 4) != 0) {
       addwm1 = ((d = 0, addw - 1) ?: 0) + ((addwm1 = 0) != 0);
-      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
+      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1; do { } while (0); /* DEVICE (exact-only): ASMF2 -- the empty loop leaves LOOP_BEG/END notes, a sched2 barrier that keeps retail x0-then-y0 store order (replaced an asm "m" fence) */ *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
     }
     else { *(short *)((u_char *)prim + 8) = i + x; *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = w1 + (i + x); *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = i + x; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = w1 + (i + x); *(short *)((u_char *)prim + 0x2e) = y + height;
     }

@@ -1,5 +1,7 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H   /* Owner-specific type surface for ScreenTrophyInfo.obj. */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail ScreenTrophyInfo object: tListIterator, Indexed, Range */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: menu core (tMenuCommandType..tScreen) BEFORE the MATRIX core */
@@ -63,8 +65,6 @@ struct tMenuNFS4 : public tMenu {
     signed char fTransitionDirection;
     char fLastItem, fNumItems;
 };
-
-
 
 
 

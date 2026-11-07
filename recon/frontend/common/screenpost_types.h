@@ -1,6 +1,8 @@
 /* Owner-specific type surface for ScreenPost.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_CORE_CCOORD16   /* retail: MATRIX core first, then the frontend core, then PCOORD16..Draw_* */
 #define NFS4_DRAW_LEAF_CORE_ONLY
 #include "../../game/common/draw_leaf_types.h"
@@ -35,7 +37,5 @@ enum tMenuCommandType {
 #include "shared/tRecordBuffer.h"
 
 
-
 typedef tRecordBuffer tSaveRecords[187];
-
 #endif

@@ -1,5 +1,7 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H   /* Owner-specific type surface for ScreenTrackRecords.obj. */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
@@ -21,6 +23,9 @@ typedef SVECTOR FE3d_zNormal;
 #include "shared/FE3d_zObj.h"
 #define NFS4_FE3D_TYPES_DONE
 #include "shared/tDrawShapeExtended.h"
+#define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: menu family, owner records, tracks, then the car graph */
+
+#define NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS "screentrackrecords_types.h"   /* second pass below */
 
 /* Reuse the exact shared render/frontend graph while excluding input enums,
  * songs, saved-game and memory-card records, and dialogs. */
@@ -30,6 +35,9 @@ typedef SVECTOR FE3d_zNormal;
 #undef NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 
+#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
+#elif !defined(NFS4_SCREENTRACKRECORDS_OWNER_DONE)   /* second pass (screendisplay owner hook) */
+#define NFS4_SCREENTRACKRECORDS_OWNER_DONE
 /* These foreign enum tags are absent from this owner graph. */
 typedef enum tMenuTextState {
     textState_Unselected = 0,
@@ -56,6 +64,8 @@ struct tRecordBuffer;
 
 
 typedef tRecordBuffer tSaveRecords[187];
+#define NFS4_FE_TRACK_NO_PLAYER   /* retail: tracks right after tRecordBuffer, before the car graph */
+#include "fe_track_types.h"
+#undef NFS4_FE_TRACK_NO_PLAYER
 
-#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #endif

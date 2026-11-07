@@ -316,8 +316,11 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
             blk.append(b'\t.section .sbss' if small else b'\t.bss')
             for isglobal, name, size in rows:
                 al = os.environ.get('NFS4_LANE_EALIB_ALIGN', 'pow2')
-                if al == 'pow2':      # an 8-byte object is 8-aligned, everything else min(4, size) (nasync.obj: the two 8-byte
-                    k = 3 if size == 8 else 2 if size >= 4 else 1 if size >= 2 else 0   # queues sit on 8; fileroot's 64-byte currentdirectory and spchdata's 16-byte gEventDats do NOT -- measured, rule not understood)
+                if al == 'pow2':      # a FILE-STATIC 8-byte object is 8-aligned (nasync.obj's two .lcomm queues sit on 8); globals and
+                                      # everything else min(4, size): spchdata's global 8-byte gVoxInGame @0x80148058, 16-byte
+                                      # gEventDats and fileroot's 64-byte currentdirectory are NOT 8-aligned (2026-11-07: Route C
+                                      # NFS4.EXE + FRONT.BIN byte-identical with this rule; size-only rule = 294 B drift)
+                    k = 3 if (size == 8 and not isglobal) else 2 if size >= 4 else 1 if size >= 2 else 0
                 else:
                     k = 2 if size >= 4 else 1 if size >= 2 else 0
                 blk.append(b'\t.align %d' % k)

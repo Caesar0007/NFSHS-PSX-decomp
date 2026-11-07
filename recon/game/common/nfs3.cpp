@@ -1006,7 +1006,7 @@ void NFS4_LoadingIcon(void)
 #if defined(__mips__)
 /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
  * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
-#define NFS3_TRAP_666() __asm__ __volatile__("move $4,%0\n\tbreak 0x666\n\tnop" : : "r"(0) : "$4")   /* retail `addu a0,a2,zero` is asm text (user-approved 2026-11-07) */
+#define NFS3_TRAP_666() __asm__("move $4,%0\n\tbreak 0x666\n\tnop" : : "r"(0) : "$4")   /* retail `addu a0,a2,zero` is asm text (user-approved 2026-11-07) */
 #else
 #define NFS3_TRAP_666() trap(0x666)   /* host build: no MIPS break */
 #endif

@@ -195,4 +195,7 @@ static inline tTourneyInfo *TourneyAt(unsigned char tier, unsigned char tourname
 }
 static inline int NumRacers(void) { return tournamentManager.fNumRacers; }
 
+/* Header inline (retail tags its code at the caller line, not at a definition line in FRONT.CPP). */
+static inline int FE_Ticks(void) { return ticks; }
+
 #endif

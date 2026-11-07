@@ -30,9 +30,9 @@ tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
 
 
-/* The retail headers supplied these tiny default constructors inline.  They
-   must be visible before the first `new tAllScreens`: that is where CC1PLPSX
-   synthesizes the aggregate's internal-linkage constructor. */
+/* The retail headers supplied these tiny default constructors inline (FEDIALOG.H); they must be
+   visible before the first `new tAllScreens`, where CC1PLPSX synthesizes the aggregate constructor. */
+#line 150 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 inline tDialogBase::tDialogBase()
 {
   MaxW = 0x120;
@@ -60,11 +60,11 @@ inline tDialogMessageString::tDialogMessageString()
 
 /* tDialogBackUpOnly and the tScreen* members of tAllScreens declare no constructor: retail synthesizes
    them (their SYM scopes hold `this` but no body block), so only the two user bodies above exist. */
-/* DEVICE (exact-only): retail synthesizes the members' implicit destructors in its main input file,
-   so their code inlined into ~tAllScreens carries the `delete` line.  Naming ~tScreenTournamentCongrats
-   here, before the first retail-name #line anchor, synthesizes it under our main input name (the
-   member ctors are implicit now and no longer do it).  Never called; no out-of-line copy is emitted. */
-inline void Front_DtorSynthesisPoint(tScreenTournamentCongrats *screen) { screen->~tScreenTournamentCongrats(); }
+/* Retail compiled this file under its own name (C:/nfs4/FRONTEND/COMMON/FRONT.CPP, the compiler-
+   input origin policy): the members' implicit destructors are synthesized in the main input, so
+   their code inlined into ~tAllScreens keeps the `delete` line -- no synthesis device is needed. */
+
+
 
 
 /* ---- Front_ConstructAll  [FRONT.CPP:231-266] ---- */
@@ -750,7 +750,7 @@ GetPSXPadValue_gotType:
  * not a uniquely retained retail name. 2026-11-07: the scan is a plain
  * `for (int i = 0; i < numoffsets; i++)` (for-scope = retail {13 holding i, body
  * scope {17 }24 with mode, increment outside it); BYTE+SYM+SLD exact. */
-static inline int FE_Ticks(void) { return ticks; }
+/* FE_Ticks: header inline (front_externs.h) -- retail tags its code at the caller line */
 #line 471 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void SetPads(void)
 

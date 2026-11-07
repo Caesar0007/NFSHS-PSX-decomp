@@ -28,6 +28,7 @@ _IDENTITIES = MappingProxyType({
     "recon/frontend/common/femenudefs.cpp":
         "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP",
     "recon/game/common/speech.cpp": "C:/nfs4/GAME/COMMON/SPEECH.CPP",
+    "recon/frontend/common/front.cpp": "C:/nfs4/FRONTEND/COMMON/FRONT.CPP",
 })
 _VIRTUAL_CPP_FILES = {"<built-in>", "<command-line>"}
 _MARKER_START = re.compile(rb"^[ \t]*#[ \t]+[0-9]+\b")

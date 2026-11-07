@@ -39,6 +39,7 @@ _INCLUSION_IDENTITIES = types.MappingProxyType({
         'recon/game/common/spchevnt.c': 'C:/nfs4/GAME/COMMON/SPCHEVNT.C',
     }),
     'recon/frontend/common/femenudefs.cpp': types.MappingProxyType({}),
+    'recon/frontend/common/front.cpp': types.MappingProxyType({}),
 })
 
 

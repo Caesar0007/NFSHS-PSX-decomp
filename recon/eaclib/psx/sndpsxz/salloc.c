@@ -60,10 +60,8 @@
  * branch-local `gv = (struct SndGlobalServerStateView *)(unsigned int)sndgs` assignments preserve
  * the separate base-address materialization needed by iSNDfreechan (110/110 exact). */
 signed char sndchanreserved[4] __attribute__((section(".bss"))) = { 0 };
-extern struct SndChannel *DAT_801478f4[];
-/* The primary declaration is an unsized array so `DAT_801478f4` decays naturally to the pointer
- * used by iSNDfreechan. This replaces the former second `__asm__` array view; `&DAT_801478f4`
- * (scalar-address form) was tested and changed the exact address/codegen shape (7 diffs). */
+/* iSNDfreechan reads sndgs+0x94 (play_records) through sndgs itself; the former interior label
+ * DAT_801478f4 (an asm .bss label in sdata.c) is gone -- see the partnerSlot note in that function. */
 
 
 
@@ -604,7 +602,11 @@ void iSNDfreechan(int chan)
                 /* MATCH: retail RECOMPUTES `partner * 100` here (FED60 sll/addu/sll/addu) instead
                  * of reusing the count==2 arm's `partnerOffset`, and duplicates the
                  * `lui %hi(D_801478F4)` into the `bne t0,v1` delay slot + the .L800FED5C join.
-                 * The array-decay `dp` view below reproduces both (no fence needed).
+                 * MATCH (ASMVOL 2026-11-07, replaces the DAT_801478f4 interior label): `partnerSlot`
+                 * first holds &sndgs.play_records and is then OVERWRITTEN with the slot address.  The
+                 * overwrite drops the sndgs+0x94 register from cse's table, so the `gv = &sndgs` sets
+                 * below find no related register and stay fresh lui/addiu pairs (a separate `dp`
+                 * variable keeps sndgs+0x94 live and cse turns both gv sets into `dp - 0x94`: 9 diffs).
                  * MATCH (EAC 2026-10-04, replaces the w50-a7 `gv` identity asm): retail rematerializes
                  * a FRESH `&sndgs` for the tail -- `lui` stolen into the `bne v1,v0` slot, `%lo` addiu
                  * duplicated on both incoming paths, then `lw 0x44(v0)`.  Assigning `gv` once in EACH
@@ -612,12 +614,11 @@ void iSNDfreechan(int chan)
                  * re-fold sndgs+0x44 into one %lo pair, and reorg produces exactly retail's split la.
                  * Falsified: single assignment in the tail (folds), `X | (X & 3)` absorption on gv
                  * (combine folds, 5 diffs), single assignment before the test (la hoisted into t0, 8). */
-                SndChannel **dp = DAT_801478f4;
-                SndChannel *partnerSlot;
+                SndChannel *partnerSlot = (SndChannel *)&((struct SndGlobalServerStateView *)sndgs)->play_records;
                 struct SndGlobalServerStateView *gv;
                 /* Keep `partner * 100` as a scalar byte offset; convert the pointer base only for
                  * this machine-address sum so the oracle's addu operand order is retained. */
-                partnerSlot = (SndChannel *)(unsigned int)(partner * (int)sizeof(SndChannel) + (int)(unsigned int)*dp);
+                partnerSlot = (SndChannel *)(unsigned int)(partner * (int)sizeof(SndChannel) + (int)(unsigned int)*(SndChannel **)partnerSlot);
                 if (partnerSlot->state == 1) {
                     gv = (struct SndGlobalServerStateView *)(unsigned int)sndgs;
                     if (chan == partner) {

@@ -1051,12 +1051,19 @@ void iSNDpsxpacketstop(struct SndPacketVoiceState *parg)
     ((SndPacketPlayerContextPrefix *)(unsigned int)pp)->active_note = -1;
     *(signed char *)&((SndPacketVoiceState *)p)->voice_done = -1;
     active = i;
-    if (D_80147871) {                               /* sndgs[4]._1_1_ = channel count */
+    /* MATCH (ASMVOL 2026-11-07, replaces the D_80147871 interior label): the guard is the int
+     * compare `i < count-byte` (i == 0), not a plain byte test.  A plain `if (byte)` is shortened to
+     * a QImode load while `count = byte` is a zero_extend, so cse cannot merge the two reads; the
+     * count re-load then keeps the split %hi(sndgs+0x11) pseudo live across the branch, it gets $v1
+     * and sched2 hoists `lui $v1` above `sb $v0,0x27($a0)` (4 diffs).  The int compare loads with a
+     * zero_extend, `count` becomes a copy of the guard value (retail `addu $a2,$v0,$zero`) and the
+     * %hi dies at the lbu -> retail's `lui $v0` after the store. */
+    if (i < ((unsigned char *)sndgs)[0x11]) {       /* sndgs+0x11 = channel count */
         /* MATCH: POINTER WALK (oracle: v1=base+0xFF, `addiu v1,v1,0x2C` in the loop-back branch's
          * delay slot every iter) not an index-multiply `i*0x2c` -- §3.12 #1 array-index-vs-pointer-
          * walk flip. */
         unsigned char *q;
-        int count = D_80147871;
+        int count = ((unsigned char *)sndgs)[0x11];
         /* MATCH: q walks from `base` (not base+0xFF) and reads the byte at the FIXED +0xFF
          * displacement each iter (oracle: `lbu v0,0xFF(v1)` -- offset stays in the load, base
          * is bare); and the sign test is the raw `(byte<<24)>=0` shift-idiom (oracle: unsigned

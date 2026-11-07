@@ -62,8 +62,9 @@ static inline int TextDefinitionColor(int type, int column)
   return kRGBVals[(u_char)textDefinitions[type][column]];
 }
 
-/* tDialogYesNo::Draw: retail selects text state 1/2 and reads textDefinitions[type][state + 3] inside one inline
-   (pair at the statement line, state select tagged with it), the kRGBVals lookup outside it.  The original
+/* tDialogYesNo::Draw: retail selects text state 1/2 (record-less const on the line before) and reads
+   textDefinitions[type][state + 3] inside one inline (pair at the CalcFadeVal line, its code tagged with the select
+   line), the kRGBVals lookup outside it.  The original
    helper name is not recoverable (ORIGINAL-NAME-UNRESOLVED); the param keeps the 1/2 select un-folded. */
 static inline int TextStateDef(int type, int state)
 {

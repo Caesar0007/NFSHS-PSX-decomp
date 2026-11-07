@@ -108,6 +108,13 @@ struct tMenuItem {
     inline void Disable() { fFlags |= 1; }
     inline void Enable() { fFlags &= ~1; }
 #endif
+#ifdef NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
+    /* FEDialog only (tMenuItem's key TU FEMenu never sees these): retail tDialogHelp::CalculateDimensions records
+       one receiver-free inline pair at each item flag test (47, 49). IsEnabled = the femenu_externs.h spelling;
+       LeftRightFlag is ORIGINAL-NAME-UNRESOLVED. */
+    inline bool IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
+    inline unsigned int LeftRightFlag() { return fFlags & 0x400; }
+#endif
 #ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
     inline bool IsEnabled() { return (fFlags & 1) == 0; }
 #ifdef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS

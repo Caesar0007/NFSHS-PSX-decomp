@@ -4,6 +4,7 @@
  *   TwoItemChoice}, + free MenuNFS4_DrawTextBox. Member defs; base ctors via init-lists; manual _vf.
  */
 #define NFS4_FEDIALOG_DIRECT
+#define NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
 #include "fedialog_types.h"
 #include "fedialog_externs.h"
 
@@ -403,11 +404,11 @@ void tDialogHelp::CalculateDimensions()
 
 
     i = 0;
-    while (FEApp->CurrentMenu(player)->fItemList[i] != (tMenuItem *)0x0) {
+    while (FEApp->CurrentMenu(player)->Item(i) != (tMenuItem *)0x0) {
 
-      if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0)
+      if (FEApp->fCurrentMenu[player]->fItemList[i]->IsEnabled())
       {
-        if ((FEApp->CurrentMenu(player)->fItemList[i]->fFlags & 0x400) != 0) {
+        if (FEApp->fCurrentMenu[player]->fItemList[i]->LeftRightFlag()) {
           showLeftRight = true;
         }
         else { showCross = true;
@@ -993,9 +994,9 @@ void tDialogYesNo::Draw()
 
 
 {
-  int x; int y;
+  int i; int x; int y;
   int col;
-  int i;
+
   CalculateDimensions();
 
 
@@ -1018,8 +1019,8 @@ void tDialogYesNo::Draw()
 
     for (i = 0; i < 2; i++) {
 
-      col = CalcFadeVal(kRGBVals[TextStateDef(8, (i == ReturnValue) ? 1 : 2)], fFadeText);
-
+      const int sel = (i == ReturnValue) ? 1 : 2;
+      col = CalcFadeVal(kRGBVals[TextStateDef(8, sel)], fFadeText);
 
       y = top + height - 0xb;
       FETextRender_SetABR(1,true);

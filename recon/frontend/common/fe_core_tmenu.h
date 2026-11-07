@@ -45,6 +45,10 @@ struct tMenu {
     short GetNumberEnabledItems();
 #endif
     inline bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
+#ifdef NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
+    // ORIGINAL-NAME-UNRESOLVED: retail CalculateDimensions' second record-less pair in the item-loop test (45).
+    inline tMenuItem *Item(int n) { return fItemList[n]; }
+#endif
     inline bool CanContinue() {
         return fNextMenu != (tMenu *)0x0 ||
                (fFlags & 0x400) != 0 ||
@@ -54,6 +58,11 @@ struct tMenu {
 #if defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
     // FEDialog: retail tDialogHelp::CalculateDimensions records this receiver-only inline pair (line 71).
     inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
+#endif
+#ifdef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
+    // ORIGINAL-NAME-UNRESOLVED: retail tUserNameMenuItem::ProcessInput records this receiver-free menu inline pair
+    // after CurrentMenu() at its 0x100 flag test (byte load lbu +1 / andi 1 = constant mask inside the inline).
+    inline unsigned int ExitsWithBack() { return fFlags & 0x100; }
 #endif
 #ifdef NFS4_FE_CORE_FEAPP_METHODS
     inline tScreen *GetScreen() { return fScreen; } // ORIGINAL-NAME-UNRESOLVED: supplied receiver/field producer; inferred accessor spelling.

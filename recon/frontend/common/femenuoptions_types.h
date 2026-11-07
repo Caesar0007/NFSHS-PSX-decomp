@@ -75,6 +75,10 @@ struct tFEApplication {
     int speechToPlay[2];
 
     tScreen *CurrentScreen(int player) { return fCurrentScreen[player]; }
+#ifdef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
+    /* same spelling as feapp_types.h: retail tUserNameMenuItem::ProcessInput records its this (REG $2) pair at the 0x100 test */
+    inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
+#endif
 };
 
 struct FeMenuOptions_ScreenAudioCodegenView {

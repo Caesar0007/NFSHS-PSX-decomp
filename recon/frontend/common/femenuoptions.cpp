@@ -6,7 +6,9 @@
 #include "../../lib/nfs4_new.h"
 #define NFS4_FE_CORE_MENUITEM_ISENABLED
 #define NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
+#define NFS4_FE_CORE_FEMENUOPTIONS_METHODS
 #include "femenuoptions.h"
+#undef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
 #undef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
 #undef NFS4_FE_CORE_MENUITEM_ISENABLED
 
@@ -2330,9 +2332,9 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
   u_int selectedChar;
   short column;
 
-  int rowBase; switch (keyval) {
-  case kInput_KeyType_Down:
-  case kInput_KeyType_Up:
+  int rowBase; switch (keyval)
+  {
+  case kInput_KeyType_Down: case kInput_KeyType_Up:
 
     if (keyval == kInput_KeyType_Up) {
 
@@ -2403,16 +2405,16 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
       }
       keyval = kInput_KeyType_AlreadyProcessed; break;
     }
-    else {
-      if (((selectedChar & 0xff) == 0x21) || ((selectedChar & 0xff) == 0x40)) {
-
-        if (CheckForCheats(this->fData)) {
-
-          *this->fData = '\0';
+    else
+      if (((selectedChar & 0xff) == 0x21) || ((selectedChar & 0xff) == 0x40))
+      {
+        if (CheckForCheats(this->fData))
+        {
+          *this->fData = '\0'; break;
         }
-        else {
-
-          if ((FEApp->fCurrentMenu[0]->fFlags & 0x100) != 0) {
+        else
+        {
+          if (FEApp->CurrentMenu((tPlayer)0)->ExitsWithBack()) {
             keyval = kInput_KeyType_Triangle;
           }
           else {
@@ -2421,10 +2423,10 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
             keyval = kInput_KeyType_Start;
           }
 
-
+        }
 
           AudioCmn_PlayFESFX(1);
-        }
+
       }
       else if (((selectedChar & 0xff) == 0x26) || ((selectedChar & 0xff) == 0x5e)) {
 
@@ -2452,7 +2454,7 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
           keyval = kInput_KeyType_AlreadyProcessed;
         }
       }
-    }
+
     break;
   }
   column = this->fCurrentColumn;

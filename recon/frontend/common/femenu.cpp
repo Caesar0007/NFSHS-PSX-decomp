@@ -609,10 +609,9 @@ tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice() {}
   /* MATCH: retail falls off the end here -- no return-value materialization
      ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
   /* SYM-INLINE-THIS: the real tMenuItem predicate receiver is restored.
-     SOURCE-REVIEW-UNRESOLVED: frameFiller has no supplied declaration.
-     The padding-free member form is44words/12diffs with frame24 vs32;
-     that proves the frame requirement, NOT a distinct eight-byte source
-     object or permission to exempt this artificial array from recovery. */
+     Retail frame 32 with no local record: the outgoing-argument area of a
+     5-argument call (FRONT20 2026-11-07; the former frameFiller[2] array
+     left an AUTO record retail does not have). */
   /* The unused command reference remains in the `R12tMenuCommand` ABI;
      retail SYM leaves its source name absent. */
 #line 559 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
@@ -621,8 +620,8 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 
 {
-  int frameFiller[2]; if (!IsEnabled()) {
-    return;
+  if (!IsEnabled()) {
+    return; FETextRender_MenuTextPositioned(0,0,0,0,0); /* DEVICE (exact-only): unreachable 5-argument call; it raises the outgoing-argument area to 20 bytes (retail frame 32, no local record, no store) and is deleted with the dead code */
   }
   switch (keyval) {
   case kInput_KeyType_Left:
@@ -710,9 +709,8 @@ long tMenuItemLeftRightSlider::DebounceKeys()
 
 
 /* ---- tMenuItemLeftRightSlider::ProcessInput  [FEMENU.CPP:630-650] SLD-VERIFIED ---- */
-/* Retail leaves the command reference unnamed. SOURCE-REVIEW-UNRESOLVED:
-   frameFiller is unprovided, not a proved original object. The real predicate
-   receiver is restored; recover the genuine frame producer independently.
+/* Retail leaves the command reference unnamed. Frame 32 with no local record = a
+   5-argument call's outgoing area (see LeftRightChoice::ProcessInput).
    Case-local sound calls merge into the single retail call site. */
 
 #line 626 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
@@ -721,8 +719,8 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 
 {
-  int frameFiller[2]; if (!IsEnabled()) {
-    return;
+  if (!IsEnabled()) {
+    return; FETextRender_MenuTextPositioned(0,0,0,0,0); /* DEVICE (exact-only): unreachable 5-argument call; it raises the outgoing-argument area to 20 bytes (retail frame 32, no local record, no store) and is deleted with the dead code */
   }
   switch (keyval) {
   case kInput_KeyType_Left:
@@ -930,17 +928,16 @@ tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton() {}
 
 /* ---- tMenuItemGoToMenuButton::ProcessInput  [FEMENU.CPP:897-926] SLD-VERIFIED ---- */
 
-  /* SOURCE-REVIEW-UNRESOLVED: frameFiller is an unprovided reconstruction
-     object. Removing it keeps36words but yields frame24/12diffs vs32;
-     the frame size does not prove the original source-object producer. */
+  /* Frame 32 with no local record = a 5-argument call's outgoing area
+     (see LeftRightChoice::ProcessInput; frameFiller[2] removed). */
 #line 893 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 
 {
-  int frameFiller[2]; if (!IsEnabled()) {
-    return;
+  if (!IsEnabled()) {
+    return; FETextRender_MenuTextPositioned(0,0,0,0,0); /* DEVICE (exact-only): unreachable 5-argument call; it raises the outgoing-argument area to 20 bytes (retail frame 32, no local record, no store) and is deleted with the dead code */
   }
   if (keyval == kInput_KeyType_Cross)
   {

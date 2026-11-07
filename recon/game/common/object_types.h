@@ -18,28 +18,11 @@ struct SerializedGroup; struct SimpleMem; struct AIHigh_Cop;
 #include "shared/BW_tContext.h"
 #include "shared/Trk_ObjectDef.h"
 #include "shared/Trk_CollideBoomInst.h"
-
-
-
-
 #include "shared/Trk_AnimateInst.h"
-
-
-
 #include "shared/Trk_SimObject.h"
-
-
-
 #include "shared/Trk_SimpleInst.h"
-
-
-
 #include "shared/Trk_AnimateBoomInst.h"
-
-
-
 #include "shared/Trk_SFX.h"
-
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
@@ -55,6 +38,23 @@ struct AnimScript {
     int GetTimedAnimPosRot(int index, coorddef *pt, matrixtdef *mat);
     int GetStatus();
 };
+#include "shared/tQuat.h"
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/AnimDef.h"
 #include "shared/DRender_tView.h"
 #include "shared/Draw_DCache.h"
@@ -77,8 +77,8 @@ struct Chunk {
 #endif
 #if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_EARLY2_DONE)   /* second pass, continued */
 #define NFS4_OBJECT_EARLY2_DONE
-#include "shared/Object_tSimObjList.h"
-#include "shared/Object_tIMassObjInfo.h"
+
+
 
 
 /* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
@@ -151,8 +151,8 @@ struct ObjectSignAnim : public ObjectAnim {
 #line 131 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
-
-#include "shared/tQuat.h"
+#include "shared/Object_tSimObjList.h"
+#include "shared/Object_tIMassObjInfo.h"
 typedef tQuat Quatern_quat;
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_OBJECT_TAIL_DONE)   /* first pass, after sim_types.h */

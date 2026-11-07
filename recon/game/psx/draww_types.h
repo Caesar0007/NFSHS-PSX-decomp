@@ -102,12 +102,13 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 
 
-
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it in its BO pass */
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 };
+#endif
 #include "shared/SceneElem.h"
 
 
@@ -116,6 +117,14 @@ struct AnimScript {
 
 
 #include "shared/SceneSortedElem.h"
+#ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail bworld: kernel/skidmark/FLARE_PIECE_DEF right after the Scene types */
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#include "shared/FLARE_PIECE_DEF.h"
+#endif
 #include "shared/AnimDef.h"
 
 struct DRender_tView;
@@ -319,15 +328,8 @@ typedef struct Trk_Line { u_char firstPoint, slice, type, quadIndex; } Trk_Line;
 
 
 
-
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "shared/Draw_tCtrlSkidmark.h"
-
-
-
-
-
-
 struct ChunkObjectInfo {
     Trk_SimObject *simObjs;
     Group *objInstanceBuf;
@@ -335,10 +337,8 @@ struct ChunkObjectInfo {
     short *visList;
 };
 #endif
-
 #include "shared/FLARE_PIECE_DEF.h"
 #include "shared/Sched_tSchedule.h"
-
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical sim.obj aggregate (SYM: Sim_tSimGlobalVar, size 24). */
 #include "shared/Sim_tSimGlobalVar.h"

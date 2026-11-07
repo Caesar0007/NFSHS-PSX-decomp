@@ -1,6 +1,6 @@
-/* Owner-specific type surface for FeMenuOptions.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H
-#define NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H
+#define NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H   /* Owner-specific type surface for FeMenuOptions.obj. */
+#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_FEMENUOPTIONS_OWNER   /* screendisplay_types.h: tOptionsMenu / tInsideBoxMenu inline copies LINK_STRIPPED */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED

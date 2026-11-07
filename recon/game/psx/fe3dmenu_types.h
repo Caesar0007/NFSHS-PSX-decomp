@@ -5,11 +5,11 @@
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
+#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/fe3dmenu_after_save.h"   /* retail: skidmark records after tSaveSurface */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/fe3dmenu_after_bo.h"   /* retail: forceFocus_t after the BO types */
 #include "../common/color_types.h"
 #include "shared/POLY_GT4.h"
-
-
-
 
 
 #include "shared/DRender_tView.h"
@@ -55,11 +55,11 @@
 
 
 
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
+#include "fe3dmenu_after_bo.h"
+
+
+
+
 
 #include "shared/Sched_tSchedule.h"
 

@@ -1,12 +1,9 @@
 /* color.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_COMMON_COLOR_TYPES_H
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
-
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #include "draw_leaf_types.h"
 #undef NFS4_CORE_CCOORD16
-
-
 #include "shared/CCOORD16.h"
 #ifdef NFS4_COLOR_GROUP_LATE   /* retail: the track quad types and RelCoord16 ahead of Group (owner first header) */
 #include "shared/Trk_Quad.h"
@@ -27,6 +24,9 @@ typedef void (*Sched_tFunctionPt)(void *);
 #endif
 #if defined(NFS4_COLOR_GS_FIRST) && defined(NFS4_COLOR_SCHED_BEFORE_GS)   /* retail input/nfs3: scheduler, then GameSetup */
 #include "gamesetup_leaf_types.h"
+#endif
+#ifdef NFS4_COLOR_HOOK_BEFORE_GROUP   /* owner types after the GS/scheduler first blocks, right before Group (souffle, hrzsku) */
+#include NFS4_COLOR_HOOK_BEFORE_GROUP
 #endif
 struct Group {
     int m_num_elements;
@@ -65,11 +65,11 @@ struct Group {
 #include "shared/Track_tMaterial.h"
 #endif
 #include "shared/tSaveSurface.h"
-#ifdef NFS4_COLOR_GS_AFTER_SAVE   /* retail: GameSetup right after tSaveSurface (owner first header) */
-#include "gamesetup_leaf_types.h"
-#endif
 #ifdef NFS4_COLOR_HOOK_AFTER_SAVE   /* retail skidmark.obj: the owner's TCB/EXEC/DIRENTRY/Skidmark block right after tSaveSurface */
 #include NFS4_COLOR_HOOK_AFTER_SAVE
+#endif
+#ifdef NFS4_COLOR_GS_AFTER_SAVE   /* retail: GameSetup right after tSaveSurface (owner first header) */
+#include "gamesetup_leaf_types.h"
 #endif
 #include "shared/BWorldSm_Pos.h"
 #ifdef NFS4_COLOR_SCHED_AFTER_BWSM   /* retail hud.obj: scheduler types between BWorldSm_Pos and the BO types */
@@ -92,10 +92,6 @@ struct BO_tNewtonObj;
 #include NFS4_COLOR_HOOK_AFTER_BO
 #undef NFS4_COLOR_IN_HOOK
 #endif
-
-
-
-
 #ifdef NFS4_COLOR_GS_AFTER_BO   /* retail: GameSetup after the BO types, before the scheduler */
 #include "gamesetup_leaf_types.h"
 #endif
@@ -108,7 +104,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 #endif
 /* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
 #include "shared/Transformer_z.h"
-
 
 
 
@@ -336,6 +331,11 @@ struct Car_tObj {
     Cars_tRenderInfo render;
     int async_handle;
 };
+#ifdef NFS4_COLOR_HOOK_AFTER_CAR   /* retail hud: the owner's types right after Car_tObj (owner second pass) */
+#define NFS4_COLOR_IN_HOOK2
+#include NFS4_COLOR_HOOK_AFTER_CAR
+#undef NFS4_COLOR_IN_HOOK2
+#endif
 
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;

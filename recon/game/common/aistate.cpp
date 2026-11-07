@@ -1545,7 +1545,8 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
 
 /* ---- _._17AIState_Purgatory [AISTATE.CPP:1021-1041; 72-word byte PASS,
- * original source/ownership/SLD still unresolved] ---- */
+ * SYM tree + SLD exact (GAME8 2026-11-07): `search` in the body block, a bare
+ * block {11..}21 around the search loop, `test` declared in the while body] ---- */
 /* 2026-10-16: a real while(1) search with an exit-at-top test regenerates
  * retail's unrotated index loop, removing both pointer captures and the old
  * absorption identity. Ordinary for/while-condition forms were71words; the
@@ -1559,7 +1560,7 @@ AIState_Purgatory::~AIState_Purgatory()
 
 {
   int search;
-  Car_tObj*test;
+
   (this->carObj_->collision).resetTimer = 0;
   ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
@@ -1568,16 +1569,16 @@ AIState_Purgatory::~AIState_Purgatory()
   if (((this->carObj_)->carFlags & 0x10U) != 0)
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + -1;
   this->carObj_->desiredDirection = this->carObj_->direction = 1;
+  { /* retail SYM block {11..}21 (no records of its own) */
 
-
-  search = Cars_gNumCars - 1; while (1) { if (search < 0) break;
+  search = Cars_gNumCars - 1; while (1) { Car_tObj*test; if (search < 0) break;
 
 
     test = Cars_gSortedList[search];
     if ((test->carFlags & 0x100U) != 0) {
 
       this->carObj_->basisCar = test; break; } --search; }
-  return; } /* carObj_->N.active = 1 comes from the inlined ~AIState_NonActive (real dtor chain). */
+  return; } } /* carObj_->N.active = 1 comes from the inlined ~AIState_NonActive (real dtor chain). */
 
 
 

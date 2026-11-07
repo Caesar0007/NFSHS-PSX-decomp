@@ -29,11 +29,11 @@ typedef struct matrixtdef MATRIX3DT;
 #include NFS4_DRAW_LEAF_HOOK_AFTER_PADS
 #endif
 #include "shared/Draw_tPixMap.h"
-
-
-
-
-
+#ifdef NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP   /* owner types right after Draw_tPixMap (r3dcar: Draw_tVertex) */
+#define NFS4_DRAW_LEAF_IN_HOOK
+#include NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP
+#undef NFS4_DRAW_LEAF_IN_HOOK
+#endif
 
 
 
@@ -63,8 +63,8 @@ typedef struct matrixtdef MATRIX3DT;
 
 
 #include "shared/Draw_CarVertex.h"
-
-
-
+#ifdef NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX   /* owner types right after Draw_CarVertex (fetools/drawdbg: kernpair, tTexture_ShapeInfo...) */
+#include NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX
+#endif
 
 #endif

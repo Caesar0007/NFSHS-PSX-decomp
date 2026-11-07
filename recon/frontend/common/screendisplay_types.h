@@ -1,15 +1,15 @@
 /* Owner-specific type surface for ScreenDisplay.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
-
+#define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "fe_core_types.h"
+#undef NFS4_FE_CORE_CARS_LATE
+/* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
 
-/* Track/tournament records are retained without the foreign tPlayer enum or
- * their member-method surfaces in this owner.  The track surface also owns
- * the retail tListIteratorIndexed record used below. */
-#define NFS4_FE_TRACK_NO_PLAYER
-#include "fe_tournament_types.h"
-#undef NFS4_FE_TRACK_NO_PLAYER
+
+
+
+
 
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
@@ -44,19 +44,19 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
-
 struct tDrawShapeExtended;
-
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
 #include "shared/tActiveLine.h"
-
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #include "screendisplay.h"
 #endif
-
+#include "fe_core_cars.h"
+#define NFS4_FE_TRACK_NO_PLAYER
+#include "fe_tournament_types.h"
+#undef NFS4_FE_TRACK_NO_PLAYER
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
     int fCarListFilter;

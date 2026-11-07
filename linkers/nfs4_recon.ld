@@ -3086,6 +3086,7 @@ SECTIONS
     PROVIDE(Front_InitTourneyTraffic__FR9tFEStream = 0x8002845c);   /* vague-linkage local copy */
     PROVIDE(Front_InitTrack__FR9tFEStream = 0x8002921c);   /* vague-linkage local copy */
     PROVIDE(Front_InitTraffic__FR9tFEStream = 0x800293e0);   /* vague-linkage local copy */
+    PROVIDE(Get__26AIDataRecord_CarTracking_ti = 0x8006d50c);   /* vague-linkage local copy */
     PROVIDE(HighExecute__11AIHigh_None = 0x8005b460);   /* vague-linkage local copy */
     PROVIDE(HudPmx_LoadShape__FPcP13HudPmx_tShape = 0x80092464);   /* vague-linkage local copy */
     PROVIDE(LoadingProc__Fv = 0x8003464c);   /* vague-linkage local copy */

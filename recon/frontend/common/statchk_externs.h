@@ -26,6 +26,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/eac_mem.h"
 }
 extern "C" {
+void *memcpy(...);
 void *memset(...);
 char *strcpy(...);
 }

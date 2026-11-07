@@ -31,7 +31,7 @@
  * Owned here since 2026-09-20 -- it had been "covered" only by the alignment tail of the non-module snddata.c.  The label
  * keeps its VA spelling because the asm template below names it (an asm-label alias on a C declaration cannot rename a
  * symbol that only appears inside an __asm__ string); the TU is built -G0 so the word is plain .data, as in the asm original. */
-unsigned int g_bootGP __asm__("D_801234E8") = 0;   /* @0x801234E8 : lib/boot $gp (written by initgp) */
+static unsigned int D_801234E8 = 0;   /* @0x801234E8 : lib/boot $gp (written by initgp); file-local: retail has no label here */
 
 #if defined(__mips__)
 

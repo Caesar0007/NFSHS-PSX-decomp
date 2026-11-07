@@ -6,11 +6,6 @@
 
 extern "C" int sprintf(char *, const char *, ...);
 
-/* MATCH (w35-a10): cc1plus expands a constant-size `memcpy` inline (movstrsi);
-   retail emits a real `jal memcpy`.  Calling it under a different C name with
-   an asm label defeats the builtin recognition while emitting the same
-   symbol/relocation. */
-extern "C" void *memcpy_call(void *dst, const void *src, int n) __asm__("memcpy");
 
 /* Retail records71db85/71dba4 declare BOOL[8] and scalar BOOL; the matching
    definitions below already own those exact objects. The old int[] alias
@@ -168,7 +163,7 @@ bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCa
 
 
       Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
-      memcpy_call(&RecordHolder,TrackRecords,0x14);
+      memcpy(&RecordHolder,TrackRecords,0x14);
       if (((dummyCars[nBestCarIndexTemp].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
 
 
@@ -224,7 +219,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
 
 
     Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
-    memcpy_call(&RecordHolder,TrackRecords + 1,0x14);
+    memcpy(&RecordHolder,TrackRecords + 1,0x14);
     if ((dummyCars[nBestCarIndex].finalNumArrests == 0) &&
 
 
@@ -243,7 +238,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
 
 
 
-    memcpy_call(TrackRecords,&DummyRaceResult,0x14);
+    memcpy(TrackRecords,&DummyRaceResult,0x14);
 
 
     carInfo = (tCarInfo *)(1 << (int)carInfo);
@@ -598,9 +593,9 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
 
 
-            memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
+            memcpy(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (k = 0; k < 8; k = k + 1) {
-              memcpy_call((tRecordBuffer *)
+              memcpy((tRecordBuffer *)
                           ((nLapIndicator + k) * (int)sizeof(tRecordBuffer) +
                            (int)RecordHolders),
                           buffer + nTopTenIndex[k] * uRecSz,uRecSz);

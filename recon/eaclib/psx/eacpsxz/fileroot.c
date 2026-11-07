@@ -37,14 +37,14 @@ char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
  * shape for retail's contiguous .sdata layout.  SYM and MAP expose no names at
  * these four addresses, so their lexical names cannot be uniquely recovered.
  * Keep explicit exact-layout carriers and expose the two semantic pointer
- * aliases to the C body.  SYM-GLOBAL-CARRIER: D_8013DD2C
- * SYM-GLOBAL-CARRIER: D_8013DD34
- * SYM-GLOBAL-CARRIER: D_8013DD38
- * SYM-GLOBAL-CARRIER: D_8013DD40 */
-char D_8013DD2C[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
-char *D_8013DD34 __attribute__((section(".sdata"))) = D_8013DD2C;
-char D_8013DD38[] __attribute__((section(".sdata"), aligned(4))) = "sim:";
-char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;
+ * aliases to the C body.  File-local (static, LANE2 2026-11-07): retail has no label at
+ * 0x8013DD2C/34/38/40 (D_8013DD2C D_8013DD34
+ * D_8013DD38
+ * D_8013DD40). */
+static char D_8013DD2C[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
+static char *D_8013DD34 __attribute__((section(".sdata"))) = D_8013DD2C;
+static char D_8013DD38[] __attribute__((section(".sdata"), aligned(4))) = "sim:";
+static char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;
 #define fsprefix1 D_8013DD34
 #define fsprefix2 D_8013DD40
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no

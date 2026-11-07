@@ -315,6 +315,12 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #   "no_thread_jumps"     -> disable jump threading for a whole C++ TU.
 #                           This is an input option, not a branch rewrite;
 #                           require full-TU instruction/branch/byte receipts.
+#   "no_g1"               -> compile this C TU WITHOUT -g1 (STATICS, user
+#                           ruling 2026-11-07).  Retail EACLIB C members carry
+#                           no debug records; -g1 is what makes ASPSX 2.77 write
+#                           a local symbol for a file-local data label (.def
+#                           .scl 3).  Only on eaclib carrier owners whose object
+#                           loses NO local label retail has (receipt: STATICS_state.md).
 #
 # The 7 TUs below own the retail binary's 7 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
@@ -949,8 +955,20 @@ PER_TU_FLAGS = {
     "recon/eaclib/psx/sndpsxz/sbdload.c":   {"no_strength_reduce": True},
     # 2026-09-20: stagpat.obj owns its one-byte key-group counter in plain .data (0x801371CC) -- the sndpsxz oracles
     # carry zero %gp_rel sites (library built -G0, like spchpsxz); -G0 retires the five-byte extern-view device.
-    "recon/eaclib/psx/sndpsxz/stagpat.c":   {"g_value": 0},
-    "recon/eaclib/psx/eacpsxz/savegp.c":    {"g_value": 0},   # hand-asm module (SAVEGP.ASM): its one data word is plain .data
+    "recon/eaclib/psx/sndpsxz/stagpat.c":   {"g_value": 0, "no_g1": True},   # STATICS: static DAT_801371cc, no label (= retail)
+    # STATICS 2026-11-07 (user ruling): file-local carriers are `static` and the owner TU is built without -g1, so ASPSX
+    # writes no label for them (retail has none); each object keeps every local label retail has.
+    "recon/eaclib/psx/eacpsxz/fixdsqrt.c":  {"no_g1": True},   # fixdsqrt_scale, D_8012356C
+    "recon/eaclib/psx/eacpsxz/exit.c":      {"no_g1": True},   # gExitFuncs
+    "recon/eaclib/psx/sndpsxz/ssysinit.c":  {"no_g1": True},   # DAT_80134a68
+    "recon/eaclib/psx/sndpsxz/ssysreal.c":  {"no_g1": True},   # D_80134A6C
+    "recon/eaclib/psx/eacpsxz/crc.c":       {"no_g1": True},   # D_80135C58
+    "recon/eaclib/psx/sndpsxz/salloc.c":    {"no_g1": True},   # DAT_80136dec
+    "recon/eaclib/psx/eacpsxz/textcode.c":  {"no_g1": True},   # D_8013BD50
+    # systask.c NOT here: without -g1 it loses `systemtasksubs` (static .lcomm, retail kind 6 @0x8013E980).
+    "recon/eaclib/psx/eacpsxz/nfile.c":     {"no_g1": True},   # gFileOpSeq
+    "recon/eaclib/psx/eacpsxz/fileroot.c":  {"no_g1": True},   # D_8013DD2C/34/38/40
+    "recon/eaclib/psx/eacpsxz/savegp.c":    {"g_value": 0, "no_g1": True},   # STATICS: static D_801234E8 (no asm alias), no label (= retail)   # hand-asm module (SAVEGP.ASM): its one data word is plain .data
     # sdmemman.obj retains the full D_80147E34 base through its tail scan.
     # GCC's optional post-loop CSE rerun folds that final base use back to a
     # %lo(high) address and creates an extra live address pseudo; the retail
@@ -959,6 +977,9 @@ PER_TU_FLAGS = {
     # stattool.obj has an out-of-line memcpy for its 20-byte record copy.
     # CC1PLPSX otherwise builtin-expands it to eight extra instructions.
     "recon/frontend/common/stattool.cpp":   {"no_builtin": True},
+    # statchk.obj (the next retail object, same header set) keeps the same out-of-line memcpy for its 20-byte
+    # record copies; replaces the memcpy_call asm-label alias (STATICS 2026-11-07).
+    "recon/frontend/common/statchk.cpp":    {"no_builtin": True},
     # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
     # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
     # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression
@@ -1974,6 +1995,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     # (all of eaclib/syslib + frontend .c) -- found independently by w47-a7/a8/a9.
     tu_g_value = str(tu_flags.get("g_value", G_VALUE))
     cc1_flags = [f"-G{tu_g_value}" if f == f"-G{G_VALUE}" else f for f in CC1_FLAGS]
+    if tu_flags.get("no_g1"):
+        cc1_flags = [f for f in cc1_flags if f != "-g1"]
     if tu_flags.get("no_delayed_branch"):
         cc1_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_split_addresses"):

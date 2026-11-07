@@ -41,7 +41,7 @@ typedef char SndTagScanState_size_check[(sizeof(struct SndTagScanState) == 0x10)
 /* stagpat.obj .data 0x801371C4..0x801371D0 (link-order slot sclcptch [378] .. CTYPE0 [389]; stagpat [379] is the only
  * user of both cells): the default envelope, then the rolling key-group counter. */
 signed char snddefaultenvelope[8] = { -1, -1, -1, 0x7f, 0x7f, 0, 0, 0 };   /* @0x801371C4 */
-unsigned char DAT_801371cc = 0;   /* @0x801371CC : rolling key-group counter (the library is built -G0: plain .data) */
+static unsigned char DAT_801371cc = 0;   /* @0x801371CC : rolling key-group counter (the library is built -G0: plain .data) */
 
 /* iSNDresetpatch @0x80101ABC : clear a patch-play state's flag word (+0x90). */
 void iSNDresetpatch(struct SndTimbre *patch)

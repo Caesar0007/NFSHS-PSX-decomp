@@ -25,4 +25,4 @@ int SNDSYS_vectortoreal(void)
 }
 
 /* ssysreal.obj .data 0x80134A6C, owned here since 2026-09-19 (gprefs.py: SNDSYS_vectortoreal is the only user). */
-int D_80134A6C[1] __attribute__((section(".data"))) = { 0 };
+static int D_80134A6C[1] __attribute__((section(".data"))) = { 0 };

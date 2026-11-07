@@ -26,10 +26,10 @@
 
 
 
-struct DR_OFFSET {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_OFFSET.h"
+
+
+
 
 #include "shared/eacelement.h"
 
@@ -89,7 +89,7 @@ struct DR_OFFSET {
 
 
 
-
+#include "../../game/common/color_types.h"   /* retail PSXFront: color.obj graph before the SND records */
 #include "shared/SNDSYSCAP.h"
 
 

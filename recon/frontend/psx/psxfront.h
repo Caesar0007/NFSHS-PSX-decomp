@@ -6,6 +6,12 @@
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#define NFS4_PRIM_POLY_F4   /* retail PSXFront: POLY_F4 POLY_FT4 POLY_G4 POLY_GT4 right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_POLY_FT4
+#define NFS4_PRIM_POLY_G4
+#define NFS4_CORE_POLY_GT4
+#define NFS4_PRIM_DR_OFFSET   /* retail: DR_OFFSET right after DR_MODE */
+#define NFS4_CORE_AFTER_SHAPETABLE   /* retail: eacelement CdlLOC kernpair charactertbl after SHAPETABLEENTRY */
 #include "../../game/common/draw_leaf_types.h"
 #include "psxfront_types.h"
 #include "../../game/common/color_types.h"

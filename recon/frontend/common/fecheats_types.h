@@ -42,6 +42,7 @@ typedef enum tCheatCode {
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete physics/AI/car graph. */
 #include "../../game/common/color_types.h"
 #endif
+#ifndef NFS4_FE_CORE_CARS_CLASSTYPE   /* FEMemcard: tCarClassType from fe_core_cars.h instead */
 #define NFS4_TCARCLASSTYPE_DEFINED
 enum tCarClassType {
     cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,
@@ -49,6 +50,7 @@ enum tCarClassType {
     cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
     cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
 };
+#endif
 
 /* FECheats retains the input enum but not the foreign tPlayer enum. */
 #define NFS4_FE_INPUT_NO_PLAYER
@@ -80,36 +82,36 @@ struct tTournamentManager {
     tAwardInformation fAwards; void SaveTournament(struct tSaveTournament &); void LoadTournament(struct tSaveTournament &);
 };
 
-#include "shared/tActiveLine.h"
-#include "shared/tShapeInformation.h"
-#include "fescreen_virtual_types.h"
-struct tMenu;
-#include "fescreen.h"
-#include "fedialog.h"
+#ifndef NFS4_FECHEATS_DIALOGS_LATE   /* FEMemcard: dialog/app block after its memcard records */
+#include "fecheats_dialogs.h"
+#endif
 
-/* FECheats needs this foreign class's MemCardDialog offset.  Its exact layout
- * is pair-locked by the canonical audit because the linked owner attributes
- * the class definition to FEApp.obj instead of repeating it here. */
-struct tFEApplication {
-    unsigned int fCurrentMusic;
-    tMenu *fCurrentMenu[2];
-    tScreen *fCurrentScreen[2];
-    tMenu *fTransitionToMenu[2];
-    tScreen *fTransitionToScreen[2];
-    tMenu *fParentMenu[2];
-    tDialogMessageString messagePopup;
-    tMenu *backList[2][16];
-    int backDepth[2];
-    tInputKeyType fLastKeyPressed[2];
-    short fYOffset;
-    tDialogHelp helpPopup;
-    char fPlayer, fInputPlayer;
-    bool waitingForOtherPlayer[2];
-    tDialogMessageStringWithTimeout MemCardDialog;
-    tDialogNoInputMessage NoInputMemCardDialog;
-    bool gotName[2], needName[2];
-    int speechToPlay[2]; void Redraw(); void UpdateMusic();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* The owner retains tSaveRecords but attributes this already-seen element tag
  * body elsewhere in the linked SYM.  The canonical audit pair-locks both. */

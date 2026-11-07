@@ -27,6 +27,9 @@ enum tCarModels {
 
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"
+#ifdef NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo */
+#include "shared/tCarClassType.h"
+#endif
 
 enum tCarNameLength {
     cnl_Medium = 0,

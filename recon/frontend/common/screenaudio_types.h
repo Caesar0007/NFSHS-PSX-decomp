@@ -2,6 +2,8 @@
 #define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* Owner-specific type surface for ScreenAudio.obj. */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
+#define NFS4_DRAW_LEAF_CORE_ONLY   /* retail ScreenAudio: frontend menu core before PCOORD16/pads/Draw_* */
 #include "../../game/common/draw_leaf_types.h"
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
@@ -25,6 +27,12 @@
 
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"
+
+struct tDrawShapeExtended;
+
+#include "screenaudio.h"
+
+#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #include "shared/SNDSYSCAP.h"
 #include "shared/SNDSYSSET.h"
 #include "shared/SNDSYSVEC.h"
@@ -32,10 +40,6 @@
 #include "shared/SNDSAMPLEFORMAT.h"
 #include "shared/SndBnk_t.h"
 #include "shared/SPEECHINFO.h"
-
-struct tDrawShapeExtended;
-
-#include "screenaudio.h"
 
 /* FEMenuDefs.obj owns the complete aggregate.  ScreenAudio reads this exact
  * contiguous member slice only. */
@@ -53,5 +57,4 @@ struct ScreenAudio_GlobalMenuDefsCodegenView {
 };
 #define tGlobalMenuDefs ScreenAudio_GlobalMenuDefsCodegenView
 
-#include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #endif

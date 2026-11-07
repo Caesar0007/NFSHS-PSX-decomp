@@ -9,6 +9,8 @@
 #define NFS4_FECHEATS_NO_RECORD_BUFFER
 #define NFS4_FECHEATS_FEMEMCARD_METHODS
 #define NFS4_FEDIALOG_FULLYOPEN_SURFACE   /* tDialogMessageString::IsFullyOpen inline pairs */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
+#define NFS4_FECHEATS_DIALOGS_LATE   /* retail FEMemcard: tActiveLine/tShapeInformation/dialogs after the memcard records */
 #include "fecheats_types.h"
 #undef NFS4_FECHEATS_FEMEMCARD_METHODS
 #undef NFS4_FECHEATS_NO_RECORD_BUFFER
@@ -17,26 +19,9 @@
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
 
-typedef enum PRODUCTLOC {
-    N_AMERICA = 0,
-    JAPAN = 1,
-    EUROPE = 2
-} PRODUCTLOC;
 
-typedef enum MANAGERTASK {
-    NONE = 0,
-    LOAD_CARD = 1,
-    WRITE_FILE = 2,
-    LOAD_FILE = 3,
-    DELETE_FILE = 4
-} MANAGERTASK;
 
-#include "shared/PinkSlipsErrorCode.h"
 
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#include "shared/AudioMus_tSongEntry.h"
 #include "shared/tRecordBuffer.h"
 
 typedef tRecordBuffer tSaveRecords[187];
@@ -45,18 +30,8 @@ typedef tRecordBuffer tSaveRecords[187];
 #include "shared/tSaveTrackInfo.h"
 #include "shared/tSaveTournament.h"
 
-typedef COORD16 FE3d_zVertex;
-typedef CVECTOR FE3d_zColor;
-typedef SVECTOR FE3d_zNormal;
-
-#include "shared/FE3d_zUV.h"
-#include "shared/FE3d_zFacet.h"
-#include "shared/FE3d_zObj.h"
-#include "fedialog.h"
-#include "shared/CARDINFO_def.h"
-#include "shared/MCRDFILEHEADER_def.h"
-#include "shared/MCRDFILEINFO_def.h"
-#include "shared/MCRDFILE_def.h"
+/* Retail FEMemcard.obj order: color.obj graph after tRecordBuffer, then the memcard records, then the dialog block. */
+#include "../../game/common/color_types.h"
 
 struct tMemCardData {
     u_long fSize, bonus;
@@ -69,6 +44,17 @@ struct tMemCardData {
     u_long tournamentCRC, recordsCRC;
 };
 
+#include "shared/PinkSlipsErrorCode.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+
+typedef enum PRODUCTLOC {
+    N_AMERICA = 0,
+    JAPAN = 1,
+    EUROPE = 2
+} PRODUCTLOC;
+
 struct MCRDOPTS_def {
     PRODUCTLOC productLocation;
     char *productCode;
@@ -77,6 +63,34 @@ struct MCRDOPTS_def {
     int (*ConfirmFormatProc)(void), (*ConfirmOverwriteProc)(void);
     void (*LoadingDataProc)(void), (*SavingDataProc)(void);
 };
+
+#include "shared/CARDINFO_def.h"
+#include "shared/MCRDFILE_def.h"
+
+typedef enum MANAGERTASK {
+    NONE = 0,
+    LOAD_CARD = 1,
+    WRITE_FILE = 2,
+    LOAD_FILE = 3,
+    DELETE_FILE = 4
+} MANAGERTASK;
+
+#include "shared/MCRDFILEHEADER_def.h"
+#include "shared/MCRDFILEINFO_def.h"
+#include "fecheats_dialogs.h"
+#include "fedialog.h"
+
+typedef COORD16 FE3d_zVertex;
+typedef CVECTOR FE3d_zColor;
+typedef SVECTOR FE3d_zNormal;
+
+#include "shared/FE3d_zUV.h"
+#include "shared/FE3d_zFacet.h"
+#include "shared/FE3d_zObj.h"
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
 
 /* Public spellings retained by FEMemCard.obj in addition to the definition
  * tags above.  These aliases are part of the original memcard interface, not

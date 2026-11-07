@@ -5,6 +5,7 @@
 
 struct tMenu;
 
+#include "fe_input_enums.h"   /* retail: tPlayer, tInputKeyType first */
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0,
@@ -20,13 +21,16 @@ enum tMenuCommandType {
 };
 
 #include "shared/tMenuCommand.h"
+#define NFS4_FE_CORE_FELINES_LATE   /* retail FEScreen: frontend core before the MATRIX core */
+#define NFS4_FE_CORE_CARS_LATE   /* retail: car tail after the dialogs */
 #include "fe_core_types.h"
-#include "fe_input_enums.h"
+#include "felines_types.h"
+#include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-#include "shared/tActiveLine.h"
-#include "fedialog.h"
 #include "shared/tDrawShapeExtended.h"
+#include "fedialog.h"
+#include "fe_core_cars.h"
 
 #endif

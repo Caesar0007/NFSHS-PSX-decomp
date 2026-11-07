@@ -15,6 +15,9 @@ typedef unsigned short u_short;
 typedef unsigned int   u_int;
 #include "shared/u_long.h"
 typedef unsigned short ushort;
+#ifdef NFS4_CORE_FEMISSION_FIRST   /* retail FEMission.obj: mission records ahead of the core */
+#include "frontend/common/femission_first.h"
+#endif
 /* The SDK's complete referent in every owner: retail records physadr at
  * size 4 everywhere.  Its `_physadr` tag records are not in the SYM because
  * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
@@ -190,9 +193,7 @@ struct POLY_GT3 {
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
 };
 #endif
-#ifdef NFS4_CORE_POLY_GT4
-/* defined by the headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every
- * object that records it. */
+#ifdef NFS4_CORE_POLY_GT4   /* headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every object that records it */
 #include "shared/POLY_GT4.h"
 #endif
 #ifdef NFS4_PRIM_LINE_G2
@@ -205,11 +206,20 @@ struct POLY_GT3 {
 struct TILE_1 { u_long tag; u_char r0,g0,b0,code; short x0,y0; };
 #endif
 #include "shared/DR_MODE.h"
+#ifdef NFS4_CORE_HOOK_AFTER_DRMODE   /* owner types right after DR_MODE (drawdbg.obj: TCB/EXEC/DIRENTRY) */
+#include NFS4_CORE_HOOK_AFTER_DRMODE
+#endif
 #ifdef NFS4_PRIM_DR_TWIN
 struct DR_TWIN { u_long tag, code[2]; };
 #endif
 #ifdef NFS4_PRIM_DR_STP
 struct DR_STP { u_long tag; u_long code[2]; };
+#endif
+#ifdef NFS4_PRIM_DR_AREA
+#include "shared/DR_AREA.h"
+#endif
+#ifdef NFS4_PRIM_DR_OFFSET
+#include "shared/DR_OFFSET.h"
 #endif
 #endif
 
@@ -253,13 +263,14 @@ struct cdstreamstruct {
     long filesize;
     int  dataoffset, seekposition, seekoffset, idtype, idmask;
     struct cdstreamstruct *nextstream;
-    void *emptyblock, *head, *tail, *block;
-    int  timer, blocktime, streamfull, getable, releaseable;
+    void *emptyblock, *head, *tail, *block;  int  timer, blocktime, streamfull, getable, releaseable;
 };
 typedef struct cdstreamstruct CDSTREAM;
 #endif
-#ifdef NFS4_CORE_EA
-/* nfs2mem: kernpair right after the CD stream; movie: the kernel types, then kernpair, there. */
+#ifdef NFS4_CORE_HOOK_AFTER_CD   /* a TU's own types right after the CD stream (audiotrk.obj: SND* + scheduler) */
+#include NFS4_CORE_HOOK_AFTER_CD
+#endif
+#ifdef NFS4_CORE_EA   /* nfs2mem: kernpair right after the CD stream; movie: the kernel types, then kernpair, there. */
 #ifdef NFS4_CORE_KERNEL_KERN_AFTER_CD
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -269,8 +280,7 @@ typedef struct cdstreamstruct CDSTREAM;
 #include "shared/kernpair.h"
 #endif
 #ifdef NFS4_CORE_PADS_EARLY
-/* frontend family (fecars felines fefades fecolor femission fetracks fecheats fememcard femenudefs femenuextended
- * femenuoptions screenpinkslips screentracks): retail emits the controller pads after the CD stream, before linedef. */
+/* frontend family (fecars felines fefades fecolor femission fetracks fecheats fememcard femenudefs femenuextended femenuoptions screenpinkslips screentracks): retail emits the controller pads after the CD stream, before linedef. */
 #include "shared/PAD_PSX.h"
 #include "shared/PAD_NEGCON.h"
 #include "shared/PAD_ANALOG.h"
@@ -281,6 +291,9 @@ typedef struct cdstreamstruct CDSTREAM;
 typedef struct linedef LINE;
 #define NFS4_HAVE_LINE
 #include "shared/SHAPETABLEENTRY.h"
+#ifdef NFS4_CORE_AFTER_SHAPETABLE   /* retail PSXFront: eacelement CdlLOC kernpair charactertbl */
+#include "shared/core_after_shapetable.h"
+#endif
 #if defined(NFS4_CORE_FULL) && !defined(NFS4_DRAW_LEAF_CORE_ONLY)   /* CORE_ONLY: draw_leaf_types.h phase 2 emits these */
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"

@@ -1,7 +1,7 @@
 /* Owner-specific type surface for FEMenuExtended.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
 #define NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
-
+#define NFS4_FE_CORE_FELINES_LATE   /* retail FEMenuExtended: frontend core before the MATRIX core */
 #include "fe_player_types.h"
 #include "fe_input_enums.h"
 
@@ -21,19 +21,14 @@ enum tMenuCommandType {
 
 struct tMenu;
 #include "shared/tMenuCommand.h"
-
+#define NFS4_FE_CORE_CARS_LATE   /* retail FEMenuExtended: car tail after the color graph + tMenuNFS4 family */
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_LIST_NO_INDEXED   /* FEMenuExtended.obj: tListIterator + Range only */
 #define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
-#ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete physics/AI/car graph. */
-#include "../../game/common/color_types.h"
-#endif
-#include "../../game/psx/psyq_prim_macros.h"
-
-#include "shared/DR_AREA.h"
-
+/* color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */
+#define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h NFS4_PRIM_*) */
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 
@@ -51,6 +46,11 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     ~tMenuItemGoToMenuButton();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
+
+
+#include "felines_types.h"
+#include "../../game/psx/psyq_prim_macros.h"
+#include "shared/DR_AREA.h"
 
 #include "shared/tDrawShapeExtended.h"
 
@@ -150,7 +150,6 @@ struct tMenuBlank : public tMenuNFS4 {
 struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;
     short fPlayer;
-
     tMenuOptions(unsigned int, tScreen *, tMenu *, tMenu *,
                  void (*)(tMenuCommand &), short, short, tMenuItem *, ...);
     ~tMenuOptions();
@@ -161,14 +160,15 @@ struct tMenuOptions : public tMenuNFS4 {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     bool IsSubMenu();
 };
-
+#ifndef NFS4_FE_COLOR_LATE   /* retail FEMenuExtended: color.obj graph after tMenuOptions */
+#include "../../game/common/color_types.h"
+#endif
+#include "fe_core_cars.h"
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
 #include "shared/tActiveLine.h"
 #include "fedialog.h"
-
-
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];

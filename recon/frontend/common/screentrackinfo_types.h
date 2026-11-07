@@ -1,36 +1,24 @@
 /* Owner-specific type surface for ScreenTrackInfo.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
-
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 #include "fe_input_enums.h"
 
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
-    kMenu_Command_None = 0,
-    kMenu_Command_GoToMenu = 1,
-    kMenu_Command_GoToMenuOneWay = 2,
-    kMenu_Command_GoToMenuTwoPlayer = 3,
-    kMenu_Command_BackupMenu = 4,
-    kMenu_Command_StartRace = 5,
-    kMenu_Command_Start2PlayerRace = 6,
-    kMenu_Command_ReStartRace = 7,
-    kMenu_Command_StartReplay = 8,
-    kMenu_Command_ClearRecords = 9
+    kMenu_Command_None = 0, kMenu_Command_GoToMenu = 1, kMenu_Command_GoToMenuOneWay = 2, kMenu_Command_GoToMenuTwoPlayer = 3,
+    kMenu_Command_BackupMenu = 4, kMenu_Command_StartRace = 5, kMenu_Command_Start2PlayerRace = 6,
+    kMenu_Command_ReStartRace = 7, kMenu_Command_StartReplay = 8, kMenu_Command_ClearRecords = 9
 };
 
 struct tMenu;
 #include "shared/tMenuCommand.h"
 #endif
 
+#define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenTrackInfo: frontend core + menu items before the MATRIX core */
+#define NFS4_FE_CORE_CARS_LATE   /* retail: car/track/tournament records after tShapeInformation/tActiveLine */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
 #include "fe_core_types.h"
-
-/* Track/tournament records are retained without importing an additional
- * player surface; this owner already retains tPlayer through its input API. */
-#define NFS4_FE_TRACK_NO_PLAYER
-#include "fe_tournament_types.h"
-#undef NFS4_FE_TRACK_NO_PLAYER
-
 /* Source spellings/constants whose enum tags are not retained by this owner. */
 #define tMenuTextState int
 #define tMenuTextType int
@@ -39,25 +27,37 @@ struct tMenu;
 #define textState_Hilighted 2
 #define textType_ScreenInfo 4
 #define textType_TrackRecords 11
-
-
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 };
-
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
 };
-
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
-
+#undef NFS4_DRAW_LEAF_CORE_ONLY   /* ScreenAudio: draw_leaf phase 2 (PCOORD16 .. Draw_*) after the menu core */
+#include "felines_types.h"
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
 #include "shared/tActiveLine.h"
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* ScreenAudio keeps TV after the tournament records */
+enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };   /* retail: TV after kernpair, before the cars */
+#include "shared/tTVConfig.h"
+#else   /* ScreenAudio: retail AudioMus + tScreenAudio right after tShapeInformation/tActiveLine */
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/AudioMus_tSongList.h"
+#include "screenaudio.h"
+#endif
+
+
+#include "fe_core_cars.h"
+#define NFS4_FE_TRACK_NO_PLAYER   /* track/tournament records without an extra player surface */
+#include "fe_tournament_types.h"
+#undef NFS4_FE_TRACK_NO_PLAYER
+
 
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
@@ -109,45 +109,45 @@ struct tListIteratorTrack : public tListIteratorIndexed {
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;
 };
-
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail: tVideoWall + tScreenTrackInfo before the tMenuNFS4 family */
+struct tVideoWall {
+    tTVConfig *fTVs; short fFirstTVShape, fNumTVs; tTexture_ShapeInfo *fTVShapes; short *tvOrder; u_long fTVTicks;
+    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY; short fAvailableTextID, fAvailable, fAvailableBright, fValid;
+    short fAvailableX, fAvailableY; tTexture_ShapeInfo *fIconShapes; short fIcon, fIconFrames, fIconX, fIconY;
+    bool fUpdated; void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void UpdateTransition(); void Draw(); void TurnOffInstant(); void TurnOn();
+};
+#include "screentrackinfo.h"
+#endif
 struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 };
-
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 };
-
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {};
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {};
-
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
 };
-
 struct tMenuNFS4 : public tMenu {
     bool fInItemTransition, fInMenuTransition;
     short fTransitionVal;
     signed char fTransitionDirection;
     char fLastItem, fNumItems;
 };
-
 struct tMenuNFS4TwoPlayer : public tMenuNFS4 {};
 struct tMenuNFS4Bottom : public tMenuNFS4 {};
 struct tMenuBlank : public tMenuNFS4 {};
-
 struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;
     short fPlayer;
 };
-
 struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
 };
-
 struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
     signed char fTransitionDirection;
@@ -224,34 +224,12 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {};
 struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 };
 
-enum tTVState {
-    tv_StateOff = 0,
-    tv_StateOn = 1,
-    tv_TransitionOn = 2,
-    tv_TransitionOff = 3
-};
-
+#ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
+enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };
 #include "shared/tTVConfig.h"
-
-#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-struct tVideoWall {
-    tTVConfig *fTVs;
-    short fFirstTVShape, fNumTVs;
-    tTexture_ShapeInfo *fTVShapes;
-    short *tvOrder;
-    u_long fTVTicks;
-    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY;
-    short fAvailableTextID, fAvailable, fAvailableBright, fValid;
-    short fAvailableX, fAvailableY;
-    tTexture_ShapeInfo *fIconShapes;
-    short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated; void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void UpdateTransition(); void Draw(); void TurnOffInstant(); void TurnOn();
-};
 #endif
 
-#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-#include "screentrackinfo.h"
-#endif
+
 
 #include "fedialog.h"
 #include "shared/tCredit.h"

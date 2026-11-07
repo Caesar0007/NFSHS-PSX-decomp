@@ -2,29 +2,31 @@
 #ifndef NFS4_GAME_COMMON_COLOR_TYPES_H
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
 
+#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #include "draw_leaf_types.h"
-#include "gamesetup_leaf_types.h"
-#include "aiscript_types.h"
+#undef NFS4_CORE_CCOORD16
+
+
 
 #include "shared/CCOORD16.h"
 
-typedef struct Transformer_zUV { u_char u, v; } Transformer_zUV;
 
-typedef struct Transformer_zFacet {
-    short flag;
-    u_char textureIndex, vertexId0, vertexId1, vertexId2;
-    Transformer_zUV uv0, uv1, uv2;
-} Transformer_zFacet;
 
-typedef struct Transformer_zObj {
-    u_short numVertex, numFacet;
-    coorddef translation;
-    COORD16 *vertex, *Nvertex;
-    Transformer_zFacet *facet;
-} Transformer_zObj;
 
-typedef struct Transformer_zOverlay { short offset; u_char u, v; } Transformer_zOverlay;
-typedef COORD16 Transformer_zVertex;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct Group {
     int m_num_elements;
@@ -104,6 +106,25 @@ struct BO_tNewtonObj;
 
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
+/* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
+typedef struct Transformer_zUV { u_char u, v; } Transformer_zUV;
+
+typedef struct Transformer_zFacet {
+    short flag;
+    u_char textureIndex, vertexId0, vertexId1, vertexId2;
+    Transformer_zUV uv0, uv1, uv2;
+} Transformer_zFacet;
+
+typedef struct Transformer_zObj {
+    u_short numVertex, numFacet;
+    coorddef translation;
+    COORD16 *vertex, *Nvertex;
+    Transformer_zFacet *facet;
+} Transformer_zObj;
+
+typedef struct Transformer_zOverlay { short offset; u_char u, v; } Transformer_zOverlay;
+typedef COORD16 Transformer_zVertex;
+#include "gamesetup_leaf_types.h"
 
 
 
@@ -130,6 +151,7 @@ typedef struct AIPerson_t {
     int bestLineAbility;
     unsigned int rearBumpProbMask, smackProbMask, copCollisionFirmness;
 } AIPerson_t;
+#include "aiscript_types.h"   /* retail order: AIScript after AIPerson_t */
 
 typedef enum speechModeType {
     SPEECH_MODE_NONE = 0,

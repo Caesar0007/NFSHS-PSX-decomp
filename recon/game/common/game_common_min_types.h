@@ -4,17 +4,23 @@
 #ifndef NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_GAME_COMMON_MIN_TYPES_H
 
+#define NFS4_CORE_EA
 #include "nfs4_types.h"
+#undef NFS4_CORE_EA
 
 #include "shared/coorddef.h"
 
 
+#ifndef NFS4_HAVE_LIBCOORD
 typedef struct coorddef LIBCOORD;
+#endif
 
 #include "shared/linedef.h"
 
 
+#ifndef NFS4_HAVE_LINE
 typedef struct linedef LINE;
+#endif
 
 #include "shared/SHAPETABLEENTRY.h"
 

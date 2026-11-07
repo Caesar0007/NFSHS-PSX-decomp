@@ -7,6 +7,45 @@
 #define NFS4_TYPES_H
 
 
+/* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
+ * filtering the private `_physadr` tag block itself. */
+typedef unsigned int size_t;
+/* retail records the unsigned shorthands here, after size_t: SYS/TYPES.H follows the graphics headers, whose
+   structs spell their fields with the plain unsigned types */
+typedef unsigned char  u_char;
+typedef unsigned short u_short;
+typedef unsigned int   u_int;
+#include "shared/u_long.h"
+typedef unsigned short ushort;
+/* The SDK's complete referent in every owner: retail records physadr at
+ * size 4 everywhere.  Its `_physadr` tag records are not in the SYM because
+ * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
+ * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
+struct _physadr { int r[1]; };
+
+
+typedef struct _physadr *physadr;
+typedef long daddr_t;
+typedef char *caddr_t;
+typedef long *qaddr_t;
+typedef u_long ino_t;
+typedef long swblk_t;
+typedef long time_t;
+typedef short dev_t;
+typedef long off_t;
+typedef u_short uid_t;
+typedef u_short gid_t;
+
+/* Retail declaration order (round 11 TYPEONLY): a TU whose first include is the common-game graph
+ * (game_common_min_types.h: NFS4_CORE_EA) or the draw-leaf graph (draw_leaf_types.h: NFS4_CORE_FULL) sees the
+ * EA/PsyQ leaf types at their place in the original headers -- MATRIX before VECTOR, DR_MODE after DISPENV,
+ * coorddef/matrixtdef before the CD stream, linedef/SHAPETABLEENTRY/PCOORD16/COORD16 after it.  The units are
+ * include-guarded, so including them here only moves them earlier; the NFS4_HAVE_* flags keep each companion
+ * typedef single. */
+#ifdef NFS4_CORE_FULL
+#include "shared/MATRIX.h"
+#endif
+
 struct VECTOR {
     long vx, vy, vz, pad;
 };
@@ -97,6 +136,9 @@ struct DISPENV {
 #ifndef __cplusplus
 typedef struct DISPENV DISPENV;
 #endif
+#ifdef NFS4_CORE_FULL
+#include "shared/DR_MODE.h"
+#endif
 
 struct shapetbl {
     unsigned int type : 8;
@@ -112,6 +154,16 @@ struct shapetbl {
     char         data;
 };
 typedef struct shapetbl SHAPE;
+#ifdef NFS4_CORE_EA
+#include "shared/coorddef.h"
+typedef struct coorddef LIBCOORD;
+#define NFS4_HAVE_LIBCOORD
+#ifdef NFS4_CORE_FULL
+#include "shared/matrixtdef.h"
+typedef struct matrixtdef MATRIX3DT;
+#define NFS4_HAVE_MATRIX3DT
+#endif
+#endif
 
 /* NFS4_EAC_OLD_TYPES: the older EA/PsyQ header revision seen by the FRONTEND\PSX library objects (cache.obj):
  * no CD-stream block, no wchar_t / file / thread typedefs, MEMBLOCK before VOIDFN (retail cache.obj SYM block). */
@@ -133,36 +185,21 @@ struct cdstreamstruct {
 };
 typedef struct cdstreamstruct CDSTREAM;
 #endif
+#ifdef NFS4_CORE_EA
+#include "shared/linedef.h"
+typedef struct linedef LINE;
+#define NFS4_HAVE_LINE
+#include "shared/SHAPETABLEENTRY.h"
+#ifdef NFS4_CORE_FULL
+#include "shared/PCOORD16.h"
+#include "shared/COORD16.h"
+#ifdef NFS4_CORE_CCOORD16
+#include "shared/CCOORD16.h"
+#endif
+#endif
+#endif
 #endif /* NFS4_PSYQ_DDV_TYPES */
 
-/* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
- * filtering the private `_physadr` tag block itself. */
-typedef unsigned int size_t;
-/* retail records the unsigned shorthands here, after size_t: SYS/TYPES.H follows the graphics headers, whose
-   structs spell their fields with the plain unsigned types */
-typedef unsigned char  u_char;
-typedef unsigned short u_short;
-typedef unsigned int   u_int;
-#include "shared/u_long.h"
-typedef unsigned short ushort;
-/* The SDK's complete referent in every owner: retail records physadr at
- * size 4 everywhere.  Its `_physadr` tag records are not in the SYM because
- * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
- * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
-struct _physadr { int r[1]; };
-
-
-typedef struct _physadr *physadr;
-typedef long daddr_t;
-typedef char *caddr_t;
-typedef long *qaddr_t;
-typedef u_long ino_t;
-typedef long swblk_t;
-typedef long time_t;
-typedef short dev_t;
-typedef long off_t;
-typedef u_short uid_t;
-typedef u_short gid_t;
 /* The retail objects preserve two PsyQ header variants: frontend C++ TUs use
  * u_char, while game/PSX unpack.obj records u_long.  An owner may select the
  * latter without leaking it into already-exact neighbors. */

@@ -2,6 +2,7 @@
 #define NFS4_GAME_COMMON_CARS_TYPES_H   /* cars.obj's exact source-visible delta over the shared CopSpeak graph. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "cars_after_pads.h"   /* retail: GameSetup + scheduler right after the pads */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (audiocmn_types.h) */
@@ -77,7 +78,6 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 #undef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #undef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-
 
 
 

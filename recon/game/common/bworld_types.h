@@ -3,6 +3,8 @@
 #define NFS4_GAME_COMMON_BWORLD_TYPES_H
 #define NFS4_COLOR_HOOK_AFTER_BO "bworld_types.h"   /* retail: BW_tContext, BW_tContextMgr, tBuildEntry right after the BO types (second pass below) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "bworld_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
+#define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */
 /* DrawW.obj supplies the shared graph; its owner-only records are omitted here. */
@@ -24,8 +26,6 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 #include "shared/Trk_SFX.h"
 /* Canonical bworldSm.obj aggregate used by this translation unit. */
 #include "shared/Trk_NewSlice.h"
-
-
 
 /* Canonical camera.obj aggregate used by this translation unit. */
 #include "shared/camera_info.h"

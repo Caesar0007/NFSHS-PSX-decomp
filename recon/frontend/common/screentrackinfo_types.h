@@ -19,7 +19,7 @@ struct tMenu;
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track/tournament records after tShapeInformation/tActiveLine */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
 #include "fe_core_types.h"
-/* Source spellings/constants whose enum tags are not retained by this owner. */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd (fe_core_cars.h) */
 #define tMenuTextState int
 #define tMenuTextType int
 #define textState_Unselected 0
@@ -54,11 +54,11 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 
 
 #include "fe_core_cars.h"
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* ScreenAudio: track/tournament records after its menu family (below) */
 #define NFS4_FE_TRACK_NO_PLAYER   /* track/tournament records without an extra player surface */
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
-
-
+#endif
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
     int fCarListFilter;
@@ -71,7 +71,7 @@ struct tListIteratorCarColor : public tListIterator {
     int fIndexSize;
     tCarManager *fCarManager;
 };
-
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 struct tTournamentManager {
     char fNumTiers;
     int fTier, fTournament, fCurrentTrack;
@@ -101,14 +101,14 @@ struct tTournamentManager {
         return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
     }
 };
-
 struct tListIteratorTrack : public tListIteratorIndexed {
     tTrackManager *fTrackManager;
 };
-
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;
 };
+#endif
+
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail: tVideoWall + tScreenTrackInfo before the tMenuNFS4 family */
 struct tVideoWall {
     tTVConfig *fTVs; short fFirstTVShape, fNumTVs; tTexture_ShapeInfo *fTVShapes; short *tvOrder; u_long fTVTicks;
@@ -223,6 +223,47 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {};
 
 struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 };
+
+#ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail ScreenAudio: tracks + tournaments after the menu family (same text as above) */
+#define NFS4_FE_TRACK_NO_PLAYER
+#include "fe_tournament_types.h"
+#undef NFS4_FE_TRACK_NO_PLAYER
+struct tTournamentManager {
+    char fNumTiers;
+    int fTier, fTournament, fCurrentTrack;
+    int fNumRacers;
+    long fMoney;
+    tTournamentDefinition *fDefinition;
+    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
+    short fTournamentList[65];
+    short fTrackList[17];
+    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
+    tCompetitor fCompetitors[6];
+    tCarLineup fCarLineup[6];
+    signed char fBestPlacement[64];
+    char fPrevBestPlacement;
+    u_char fFinishPoints[6], fRanking[6];
+    tAwardInformation fAwards;
+    short *GetTrackList(short tier, short tournament);
+    void GetTrackToRace(tTrackInfo &track);
+    /* ORIGINAL-NAME-UNRESOLVED: inline read of the current-track field. */
+    int CurrentTrack() { return fCurrentTrack; }
+    /* ORIGINAL-NAME-UNRESOLVED: inline money mutator and amount parameter.
+       Unsigned access through the corresponding signed/unsigned type keeps
+       the target's word-width arithmetic defined without another source local. */
+    void SubtractMoney(u_long amount) { (u_long &)fMoney -= amount; }
+    /* ORIGINAL-NAME-UNRESOLVED: same typed accessor used by the tournament owner. */
+    tTourneyInfo *CurrentTourney() {
+        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
+    }
+};
+struct tListIteratorTrack : public tListIteratorIndexed {
+    tTrackManager *fTrackManager;
+};
+struct tListIteratorTournament : public tListIterator {
+    tTournamentManager *fTournamentManager;
+};
+#endif
 
 #ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };

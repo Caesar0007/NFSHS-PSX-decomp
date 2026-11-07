@@ -9,6 +9,9 @@
 #define NFS4_FECHEATS_NO_RECORD_BUFFER
 #define NFS4_FECHEATS_FEMEMCARD_METHODS
 #define NFS4_FEDIALOG_FULLYOPEN_SURFACE   /* tDialogMessageString::IsFullyOpen inline pairs */
+#define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo after tOwnedCarInfo (fe_core_cars.h) */
+#define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track/tournament graph */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
 #define NFS4_FECHEATS_DIALOGS_LATE   /* retail FEMemcard: tActiveLine/tShapeInformation/dialogs after the memcard records */
 #include "fecheats_types.h"

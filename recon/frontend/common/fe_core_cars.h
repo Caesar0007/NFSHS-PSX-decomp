@@ -27,6 +27,9 @@ enum tCarModels {
 
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"
+#ifdef NFS4_FE_CORE_CARS_SAVEINFO   /* retail FEMemcard: tSaveCarInfo right after tOwnedCarInfo */
+#include "shared/tSaveCarInfo.h"
+#endif
 #ifdef NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo */
 #include "shared/tCarClassType.h"
 #endif
@@ -88,6 +91,9 @@ enum tPersonalities {
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
 
+#ifdef NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities, before tfrontEnd */
+#include "shared/tCarLineup.h"
+#endif
 #include "shared/tfrontEnd.h"
 #endif
 

@@ -21,5 +21,8 @@ enum tCarClassType {
 #include "shared/tTournamentDefinition.h"
 #include "shared/tAwardInformation.h"
 #include "shared/tCompetitor.h"
+#ifdef NFS4_FE_TRACK_SAVEINFO   /* retail FEMemcard: tSaveTournament right after tCompetitor */
+#include "shared/tSaveTournament.h"
+#endif
 
 #endif

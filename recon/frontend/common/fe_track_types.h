@@ -17,6 +17,9 @@ enum tTrackClassType {
 
 
 #include "shared/tTrackInformation.h"
+#ifdef NFS4_FE_TRACK_SAVEINFO   /* retail FEMemcard: tSaveTrackInfo right after tTrackInformation */
+#include "shared/tSaveTrackInfo.h"
+#endif
 
 struct tSaveTrackInfo;
 

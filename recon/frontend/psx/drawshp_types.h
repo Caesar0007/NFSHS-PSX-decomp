@@ -8,11 +8,11 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-struct LINE_F2 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0, x1, y1;
-};
+#include "drawshp_linef2.h"
+
+
+
+
 
 #include "shared/POLY_G4.h"
 
@@ -32,7 +32,7 @@ struct LINE_F2 {
 
 
 
-#include "shared/tActiveLine.h"
+
 
 
 

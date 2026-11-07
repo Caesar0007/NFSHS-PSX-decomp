@@ -4,9 +4,13 @@
 #define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
+#define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_CORE_HOOK_AFTER_DRMODE "frontend/psx/drawshp_linef2.h"   /* retail: LINE_F2 in the core next to DR_MODE */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "../../frontend/psx/drawshp_after_carvertex.h"   /* retail: after Draw_CarVertex */
 #include "../../game/common/draw_leaf_types.h"
 #include "drawshp_types.h"
 #include "../../game/common/color_types.h"
+#include "shared/tActiveLine.h"   /* retail: tActiveLine is the last type record */
 #include "drawshp_externs.h"
 
 /* DRAWSHP.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */

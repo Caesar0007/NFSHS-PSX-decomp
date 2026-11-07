@@ -6,22 +6,22 @@
 #endif
 #include "fe_core_types.h"
 
-struct tOldMenu;
+#include "fecntl_menus.h"
 
-struct tItemButton {
-    short type, text;
-    tOldMenu *nextMenu;
-    char *value;
-    short *selection;
-    char defaultvalue;
-    u_char flags, cases;
-};
 
-struct tOldMenu {
-    char *artFileName, *backgrName;
-    short driver, current, flags, helpvariant;
-    tItemButton *item[16];
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef int (*menuDrivers_t)();
 #ifndef NFS4_FECNTL_NO_INPUT_DEVICE_CALL

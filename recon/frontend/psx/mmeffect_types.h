@@ -41,7 +41,7 @@ enum tMenuCommandType {
 struct tMenu;
 struct tScreen;
 struct tMenuCommand;
-
+#include "shared/tActiveLine.h"
 #include "shared/fe_menu_game_surface.h"
 
 #include "shared/tShapeInformation.h"
@@ -60,7 +60,7 @@ struct tMenuCommand;
 #undef tPlayer
 #undef tInputKeyType
 
-#include "shared/tActiveLine.h"
+
 
 
 

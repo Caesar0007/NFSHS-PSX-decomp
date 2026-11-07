@@ -100,7 +100,7 @@ struct tScreenTournamentTrophy : public tScreenCongrats {
     short fShapeCount;
     char fDoUpdate;
 
-    tScreenTournamentTrophy();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 126 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
 #line 103 "recon/frontend/common/screencongrats_types.h"
@@ -114,7 +114,7 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
     bool GetCar(tCarInfo &);
     short fWinner;
 
-    tScreenPinkSlipCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 141 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
 #line 115 "recon/frontend/common/screencongrats_types.h"
@@ -124,7 +124,7 @@ struct tScreenBeTheCopCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
-    tScreenBeTheCopCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 151 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
 #line 123 "recon/frontend/common/screencongrats_types.h"
@@ -134,7 +134,7 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
-    tScreenTournamentCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 161 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
 #line 131 "recon/frontend/common/screencongrats_types.h"
@@ -148,7 +148,7 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
     /* Inferred getter spelling; retail retains this receiver in register3. */
     inline short Winner() { return fWinner; }
 #endif
-    tScreenPinkSlipCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
     void CalculatePrizes();

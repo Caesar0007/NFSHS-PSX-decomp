@@ -20,7 +20,7 @@ struct tScreenTrackSelect : public tScreen {
     tVideoWall fVideoWall;
     bool fTVsInitialized;
     u_long fVideoTicks;
-    tScreenTrackSelect();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void SetBrightness(short);
     inline void SetBrightnessTransition(short bright, short current,
                                         u_long start) {

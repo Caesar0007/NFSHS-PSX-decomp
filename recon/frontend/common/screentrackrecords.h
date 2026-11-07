@@ -13,7 +13,7 @@ struct tScreenTrackRecords : public tScreen {
     tRecordBuffer *TrackRecords;
     int flare_intensity, flareextra;
     bool fReadNewData;
-    tScreenTrackRecords();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void DrawOneRecord(int, bool, int);
     void DrawRecords(short);
 #line 55 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.H"

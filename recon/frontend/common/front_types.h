@@ -86,7 +86,7 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     bool fOpponentTVsInitialized;
     tShapeInformation fOpponentShapes;
 
-    tScreenCarSelectDuel();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void DrawOpponentVideoWall(short);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
@@ -105,7 +105,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     int fStartCheckTick;
     bool fCardFailed, fExitingScreen;
 
-    tScreenPinkSlipsCarSelect();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 };
 
 #include "screentournselect.h"
@@ -114,7 +114,7 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     /* overrides (retail vtable), declared on every owner surface */
     void DrawBackground();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tScreenPinkSlipStandings();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 };
 
 #include "screentrophyroom.h"
@@ -133,7 +133,7 @@ struct tScreenTournamentTrophy : public tScreenCongrats {
     bool GetCar(tCarInfo &);
     short fShapeCount;
     char fDoUpdate;
-    tScreenTournamentTrophy();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 };
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {
@@ -141,7 +141,7 @@ struct tScreenBeTheCopCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
-    tScreenBeTheCopCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {
@@ -149,7 +149,7 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);
-    tScreenTournamentCongrats();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 };
 
 #include "screentrackrecords.h"

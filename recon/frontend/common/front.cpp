@@ -58,81 +58,13 @@ inline tDialogMessageString::tDialogMessageString()
   fFadeText = 0x80;
 }
 
-inline tDialogBackUpOnly::tDialogBackUpOnly(int)
-{
-}
-
-inline tScreenMain::tScreenMain()
-{
-}
-
-inline tScreenCarSelectDuel::tScreenCarSelectDuel()
-{
-}
-
-inline tScreenCarSelectTwoPlayer::tScreenCarSelectTwoPlayer()
-  /* The dummy CarDialog argument makes the inherited screen vptr assignment
-     occur before the member's inlined construction, matching C++'s real
-     compiler-generated vptr phase without changing the reconstructed layout. */
-  : CarDialog(0)   /* w76-A20 vptr-store alias dial (24A) */
-{
-}
-
-inline tScreenPinkSlipsCarSelect::tScreenPinkSlipsCarSelect()
-{
-}
-
-inline tScreenTrackRecords::tScreenTrackRecords()
-{
-}
-
-inline tScreenTrackInfo::tScreenTrackInfo()
-{
-}
-
-inline tScreenTrackSelect::tScreenTrackSelect()
-{
-}
-
-inline tScreenTournamentTrophy::tScreenTournamentTrophy()
-{
-}
-
-inline tScreenTrophyInfo::tScreenTrophyInfo()
-{
-}
-
-inline tScreenDisplay::tScreenDisplay()
-{
-}
-
-inline tScreenUserName::tScreenUserName()
-{
-}
-
-inline tScreenPinkSlipCongrats::tScreenPinkSlipCongrats()
-{
-}
-
-inline tScreenTournamentStandings3item::tScreenTournamentStandings3item()
-{
-}
-
-inline tScreenPinkSlipStandings::tScreenPinkSlipStandings()
-{
-}
-
-inline tScreenPinkSlips::tScreenPinkSlips()
-{
-}
-
-inline tScreenBeTheCopCongrats::tScreenBeTheCopCongrats()
-{
-}
-
-inline tScreenTournamentCongrats::tScreenTournamentCongrats()
-{
-}
+/* tDialogBackUpOnly and the tScreen* members of tAllScreens declare no constructor: retail synthesizes
+   them (their SYM scopes hold `this` but no body block), so only the two user bodies above exist. */
+/* DEVICE (exact-only): retail synthesizes the members' implicit destructors in its main input file,
+   so their code inlined into ~tAllScreens carries the `delete` line.  Naming ~tScreenTournamentCongrats
+   here, before the first retail-name #line anchor, synthesizes it under our main input name (the
+   member ctors are implicit now and no longer do it).  Never called; no out-of-line copy is emitted. */
+inline void Front_DtorSynthesisPoint(tScreenTournamentCongrats *screen) { screen->~tScreenTournamentCongrats(); }
 
 
 /* ---- Front_ConstructAll  [FRONT.CPP:231-266] ---- */

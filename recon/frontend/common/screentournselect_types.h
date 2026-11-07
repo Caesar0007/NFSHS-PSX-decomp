@@ -114,7 +114,7 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     /* overrides (retail vtable), declared on every owner surface */
     void DrawBackground();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tScreenPinkSlipStandings();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 82 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
 };
 #line 115 "screentournselect_types.h"

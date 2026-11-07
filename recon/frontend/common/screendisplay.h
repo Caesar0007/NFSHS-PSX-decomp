@@ -8,7 +8,7 @@ struct tScreenDisplay : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
     void DrawBackground();
-    tScreenDisplay();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 41 "C:/nfs4/FRONTEND/COMMON/SCREENDISPLAY.H"
 };
 #line 13 "recon/frontend/common/screendisplay.h"

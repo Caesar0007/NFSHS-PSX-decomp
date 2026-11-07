@@ -33,7 +33,7 @@ struct tScreenMain : public tScreen {
     void InitDynamicImages();
     void DrawDropShadow();
     void DrawVideoLines();
-    tScreenMain();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 162 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.H"
 };
 #line 38 "recon/frontend/common/screenmain.h"

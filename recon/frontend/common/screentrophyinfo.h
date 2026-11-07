@@ -9,7 +9,7 @@ struct tScreenTrophyInfo : public tScreen {
     void GetShapeInfo(short &, short &, char **, char **);
     void DrawBackground();
     int BannerCol;
-    tScreenTrophyInfo();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 30 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYINFO.H"
 };
 #line 14 "recon/frontend/common/screentrophyinfo.h"

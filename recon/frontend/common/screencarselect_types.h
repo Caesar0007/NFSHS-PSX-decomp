@@ -172,7 +172,7 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     bool fOpponentTVsInitialized;
     tShapeInformation fOpponentShapes;
 
-    tScreenCarSelectDuel();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void UpdateOpponentVideoWall(tCarInfo &);
 #line 285 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
@@ -196,7 +196,7 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     virtual void SetDialog();
     tDialogBackUpOnly CarDialog;
 
-    tScreenCarSelectTwoPlayer();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 313 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
 #line 199 "recon/frontend/common/screencarselect_types.h"
@@ -217,7 +217,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     int fStartCheckTick;
     bool fCardFailed, fExitingScreen;
 
-    tScreenPinkSlipsCarSelect();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void DoMemCardStuff();
 #line 348 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
@@ -248,7 +248,7 @@ struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
 #ifdef NFS4_FRONT_SURFACE
-    tScreenTournamentStandings3item();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #endif
 };
 

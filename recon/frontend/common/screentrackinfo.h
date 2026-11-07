@@ -13,7 +13,7 @@ struct tScreenTrackInfo : public tScreen {
     tTrackInfo fTrack;
     tTVConfig tvConfigs[10];
     tVideoWall fVideoWall;
-    tScreenTrackInfo();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 52 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKINFO.H"
 };
 #line 18 "recon/frontend/common/screentrackinfo.h"

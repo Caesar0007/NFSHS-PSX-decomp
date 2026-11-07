@@ -137,7 +137,7 @@ struct tScreenUserName : public tScreen {
     bool fInTransition;
     char fRowList[10][9];
 #ifdef NFS4_FRONT_SURFACE
-    tScreenUserName();
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #endif
     inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
 };

@@ -19,7 +19,7 @@ struct tScreenPinkSlips : public tScreen {
     tTVConfig fTrackTVs[8];
     tTVConfig fImageTVs[4];
     bool fTVsInitialized;
-    tScreenPinkSlips();
+    /* implicit ctor (retail declares none: no body block in SYM) */
     void UpdateVideoWall(tTrackInformation &);
     void DrawVideoWall();
 #line 82 "C:/nfs4/FRONTEND/COMMON/SCREENPINKSLIPS.H"

@@ -94,7 +94,7 @@ struct tDialogMessageStringWithTimeout : public tDialogMessageString {
 struct tDialogBackUpOnly : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tDialogBackUpOnly(int);
+    /* implicit ctor (retail declares none: no body block in SYM) */
 #line 223 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 86 "recon/frontend/common/fedialog.h"

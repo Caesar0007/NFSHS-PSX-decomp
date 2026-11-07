@@ -1,17 +1,17 @@
 /* object.obj's exact source-visible type surface reconstructed from SYM. */
-#ifndef NFS4_GAME_COMMON_OBJECT_TYPES_H
+#if !defined(NFS4_GAME_COMMON_OBJECT_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #include "link_stripped.h"
-
+#define NFS4_COLOR_HOOK_AFTER_BO "object_types.h"   /* retail: anim/object types right after the BO types (second pass below) */
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 #include "sim_types.h"
 #undef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-
-struct SerializedGroup;
-struct SimpleMem;
-struct AIHigh_Cop;
-
+#endif
+#if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_EARLY_DONE)   /* second pass, from color_types.h */
+#define NFS4_OBJECT_EARLY_DONE
+struct SerializedGroup; struct SimpleMem; struct AIHigh_Cop;
+#include "shared/BW_tContext.h"
 #include "shared/Trk_ObjectDef.h"
 #include "shared/Trk_CollideBoomInst.h"
 
@@ -154,10 +154,10 @@ struct ObjectSignAnim : public ObjectAnim {
 
 #include "shared/tQuat.h"
 typedef tQuat Quatern_quat;
-
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_TAIL_DONE)   /* first pass, after sim_types.h */
+#define NFS4_OBJECT_TAIL_DONE
 #include "shared/Trk_NewSlice.h"
-
-
 
 
 

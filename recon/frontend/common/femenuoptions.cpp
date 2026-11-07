@@ -97,31 +97,31 @@ void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
 
 
 {
-  /* MATCH (W59): 124 -> 40 by restoring the SYM budget (only dr_mode/prim)
-     and the PsyQ 24-bit addPrim/setXYWH shapes; 40 -> 24 by exposing the
-     compiler-generated 0x1f800004 address pseudo as packetCell.  The tail
-     fences are zero-insn local-alloc dials: packetCell stays live in $s2,
-     while two identity uses lift x across the refs=8 boundary into $s1.
-     Removing either identity use leaves the otherwise exact 88-insn body
-     with the sole $s1/$s2 permutation (24 diffs). */
+  /* MATCH (W59): only dr_mode/prim recorded; packetCell + tail fences are
+     zero-insn local-alloc dials (packetCell in $s2, x in $s1). FRONT17: the
+     two corner sums are record-less block consts (retail tags 5 / 7). */
+
+  const int y2 = y + h;
+
+  const int x1 = x + w;
   DR_MODE *dr_mode;
   POLY_G4 *prim;
   u_char **packetCell;
 
   packetCell = (u_char **)0x1f800004; prim = (POLY_G4 *)*packetCell; ((tPsyQPrimTag *)prim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; *packetCell = (u_char *)prim + 0x24; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
-  ((u_char *)prim)[3] = 8;
+
   *(int *)&prim->r0 = col1;
   *(int *)&prim->r1 = col2;
   *(int *)&prim->r2 = col3;
   *(int *)&prim->r3 = col4;
 
-
+  ((u_char *)prim)[3] = 8;
   prim->code = 0x3a;
   (prim->x0 = x,
    prim->y0 = y,
-   prim->x1 = x + w,
+   prim->x1 = x1,
    prim->y1 = y,
-   prim->x2 = x, prim->y2 = y + h, prim->x3 = x + w, prim->y3 = y + h);
+   prim->x2 = x, prim->y2 = y2, prim->x3 = x1, prim->y3 = y2);
 
 
 
@@ -999,13 +999,12 @@ void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
 
 /* ---- tMenuItemSlidingMenu::Draw  [FEMENUOPTIONS.CPP:777-883] SLD-VERIFIED ---- */
 
-    /* SOURCE-REVIEW-UNRESOLVED: drawX/drawY are EXTRA native locals, not
-       recovered source names. The old address-fence explanation is stale:
-       there is no such fence in this function. Earlier direct-X63/400 and
-       ternary-Y47/406 trials do not prove distinct source objects. Current
-       duplicated Y-dependent calls139/420; X with width+10 as one subtrahend
-       60/399. Both restored. The original argument producer still needs
-       recovery; no carrier exemption or source-object floor is claimed. */
+    /* FRONT17 2026-11-07: no drawX/drawY locals (= retail SYM). The Y argument
+       `(y + c) + (fPlayList ? -1 : 0)` is folded into COND(fPlayList,
+       SAVE(y+c) + -1, SAVE(y+c)) = expr.c's "X ? A + B : A" singleton: the
+       argument temp is preset to y+c and conditionally adjusted (cse folds
+       it to y+c-1) = retail's preset a3 / override a3. A plain ternary
+       expands as a two-arm if/else (FAIL 51). */
   /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+
      width are scoped to the "if (currMenu!=0||fPlayList)" block; xx/yy/ww/
      hh/drenv/daprim/full/temp/gray/shapetop/shapebottom to the big
@@ -1055,13 +1054,13 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList))
   {
     tDrawShapeExtended drawFlags; int width;
-    int drawX; int drawY; width = fPlayList ? 0xdc : (int)this->fWidth;
+    width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
 
 
-    drawY = y + -2; drawX = ((x + width) - (int)shape->width) - 0xa; if (fPlayList) { drawY = y + -3; } DrawShapeExtended(0x39,0x18,drawX,drawY,0,1,&drawFlags);
+    DrawShapeExtended(0x39,0x18,((x + width) - (int)shape->width) - 0xa,(y + -2) + (fPlayList ? -1 : 0),0,1,&drawFlags);
 
-    drawY = y + 4; drawX = ((x + width) - (int)shape->width) - 0xa; if (fPlayList) { drawY = y + 3; } DrawShapeExtended(0x3a,0x18,drawX,drawY,0,1,&drawFlags);
+    DrawShapeExtended(0x3a,0x18,((x + width) - (int)shape->width) - 0xa,(y + 4) + (fPlayList ? -1 : 0),0,1,&drawFlags);
   }
 
   if (this->currMenu != (tInsideBoxMenu *)0x0)
@@ -1307,7 +1306,7 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
 
 {
 
-  if (keyval != kInput_KeyType_Cross) { if (keyval == kInput_KeyType_Triangle) {
+  switch (keyval) { case kInput_KeyType_Triangle:
 
 
     if (this->fActive != 0) {
@@ -1326,9 +1325,9 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
       AudioMus_SysStartUp(0xd800,0x18000,"amus");
       AudioMus_PlaySong("zmenu*");
     }
-  } }
+    break;
 
-  else if (this->fActive == 0) {
+  case kInput_KeyType_Cross: if (this->fActive == 0) {
 
     AudioCmn_PlayFESFX(0);
     this->fActive = 1;
@@ -1341,7 +1340,7 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
     AudioMus_SysStartUp(0xc000,0x18000,"ymus");
     AudioMus_PlaySong("game*");
     screenAudio->songlist = AudioMus_GetSongList("*",0);
-  }
+  } break; }
 
 
 
@@ -2189,8 +2188,8 @@ void tInsideBoxTwoWaySlider::Calibrate()
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
 
       if ((u_char)frontEnd.steeringRange[player] - 10 < range) { range = (u_char)frontEnd.steeringRange[player] - 10;
-      } frontEnd.deadSpot[player] = (char)(range >? 0);
-    }
+      } range = (range < 0) ? 0 : range;
+      frontEnd.deadSpot[player] = (char)range; }
 
 
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
@@ -2204,10 +2203,10 @@ void tInsideBoxTwoWaySlider::Calibrate()
     break;
   case 2:
     if (padInfo->buf[0].ID == '#') {
-      char value;
+
       range = padInfo->buf[0].data.negcon.buttonI;
-      value = (char)range; if (range < 0) { value = 0;
-      } frontEnd.ImaxRange[player] = value;
+      range = (range < 0) ? 0 : range;
+      frontEnd.ImaxRange[player] = (char)range;
     }
 
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
@@ -2224,18 +2223,18 @@ void tInsideBoxTwoWaySlider::Calibrate()
 
 
     if (padInfo->buf[0].ID == '#') {
-      int minimum;
+
       range = padInfo->buf[0].data.negcon.buttonII;
-      minimum = 10; if (minimum <= range) { minimum = range;
-      } frontEnd.IImaxRange[player] = minimum;
+      range = (range < 10) ? 10 : range;
+      frontEnd.IImaxRange[player] = (char)range;
     }
 
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
-      char value;
+
       range = (u_char)GetCurrentStickRange2(player);
       if ((u_char)frontEnd.J2MAX[player] - 10 < range) { range = (u_char)frontEnd.J2MAX[player] - 10;
-      } value = (char)range; if (range < 0) { value = 0;
-      } frontEnd.J2MIN[player] = value;
+      } range = (range < 0) ? 0 : range;
+      frontEnd.J2MIN[player] = (char)range;
     }
     break;
   }
@@ -2445,7 +2444,7 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
         } } else { if (column >= this->fMaxStringLength) {
 
           AudioCmn_PlayFESFX(1);
-        }
+          break; }
         else {
           this->fData[column] = selectedChar;
           this->fData[column + 1] = '\0';
@@ -2886,25 +2885,28 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
   /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
      +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
   /* SYM ORDER (W86-S2): the 8c Def rows read fEnableFade, fEnableSlide, x, y,
-     ColText, Col, tCol, fWidth, shape;only unresolved v follows. */
+     ColText, Col, tCol, fWidth, shape (= retail, no v). */
   /* SYM 8c local list (the allocation budget, 06A): fEnableFade $10=s0,
      fEnableSlide $13=s3, x $14=s4, y $16=s6, ColText $11=s1, Col $10=s0,
      tCol AUTO -0x38, fWidth $10=s0, shape $11=s1. */
-  /* SOURCE-REVIEW-UNRESOLVED: v is an EXTRA native local,not an original
-     name. Direct field conditional22dif/150 and independent low/high
-     selection10dif/152 were restored;those failures do not prove a source
-     object. The unsigned field view and exact clamp producer remain open. */
+  /* FRONT17 2026-11-07: the clamp is ONE conditional store to the field (the
+     signed view in the second && operand keeps fold_truthop from merging the two
+     range tests), and every later use re-reads this->fEnableVal (cse reuses the
+     stored register: retail sll/sra). The slide is a PRELOAD `fEnableSlide =
+     this->fEnableVal;` + override 0x80: that RTL already is retail's `x = v;
+     if (..) x = 0x80` (an if/else needs jump.c to convert it, which it refuses
+     because the else-arm source is a MEM read with a REG_EQUAL note). No v. */
   /* Retail ABI bool is unnamed while the mangled signature keeps it. */
 #line 2045 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void tMemoryCardMenuItem::Draw(bool)
 
 
 {
-  int fEnableFade; int fEnableSlide; int x; int y; int ColText; int Col; tDrawShapeExtended tCol; int fWidth; tTexture_ShapeInfo *shape; int v; if ((int)this->IsDisabled() != 0) { this->fEnableVal = this->fEnableVal - 8; } else { this->fEnableVal = this->fEnableVal + 8;
-  } v = *(u_short *)&this->fEnableVal; if (this->fEnableVal < 0x100) { if (this->fEnableVal < 1) goto fEnableZero; } if (0x100 < this->fEnableVal) { v = 0x100; } goto fEnableStore; fEnableZero: v = 0; fEnableStore: this->fEnableVal = (short)v;
+  int fEnableFade; int fEnableSlide; int x; int y; int ColText; int Col; tDrawShapeExtended tCol; int fWidth; tTexture_ShapeInfo *shape; if ((int)this->IsDisabled() != 0) { this->fEnableVal = this->fEnableVal - 8; } else { this->fEnableVal = this->fEnableVal + 8;
+  } this->fEnableVal = (this->fEnableVal < 0x100 && (*(short *)&this->fEnableVal) < 1) ? 0 : ((this->fEnableVal > 0x100) ? 0x100 : this->fEnableVal);
 
-  v = (signed short)v; fEnableFade = v - 0x80; if (0x80 < fEnableFade) { fEnableFade = 0x80; } if (fEnableFade < 0) { fEnableFade = 0;
-  } if (v < 0x80) { if (0 < v) { if (0x80 <= v) { fEnableSlide = 0x80; } else { fEnableSlide = v;
+  fEnableFade = this->fEnableVal - 0x80; if (0x80 < fEnableFade) { fEnableFade = 0x80; } if (fEnableFade < 0) { fEnableFade = 0;
+  } if (this->fEnableVal < 0x80) { if (0 < this->fEnableVal) { fEnableSlide = this->fEnableVal; if (0x80 <= this->fEnableVal) { fEnableSlide = 0x80;
       }
     } else { fEnableSlide = 0; } } else { fEnableSlide = 0x80; } if (this->fFadeVal == 0x80) return;
     if (this->fEnableVal == 0) return; fEnableFade = 0x80 - fEnableFade;

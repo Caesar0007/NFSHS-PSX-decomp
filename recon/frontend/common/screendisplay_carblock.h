@@ -40,40 +40,11 @@
 #endif
 #if NFS4_SCREENDISPLAY_CB_CARS
 struct tCarManager;
-struct tListIteratorCar : public tListIterator {
-    int fCarListFilter;
-    tCarManager *fCarManager;
-    tCarNameLength fNameLength;
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
-    short TextValue(tPlayer);
-    void Increment(tPlayer)
-        __asm__("Increment__16tListIteratorCar7tPlayer");
-    void Decrement(tPlayer)
-        __asm__("Decrement__16tListIteratorCar7tPlayer");
+#ifndef NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* else via NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER */
+#define NFS4_SCREENDISPLAY_ITERS_CARS
+#include "screendisplay_carblock_iters.h"
+#undef NFS4_SCREENDISPLAY_ITERS_CARS
 #endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCar(char *, tCarManager *);
-    ~tListIteratorCar();
-    char Value(tPlayer);
-    void AdjustPosition(tPlayer, short);
-    bool ValidCar(tPlayer, char);
-    inline void SetFilter(int filter) { fCarListFilter = filter; }
-#endif
-};
-
-struct tListIteratorCarColor : public tListIterator {
-    char *fPlayer, *fPlayerCar;
-    int fIndexSize;
-    tCarManager *fCarManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCarColor(char *, char *, char *, int, tCarManager *);
-    ~tListIteratorCarColor();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
-};
 #endif
 #if NFS4_SCREENDISPLAY_CB_TRACKS
 #if !NFS4_SCREENDISPLAY_CB_CARS
@@ -151,17 +122,11 @@ struct tTournamentManager {
 #endif
 };
 
-struct tListIteratorTrack : public tListIteratorIndexed {
-    tTrackManager *fTrackManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTrack(char *, char *, tTrackManager *);
-    ~tListIteratorTrack();
+#ifndef NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* else via NFS4_FE_TRACK_HOOK_AFTER_MANAGER */
+#define NFS4_SCREENDISPLAY_ITERS_TRACK
+#include "screendisplay_carblock_iters.h"
+#undef NFS4_SCREENDISPLAY_ITERS_TRACK
 #endif
-    short TextValue(tPlayer); void Increment(tPlayer); void Decrement(tPlayer);
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    bool ValidTrack(char);
-#endif
-};
 
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;

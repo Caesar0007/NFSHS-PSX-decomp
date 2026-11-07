@@ -322,7 +322,7 @@ int SNDPKTPLAY_start(int p, SNDSAMPLEFORMAT *rate, struct SndPatchAttributes *hd
        channel volume/pitch plus params[0xe] missing. a0..a3 + sp+16/20/24/28/32. */
     r = iSNDplatformpacketplay(p, note, gp, ch->volume, ch->spu_pitch,
                                params->timemult,
-                               sndgs_fx_bus0_master[0] * ch->playback_fx.playback.playback_factor34 * ch->playback_fx.playback.playback_factor35 / 0x3f01,
+                               sndgs[0xA0 / 4] * ch->playback_fx.playback.playback_factor34 * ch->playback_fx.playback.playback_factor35 / 0x3f01,
                                rate, (int)hdr + 0xc);
     if (r < 0) {
         iSNDfreechan(note);

@@ -780,7 +780,7 @@ nonempty:
             unsigned short *pv;
             do {
                 adjusted_off = off;
-                pv = D_80147E34;
+                pv = (unsigned short *)(sndpd + 0x51c);
             } while (0);
             prev = (unsigned short *)((unsigned int)adjusted_off +
                                       (unsigned int)pv);

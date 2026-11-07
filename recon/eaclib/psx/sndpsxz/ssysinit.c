@@ -82,7 +82,7 @@ int SNDSYS_setopts(SNDSYSOPTS *opts)
 {
     SNDSYSOPTS *base = (SNDSYSOPTS *)sndgs;
     base->set = opts->set;
-    D_80147898[0] = opts->vec.issurfacelocked;
+    ((SNDSYSOPTS *)sndgs)->vec.issurfacelocked = opts->vec.issurfacelocked;
     iSNDplatformoutputset();
     return 0;
 }

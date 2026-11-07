@@ -26,7 +26,7 @@
 #include "slib_state.h"
 
 /* --- packet-voice table fields (0x2c stride) --- */
-extern char          DAT_801479f0;     /* +0x00 voice-table base (byte, for hook arg)  */
+/* the table itself is sndpd + 0xD8 (no separate symbol in retail) */
 
 /* "voice has finished" notifier installed by the host (@0x8014803C) */
 
@@ -92,7 +92,7 @@ int iSNDplatformpitch(int chan, int pitch)
 int iSNDplatformfxlevel(unsigned int chan, int bus, int fxon)
 {
     int          vt = (int)chan * (int)sizeof(SndPacketVoiceState);
-    volatile SndPacketVoiceState *slot = (volatile SndPacketVoiceState *)((volatile unsigned char *)&DAT_801479f0 + vt);
+    volatile SndPacketVoiceState *slot = (volatile SndPacketVoiceState *)((volatile unsigned char *)(sndpd + 0xd8) + vt);
     unsigned int mask;
     bus = (unsigned char)slot->play_state; /* 3-arg per IDA/disasm: a1 is overwritten by the playstate */
 

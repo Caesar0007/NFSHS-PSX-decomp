@@ -4117,7 +4117,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           int which = (overlayFlag & 3) - 1;
 
           Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
-          __asm__("" : "=r"(facetFlag) : "0"(facetFlag), "r"(facetOverlay) : "$9", "$10", "$11");
+
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;

@@ -4,9 +4,10 @@
 #include "spch_types.h"
 
 /* ---- picker storage (defined by spchpick's own .bss block) ---- */
-extern VoxChoice      ispch_gChoice[];      /* 12 per-phrase pick records */
-extern unsigned char  ispch_gPickSamples[]; /* chosen sample-index pool */
 extern VoxSentenceChoice gSentenceChoice;   /* @0x8014843C chosen sentence + its 12 eventArgs */
+extern unsigned char  ispch_gPickSamples[]; /* chosen sample-index pool */
+extern int            gChooseShort;         /* @0x801484E0 */
+extern VoxChoice      ispch_gChoice[];      /* 12 per-phrase pick records */
 
 extern int  iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate, int *paramTable); /* @0x8010077C : bankIdx UNUSED */
 extern unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int *paramTable, VoxChoice *outChoice); /* @0x80100880 */

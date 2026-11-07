@@ -278,7 +278,7 @@ int iSNDplaytaggedtimbre(unsigned char *timbre, struct SNDPLAYOPTS *tag, struct 
         playLevel = slot->volume;
         playPitch = slot->spu_pitch;
         playResult = iSNDplatformplay(timbre, chan, playLevel, playPitch, playTag,
-                                      sndgs_fx_bus0_master[0] * slot->playback_fx.playback.playback_factor34 *
+                                      sndgs[0xA0 / 4] * slot->playback_fx.playback.playback_factor34 *
                                        slot->playback_fx.playback.playback_factor35 / 16129,
                                       tmp, playOffset);
         if (playResult < 0)

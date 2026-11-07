@@ -15,8 +15,8 @@
 #include "sdriver.h"
 #include "sgettag.h"
 #include "slib_state.h"
+/* voice table = sndpd + 0xD8 (stride 0x2C); reached through the sndpd base, no separate symbol */
 
-extern unsigned char DAT_801479f0;   /* voice-table byte base; retained for exact address materialization */
 
 /* iSNDplatformplay @0x8010BA48 : launch `voice` playing the patch whose tag stream starts at `chan`.
  * MATCH (W31, was 32 diffs): (1) the tag parser is a natural `while` loop, not a goto chain -- loop
@@ -47,7 +47,7 @@ int iSNDplatformplay(unsigned char *chan, int voice, int level, int pitch, int a
     vt = vt << 2;
     vt -= voice;
     vt = vt << 2;
-    slot = &DAT_801479f0 + vt;
+    slot = sndpd + 0xd8 + vt;
 
     ((volatile SndPacketVoiceState *)slot)->link_flag = 0;
     ((volatile SndPacketVoiceState *)slot)->link_index.vs = -1;

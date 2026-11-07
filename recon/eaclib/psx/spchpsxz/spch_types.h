@@ -136,15 +136,15 @@ typedef struct {
 
 /* VoxSentenceChoice: the single "a sentence has been chosen" record (gSentenceChoice @0x8014843C,
  * 0x40 bytes).  iSPCH_SaveChosenSentence fills it when iSPCH_ChooseSentence finds a winner,
- * iSPCH_PlayChosen replays it, iSPCH_ClearChosen resets the flag.  Retail splits the run into TWO
- * symbols -- gSentenceChoice (the three head words) and DAT_80148448 (flag + args) -- so the .bss
- * asm block keeps that interior label even though the C code now reaches the whole record as one
- * object. */
+ * iSPCH_PlayChosen replays it, iSPCH_ClearChosen resets the flag.  Retail's SYM/MAP name only
+ * gSentenceChoice for the whole 0x40-byte record (the splat-era DAT_80148448 = its +0xC flag was
+ * never a retail symbol), so it is one C object; spchpick.c defines it.
+ */
 typedef struct {
     VoxEvent    *event;       /* +0x0  the winning event (iSPCH_RuleSet / iSPCH_ConstantRuleSet) */
     VoxSentence *sentence;    /* +0x4  the sentence picked from it (ConstantRuleSet / MakeSampleRequests) */
     int          sentenceIdx; /* +0x8  its index in the event's sentence table (iSPCH_RuleSet's selector) */
-    int          chosen;      /* +0xc  the "one chosen" flag = retail's DAT_80148448 (iSPCH_OneChosen) */
+    int          chosen;      /* +0xc  the "one chosen" flag (iSPCH_OneChosen)                       */
     int          eventArgs[12];/* +0x10 the 12 words SPCH_AddEvent was given; [0] is the event id */
 } VoxSentenceChoice;
 

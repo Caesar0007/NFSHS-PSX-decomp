@@ -120,8 +120,8 @@ typedef struct SndState {
     SndFxBus  fxbus[2];  /* +0x9C reverb/effect buses (stride 0x10)                        */
 } SndState;              /* 0xBC                                                           */
 
-extern unsigned char gSndState[];        /* @0x80147860 (data-materialization pass owns)   */
-#define SND  ((SndState *)gSndState)
+extern int sndgs[];                     /* @0x80147860, defined by sdata.c                */
+#define SND  ((SndState *)sndgs)
 
 /* ---- SND runtime helpers shared across SNDPSXZ objs (permissive; real sigs in each .cpp) ---- */
 int  iSNDvalidbank(int bank);             /* nonzero == invalid */

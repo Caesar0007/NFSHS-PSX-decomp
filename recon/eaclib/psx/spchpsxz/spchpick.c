@@ -17,13 +17,13 @@
  *
  *   BSS run @0x8014843C (0x138 bytes, VAs past t_addr+t_size => pure zero-init, no file bytes),
  *   owned by spchpick.obj -- the sole referencer of all four objects:
- *     gSentenceChoice    @0x8014843C  64  (+ interior label DAT_80148448 @+0xC)
+ *     gSentenceChoice    @0x8014843C  64  (its +0xC word = the chosen flag)
  *     ispch_gPickSamples @0x8014847C 100
  *     gChooseShort       @0x801484E0   4  (referenced by nothing in the recon; defined so the
  *                                          object's .bss reproduces the run instead of a hole)
  *     ispch_gChoice      @0x801484E4 144
- *   It ends exactly where spktplay.obj's sndpps begins.  Defined by the file-scope asm block
- *   below; the C views stay `extern` in spchpick.h.
+ *   It ends exactly where spktplay.obj's sndpps begins.  Defined below as plain C tentative
+ *   definitions; spchpick.h's extern order fixes their .bss order.
  */
 
 #include "../eaclib_types.h"
@@ -73,22 +73,22 @@ static void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)
     return (char *)base + ((int)table[index] << 2);
 }
 
-/* W65-A6 DATA-MAT run @0x8014843C -- file-scope asm .bss definition.  ⚠️ STILL LOAD-BEARING
- * (re-measured 2026-09-04): it is the ONLY spelling that gives BOTH the right section and the
- * retail ORDER of the run.  Plain C tentative definitions land in .bss correctly but maspsx
- * re-orders them (gSentenceChoice would follow ispch_gChoice); `-fno-common` keeps declaration
- * order but moves the storage into .data (file bytes, and these VAs are pure zero-init BSS);
- * `__attribute__((section(".bss")))` is inert here.  The C views stay `extern` (spchpick.h).
- * DAT_80148448 is an interior label of the same run (gSentenceChoice+0xC) -- another thing no
- * C spelling can express as a separate symbol. */
-__asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPickSamples\n"
-        "\t.globl\tgChooseShort\n\t.globl\tispch_gChoice\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "gSentenceChoice:\n\t.space\t0xc\n"
-        "DAT_80148448:\n\t.space\t0x34\n"
-        "ispch_gPickSamples:\n\t.space\t100\n"
-        "gChooseShort:\n\t.space\t4\n"
-        "ispch_gChoice:\n\t.space\t144\n\t.text");
+/* .bss run @0x8014843C..0x80148574 (0x138 B, pure zero-init: no file bytes), owned by spchpick.obj.
+ * Retail MAP/SYM name exactly four globals here -- gSentenceChoice, ispch_gPickSamples, gChooseShort,
+ * ispch_gChoice -- with no interior label: the "one chosen" flag at +0xC is gSentenceChoice.chosen.
+ * Plain C tentative definitions.  cc1 writes their `.comm`s at the end of the file in the order the
+ * names were FIRST DECLARED, i.e. the extern order in spchpick.h, which is therefore kept in retail
+ * address order (gSentenceChoice, ispch_gPickSamples, gChooseShort, ispch_gChoice).  maspsx lowers
+ * the `.comm`s to this object's .bss in that order with no padding (64 + 100 + 4 + 144 B):
+ *     gSentenceChoice    @0x8014843C   64
+ *     ispch_gPickSamples @0x8014847C  100
+ *     gChooseShort       @0x801484E0    4
+ *     ispch_gChoice      @0x801484E4  144   (ends where spktplay.obj's sndpps begins)
+ * gChooseShort has no reader in the recon; it is defined so the run has no hole. */
+VoxSentenceChoice gSentenceChoice;
+unsigned char ispch_gPickSamples[100];
+int gChooseShort;
+VoxChoice ispch_gChoice[12];
 
 /* The shared one-word globals are plain scalar externs in the per-TU headers (spchinit.h,
  * spchevnt.h, spchbank.h); under -G0 they compile to retail's split `lui %hi` + `lw %lo` pairs. */

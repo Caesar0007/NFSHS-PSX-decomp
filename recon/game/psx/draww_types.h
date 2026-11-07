@@ -1,7 +1,7 @@
 /* DrawW.obj's exact source-visible type surface reconstructed from SYM.
  * color.obj is an exact 71-record subset; the declarations below are the
  * complete DrawW owner delta, including the independent SDK typedef lane. */
-#ifndef NFS4_GAME_PSX_DRAWW_TYPES_H
+#if !defined(NFS4_GAME_PSX_DRAWW_TYPES_H)   /* first pass */
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
@@ -11,17 +11,26 @@
 #define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/draww_types.h"   /* retail: forceFocus_t right after the BO types (second pass below) */
+#define NFS4_PRIM_POLY_GT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
+#define NFS4_PRIM_DR_TWIN   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
-#define Render_gPacketPtr  (*(u_char **)0x1F800004)
-#define Render_gPalettePtr (*(u_char **)0x1F800000)
-#define gScratchLastWord   (*(int *)0x1F8003FC)
+#endif
+#if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES)) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / in place (bworld) */
+#define NFS4_DRAWW_EARLY_DONE
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
 } forceFocus_t;
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWW_TAIL_DONE)   /* first pass, after color_types.h */
+#define NFS4_DRAWW_TAIL_DONE
+#define Render_gPacketPtr  (*(u_char **)0x1F800004)
+#define Render_gPalettePtr (*(u_char **)0x1F800000)
+#define gScratchLastWord   (*(int *)0x1F8003FC)
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -42,17 +51,8 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #include "shared/Trk_ObjectDef.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "shared/Trk_SimpleInst.h"
-
-
-
-
-
 #endif
 #include "shared/Trk_CollideBoomInst.h"
-
-
-
-
 
 
 
@@ -133,10 +133,10 @@ struct Chunk {
     short firstSimSliceInd, chunkInd;
     Group *vertexBuf;
 };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it right after the BO types */
 struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
-
+#endif
 #include "shared/CHorizonSpec.h"
-
 
 
 
@@ -240,12 +240,12 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-struct POLY_GT3 {
-    u_long tag;
-    u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
-    u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
-    u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
-};
+/* POLY_GT3: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_POLY_GT3, retail libgpu.h order) */
+
+
+
+
+
 #endif
 #include "shared/POLY_GT4.h"
 
@@ -255,7 +255,7 @@ struct POLY_GT3 {
 
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-struct DR_TWIN { u_long tag, code[2]; };
+/* DR_TWIN: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_DR_TWIN, retail libgpu.h order) */
 #endif
 
 #include "shared/Draw_SubdivStruct.h"

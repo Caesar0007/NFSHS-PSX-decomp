@@ -1,29 +1,29 @@
 /* bworld.obj's exact source-visible type surface reconstructed from SYM. */
-#ifndef NFS4_GAME_COMMON_BWORLD_TYPES_H
+#if !defined(NFS4_GAME_COMMON_BWORLD_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_BWORLD_TYPES_H
-
-/* DrawW.obj supplies the exact 106-definition shared graph.  These fourteen
- * completed records belong only to DrawW and are absent from bworld.obj. */
+#define NFS4_COLOR_HOOK_AFTER_BO "bworld_types.h"   /* retail: BW_tContext, BW_tContextMgr, tBuildEntry right after the BO types (second pass below) */
+#define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */
+/* DrawW.obj supplies the shared graph; its owner-only records are omitted here. */
 #define NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "../psx/draww_types.h"
 #undef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-
-#include "shared/Trk_SFX.h"
-
-
-
-
+#endif
+#if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_BWORLD_EARLY_DONE)   /* second pass, from color_types.h */
+#define NFS4_BWORLD_EARLY_DONE
+#include "shared/BW_tContext.h"
 struct BW_tContextMgr {
     int initialized, count;
     BW_tContext contexts[2];
 };
-
+struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
+#endif
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_BWORLD_TAIL_DONE)   /* first pass, after draww_types.h */
+#define NFS4_BWORLD_TAIL_DONE
+#include "shared/Trk_SFX.h"
 /* Canonical bworldSm.obj aggregate used by this translation unit. */
 #include "shared/Trk_NewSlice.h"
-
-
-
-
 
 
 

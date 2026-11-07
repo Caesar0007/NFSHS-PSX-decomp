@@ -22,7 +22,7 @@ int sprintf(...);
 }
 
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail audioeng.obj records no GameSetup_tData */
 extern SndBnk_t gSndBnk[7];
 extern int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum);
 

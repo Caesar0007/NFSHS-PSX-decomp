@@ -20,7 +20,7 @@ extern int            Draw_gViewOtSize;
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 
 /* ---- track / setup ---- */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail hrzsku.obj records no GameSetup_tData */
 extern CTrackSpec TrackSpec_gSpec;
 // [owned->defined in hrzsku.cpp] extern CHorizonSpec  *Hrz_gTrackSpec;            /* horizon spec (angle/height/frontColor/ringPMX) */
 // [owned->defined in hrzsku.cpp] extern CSkySpec      *Sky_gTrackSpec;            /* sky spec (numStars/frontcolors/...) */

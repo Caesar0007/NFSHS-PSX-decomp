@@ -298,9 +298,9 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   this->bSize_ = this->numElements_ = gNumSlices;
 
   if (this->RecordMethod() == NORMAL_M) {
-    sprintf(this->name_,"%sTr%02d.qbe", Paths_Paths[12],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.qbe", Paths_Paths[12],GameSetup_gData[15] /* track */);
   } else {
-    sprintf(this->name_,"%sTr%02d.bes",Paths_Paths[13],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.bes",Paths_Paths[13],GameSetup_gData[15] /* track */);
   }
 }
 
@@ -313,9 +313,9 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   this->numElements_ = gNumSlices;
   this->bSize_ = this->numElements_ + 1;
   if (this->RecordMethod() == NORMAL_M) {
-    sprintf(this->name_,"%sTr%02d.qcr", Paths_Paths[10],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.qcr", Paths_Paths[10],GameSetup_gData[15] /* track */);
   } else {
-    sprintf(this->name_,"%sTr%02d.crv",Paths_Paths[11],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.crv",Paths_Paths[11],GameSetup_gData[15] /* track */);
   }
 }
 
@@ -379,7 +379,7 @@ AIDataRecord_CarTracking_t::AIDataRecord_CarTracking_t(AIDataRecord_WhichRecord_
 {
   this->numElements_ = gNumSlices;
   this->bSize_ = this->numElements_;
-  sprintf(this->name_,"%sTr%02d%c.ctk",Paths_Paths[10],GameSetup_gData.track,carLetter);
+  sprintf(this->name_,"%sTr%02d%c.ctk",Paths_Paths[10],GameSetup_gData[15] /* track */,carLetter);
 }
 
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] COVERED-SLD-PASS ---- */

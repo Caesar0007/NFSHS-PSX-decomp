@@ -352,7 +352,7 @@ void Hrz_InitSky(void)
   MOONPOS_VY = (short)TrackSpec_gSpec.skyspec.moonHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
 
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
     Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
     Draw_SetViewColor(Draw_gPlayer2View,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
@@ -1678,7 +1678,7 @@ void Hrz_BuildSky(void)
   int i, otz_old, pshift;
   Draw_DCache *sd;
   otz_old = 0x78;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
     otz_old = 0x3c; }
 
@@ -1912,7 +1912,7 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
   coorddef trans; DVECTOR scnt;
   VECTOR transformed; int zcnt;
   pshift = 0x78;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
     pshift = 0x3c; }
 

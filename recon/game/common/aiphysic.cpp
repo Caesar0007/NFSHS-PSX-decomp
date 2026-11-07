@@ -335,7 +335,7 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
     acceleration = acceleration / 256 * (carObj->accUpgradeMult / 256);
 
 
-    if (0 < GameSetup_gData.Weather) {
+    if (0 < GameSetup_gData[18] /* Weather */) {
       acceleration = acceleration / 256 * 0xe6;
     }
 
@@ -345,9 +345,9 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
 
       acceleration = acceleration / 256 * (carObj->copAccMult / 256);
     }
-if ((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) && ((carObj->carFlags & 8U) != 0)) {
+if ((((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) && ((carObj->carFlags & 8U) != 0)) {
 
-      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData.skill] / 256);
+      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData[2] /* skill */] / 256);
     }
 
 
@@ -421,7 +421,7 @@ int AIPhysic_CalcDeceleration(Car_tObj *carObj)
 void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
   int turnAroundSpeed = 0x8e38e;
-  if (((carObj->carFlags & 0x20) != 0) && ((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) || ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))
+  if (((carObj->carFlags & 0x20) != 0) && ((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) || ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))
     turnAroundSpeed = 0x8e38e;
 
 
@@ -1645,7 +1645,7 @@ currentLatVel = (fixedmult((carObj->N).linearVel.x,unitDesiredVectorRight.x) + f
  }
 
 
- copCollisionFirmness = GameSetup_gData.skill;
+ copCollisionFirmness = GameSetup_gData[2] /* skill */;
 
 
 

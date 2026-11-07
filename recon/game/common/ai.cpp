@@ -227,7 +227,7 @@ void AI_DoReactions(Car_tObj *carObj)
   int target;
 
 
-  target = AIScript_DoReAction(&carObj->script,8); if ((target != -1) && (GameSetup_gData.raceType != RaceType_HotPursuit))
+  target = AIScript_DoReAction(&carObj->script,8); if ((target != -1) && (GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit))
   {
     AudioClc_SetHorn(carObj,1);
   }
@@ -236,7 +236,7 @@ void AI_DoReactions(Car_tObj *carObj)
     AudioClc_SetHorn(carObj,0);
   }
 
-  target = AIScript_DoReAction(&carObj->script,0x1000); if ((target != -1) && (GameSetup_gData.raceType != RaceType_HotPursuit))
+  target = AIScript_DoReAction(&carObj->script,0x1000); if ((target != -1) && (GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit))
   {
     switch ((int)(simGlobal.gameTicks & 0x18U) >> 3)
     {
@@ -332,7 +332,7 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
   }
 
 
-  if (((absDistance < 0x1e0000) && ((otherCarObj->control).horn != '\0')) && (GameSetup_gData.Time == 0))
+  if (((absDistance < 0x1e0000) && ((otherCarObj->control).horn != '\0')) && (GameSetup_gData[21] /* Time */ == 0))
   {
     AIScript_SubmitPlayerAction(&carObj->script,otherCarObj->carIndex,6,simGlobal.gameTicks);
   }
@@ -1117,7 +1117,7 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
 
 
 
-  if (((carObj->carFlags & 0x10U) != 0) && (carObj->direction != ((GameSetup_gData.reverseTrack == 0) ? 1 : -1)) && (visibleCar != (Car_tObj *)0x0) && (-0x30000 < AI_Info.laneSpeeds[1]))
+  if (((carObj->carFlags & 0x10U) != 0) && (carObj->direction != ((GameSetup_gData[12] /* reverseTrack */ == 0) ? 1 : -1)) && (visibleCar != (Car_tObj *)0x0) && (-0x30000 < AI_Info.laneSpeeds[1]))
 
   {
 
@@ -1125,7 +1125,7 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
      * Its original object/identity/int type/const qualifier remain unproved;see build/nc12/ai_honk_20261026/. */
     const int honkprob = (randtemp = fastRandom * randSeed, fastRandom = randtemp & 0xffff, (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10));
 
-    if ((GameSetup_gData.commMode != 1) && (honkprob < 5) && (carObj->currentSpeed != 0))
+    if ((GameSetup_gData[3] /* commMode */ != 1) && (honkprob < 5) && (carObj->currentSpeed != 0))
     {
       AudioClc_HonkHorn(carObj,2,0x20,8);
     }
@@ -1673,7 +1673,7 @@ void AI_KeepCarsInLane(Car_tObj *carObj)
 void AI_PushFinishedCarsToSide(Car_tObj *carObj)
 {
   if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2) &&
-      (((GameSetup_gData.raceType != 1) && (GameSetup_gData.raceType != 5)) ||
+      (((GameSetup_gData[0] /* raceType */ != 1) && (GameSetup_gData[0] /* raceType */ != 5)) ||
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0) && ((Cars_gNumHumanRaceCars != 2) || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0))))) {
     int absDistancePastFinish;
     int totalSortIndex; absDistancePastFinish = AIWorld_ApxSplineDistance(carObj,0);

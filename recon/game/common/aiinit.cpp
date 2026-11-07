@@ -106,7 +106,7 @@ void AIInit_Reset2(void)
 
 
 
-  if (GameSetup_gData.raceType != RaceType_Id3) {
+  if (GameSetup_gData[0] /* raceType */ != RaceType_Id3) {
     AIInit_useSpreadForce = 1;
   }
   else { AIInit_useSpreadForce = 0;
@@ -179,11 +179,11 @@ void AI_TrafficStartUp(void)
 {
   char filename[100];
 
-  if (GameSetup_gData.trafficDensity != 0) {
+  if (GameSetup_gData[6] /* trafficDensity */ != 0) {
 
     triggerManagerTraffic = new AITrigger_TriggerManager;
 
-    sprintf(filename,"%sTr%02d.trf",Paths_Paths[18],GameSetup_gData.track);   /* literal @0x8005521C */
+    sprintf(filename,"%sTr%02d.trf",Paths_Paths[18],GameSetup_gData[15] /* track */);   /* literal @0x8005521C */
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
       triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);
@@ -301,7 +301,7 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 #line 325 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
-  carObj->direction = (GameSetup_gData.reverseTrack == 0) ? 1 : -1;
+  carObj->direction = (GameSetup_gData[12] /* reverseTrack */ == 0) ? 1 : -1;
   carObj->desiredDirection = carObj->direction;
   carObj->targetLatPos = 0; (carObj->targetPos).z = 0; (carObj->targetPos).y = 0; (carObj->targetPos).x = 0;
 

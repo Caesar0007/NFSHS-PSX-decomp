@@ -239,7 +239,7 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
   this->nitrousMinAftDistance_ = nitrousMinAftDistance;
   this->aggressionLevel_ = aggressionLevel;
   this->slowDownEndTime_ = 0;
-  if (this->carObj_->direction != (GameSetup_gData.reverseTrack == 0 ? 1 : -1))
+  if (this->carObj_->direction != (GameSetup_gData[12] /* reverseTrack */ == 0 ? 1 : -1))
   {
     this->noTurnAroundEndTime_ = 0;
   }
@@ -1602,8 +1602,8 @@ int AIState_Purgatory::TestForRelease()
 
 
 
-    trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory; if (trafficInWorld < AITune_MaxTraffic[GameSetup_gData.commMode == 1]
-                         [GameSetup_gData.trafficDensity]) { return 1; }
+    trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory; if (trafficInWorld < AITune_MaxTraffic[GameSetup_gData[3] /* commMode */ == 1]
+                         [GameSetup_gData[6] /* trafficDensity */]) { return 1; }
 
 
     this->carObj_->physicsModelTimer = 1; }

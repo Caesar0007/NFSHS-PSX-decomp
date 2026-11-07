@@ -161,7 +161,7 @@ void AISpeeds_ReadTuningInfo(void)
   }
 
 
-  if ((GameSetup_gData.raceType == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars))
+  if ((GameSetup_gData[0] /* raceType */ == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars))
   {
     int skillMult[3];
     int carType;
@@ -172,7 +172,7 @@ void AISpeeds_ReadTuningInfo(void)
         skillMult[1] = Udff_GetInt(handle);
         skillMult[2] = Udff_GetInt(handle);
         if (carModelLoop == carType) {
-          GameSetup_gData.tournamentMultiplier = skillMult[GameSetup_gData.skill]; }
+          GameSetup_gData[4] /* tournamentMultiplier */ = skillMult[GameSetup_gData[2] /* skill */]; }
         carModelLoop = carModelLoop + 1; } while (carModelLoop < 0x16);
     }
   }
@@ -200,10 +200,10 @@ void AISpeeds_ReadTuningInfo(void)
 
 
 
-    if (GameSetup_gData.Time == 0) {
+    if (GameSetup_gData[21] /* Time */ == 0) {
       nightMult = 0x10000;
     }
-    if (trackLoop == GameSetup_gData.track) {
+    if (trackLoop == GameSetup_gData[15] /* track */) {
 
       AISpeeds_trackAndNightMult = fixedmult(trackMult,nightMult);
     }
@@ -253,7 +253,7 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
   int leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;
   int f_crappyFrameRateCompensatingSpeedup;
 
-  if ((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != RaceType_HotPursuit) && (simGlobal.gameTicks < 0x780) && (Cars_gNumHumanRaceCars == 1) && ((Cars_gHumanRaceCarList[0]->N.totalSlice) < (carObj->N).totalSlice))
+  if ((1 < Cars_gNumAIRaceCars) && (GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit) && (simGlobal.gameTicks < 0x780) && (Cars_gNumHumanRaceCars == 1) && ((Cars_gHumanRaceCarList[0]->N.totalSlice) < (carObj->N).totalSlice))
   {
     return (f_crappyFrameRateCompensatingSpeedup = leadIndex * 0x3333) + 0x10000;
   }
@@ -335,7 +335,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 
     f_glue = 0x10000;
   }
-  else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  else if (((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) &&
   ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
   ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
     f_glue = AISpeeds_BTCGetGlueFactor(carObj);
@@ -360,7 +360,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 
 
 
-  if (GameSetup_gData.raceType != RaceType_HotPursuit && Cars_gNumAIRaceCars >= 2)
+  if (GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit && Cars_gNumAIRaceCars >= 2)
   f_caravan = AISpeeds_GetCaravanFactor(carObj);
   else
   f_caravan = 0x10000;
@@ -368,7 +368,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   (f_nitrous / 256) *
   (((AISpeeds_trackAndNightMult / 256) *
   (((f_caravan / 256) *
-  (((GameSetup_gData.tournamentMultiplier / 256) *
+  (((GameSetup_gData[4] /* tournamentMultiplier */ / 256) *
 
 
 
@@ -394,7 +394,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 
 
 
-  if (GameSetup_gData.raceType != RaceType_HotPursuit) {
+  if (GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit) {
 
     if ((carObj->N).totalSlice < 0x96) { f_unfettered = fixedmult( (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4); f_unfettered = 0x10000 - f_unfettered; }
     if ((carObj->N).totalSlice < 0x96) { f_final = fixedmult((0x10000 - f_final) * (u_int)(carObj->N).totalSlice,0x1b4); f_final = 0x10000 - f_final;
@@ -428,7 +428,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
   *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
-  (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+  (((GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit && (GameSetup_gData[0] /* raceType */ != RaceType_Id5)) ||
   ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) == 0 &&
 
 
@@ -571,7 +571,7 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 
 
     curveSpeed = (carObj->curveSpeedTable)->Get(curve);
-    if (GameSetup_gData.Weather != 0) curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
+    if (GameSetup_gData[18] /* Weather */ != 0) curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
 
     if (scanMetersDistanceInt == 0 || AISpeeds_NeedToSlowDownForCurve(carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed) != 0)
     {
@@ -849,7 +849,7 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
 
 
 
-  if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&   ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
+  if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&   ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData[1] /* numLaps */ * gNumSlices + -0x14d)) &&
 
 
 
@@ -945,7 +945,7 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
 
     glueIndex = distance / 0x3c0000 + 10; glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
-    if (GameSetup_gData.raceType != RaceType_Id3) {
+    if (GameSetup_gData[0] /* raceType */ != RaceType_Id3) {
       packPositionGlueModifier = 0xe666;
     } else {
       packPositionGlueModifier = 0x8000;
@@ -982,7 +982,7 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 {
   carObj->damageMult = 0; carObj->damageMult = (carObj->N).damage[0] + (carObj->N).damage[1] + (carObj->N).damage[2] + (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
   (carObj->N).damage[6] + (carObj->N).damage[7];
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  if (((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) &&
   ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
 
   ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
@@ -1119,7 +1119,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   int desired;
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
+  if (((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
   ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
 
     if (carObj->direction != (Cars_gHumanRaceCarList[0]->direction)) { desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
@@ -1128,7 +1128,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   }
   else {
     if (carObj->direction !=
-    ((GameSetup_gData.reverseTrack != 0) ? -1 : 1)) { desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
+    ((GameSetup_gData[12] /* reverseTrack */ != 0) ? -1 : 1)) { desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
       ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
     }
   }
@@ -1163,7 +1163,7 @@ int AISpeeds_GetLegalSpeed(int slice)
 {
   speedData_t *speedData;   /* SYM-v3: single REG local 'speedData_t *speedData' -- no separate scratch */
 
-  speedData = AISpeeds_TrackSpeeds[GameSetup_gData.track];
+  speedData = AISpeeds_TrackSpeeds[GameSetup_gData[15] /* track */];
 
 
   while (speedData->endSlice < slice)

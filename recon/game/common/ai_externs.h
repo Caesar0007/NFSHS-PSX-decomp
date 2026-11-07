@@ -8,7 +8,7 @@ extern Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj);
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gTotalSortedList[];
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail ai.obj records no GameSetup_tData */
 extern Group              *Object_customObjInst;     /* 0x8013d2c8 */
 extern Group              *Object_customSimObjs;     /* 0x8013d2cc */
 extern Sim_tSimGlobalVar simGlobal;

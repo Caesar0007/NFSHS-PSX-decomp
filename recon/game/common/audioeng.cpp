@@ -78,7 +78,7 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
 
           s->exh = a->inCarExhaust;
 
-          if (GameSetup_gData.commMode == 1) {
+          if (GameSetup_gData[3] /* commMode */ == 1) {
 
             s->sep = 0;
             s->azi = (u_short)azi;
@@ -421,7 +421,7 @@ int AudioEng_StartUp(int player,char *carname)
   g->setpos = '\0';
   g->plypos = '\0';
   bankloaded = 0;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
     sprintf(filename,"%s%sens.viv",Paths_Paths[28],carname);
   } else {
     sprintf(filename,"%s%seng.viv",Paths_Paths[28],carname);
@@ -430,7 +430,7 @@ int AudioEng_StartUp(int player,char *carname)
 
   if (header == (char *)0x0) {
 
-    if (GameSetup_gData.commMode == 1) {
+    if (GameSetup_gData[3] /* commMode */ == 1) {
       sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
     } else {
       sprintf(filename,"%sp993eng.viv",Paths_Paths[28]); }

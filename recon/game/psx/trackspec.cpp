@@ -287,10 +287,10 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   int i, j;
 
   spec->fogstate = 0;                                       /* SLD 47 */
-  spec->weatherstate = (short)GameSetup_gData.Weather;      /* SLD 48 */
+  spec->weatherstate = (short)GameSetup_gData[18] /* Weather */;      /* SLD 48 */
   spec->horizonstate = 1;                                   /* SLD 49 */
   spec->skystate = 1;                                       /* SLD 50 */
-  spec->nightstate = (short)GameSetup_gData.Time;          /* SLD 51 */
+  spec->nightstate = (short)GameSetup_gData[21] /* Time */;          /* SLD 51 */
   spec->depthcuestate = 1;                                  /* SLD 52 */
 
   (spec->fogspec).contrast = 0x10000;                       /* SLD 54 */
@@ -361,8 +361,8 @@ void TrackSpec_SetUp(void)
 
 
 {
-  GameSetup_gData.Time = (int)TrackSpec_gSpec.nightstate;
-  GameSetup_gData.Weather = (int)TrackSpec_gSpec.weatherstate; }
+  GameSetup_gData[21] /* Time */ = (int)TrackSpec_gSpec.nightstate;
+  GameSetup_gData[18] /* Weather */ = (int)TrackSpec_gSpec.weatherstate; }
 
 /* ---- read__FPPcPvi [TRACKSPEC.CPP:127-139; full SLD still open] ---- */
 /* 2026-10-18: retail owns i in the for-initializer region, not at root.
@@ -448,7 +448,7 @@ void TrackSpec_Read(int spec_num)
 {
   char *currentpos; char *startpos; char str [64];
 
-  int trk = GameSetup_gData.track; /* SOURCE-REVIEW-UNRESOLVED: fetch line known; original object/name unproven. */
+  int trk = GameSetup_gData[15] /* track */; /* SOURCE-REVIEW-UNRESOLVED: fetch line known; original object/name unproven. */
 
 
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);

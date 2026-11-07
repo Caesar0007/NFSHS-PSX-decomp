@@ -19,7 +19,7 @@ extern AITrigger_TriggerManager *triggerManagerTraffic;
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gAIRaceCarList[];
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aiinit.obj records no GameSetup_tData */
 extern AISpeeds_tLeaderBoard leaderBoard;
 extern AI_tInfo AI_Info;
 extern AIPhysic_Config_t AIPhysicConfig;

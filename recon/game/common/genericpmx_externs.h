@@ -5,7 +5,7 @@
 #define GENERICPMX_EXTERNS_H
 
 /* ---- cross-TU globals ---- */
-extern GameSetup_tData GameSetup_gData;       /* gmesetup.obj */
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail genericpmx.obj records no GameSetup_tData */       /* gmesetup.obj */
 extern char     *Paths_Paths[50];          /* paths.obj */
 extern CTrackSpec TrackSpec_gSpec;            /* trackspec.obj */
 

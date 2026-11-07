@@ -17,7 +17,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *car);
 void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
 void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aiphysic.obj records no GameSetup_tData */
 /* Owner-derived bworldSm type: SYM1cec71..1cedc3, 32 bytes. AIPhysic's
  * surviving type stream does not preserve this foreign body; original header
  * visibility remains unproved. This is a private external field contract,

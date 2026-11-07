@@ -14,7 +14,7 @@ extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern char *Paths_Paths[];
-extern GameSetup_tData GameSetup_gData; /* SYM: STRUCT, 2600 bytes; gmesetup.obj */
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aispeeds.obj records no GameSetup_tData */ /* SYM: STRUCT, 2600 bytes; gmesetup.obj */
 extern Sim_tSimGlobalVar simGlobal;
 extern u_char (*BWorldSm_slices)[32];
 #define AISPEEDS_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]

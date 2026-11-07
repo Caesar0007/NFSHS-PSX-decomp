@@ -9,7 +9,7 @@ extern int gNumSlices;
 extern char     *Paths_Paths[];
 
 /* Canonical gmesetup.obj aggregate (same record aiinit_types.h carries). */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail aidatarecord.obj (GameSetup_gData is read through its word view) */
 
 
 
@@ -25,7 +25,7 @@ extern char     *Paths_Paths[];
 
 
 
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aidatarecord.obj records no GameSetup_tData */
 extern Car_tObj *Cars_gHumanRaceCarList[9];   /* cars.obj; [0]+0x240 = car name */
 
 /* sprintf format strings — named rodata symbols (NOT inline literals, which would

@@ -23,7 +23,7 @@ extern "C" void ___14AIState_Cruise(AIState_Cruise*,int);
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gSortedList[];
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aistate.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;
 extern int                 AI_elapsedTime;     /* ai.cpp    @0x8013C554 */
 /* Owner-derived bworldSm contract, SYM1cec71..1cedc3 and1d937e.

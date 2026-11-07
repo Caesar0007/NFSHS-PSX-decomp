@@ -33,6 +33,11 @@ enum tCarModels {
 #ifdef NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo */
 #include "shared/tCarClassType.h"
 #endif
+#ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_OWNED   /* owner hook: records after tOwnedCarInfo/tSaveCarInfo/tCarClassType (fecars: tCarListType) */
+#define NFS4_FE_CORE_CARS_IN_HOOK
+#include NFS4_FE_CORE_CARS_HOOK_AFTER_OWNED
+#undef NFS4_FE_CORE_CARS_IN_HOOK
+#endif
 
 enum tCarNameLength {
     cnl_Medium = 0,
@@ -40,6 +45,11 @@ enum tCarNameLength {
     cnl_Long = 2
 };
 
+#ifdef NFS4_FE_CORE_CARS_HOOK_MANAGER   /* owner hook: the owner spells its own tCarManager (fecars) */
+#define NFS4_FE_CORE_CARS_IN_HOOK
+#include NFS4_FE_CORE_CARS_HOOK_MANAGER
+#undef NFS4_FE_CORE_CARS_IN_HOOK
+#else
 struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
@@ -80,6 +90,12 @@ struct tCarManager {
     bool FindSimilarCar(tCarModels &, char &, short, tCarModels *);
 #endif
 };
+#endif
+#ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER   /* owner hook: right after tCarManager (retail: tListIteratorCar, tListIteratorCarColor) */
+#define NFS4_FE_CORE_CARS_IN_HOOK
+#include NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER
+#undef NFS4_FE_CORE_CARS_IN_HOOK
+#endif
 
 #include "../../game/common/gamesetup_leaf_types.h"   /* retail: GameSetup after tCarManager */
 
@@ -91,6 +107,11 @@ enum tPersonalities {
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
 
+#ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_PERSONALITIES   /* owner hook: right after tPersonalities */
+#define NFS4_FE_CORE_CARS_IN_HOOK
+#include NFS4_FE_CORE_CARS_HOOK_AFTER_PERSONALITIES
+#undef NFS4_FE_CORE_CARS_IN_HOOK
+#endif
 #ifdef NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities, before tfrontEnd */
 #include "shared/tCarLineup.h"
 #endif

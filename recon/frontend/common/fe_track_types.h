@@ -38,5 +38,10 @@ struct tTrackManager {
     void SetClassAvailable(tTrackClassType trackClass, bool avail);
     tTrackInformation *GetTrackByID(short track);
 };
+#ifdef NFS4_FE_TRACK_HOOK_AFTER_MANAGER   /* owner hook right after tTrackManager (retail: tListIteratorTrack) */
+#define NFS4_FE_TRACK_IN_HOOK
+#include NFS4_FE_TRACK_HOOK_AFTER_MANAGER
+#undef NFS4_FE_TRACK_IN_HOOK
+#endif
 
 #endif

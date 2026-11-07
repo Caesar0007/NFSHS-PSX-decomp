@@ -146,10 +146,10 @@ long tCarManager::CheapestCarStockPrice()
    (2), `(*this).GetCarFromID` (2), a fenced pointer local (2), flat byte-offset reads (6),
    early-return chain (80, wrecks the shared return-staging block). */
 
-      /* SOURCE-REVIEW-UNRESOLVED: this existing user-gated $4 clobber is
-         still2dif/67 when removed after the scope/direct-ID changes. The
-         old assertion that no pin-free source could exist is withdrawn;
-         this measured copy residual is not an original-source certificate. */
+      /* ASMF1 2026-11-07: "$4" clobber fence gone.  The old 2-diff residual was reload_cse_regs (linear walk,
+         forgets register values only at a CODE_LABEL) deleting the `a0 = this` arg copy; retail's early
+         `return 0;` guard puts a label in front of the fCarID test at reload time (jump2/reorg later merge
+         its arm into the shared `move v0,s0` return), so the copy stays. */
 long tCarManager::CalcUsedPrice(short garageNumber)
 /* 2026-10-11: return the completed price from the valid-car arm as well as
    the default path. GCC merges the returns, preserving all67 words and
@@ -164,10 +164,10 @@ long tCarManager::CalcUsedPrice(short garageNumber)
   long result;
   tCarInfo *carInfo;
   result = 0;
-  if ((u_int)garageNumber >= this->fNumCars) {
+  if ((u_int)garageNumber < this->fNumCars) return 0;
 
     if ((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID != -1) {
-      __asm__ __volatile__("" : : : "$4");
+
 
 
       carInfo = this->GetCarFromID((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID);
@@ -192,7 +192,7 @@ long tCarManager::CalcUsedPrice(short garageNumber)
         }
         return result;
       }
-    } } return result;
+    } return result;
 }
 
 

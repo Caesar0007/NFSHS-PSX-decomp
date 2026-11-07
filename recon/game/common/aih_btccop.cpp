@@ -482,7 +482,7 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
 
 
     startSlice = this->FindRandomBarrierFreeArea(0,100,500);
-    if (((this->currentStage_ + 1) & 1) == 0) { addToSlice = startDirection * 7; } else { addToSlice = -(startDirection * 7); } __asm__("" : : "r" (addToSlice), "r" (startSlice));
+    if (((this->currentStage_ + 1) & 1) == 0) { addToSlice = startDirection * 7; } else { addToSlice = -(startDirection * 7); } startSlice = addToSlice >= 0 ? (startSlice + addToSlice >= gNumSlices ? startSlice + addToSlice - gNumSlices : startSlice + addToSlice) : (startSlice + addToSlice < 0 ? startSlice + addToSlice + gNumSlices : startSlice + addToSlice);
 
 
 
@@ -493,7 +493,7 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
       startMovement = 1; }
 
     this->NewStage((int)((this->carObj_)->N).simRoadInfo.slice,startDirection,startMovement); } return; }
-/* liveness fence: original keeps the dead slice-adjust calc */
+/* ASMF1 2026-11-07: fence gone -- the dead slice wrap (aih_play ternary form, result unused) is retail: bytes/SYM/SLD exact with it; the wrap compares vanish after flow, leaving only the addToSlice calc and the a0 copy. */
 
 
 

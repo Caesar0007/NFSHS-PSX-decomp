@@ -2010,11 +2010,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 
 
-  if ((R3DCar_shadowColour.r != '\0') && ((carObj->N).simOptz == '\0')) {
+  if ((R3DCar_shadowColour.r != '\0') && ((carObj->N).simOptz == '\0'))
 
-
-
-    Newton_CalcRealShadowCoordinates(carObj,simGlobal.gameTicks); TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),4,(carObj->N).shadowCoord,
+    {
+    int *ticks = &simGlobal.gameTicks; /* DEVICE (exact-only): record-less temp; retail then-block {614 }615 */
+    Newton_CalcRealShadowCoordinates(carObj,*ticks); TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),4,(carObj->N).shadowCoord,
 
 
                R3DCar_shadowVertex);

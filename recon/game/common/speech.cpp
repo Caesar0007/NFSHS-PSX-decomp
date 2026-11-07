@@ -542,8 +542,8 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
     else { this->SetDistance(4);
 
 
-      if (distance - 2 < actual) this->SetPosition(0x10); else
-
+      if (distance - 2 < actual)
+        this->SetPosition(0x10); else
 
 
 

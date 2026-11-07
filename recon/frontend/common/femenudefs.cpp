@@ -1671,13 +1671,13 @@ void GenericMenuLoadGame(int player)
    inlined tDialogYesNo receiver in s0; the original private helper identifier is
    not recoverable.  Consuming Run directly removes the decompiler-invented result
    local.
-   SOURCE-REVIEW-UNRESOLVED (2026-10-15): tMenuCommand() is an unproved
-   frame-padding temporary, not recovered original source. It supplies8 bytes
-   and one extra native scope absent from retail. Removing it with ordinary
-   dialog methods or an actual IsDisabled member guard preserves38 words but
-   shortens frame200to192 (12 differences). Failed probes restored; the real
-   slot producer still needs recovery. Normal PASS is not a native/SLD seal,
-   and no substitute dummy object, zero identity or fake use is justified. */
+   Retail's unused 8 bytes after AreYouSure (frame 200, no record, no store, no
+   extra scope) = the caller's struct-return slot of the Dialog_SetText inline
+   (calls.c assign_temp; DEVICE in femenudefs_externs.h, FRONT20/FRONT22).  Its
+   typedef census is neutral together with MenuExtended_TierFinished's `cmd`:
+   this preamble now carries one tMenuCommand TPDEF (the parameter's) as in
+   retail's TPDEF order; the inline's return-type TPDEF is emitted at header
+   parse time. */
 
 #line 944 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_LoadGame(tMenuCommand &)
@@ -1685,7 +1685,7 @@ void MenuExtended_LoadGame(tMenuCommand &)
   if (menuDefs->itemLoadGame.GetFlags() & 1) {
     return;
   }
-  tDialogYesNo AreYouSure; tMenuCommand(); Dialog_SetText(AreYouSure.SetChoices(0x321, 0x322, 0), TextSys_Word(0x2c0));
+  tDialogYesNo AreYouSure; Dialog_SetText(AreYouSure.SetChoices(0x321, 0x322, 0), TextSys_Word(0x2c0));
 
 
   if (AreYouSure.Run() != 0) {
@@ -1716,9 +1716,9 @@ void MenuExtended_LoadGame(tMenuCommand &)
 void MenuExtended_TierFinished(tMenuCommand &command)
 
 {
-  tAwardInformation award;
+  tAwardInformation award; tMenuCommand &cmd = command; /* DEVICE (exact-only): retail TPDEF order has a 2nd tMenuCommand here */
   
-  command.type = kMenu_Command_GoToMenuOneWay;
+  cmd.type = kMenu_Command_GoToMenuOneWay;
 
   tournamentManager.GetAwardInformation(award);
 

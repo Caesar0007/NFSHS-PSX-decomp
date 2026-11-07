@@ -107,7 +107,10 @@ static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFull
 
 static inline tDialogYesNo *Dialog_AsYesNo(tDialogMessageString *dialog) { return (tDialogYesNo *)dialog; }
 
-static inline void Dialog_SetText(tDialogMessageString *dialog, char *text) { dialog->string = text; }
+/* DEVICE (exact-only): aggregate return through an unset named return value -- MenuExtended_LoadGame's retail frame
+ * keeps an unused 8-byte slot after AreYouSure (no record, no store, no extra scope); the caller allocates exactly this
+ * struct-return temporary. ORIGINAL-NAME-UNRESOLVED. Census-neutral with TierFinished's cmd (FRONT22). */
+static inline tMenuCommand Dialog_SetText(tDialogMessageString *dialog, char *text) return r { dialog->string = text; }
 
 
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }

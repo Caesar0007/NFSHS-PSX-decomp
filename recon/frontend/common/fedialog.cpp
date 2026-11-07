@@ -499,7 +499,7 @@ void tDialogHelp::CalculateDimensions()
     width = gHelpShapes[3].width + 0x14;
   }
 
-  long currentTicks = FE_Ticks(); width += 0x14;
+  const long currentTicks = ticks[0]; FE_Ticks(); width += 0x14; /* DEVICE (exact-only): the raw read keeps line 139's note before the FE_Ticks pair; cse merges the inline's load (const = no record) */
   height += 10;
 
 

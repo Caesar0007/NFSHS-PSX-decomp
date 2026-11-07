@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_SKIDMARK_CHUNK_H
 #define NFS4_SHARED_SKIDMARK_CHUNK_H
 
-struct Skidmark_Chunk {
+typedef struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;
     Skidmark_Segment seg[24];
-};
+} Skidmark_Chunk;
 #endif

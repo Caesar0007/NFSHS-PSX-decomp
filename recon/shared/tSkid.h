@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_TSKID_H
 #define NFS4_SHARED_TSKID_H
 
-struct tSkid {
+typedef struct tSkid {
     coorddef pt;
     CVECTOR clr;
     int type;
     Skidmark_Segment *nseg;
     int chunk;
-};
+} tSkid;
 #endif

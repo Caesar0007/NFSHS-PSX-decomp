@@ -69,20 +69,20 @@ typedef enum forceFocus_t {
 
 
 
-typedef enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
     virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
     virtual void Setup();
-};
+} AIDataRecord_t;
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 

@@ -18,7 +18,7 @@
  * CPP definition/key-function producer and EXT/STAT gap remain unresolved.
  * Receipt:build/nc12/record_header_layout_20261027/. */
 #line 1 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
-typedef enum AIDataRecord_WhichRecord_t {
+enum AIDataRecord_WhichRecord_t {
     NORECORD_R = 0,
     RACER_SPEED_R = 1,
     TRAFFIC_SPEED_R = 2,
@@ -28,17 +28,17 @@ typedef enum AIDataRecord_WhichRecord_t {
     TRACK_CURVE_R = 6,
     CURVESPEED_TABLE_R = 7,
     CAR_TRACKING_R = 8
-} AIDataRecord_WhichRecord_t;
-typedef enum AIDataRecord_RecordMethod_t {
+};
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 /* Real virtuals since 2026-09-19.  Declaration ORDER is retail evidence: g++ 2.8 emits the vtables at finish_file in
  * reverse declaration order and retail has CarTracking, CurveSpeedTable, TrackCurve, BestLine, AccTable, base.
  * The vptr follows the data members (old g++ ABI), where the hand-written `_vf` member used to be.
  * The derived classes declare NO destructor: retail's are the compiler-synthesized ones (no vptr store). */
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
@@ -63,7 +63,7 @@ struct AIDataRecord_t {
     virtual void Setup();
     int Load();
     int SaveAndPurge();
-};
+} AIDataRecord_t;
 
 
 
@@ -165,9 +165,9 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
 
 
 
-struct AIDataRecord_BestLine_t : public AIDataRecord_t {
+typedef struct AIDataRecord_BestLine_t : public AIDataRecord_t {
     AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
-};
+} AIDataRecord_BestLine_t;
 
 
 
@@ -212,11 +212,11 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
 
 
 
-struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
+typedef struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
     /* SOURCE-REVIEW-UNRESOLVED: SYM places Get in AIDATARECORD.H; the current CPP body is not a proved original placement.
      * Its definition/key-function emission producer remains open; retain current output until verified source restoration. */
     virtual int Get(int slice);
-};
+} AIDataRecord_CarTracking_t;
 
 typedef int CarLogic_tObservations[1][3];
 

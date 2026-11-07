@@ -3,12 +3,12 @@
 #ifndef NFS4_SHARED_TRK_COLLIDEBOOMINST_H
 #define NFS4_SHARED_TRK_COLLIDEBOOMINST_H
 
-struct Trk_CollideBoomInst {
+typedef struct Trk_CollideBoomInst {
     short size;
     u_char type, objectIndex, zoffset, flags;
     short pad;
     int x, y, z;
     short qx, qy, qz, qw, sx, sy, sz;
     u_char simIndex, boomIndex;
-};
+} Trk_CollideBoomInst;
 #endif

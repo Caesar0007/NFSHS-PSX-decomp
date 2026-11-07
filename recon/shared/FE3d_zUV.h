@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_FE3D_ZUV_H
 #define NFS4_SHARED_FE3D_ZUV_H
 
-struct FE3d_zUV {
+typedef struct FE3d_zUV {
     u_char u, v;
-};
+} FE3d_zUV;
 #endif

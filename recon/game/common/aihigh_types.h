@@ -4,13 +4,13 @@
 
 #include "aih_hierarchy_types.h"
 
-typedef enum AIHigh_CopGameType_t {
+enum AIHigh_CopGameType_t {
     COP_GAME_NO = 0,
     COP_GAME_PURSUIT = 1,
     COP_GAME_BTC_1HC = 2,
     COP_GAME_BTC_2HC = 3,
     COP_GAME_BTC_1HC1HP = 4
-} AIHigh_CopGameType_t;
+};
 
 
 #include "aistate.h"

@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_TRIGGER_TRAFFICPATH_T_H
 #define NFS4_SHARED_TRIGGER_TRAFFICPATH_T_H
 
-struct trigger_trafficPath_t {
+typedef struct trigger_trafficPath_t {
     int type, slice, dir;
     matrixtdef orientation;
     int maxSpeed, releaseTime, numPoints;
     trigger_pathPosition_t *path;
-};
+} trigger_trafficPath_t;
 #endif

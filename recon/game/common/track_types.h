@@ -51,13 +51,13 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 
-struct Trk_Material {
+typedef struct Trk_Material {
     short shapeIndex;
     u_char flag, uvFlag, r, g, b;
     char textureCount;
     u_char interval;
     char pad;
-};
+} Trk_Material;
 struct TrackHeader {
     int type, version, maxMetaChunkSize, maxGeomCollSize;
     int maxFullSize, maxSplitSize, metaChunkCount, chunkCount;

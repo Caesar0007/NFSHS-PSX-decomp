@@ -133,11 +133,11 @@ typedef void (*fontblit)();
 typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 
-struct Draw_HorizonCache {
+typedef struct Draw_HorizonCache {
     Draw_tCacheHeader head; DVECTOR scptTop[17],scptMidBot[17],scptPmxLeft[17],scptPmxRight[17];
     int vertexTop[18];
-};
-struct Draw_SkyCache { Draw_tCacheHeader head; DVECTOR pSkyMesh[85]; int pSkyZ[85]; };
+} Draw_HorizonCache;
+typedef struct Draw_SkyCache { Draw_tCacheHeader head; DVECTOR pSkyMesh[85]; int pSkyZ[85]; } Draw_SkyCache;
 struct tHrz_LightningFork { DVECTOR pos; char pmxIndex; };
 struct tHrz_Lightning { tHrz_LightningFork forks[16]; int brightness; char numForks; };
 

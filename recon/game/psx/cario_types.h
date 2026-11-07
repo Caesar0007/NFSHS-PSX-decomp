@@ -22,9 +22,9 @@
 
 
 
-struct CarIO_textureInfo {
+typedef struct CarIO_textureInfo {
     char *tex, *pal;
     int palShare;
-};
+} CarIO_textureInfo;
 
 #endif

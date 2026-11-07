@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_TRIGGER_PATHPOSITION_T_H
 #define NFS4_SHARED_TRIGGER_PATHPOSITION_T_H
 
-struct trigger_pathPosition_t {
+typedef struct trigger_pathPosition_t {
     coorddef position;
     int targetSpeed, waitTime;
-};
+} trigger_pathPosition_t;
 #endif

@@ -41,13 +41,13 @@ typedef enum Udff_tAccessType {
 
 typedef Udff_tInfo *Udff_tHandle;
 
-typedef enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
@@ -60,7 +60,7 @@ struct AIDataRecord_t {
     static void StartUp2();
     static void CleanUp1();
     static void CleanUp2();
-};
+} AIDataRecord_t;
 
 struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
@@ -84,7 +84,7 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
 
 
 
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
 
 #include "shared/AIPhysic_ModelConfig_t.h"
 

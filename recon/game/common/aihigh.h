@@ -135,7 +135,7 @@ struct AIHigh_Opponent : public AIHigh_Player {
 
 
 
-struct AIHigh_BasicCop : public AIHigh_Base {
+typedef struct AIHigh_BasicCop : public AIHigh_Base {
     copType type_;
     int copIndex_;
     blockade_t blockade_;
@@ -154,7 +154,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     inline blockade_t *Blockade() { return &blockade_; }
     inline copType Type() { return type_; }
 #line 414 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+} AIHigh_BasicCop;
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     AIHigh_BTC_Perp *perpTarget_;
@@ -178,7 +178,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
-struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
+typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
     enum {
         WINGMAN_NONE = 0,
@@ -215,7 +215,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+} AIHigh_BTC_HumanCop;
 
 #elif defined(NFS4_AIHIGH_TYPE_PART)
 /* Reconstruction-only part routing preserves the existing owner type sets.

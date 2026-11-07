@@ -10,7 +10,7 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-typedef enum triggerType {
+enum triggerType {
     TRIGGER_NONE = 0,
     TRIGGER_COP_SIMPLE = 1,
     TRIGGER_COP_ROADBLOCK = 2,
@@ -18,7 +18,7 @@ typedef enum triggerType {
     TRIGGER_TRAFFIC_ACCIDENT = 4,
     TRIGGER_TRAFFIC_PATH = 5,
     TRIGGER_NUM_TRIGGER_TYPES = 6
-} triggerType;
+};
 
 #include "shared/BW_tContext.h"
 
@@ -136,11 +136,11 @@ struct AITrigger_TriggerManager {
 
 
 
-typedef enum AICop_RoadBlockState {
+enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,
     kAICop_RoadBlockState_WaitingForPerp = 1,
     kAICop_RoadBlockState_PerpPassed = 2
-} AICop_RoadBlockState;
+};
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 

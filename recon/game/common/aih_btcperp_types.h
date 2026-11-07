@@ -175,11 +175,11 @@ struct Speech {
 
 
 
-typedef enum AICop_RoadBlockState {
+enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,
     kAICop_RoadBlockState_WaitingForPerp = 1,
     kAICop_RoadBlockState_PerpPassed = 2
-} AICop_RoadBlockState;
+};
 
 typedef int CarLogic_tObservations[1][3];
 typedef long (*ReparmFuncPtr)();

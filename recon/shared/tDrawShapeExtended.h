@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_TDRAWSHAPEEXTENDED_H
 #define NFS4_SHARED_TDRAWSHAPEEXTENDED_H
 
-struct tDrawShapeExtended {
+typedef struct tDrawShapeExtended {
     short flip_axis;
     int tint[4];
     tTexture_ShapeInfo *custom_shapes;
-};
+} tDrawShapeExtended;
 #endif

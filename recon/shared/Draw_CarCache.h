@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_DRAW_CARCACHE_H
 #define NFS4_SHARED_DRAW_CARCACHE_H
 
-struct Draw_CarCache {
+typedef struct Draw_CarCache {
     Draw_tCacheHeader head;
     MATRIX matB;
     int pad;
@@ -26,5 +26,5 @@ struct Draw_CarCache {
     COORD16 vt6; u_char offsetU0, offsetV0;
     COORD16 vt7; u_char offsetU1, offsetV1;
     COORD16 vt8; u_char offsetU2, offsetV2;
-};
+} Draw_CarCache;
 #endif

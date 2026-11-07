@@ -18,11 +18,11 @@
 #define _GAME_COMMON_AIDEBUG_H_
 
 #include "shared/MATRIX.h"
-#define NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+
 #define NFS4_GROUP_COUNT_SETTER_DECL_ONLY
 #include "color_types.h"
 #undef NFS4_GROUP_COUNT_SETTER_DECL_ONLY
-#undef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+
 
 /* These complete definitions are supplied by aidebug.obj's retail FILE block.
  * Reuse their shared source producers;the original include spellings/order

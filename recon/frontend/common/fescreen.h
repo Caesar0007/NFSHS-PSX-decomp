@@ -6,13 +6,13 @@
 #ifndef NFS4_FRONTEND_COMMON_FESCREEN_H
 #define NFS4_FRONTEND_COMMON_FESCREEN_H
 
-typedef enum tScreen_TransitionType {
+enum tScreen_TransitionType {
     kScreen_TransitionTypeItem = 0,
     kScreen_TransitionTypeMenu = 1,
     kScreen_TransitionTypeScreen = 2
-} tScreen_TransitionType;
+};
 
-struct tScreen {
+typedef struct tScreen {
     static int fSuppressLoadingText;   /* retail FEScreen.obj .data @0x800517c8 (SYM `_7tScreen.fSuppressLoadingText`) */
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
@@ -50,5 +50,5 @@ struct tScreen {
     void TransitionOff(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void TransitionOn(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void UpdateTransition();
-};
+} tScreen;
 #endif

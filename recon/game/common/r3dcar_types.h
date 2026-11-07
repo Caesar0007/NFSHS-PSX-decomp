@@ -20,14 +20,14 @@ struct Texture_pal8bit;
 
 
 
-struct Transformer_zScene {
+typedef struct Transformer_zScene {
     Transformer_zObj *obj[57];
     Transformer_zOverlay overlay[90];
-};
+} Transformer_zScene;
 
-struct R3DCar_tEnvMapInfo {
+typedef struct R3DCar_tEnvMapInfo {
     int eScaleX, eScaleY, rideHeight, upgradeHeight;
-};
+} R3DCar_tEnvMapInfo;
 
 /* Canonical AITune.obj aggregate used by this translation unit. */
 #include "shared/AITune_tTrackInfo.h"

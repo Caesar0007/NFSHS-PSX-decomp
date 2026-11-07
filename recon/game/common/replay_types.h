@@ -47,10 +47,10 @@ typedef enum forceFocus_t {
 
 
 
-struct tControllerData {
+typedef struct tControllerData {
     char steering[32];
     u_char gas[32], brake[32], states[32];
-};
+} tControllerData;
 
 #include "shared/tReplayInterface.h"
 
@@ -61,11 +61,11 @@ struct tControllerData {
 
 
 
-struct tReplayBuffer {
+typedef struct tReplayBuffer {
     GameSetup_tData gameSetup;
     int size;
     char buffer[24576];
-};
+} tReplayBuffer;
 
 /* Canonical sim.obj aggregates used by this translation unit. */
 #include "shared/Sim_tSimGlobalVar.h"

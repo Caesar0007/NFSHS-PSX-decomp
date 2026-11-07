@@ -9,12 +9,12 @@
 
 
 
-typedef enum VALIDITY {
+enum VALIDITY {
     kINVALID = 0,
     kVALID = 1,
     kPREDICTED = 2,
     kRESIM = 3
-} VALIDITY;
+};
 
 struct sim_queue {
     Input_tResults Buffer[2][32];

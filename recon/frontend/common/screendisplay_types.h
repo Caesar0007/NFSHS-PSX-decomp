@@ -463,12 +463,12 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-typedef enum tTVState {
+enum tTVState {
     tv_StateOff = 0,
     tv_StateOn = 1,
     tv_TransitionOn = 2,
     tv_TransitionOff = 3
-} tTVState;
+};
 
 #include "shared/tTVConfig.h"
 
@@ -500,13 +500,13 @@ typedef enum tTVState {
 
 
 
-typedef enum tScreenMainState {
+enum tScreenMainState {
     kScreenMain_Off = 0,
     kScreenMain_StaticImage = 1,
     kScreenMain_DynamicImage = 2,
     kScreenMain_WarningImage = 3,
     kScreenMain_Credits = 4
-} tScreenMainState;
+};
 
 #include "shared/tVideoTransition.h"
 

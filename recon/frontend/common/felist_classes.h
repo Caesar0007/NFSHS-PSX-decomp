@@ -12,7 +12,7 @@
 #include "fe_player_types.h"
 #endif
 
-struct tListIterator {
+typedef struct tListIterator {
     short *fSelectionList;
     char *fValue;
     char fMinValue, fMaxValue;
@@ -32,7 +32,7 @@ struct tListIterator {
 #ifdef NFS4_FE_LIST_SELECTION_INLINE
     inline short Selection(int i) { return fSelectionList[i]; }
 #endif
-};
+} tListIterator;
 #ifdef NFS4_FE_LIST_RANGE_INLINE
 inline int tListIterator::MinValue() { return (unsigned char)fMinValue; }
 inline int tListIterator::MaxValue() { return (unsigned char)fMaxValue; }

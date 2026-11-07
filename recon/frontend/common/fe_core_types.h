@@ -70,7 +70,7 @@ struct tScreen;
 #include "fescreen_virtual_types.h"
 #include "felist_classes.h"
 
-struct tMenuItem {
+typedef struct tMenuItem {
     unsigned int fFlags, fTextDescription;
     short fSelFade;
     int fButtonImage, fNumFrames;
@@ -124,7 +124,7 @@ struct tMenuItem {
 #endif
     inline int ButtonImage() { return fButtonImage; }
 #endif
-};
+} tMenuItem;
 
 /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }

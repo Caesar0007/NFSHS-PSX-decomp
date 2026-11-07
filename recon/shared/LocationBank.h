@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_LOCATIONBANK_H
 #define NFS4_SHARED_LOCATIONBANK_H
 
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
+typedef struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; } LocationBank;
 #endif

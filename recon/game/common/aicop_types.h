@@ -36,11 +36,11 @@ typedef enum crimeType {
 
 
 
-typedef enum AICop_RoadBlockState {
+enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,
     kAICop_RoadBlockState_WaitingForPerp = 1,
     kAICop_RoadBlockState_PerpPassed = 2
-} AICop_RoadBlockState;
+};
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"

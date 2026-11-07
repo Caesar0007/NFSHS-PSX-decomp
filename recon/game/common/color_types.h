@@ -8,22 +8,22 @@
 
 #include "shared/CCOORD16.h"
 
-struct Transformer_zUV { u_char u, v; };
+typedef struct Transformer_zUV { u_char u, v; } Transformer_zUV;
 
-struct Transformer_zFacet {
+typedef struct Transformer_zFacet {
     short flag;
     u_char textureIndex, vertexId0, vertexId1, vertexId2;
     Transformer_zUV uv0, uv1, uv2;
-};
+} Transformer_zFacet;
 
-struct Transformer_zObj {
+typedef struct Transformer_zObj {
     u_short numVertex, numFacet;
     coorddef translation;
     COORD16 *vertex, *Nvertex;
     Transformer_zFacet *facet;
-};
+} Transformer_zObj;
 
-struct Transformer_zOverlay { short offset; u_char u, v; };
+typedef struct Transformer_zOverlay { short offset; u_char u, v; } Transformer_zOverlay;
 typedef COORD16 Transformer_zVertex;
 
 struct Group {
@@ -121,7 +121,7 @@ typedef Udff_tInfo *Udff_tHandle;
 #endif
 #endif
 
-struct AIPerson_t {
+typedef struct AIPerson_t {
     int blockMaxDistance, blockMinDistance, oncomingLookAhead;
     int laneSwerve[4];
     int swerveChangeProb, brakeMultiplier, attackActivationHits, attackTime;
@@ -129,7 +129,7 @@ struct AIPerson_t {
     int gripLossProbPerSecond, gripLossMinFactor, gripLossRecoveryPerTick;
     int bestLineAbility;
     unsigned int rearBumpProbMask, smackProbMask, copCollisionFirmness;
-};
+} AIPerson_t;
 
 typedef enum speechModeType {
     SPEECH_MODE_NONE = 0,
@@ -160,14 +160,14 @@ typedef enum speechSourceType {
     SPEECH_SOURCE_SENTINAL = 3
 } speechSourceType;
 
-struct AISpeechInfo_t {
+typedef struct AISpeechInfo_t {
     speechModeType speechMode;
     speechIntensityType speechIntensity;
     speechSourceType speechSource;
     int playerCarIndex, copCarIndex, warningNumber;
-};
+} AISpeechInfo_t;
 
-struct Car_tStats {
+typedef struct Car_tStats {
     int extractSlice, sliceTotal, sliceTime, slice, lastSlice, lap, lapTime;
     int time[4], topSpeed[4];
     int position, fatalCrashes, finishType, checkpointDifference;
@@ -177,22 +177,22 @@ struct Car_tStats {
     int finalPosition, finalTotalTime;
     int finalLapTime[4];
     int finalBestLap;
-};
+} Car_tStats;
 
-struct Car_tControl {
+typedef struct Car_tControl {
     char desiredGasLevel, desiredBrakeLevel, desiredGear, gasLevel, brakeLevel;
     char lastGear, gear, downShifting, gearShiftTimer, handBrake, horn, lights;
     char lookBehind, abort, event, queuedEvent;
     int desiredSteering, steering, hanno;
-};
+} Car_tControl;
 
-struct Car_tWheel {
+typedef struct Car_tWheel {
     coorddef currentPos, roadNormal;
     int actualHeight, wheelAcc, wheelInAir, rebound, impactCompression;
     int roadSurfaceType;
-};
+} Car_tWheel;
 
-struct Car_tSpecs {
+typedef struct Car_tSpecs {
     int mass, numGears, gearShiftDelay;
     int velToRpmRatio[8], gearEfficiency[8];
     int torqueCurve[41];
@@ -206,12 +206,12 @@ struct Car_tSpecs {
     int gearVelInv[8], velToRpmRatioInv[8], gearAccCoeff[8];
     int dragCoeff, alphaToAccRotInertia, accToAlphaRotInertia;
     int lateralGripMultInv;
-};
+} Car_tSpecs;
 
-struct Cars_tCollisionInfo { int resetTimer, smoking; };
-struct Cars_tAudio { int type, channel, surface1, surface2, force, panangle; };
+typedef struct Cars_tCollisionInfo { int resetTimer, smoking; } Cars_tCollisionInfo;
+typedef struct Cars_tAudio { int type, channel, surface1, surface2, force, panangle; } Cars_tAudio;
 
-struct Cars_tRenderInfo {
+typedef struct Cars_tRenderInfo {
     short colorIndex;
     char currentCountry, newCountry;
     int textureStartIndex, bodyPitch, bodyRoll, currentPitch, currentRoll;
@@ -231,22 +231,22 @@ struct Cars_tRenderInfo {
     short textureOffsetU, textureOffsetV;
     u_char licenseOffsetU[2], licenseOffsetV[2];
     int rideHeight, upgradeHeight;
-};
+} Cars_tRenderInfo;
 
-#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+
+
+
+
 enum donutMode_t {
-#else
-typedef enum donutMode_t {
-#endif
     DONUTMODE_NONE = 0,
     DONUTMODE_GOCENTER = 1,
     DONUTMODE_DONUT = 2,
     DONUTMODE_BURNOUT = 3
-#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
 };
-#else
-} donutMode_t;
-#endif
+
+
+
+
 
 struct AIDataRecord_AccTable_t;
 struct AIDataRecord_CurveSpeedTable_t;

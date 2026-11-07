@@ -13,9 +13,9 @@
 
 
 
-struct Stats_tPosition {
+typedef struct Stats_tPosition {
     int car, slice, sliceTime, isHuman;
-};
+} Stats_tPosition;
 
 typedef int Input_tDeviceCall(u_long value);
 

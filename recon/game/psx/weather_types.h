@@ -198,17 +198,17 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 
-struct Weather_tSys {
+typedef struct Weather_tSys {
     int num[2];
     SVECTOR velocity;
     long hdist;
     short znear, zfar, length, bottom, top, height, width;
-};
+} Weather_tSys;
 struct Weather_tSplatInfo { DVECTOR pos; int startTick; };
-typedef enum Weather_tState {
+enum Weather_tState {
     Weather_kSnow = 0,
     Weather_kRain = 1
-} Weather_tState;
+};
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,

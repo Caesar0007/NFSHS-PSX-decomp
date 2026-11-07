@@ -6,7 +6,7 @@
 #include "fe_player_types.h"
 #endif
 
-typedef enum tInputKeyType {
+enum tInputKeyType {
     kInput_KeyType_NoKey = 0,
     kInput_KeyType_AlreadyProcessed = 1,
     kInput_KeyType_Cross = 2,
@@ -23,6 +23,6 @@ typedef enum tInputKeyType {
     kInput_KeyType_Right = 4096,
     kInput_KeyType_Start = 8192,
     kInput_KeyType_Select = 16384
-} tInputKeyType;
+};
 
 #endif

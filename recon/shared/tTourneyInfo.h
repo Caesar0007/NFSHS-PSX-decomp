@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_TTOURNEYINFO_H
 #define NFS4_SHARED_TTOURNEYINFO_H
 
-struct tTourneyInfo {
+typedef struct tTourneyInfo {
     char fTournamentID;
     u_char fNumTracks, fTrackOffset, fOpponentCarClass, fTraffic, fKnockout;
     u_char fNumCars, fAwardCar, fAwardCarModel, fAwardCarUpgrades;
@@ -16,5 +16,5 @@ struct tTourneyInfo {
     u_char fPersonalities[5], fOpponentCar[5], fOpponentUpgrades[5];
     u_char fActivatedTrackClass, fActivatedCheat, fNumLaps;
     u_char fReserved[14];
-};
+} tTourneyInfo;
 #endif

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRK_SFX_H
 #define NFS4_SHARED_TRK_SFX_H
 
-struct Trk_SFX { int point[3]; short type, pad; };
+typedef struct Trk_SFX { int point[3]; short type, pad; } Trk_SFX;
 #endif

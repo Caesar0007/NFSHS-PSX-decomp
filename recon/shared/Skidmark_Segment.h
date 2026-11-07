@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_SKIDMARK_SEGMENT_H
 #define NFS4_SHARED_SKIDMARK_SEGMENT_H
 
-struct Skidmark_Segment {
+typedef struct Skidmark_Segment {
     SVECTOR svx[2];
     CVECTOR rgb;
     int type;
     Skidmark_Segment *next;
-};
+} Skidmark_Segment;
 #endif

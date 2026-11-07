@@ -3,12 +3,12 @@
 #ifndef NFS4_SHARED_TRIGGER_T_H
 #define NFS4_SHARED_TRIGGER_T_H
 
-union trigger_t {
+typedef union trigger_t {
     trigger_anyTrigger_t any;
     trigger_simple_t simple;
     trigger_roadblock_t roadblock;
     trigger_offroad_t offroad;
     trigger_trafficAccident_t trafficAccident;
     trigger_trafficPath_t trafficPath;
-};
+} trigger_t;
 #endif

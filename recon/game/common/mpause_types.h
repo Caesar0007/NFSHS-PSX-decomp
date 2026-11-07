@@ -9,7 +9,7 @@
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
 
-typedef enum tPMenuCommandType {
+enum tPMenuCommandType {
     kMPause_NoEvent = 0,
     kMPause_Continue = 1,
     kMPause_Restart = 2,
@@ -19,7 +19,7 @@ typedef enum tPMenuCommandType {
     kMPause_GoToMenu = 6,
     kMPause_BackupMenu = 7,
     kMPause_CommandConfirmationFlag = 256
-} tPMenuCommandType;
+};
 
 typedef enum tInputKeyType {
     kInput_KeyType_NoKey = 0,
@@ -91,7 +91,7 @@ typedef enum tPlayer {
 struct tPMenu;
 struct tPMenuCommand { tPMenuCommandType type; tPMenu *nextMenu; };
 
-struct tPListIterator {
+typedef struct tPListIterator {
     short *fSelectionList;
     int *fValue;
     /* real virtuals since 2026-09-19 (vptr after the data members, where `_vf` was) */
@@ -101,7 +101,7 @@ struct tPListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
-};
+} tPListIterator;
 struct tPListIteratorIndexed : public tPListIterator {
     char *fIndex;
     tPListIteratorIndexed(short *, int *, char *);
@@ -171,14 +171,14 @@ struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {
     tPMenu *NextMenu();
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
 };
-struct tPMenuItemCommandButton : public tPMenuItemInteractive {
+typedef struct tPMenuItemCommandButton : public tPMenuItemInteractive {
     tPMenuCommandType fCommand;
     void SetCommand(tPMenuCommandType) LINK_STRIPPED; /* inferred setter for the confirmation command */
     void SetConfirmation(bool) LINK_STRIPPED; /* inferred: kMPause_CommandConfirmationFlag controls the confirmation path */
     tPMenuItemCommandButton(unsigned int, tPMenuCommandType);
     ~tPMenuItemCommandButton();
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
-};
+} tPMenuItemCommandButton;
 
 typedef tPMenuItem *tPItemList[16];
 #ifndef NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL

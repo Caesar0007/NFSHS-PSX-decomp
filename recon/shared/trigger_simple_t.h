@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRIGGER_SIMPLE_T_H
 #define NFS4_SHARED_TRIGGER_SIMPLE_T_H
 
-struct trigger_simple_t { int type, slice, dir, side, moving; };
+typedef struct trigger_simple_t { int type, slice, dir, side, moving; } trigger_simple_t;
 #endif

@@ -31,25 +31,25 @@ typedef enum Udff_tAccessType {
 
 typedef Udff_tInfo *Udff_tHandle;
 
-typedef enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
     virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
     virtual void Setup();
-};
+} AIDataRecord_t;
 
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
-struct AIPhysic_BrakeInfo {
+typedef struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
     int deceleration_;
 
@@ -74,7 +74,7 @@ struct AIPhysic_BrakeInfo {
     {
         return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
     }
-};
+} AIPhysic_BrakeInfo;
 
 #include "shared/AISpeeds_tLeaderBoard.h"
 
@@ -93,12 +93,12 @@ struct AIPhysic_BrakeInfo {
 
 typedef kernpair KERN;
 
-struct AISpeeds_Upgrade_t { int accMult, brakeMult, handlingMult, topSpeedMult; };
-struct AISpeeds_tSlotInfo {
+typedef struct AISpeeds_Upgrade_t { int accMult, brakeMult, handlingMult, topSpeedMult; } AISpeeds_Upgrade_t;
+typedef struct AISpeeds_tSlotInfo {
     int distanceMaintainTime32, minDistanceMeters, maxDistanceMeters;
     unsigned int fallBackRandomTime_TickPercent;
-};
-struct speedData_t { u_short endSlice, speedMPS; };
+} AISpeeds_tSlotInfo;
+typedef struct speedData_t { u_short endSlice, speedMPS; } speedData_t;
 
 struct AIDataRecord_TrackCurve_t;
 

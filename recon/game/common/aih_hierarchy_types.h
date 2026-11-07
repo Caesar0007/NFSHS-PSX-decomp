@@ -5,10 +5,10 @@
 #include "color_types.h"
 
 /* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
-typedef enum copType {
+enum copType {
     COP_REGULAR = 0,
     COP_SUPER = 1
-} copType;
+};
 
 typedef enum crimeType {
     CRIME_NONE = 0,
@@ -18,13 +18,13 @@ typedef enum crimeType {
     CRIME_SMASHCOP = 4
 } crimeType;
 
-typedef enum cruiseMode_t {
+enum cruiseMode_t {
     CRUISE_ATSETSPEED = 0,
     CRUISE_ATFACTOR = 1,
     CRUISE_ATTRAFFICSPEED = 2
-} cruiseMode_t;
+};
 
-typedef enum stateType_t {
+enum stateType_t {
     STATE_NONE = 0,
     STATE_PURGATORY = 1,
     STATE_NORMAL = 2,
@@ -36,14 +36,14 @@ typedef enum stateType_t {
     STATE_DONUTS = 8,
     STATE_GOTOSLICE = 9,
     STATE_CRUISE = 10
-} stateType_t;
+};
 
-typedef enum Wingman_Role {
+enum Wingman_Role {
     ROLE_IDLE = 0,
     ROLE_WINGMAN = 1,
     ROLE_BLOCKADER = 2,
     ROLE_BLOCKADER_SPIKEBELT = 3
-} Wingman_Role;
+};
 
 typedef enum AIHigh_tAttackMode {
     NO_ATTACK = 0,
@@ -52,13 +52,13 @@ typedef enum AIHigh_tAttackMode {
     PROVOKED_ATTACK = 3
 } AIHigh_tAttackMode;
 
-typedef enum blockadeMode_t {
+enum blockadeMode_t {
     BLOCKADEMODE_NONE = 0,
     BLOCKADEMODE_SETUP = 1,
     BLOCKADEMODE_WAITING = 2,
     BLOCKADEMODE_CHASE = 3,
     BLOCKADEMODE_SETUP_FOR_OTHER = 4
-} blockadeMode_t;
+};
 
 typedef enum AIHigh_tDriveAwayMode {
     DRIVEAWAY_NONE = 0,
@@ -115,7 +115,7 @@ enum {
 
 
 #ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
 #include "shared/AIPhysic_ModelConfig_t.h"
 
 
@@ -209,7 +209,7 @@ inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_B
     idleInPlaceFlag_ = idleInPlace;
 }
 
-struct AIHigh_Base {
+typedef struct AIHigh_Base {
     Car_tObj *carObj_;
 #ifdef NFS4_AIH_BASICPERP_INLINE_SCOPE
     inline Car_tObj *GetCarObj() { return carObj_; }
@@ -237,7 +237,7 @@ struct AIHigh_Base {
     void SetSchedulingOff(int off);
     bool SchedulingOff(); /* inferred query: retail Execute has empty inline receiver scopes */
     int ExchangeTrafficTriggerCheckSlice(int newSlice); /* inferred exchange; this/newSlice/temp are retail */
-};
+} AIHigh_Base;
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
    ~AIHigh_Base) carries no out-of-line SetState/GetCarObj copies, and cc1plus 2.8 always emits

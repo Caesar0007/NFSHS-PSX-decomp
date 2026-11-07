@@ -33,20 +33,20 @@
 
 
 
-typedef enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
     virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
     virtual void Setup();
-};
+} AIDataRecord_t;
 struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
     int Get(int i);
@@ -58,7 +58,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"
 }
 
-struct AIPhysic_BrakeInfo {
+typedef struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
     int deceleration_;
 
@@ -87,7 +87,7 @@ struct AIPhysic_BrakeInfo {
         }
     }
     inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */
-};
+} AIPhysic_BrakeInfo;
 
 typedef enum Gear_t {
     GEAR_REVERSE = 0,
@@ -101,10 +101,10 @@ typedef enum Gear_t {
     GEAR_SEVENTH = 8
 } Gear_t;
 
-typedef enum eRampType {
+enum eRampType {
     kRampType_Interpolate = 0,
     kRampType_NoInterpolate = 1
-} eRampType;
+};
 
 #include "shared/AIPhysic_ModelConfig_t.h"
 

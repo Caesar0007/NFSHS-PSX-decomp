@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_DRAW_DCACHE_H
 #define NFS4_SHARED_DRAW_DCACHE_H
 
-struct Draw_DCache {
+typedef struct Draw_DCache {
     Draw_tCacheHeader head;
     MATRIX matB, matNight, matCop, identMat;
     int otz;
     VECTOR tVn0, tVn1, tVn2, tVn3;
     short light, doublelayer;
-};
+} Draw_DCache;
 #endif

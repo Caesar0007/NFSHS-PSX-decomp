@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_CCOORD16_H
 #define NFS4_SHARED_CCOORD16_H
 
-struct CCOORD16 { short x, y, z, light; };
+typedef struct CCOORD16 { short x, y, z, light; } CCOORD16;
 #endif

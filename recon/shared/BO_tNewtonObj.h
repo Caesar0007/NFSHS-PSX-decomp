@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_BO_TNEWTONOBJ_H
 #define NFS4_SHARED_BO_TNEWTONOBJ_H
 
-struct BO_tNewtonObj {
+typedef struct BO_tNewtonObj {
     int objID;
     u_short oldSlice, totalSlice;
     BWorldSm_Pos simRoadInfo;
@@ -30,5 +30,5 @@ struct BO_tNewtonObj {
     matrixtdef shadowMat;
     coorddef shadowCoord[4];
     int damage[10];
-};
+} BO_tNewtonObj;
 #endif

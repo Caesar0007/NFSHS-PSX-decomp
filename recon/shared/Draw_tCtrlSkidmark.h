@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_DRAW_TCTRLSKIDMARK_H
 #define NFS4_SHARED_DRAW_TCTRLSKIDMARK_H
 
-struct Draw_tCtrlSkidmark {
+typedef struct Draw_tCtrlSkidmark {
     matrixtdef m;
     coorddef t;
     int count;
     Skidmark_Chunk *smp;
-};
+} Draw_tCtrlSkidmark;
 #endif

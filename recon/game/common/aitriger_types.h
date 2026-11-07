@@ -9,7 +9,7 @@
 
 
 
-typedef enum triggerType {
+enum triggerType {
     TRIGGER_NONE = 0,
     TRIGGER_COP_SIMPLE = 1,
     TRIGGER_COP_ROADBLOCK = 2,
@@ -17,7 +17,7 @@ typedef enum triggerType {
     TRIGGER_TRAFFIC_ACCIDENT = 4,
     TRIGGER_TRAFFIC_PATH = 5,
     TRIGGER_NUM_TRIGGER_TYPES = 6
-} triggerType;
+};
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"

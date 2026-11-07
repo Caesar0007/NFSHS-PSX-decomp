@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_DRAW_SUBDIVSTRUCT_H
 #define NFS4_SHARED_DRAW_SUBDIVSTRUCT_H
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+typedef struct Draw_SubdivStruct { Draw_SVertex v[15]; } Draw_SubdivStruct;
 #endif

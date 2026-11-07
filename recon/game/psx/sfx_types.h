@@ -69,15 +69,15 @@
 
 
 
-struct sfxsouffle {
+typedef struct sfxsouffle {
     Draw_tPixMap pmx;
     SVECTOR v0, v1, v2, v3;
-};
+} sfxsouffle;
 
-struct Sfx_tCache {
+typedef struct Sfx_tCache {
     Draw_tCacheHeader head;
     int otz;
-};
+} Sfx_tCache;
 
 #include "shared/RelCoord16.h"
 typedef void Trk_Chunk;

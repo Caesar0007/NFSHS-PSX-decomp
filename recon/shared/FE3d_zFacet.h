@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_FE3D_ZFACET_H
 #define NFS4_SHARED_FE3D_ZFACET_H
 
-struct FE3d_zFacet {
+typedef struct FE3d_zFacet {
     u_short vertexId0, vertexId1, vertexId2, uvId0, uvId1, uvId2;
     SVECTOR normal[3];
     CVECTOR color;
     u_char flag, pad1, pad2, pad3;
-};
+} FE3d_zFacet;
 #endif

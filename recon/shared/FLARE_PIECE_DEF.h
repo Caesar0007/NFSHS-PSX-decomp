@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_FLARE_PIECE_DEF_H
 #define NFS4_SHARED_FLARE_PIECE_DEF_H
 
-struct FLARE_PIECE_DEF {
+typedef struct FLARE_PIECE_DEF {
     int distance, size;
     CVECTOR color;
     char type;
-};
+} FLARE_PIECE_DEF;
 #endif

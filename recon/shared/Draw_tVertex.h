@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_DRAW_TVERTEX_H
 #define NFS4_SHARED_DRAW_TVERTEX_H
 
-struct Draw_tVertex { PCOORD16 sv; };
+typedef struct Draw_tVertex { PCOORD16 sv; } Draw_tVertex;
 #endif

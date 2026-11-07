@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_TRK_SIMOBJECT_H
 #define NFS4_SHARED_TRK_SIMOBJECT_H
 
-struct Trk_SimObject {
+typedef struct Trk_SimObject {
     int point[3];
     short radius, serialNum;
     u_char topCRAP, bottomCRAP, instIndex, type;
-};
+} Trk_SimObject;
 #endif

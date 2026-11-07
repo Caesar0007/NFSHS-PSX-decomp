@@ -111,19 +111,19 @@
 #ifdef NFS4_AUDIOCLC_OMIT_FORCE_FOCUS
 #define forceFocus_t int
 #else
-#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+
+
+
+
 enum forceFocus_t {
-#else
-typedef enum forceFocus_t {
-#endif
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
-#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
 };
-#else
-} forceFocus_t;
-#endif
+
+
+
+
 #endif
 
 #include "shared/kernpair.h"

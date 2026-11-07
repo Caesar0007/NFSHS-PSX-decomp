@@ -53,12 +53,12 @@ typedef void (*fontblit)();
 typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 
-struct CSVECTOR { int r, g, b; };
+typedef struct CSVECTOR { int r, g, b; } CSVECTOR;
 struct TP_ZPaletteSystem { int numdepthclut; };
 typedef TP_ZPaletteSystem TP_tZPaletteSystem;
-struct FogKey {
+typedef struct FogKey {
     short distance, slice;
     FogKey *next, *prev;
-};
+} FogKey;
 
 #endif

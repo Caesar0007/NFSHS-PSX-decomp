@@ -45,7 +45,7 @@ typedef enum crimeType {
 
 
 
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
 #include "shared/AIPhysic_ModelConfig_t.h"
 
 

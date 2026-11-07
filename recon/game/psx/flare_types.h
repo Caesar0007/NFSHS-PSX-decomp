@@ -82,7 +82,7 @@ typedef enum forceFocus_t {
 
 
 
-struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; };
+typedef struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; } Flare_tInfo;
 
 #include "shared/CHorizonSpec.h"
 

@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_TRIGGER_TRAFFICACCIDENT_T_H
 #define NFS4_SHARED_TRIGGER_TRAFFICACCIDENT_T_H
 
-struct trigger_trafficAccident_t {
+typedef struct trigger_trafficAccident_t {
     int type, slice;
     coorddef position;
     matrixtdef orientation;
-};
+} trigger_trafficAccident_t;
 #endif

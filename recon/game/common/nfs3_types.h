@@ -36,7 +36,7 @@ typedef enum tTrackClassType {
     tct_Bonus = 4
 } tTrackClassType;
 
-struct tNfsSystemInfo { int userRam; };
+typedef struct tNfsSystemInfo { int userRam; } tNfsSystemInfo;
 
 #include "shared/Sim_tSimSystemVar.h"
 

@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_TCARLINEUP_H
 #define NFS4_SHARED_TCARLINEUP_H
 
-struct tCarLineup {
+typedef struct tCarLineup {
     bool isPlayerCar;
     tPersonalities personality;
     char position;
     tCarModels carModel;
     char carColor, carUpgrades;
-};
+} tCarLineup;
 #endif

@@ -62,7 +62,7 @@
 
 
 
-struct CTrackSpecHeader { int version, num_spec; };
+typedef struct CTrackSpecHeader { int version, num_spec; } CTrackSpecHeader;
 
 #include "shared/CTrackSpec.h"
 

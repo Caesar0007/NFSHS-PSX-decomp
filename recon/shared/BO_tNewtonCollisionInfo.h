@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_BO_TNEWTONCOLLISIONINFO_H
 #define NFS4_SHARED_BO_TNEWTONCOLLISIONINFO_H
 
-struct BO_tNewtonCollisionInfo {
+typedef struct BO_tNewtonCollisionInfo {
     int collided, impulse;
     BO_tNewtonObj *otherObj;
     int sfxType, disableCollisionTimer;
@@ -11,5 +11,5 @@ struct BO_tNewtonCollisionInfo {
     int lastCollision;
     BO_tNewtonObj *lastOtherObj;
     int lastImpulse, lastTime;
-};
+} BO_tNewtonCollisionInfo;
 #endif

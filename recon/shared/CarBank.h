@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_CARBANK_H
 #define NFS4_SHARED_CARBANK_H
 
-struct CarBank { int fFull, fMake, fModel; };
+typedef struct CarBank { int fFull, fMake, fModel; } CarBank;
 #endif

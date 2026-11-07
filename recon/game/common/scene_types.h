@@ -50,7 +50,7 @@ struct AnimScript {
 
 
 #include "shared/SceneSortedElem.h"
-struct CSceneList { int id_, numElements_, slice_, versionNumber_; SceneElem *Elements(); };
+typedef struct CSceneList { int id_, numElements_, slice_, versionNumber_; SceneElem *Elements(); } CSceneList;
 /* The element array follows the 16-byte list header. Retail SYM records a code-less inline scope
    pair ({8 {8 }8 }8, no records) where Scene_BuildCustomSceneList takes it; accessor spelling inferred. */
 inline SceneElem *CSceneList::Elements() { return (SceneElem *)(this + 1); }

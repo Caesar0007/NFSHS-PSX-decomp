@@ -6,24 +6,24 @@
 #include "newton_types.h"
 
 /* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
-typedef enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
-} AIDataRecord_RecordMethod_t;
+};
 
-typedef enum copType {
+enum copType {
     COP_REGULAR = 0,
     COP_SUPER = 1
-} copType;
+};
 
-typedef enum cruiseMode_t {
+enum cruiseMode_t {
     CRUISE_ATSETSPEED = 0,
     CRUISE_ATFACTOR = 1,
     CRUISE_ATTRAFFICSPEED = 2
-} cruiseMode_t;
+};
 
-typedef enum stateType_t {
+enum stateType_t {
     STATE_NONE = 0,
     STATE_PURGATORY = 1,
     STATE_NORMAL = 2,
@@ -35,14 +35,14 @@ typedef enum stateType_t {
     STATE_DONUTS = 8,
     STATE_GOTOSLICE = 9,
     STATE_CRUISE = 10
-} stateType_t;
+};
 
-typedef enum Wingman_Role {
+enum Wingman_Role {
     ROLE_IDLE = 0,
     ROLE_WINGMAN = 1,
     ROLE_BLOCKADER = 2,
     ROLE_BLOCKADER_SPIKEBELT = 3
-} Wingman_Role;
+};
 
 typedef enum AIHigh_tAttackMode {
     NO_ATTACK = 0,
@@ -51,13 +51,13 @@ typedef enum AIHigh_tAttackMode {
     PROVOKED_ATTACK = 3
 } AIHigh_tAttackMode;
 
-typedef enum blockadeMode_t {
+enum blockadeMode_t {
     BLOCKADEMODE_NONE = 0,
     BLOCKADEMODE_SETUP = 1,
     BLOCKADEMODE_WAITING = 2,
     BLOCKADEMODE_CHASE = 3,
     BLOCKADEMODE_SETUP_FOR_OTHER = 4
-} blockadeMode_t;
+};
 
 typedef enum AIHigh_tDriveAwayMode {
     DRIVEAWAY_NONE = 0,
@@ -114,14 +114,14 @@ enum {
 
 
 
-struct AIDataRecord_t {
+typedef struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
     virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
     virtual void Setup();
-};
+} AIDataRecord_t;
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
@@ -212,7 +212,7 @@ inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDista
 }
 
 
-struct AIHigh_Base {
+typedef struct AIHigh_Base {
     Car_tObj *carObj_;
     AIState_Base *state_;
     stateType_t stateType_;
@@ -230,7 +230,7 @@ struct AIHigh_Base {
         stateType_ = newStateType;
     }
     inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
-};
+} AIHigh_Base;
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
    ~AIHigh_Base) carries no out-of-line SetState/GetCarObj copies, and cc1plus 2.8 always emits
@@ -311,7 +311,7 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
 
 
 
-struct AIHigh_BasicCop : public AIHigh_Base {
+typedef struct AIHigh_BasicCop : public AIHigh_Base {
     copType type_;
     int copIndex_;
     blockade_t blockade_;
@@ -321,7 +321,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
     int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
-};
+} AIHigh_BasicCop;
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     AIHigh_BTC_Perp *perpTarget_;
@@ -347,7 +347,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
 };
 #line 347 "recon/game/common/aih_btccop_types.h"
 
-struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
+typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
     static int lastInputRequestTick_;
     enum {
@@ -386,7 +386,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
     inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+} AIHigh_BTC_HumanCop;
 #line 387 "recon/game/common/aih_btccop_types.h"
 
 

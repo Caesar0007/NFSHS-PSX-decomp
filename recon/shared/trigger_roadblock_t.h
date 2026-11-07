@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRIGGER_ROADBLOCK_T_H
 #define NFS4_SHARED_TRIGGER_ROADBLOCK_T_H
 
-struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };
+typedef struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; } trigger_roadblock_t;
 #endif

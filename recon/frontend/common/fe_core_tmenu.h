@@ -4,7 +4,7 @@
 #ifndef NFS4_FRONTEND_COMMON_FE_CORE_TMENU_H
 #define NFS4_FRONTEND_COMMON_FE_CORE_TMENU_H
 
-struct tMenu {
+typedef struct tMenu {
     unsigned int fFlags;
     short fTitle;
     int fCurrentItem;
@@ -74,6 +74,6 @@ struct tMenu {
           void (*)(tMenuCommand &), short);
     short GetNumberEnabledItems();
 #endif
-};
+} tMenu;
 
 #endif

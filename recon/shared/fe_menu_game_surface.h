@@ -9,7 +9,7 @@
 #define tPlayer int
 #define tInputKeyType int
 
-struct tListIterator {
+typedef struct tListIterator {
     short *fSelectionList;
     char *fValue;
     char fMinValue, fMaxValue;
@@ -18,10 +18,10 @@ struct tListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
-};
+} tListIterator;
 struct tListIteratorRange : public tListIterator {};
 
-struct tMenuItem {
+typedef struct tMenuItem {
     unsigned int fFlags, fTextDescription;
     short fSelFade;
     int fButtonImage, fNumFrames;
@@ -36,10 +36,10 @@ struct tMenuItem {
     virtual void TransitionOn();
     virtual bool TransitionIsFinished();
     virtual void UpdateTransition(bool);
-};
+} tMenuItem;
 typedef tMenuItem *tItemList[16];
 
-struct tMenu {
+typedef struct tMenu {
     unsigned int fFlags;
     short fTitle;
     int fCurrentItem;
@@ -59,7 +59,7 @@ struct tMenu {
     virtual bool IsSubMenu();
     virtual void Draw();
     virtual void UpdateTransition();
-};
+} tMenu;
 struct tMenuItemInteractive : public tMenuItem {};
 
 #undef tPlayer

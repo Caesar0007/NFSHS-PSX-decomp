@@ -10,7 +10,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 }
 
-struct SimpleMem {
+typedef struct SimpleMem {
     void *heap;
     void *freeMem;
     int freeMemSize;
@@ -33,6 +33,6 @@ struct SimpleMem {
     /* Inline in the original allocator class: Track_DeInit's `delete
        Track_mem` expands to this exact heap cleanup before object deletion. */
     ~SimpleMem() { purgememadr(heap); freeMem = (void *)0x0; }
-};
+} SimpleMem;
 
 #endif

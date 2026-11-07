@@ -5,9 +5,9 @@
 #include "../common/gamesetup_leaf_types.h"
 #include "../common/draw_leaf_types.h"
 
-struct Texture_pal8bit {
+typedef struct Texture_pal8bit {
     int x, y;
     short pal[256];
-};
+} Texture_pal8bit;
 
 #endif

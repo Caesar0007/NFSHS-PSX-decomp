@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_SOUFFLE_TISOUFFLE_H
 #define NFS4_SHARED_SOUFFLE_TISOUFFLE_H
 
-struct Souffle_tISouffle {
+typedef struct Souffle_tISouffle {
     char type, id, wind, cycle;
     int aspeed, angle;
     coorddef source, motion, extramotion;
     SVECTOR trans;
     int rndpixmap, ground, colour;
-};
+} Souffle_tISouffle;
 #endif

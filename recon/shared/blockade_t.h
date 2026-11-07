@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_BLOCKADE_T_H
 #define NFS4_SHARED_BLOCKADE_T_H
 
-struct blockade_t {
+typedef struct blockade_t {
     blockadeMode_t mode;
     AIHigh_Player *target;
     int flags, chaseLevel, requestSpikeBeltAtSlice, slice, direction;
     int latPos, rotation, reverse, releaseTime, initialPlayerDistanceMetersInt;
     short blockadeSpeechFlags;
-};
+} blockade_t;
 #endif

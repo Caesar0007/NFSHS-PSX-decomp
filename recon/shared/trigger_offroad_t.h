@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_TRIGGER_OFFROAD_T_H
 #define NFS4_SHARED_TRIGGER_OFFROAD_T_H
 
-struct trigger_offroad_t {
+typedef struct trigger_offroad_t {
     int type, slice, dir;
     coorddef position;
     matrixtdef orientation;
     int maxSpeed, releaseTime, endSlice;
-};
+} trigger_offroad_t;
 #endif

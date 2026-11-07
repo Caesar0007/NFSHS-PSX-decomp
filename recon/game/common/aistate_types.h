@@ -33,7 +33,7 @@
 
 
 
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
 #include "shared/AIPhysic_ModelConfig_t.h"
 
 
@@ -83,11 +83,11 @@ struct AIDelayCar {
     int GetRoadPosition(); /* inferred getter for the three lateral-arm inline expansions */
 };
 
-typedef enum cruiseMode_t {
+enum cruiseMode_t {
     CRUISE_ATSETSPEED = 0,
     CRUISE_ATFACTOR = 1,
     CRUISE_ATTRAFFICSPEED = 2
-} cruiseMode_t;
+};
 
 #include "aistate.h"
 

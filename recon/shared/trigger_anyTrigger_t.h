@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRIGGER_ANYTRIGGER_T_H
 #define NFS4_SHARED_TRIGGER_ANYTRIGGER_T_H
 
-struct trigger_anyTrigger_t { int type, slice; };
+typedef struct trigger_anyTrigger_t { int type, slice; } trigger_anyTrigger_t;
 #endif

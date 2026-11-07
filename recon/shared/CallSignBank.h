@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_CALLSIGNBANK_H
 #define NFS4_SHARED_CALLSIGNBANK_H
 
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+typedef struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; } CallSignBank;
 #endif

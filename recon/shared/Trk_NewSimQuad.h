@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRK_NEWSIMQUAD_H
 #define NFS4_SHARED_TRK_NEWSIMQUAD_H
 
-struct Trk_NewSimQuad { u_char surface; };
+typedef struct Trk_NewSimQuad { u_char surface; } Trk_NewSimQuad;
 #endif

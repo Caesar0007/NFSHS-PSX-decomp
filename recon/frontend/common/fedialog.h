@@ -28,16 +28,16 @@ struct tDialogBase : public tScreen {
     static void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();
     inline bool IsVisible() NFS4_FEDIALOG_STRIP;
-    inline tDialogBase *SetPosition(short, short, tPlayer);
+    inline tDialogBase *SetPosition(short, short, tPlayer) NFS4_FEDIALOG_STRIP;
+    inline void SetSpecificPlayer(short) NFS4_FEDIALOG_STRIP;   /* FRONT26: defined for every includer (retail class-region TPDEFs) */
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-    /* Inferred two-call position/player spelling; no original names survive. */
+    /* Inferred two-call position spelling; no original names survive. */
     inline tDialogBase *SetPosition(short, short);
-    inline void SetSpecificPlayer(short);
 #endif
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
-inline bool tDialogBase::IsVisible() { return currentlyOn != 0; }
+inline bool tDialogBase::IsVisible() { return currentlyOn != 0; } inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player) { OffsetX = x; OffsetY = y; specificPlayer = (short)player; return this; } inline void tDialogBase::SetSpecificPlayer(short player) { specificPlayer = player; }
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -73,7 +73,7 @@ struct tDialogMessageString : public tDialogBase {
     inline void Display(int word);
 #endif
     tDialogMessageString() NFS4_FEDIALOG_STRIP;
-#if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_FEDIALOG_FULLYOPEN_SURFACE)
+#if 1   /* FRONT26: every includer (retail class-region MS TPDEFs); was DIRECT || FULLYOPEN_SURFACE */
     /* ORIGINAL-NAME-UNRESOLVED: retail tDialogYesNo::ProcessInput records an inline pair with a
        tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
     inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
@@ -82,7 +82,7 @@ struct tDialogMessageString : public tDialogBase {
 };
 #line 76 "recon/frontend/common/fedialog.h"
 inline tDialogMessageString *tDialogMessageString::SetString(char *mess) { string = mess; return this; }
-#if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_FEDIALOG_FULLYOPEN_SURFACE)
+#if 1
 inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
 #endif
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {

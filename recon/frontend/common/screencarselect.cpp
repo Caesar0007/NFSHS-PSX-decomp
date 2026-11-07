@@ -2504,7 +2504,7 @@ void tScreenPinkSlipsCarSelect::SetDialog()
     {
       sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player));
 
-      this->CarDialog.Display(WaitingString);
+      this->CarDialog.SetString(WaitingString)->tDialogBase::Display();
     }
     else {
 

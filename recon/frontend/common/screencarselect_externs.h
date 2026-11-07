@@ -239,13 +239,13 @@ static inline long GetTicks(void) { return (long)::ticks[0]; }
 /* The retail SLD records this three-store expansion as an inline tDialogBase
    scope in both car-select SetDialog methods.  No standalone symbol survives,
    so SetPosition is a semantic reconstruction of the unavailable identifier. */
-inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
-{
-  OffsetX = x;
-  OffsetY = y;
-  specificPlayer = (short)player;
-  return this;
-}
+/* tDialogBase::SetPosition(short, short, tPlayer) and SetSpecificPlayer: in-class in fedialog.h (FRONT26). */
+
+
+
+
+
+
 
 inline tDialogBase *tDialogBase::SetPosition(short x, short y)
 {
@@ -254,17 +254,17 @@ inline tDialogBase *tDialogBase::SetPosition(short x, short y)
   return this;
 }
 
-inline void tDialogBase::SetSpecificPlayer(short player)
-{
-  specificPlayer = player;
-}
+
+
+
+
 
 /* Inferred overloads: receiver ownership is authoritative, spelling is not. */
-inline void tDialogMessageString::Display(char *text)
-{
-  string = text;
-  tDialogBase::Display();
-}
+/* Display(char *): replaced by SetString(char *)->tDialogBase::Display() at its caller (FRONT26). */
+
+
+
+
 
 inline tDialogMessageString *tDialogMessageString::SetString(int word)
 {

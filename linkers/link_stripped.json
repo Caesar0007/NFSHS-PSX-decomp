@@ -833,6 +833,18 @@
    "function": "SetDataBuffer__14AIDataRecord_tPc",
    "source": "recon/game/common/aidatarecord_types.h",
    "evidence": "AIDataRecord_t::SetDataBuffer (owner-only header: LINK_STRIPPED prototype) (0x8 B), inline in recon/game/common/aidatarecord_types.h. AIDATARECORD.obj is now compiled with retail's PsyQ 4.4 CC1PLPSX (2.8.1-sn) without -fno-implement-inlines -- the compiler that makes AIDataRecord_AccTable_t's synthesized destructors global as in the retail SYM (SYMLANE L4 / LANE2 M1) -- and, owning the class key function, emits this standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (P6 Route C 2026-11-07: slink removed exactly the 29 newly tagged copies, retail-kept 0, NFS4.EXE and FRONT.BIN byte-identical to the retail disc files; receipt build/tmp/v/P6_state.md); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fedialog.cpp.o",
+   "function": "SetSpecificPlayer__11tDialogBases",
+   "source": "recon/frontend/common/fedialog.h",
+   "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (FRONT26 set AB2); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fedialog.cpp.o",
+   "function": "SetPosition__11tDialogBasess7tPlayer",
+   "source": "recon/frontend/common/fedialog.h",
+   "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (FRONT26 set AB2); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
   }
  ]
 }

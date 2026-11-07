@@ -90,17 +90,17 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
 
 /* ---- SubtractiveBox  [FEMENUOPTIONS.CPP:115-148] SLD-VERIFIED ---- */
 
-  /* SYM-CODEGEN-CARRIER: packetCell -- the W59 oracle receipt above proves
-     this source-only address pseudo is required for retail register allocation. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read dr_mode, prim; the non-SYM
-     packetCell carrier follows the SYM set. */
+  /* packetCell (SubtractiveBox): ASMF2 2026-11-07 -- a record-less const
+     pointer; the old carrier local + three tail fences were not needed. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read dr_mode, prim; packetCell is a
+     record-less const pointer. */
 #line 112 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
 
 
 {
-  /* MATCH (W59): only dr_mode/prim recorded; packetCell + tail fences are
-     zero-insn local-alloc dials (packetCell in $s2, x in $s1). FRONT17: the
+  /* MATCH (W59): only dr_mode/prim recorded; ASMF2: packetCell is a const
+     pointer (record-less, retail SYM) and needs no tail fence. FRONT17: the
      two corner sums are record-less block consts (retail tags 5 / 7). */
 
   const int y2 = y + h;
@@ -108,9 +108,9 @@ void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
   const int x1 = x + w;
   DR_MODE *dr_mode;
   POLY_G4 *prim;
-  u_char **packetCell;
+  u_char **const packetCell = (u_char **)0x1f800004;
 
-  packetCell = (u_char **)0x1f800004; prim = (POLY_G4 *)*packetCell; ((tPsyQPrimTag *)prim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; *packetCell = (u_char *)prim + 0x24; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (POLY_G4 *)*packetCell; ((tPsyQPrimTag *)prim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; *packetCell = (u_char *)prim + 0x24; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
 
   *(int *)&prim->r0 = col1;
   *(int *)&prim->r1 = col2;
@@ -131,7 +131,7 @@ void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
 
 
   dr_mode = (DR_MODE *)*packetCell; ((tPsyQPrimTag *)dr_mode)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; *packetCell = (u_char *)dr_mode + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)dr_mode;
-  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0); __asm__("" : : "r"(packetCell)); __asm__("" : "=r"(x) : "0"(x)); __asm__("" : "=r"(x) : "0"(x)); return;
+  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0); return;
 }
 
 

@@ -10,7 +10,7 @@ extern AIHigh_Base *highLevelAIObjs[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gCopCarList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aih_basicperp.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern int                 Cars_gNumCopCars;

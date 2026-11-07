@@ -29,7 +29,7 @@ void Loading_DrawLoadingScreen(void)
 {
   char name [255];
   char *f;
-  char *g; int language; shapetbl *s; language = GameSetup_gData.userSetting.language;
+  char *g; int language; shapetbl *s; language = GameSetup_gData[56] /* userSetting.language */;
 
 
 
@@ -42,7 +42,7 @@ void Loading_DrawLoadingScreen(void)
 
 
 
-  sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],GameSetup_gData.track,GameSetup_gData.mirrorTrack + 0x61);
+  sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],GameSetup_gData[15] /* track */,GameSetup_gData[11] /* mirrorTrack */ + 0x61);
   f = (char *)loadshapeadr(name,(void *)0x0);
 
   sprintf(name,"%sLoada.psh",Paths_Paths[0x19]);

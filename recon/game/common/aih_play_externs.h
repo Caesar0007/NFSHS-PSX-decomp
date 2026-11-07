@@ -13,7 +13,7 @@ extern Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice);
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gCopCarList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aih_play.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Sim_tSimSystemVar simVar;
 extern Trk_NewSlice  *BWorldSm_slices;
@@ -95,10 +95,10 @@ inline void AICop_PerpChaseInfo::InitializeChaseTimer(int lapTime)
 {
   engagementTime_ = lapTime << 0x15;
   engagementPercentIncreasePerTick_ = 0x10000 / (lapTime << 5);
-  if (GameSetup_gData.numLaps == 2)
+  if (GameSetup_gData[1] /* numLaps */ == 2)
     engagementPercentIncreasePerTick_ =
       fixedmult(engagementPercentIncreasePerTick_,0x13333);
-  else if (GameSetup_gData.numLaps == 4)
+  else if (GameSetup_gData[1] /* numLaps */ == 4)
     engagementPercentIncreasePerTick_ =
       fixedmult(engagementPercentIncreasePerTick_,0xa8f5);
 }

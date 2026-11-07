@@ -241,8 +241,8 @@ void Force_Update(Car_tObj *car)
     return;
   }
 
-  skids = GameSetup_gData.controllerData.shockMode[car->carIndex];
-  impacts = GameSetup_gData.controllerData.shockImpact[car->carIndex];
+  skids = GameSetup_gData[21][car->carIndex] /* controllerData.shockMode[car->carIndex] */;
+  impacts = GameSetup_gData[22][car->carIndex] /* controllerData.shockImpact[car->carIndex] */;
   if (skids != 0) frontmultiplier = (skids + 0x10) * 0x2da6; else frontmultiplier = 0;
   if (skids != 0) rearmultiplier = (skids + 0x10) * 0x1e6e; else rearmultiplier = 0;
   if (impacts != 0) impactmultiplier = (impacts + 0x10) * 0xb699; else impactmultiplier = 0;
@@ -369,7 +369,7 @@ void Force_StartUp(void)
   VSyncCallback(Force_Vbl);
   Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[1][1] /* commMode */ == 1) {
     Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[1],0x32);
   }
 }

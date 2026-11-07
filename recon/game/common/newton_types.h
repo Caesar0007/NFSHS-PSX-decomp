@@ -5,7 +5,9 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "color_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
+#ifdef NFS4_NEWTON_AS_AI_BTCCOP   /* aih_btccop still reads GameSetup_tData members; newton.obj records no GameSetup_tData */
 #include "shared/GameSetup_tData.h"
+#endif
 
 
 

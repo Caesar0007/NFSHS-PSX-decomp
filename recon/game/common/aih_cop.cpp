@@ -643,7 +643,7 @@ void AIHigh_Cop::HighExecute()
 
 
 
-          int rev = GameSetup_gData.reverseTrack; int dir = newTrigger.roadblock.dir; int wrongWayHit; if (rev == 0) { wrongWayHit = (dir == 1); } else { wrongWayHit = (dir == -1); } if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
+          int rev = GameSetup_gData[12] /* reverseTrack */; int dir = newTrigger.roadblock.dir; int wrongWayHit; if (rev == 0) { wrongWayHit = (dir == 1); } else { wrongWayHit = (dir == -1); } if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
 
 
             this->AssignToPlayer((AIHigh_Player *)0x0);
@@ -667,7 +667,7 @@ void AIHigh_Cop::HighExecute()
 
 
 
-          if (GameSetup_gData.reverseTrack == 0) { direction = 1;
+          if (GameSetup_gData[12] /* reverseTrack */ == 0) { direction = 1;
 
           }
 
@@ -723,7 +723,7 @@ void AIHigh_Cop::HighExecute()
         this->GetCheckChasePosition(&pos);
 
 
-        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), chaseState);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData[2] /* skill */]), chaseState);
 
         Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->CarObj());
       }
@@ -851,7 +851,7 @@ void AIHigh_Cop::HighExecute()
       if ((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) {
         Car_tObj *carObj;
         int direction;
-        direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
+        direction = 1; carObj = this->carObj_; if (GameSetup_gData[12] /* reverseTrack */ == 0) { direction = -1; } carObj->desiredDirection = direction;
         (this->carObj_)->driveDirection = 1;
       }
       {
@@ -907,7 +907,7 @@ void AIHigh_Cop::HighExecute()
     if ((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) {
       {
         int direction;
-        Car_tObj *carObj; direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
+        Car_tObj *carObj; direction = 1; carObj = this->carObj_; if (GameSetup_gData[12] /* reverseTrack */ == 0) { direction = -1; } carObj->desiredDirection = direction;
         (this->carObj_)->driveDirection = 1;
       }
       { AIState_Base *newState; this->AssignToPlayer((AIHigh_Player *)0x0);
@@ -934,7 +934,7 @@ void AIHigh_Cop::HighExecute()
     if (this->driveAway_ != 0) {
 LAB_80064a0c:
       {
-        AIState_Base *newState; { Car_tObj *carObj; int direction; direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
+        AIState_Base *newState; { Car_tObj *carObj; int direction; direction = 1; carObj = this->carObj_; if (GameSetup_gData[12] /* reverseTrack */ == 0) { direction = -1; } carObj->desiredDirection = direction;
           (this->carObj_)->driveDirection = 1;
         }
         this->AssignToPlayer((AIHigh_Player *)0x0);
@@ -962,7 +962,7 @@ LAB_80064a0c:
 
         if ((this->requestSpikeBeltAtSlice_ != -1) && (AICop_spikeBelt.active_ == 0)) {
           int size;
-          int left; int right; if (GameSetup_gData.skill != 0) { size = 0xe666; if (GameSetup_gData.skill == 1) { size = 0xcccc; } } else { size = 0xb333;
+          int left; int right; if (GameSetup_gData[2] /* skill */ != 0) { size = 0xe666; if (GameSetup_gData[2] /* skill */ == 1) { size = 0xcccc; } } else { size = 0xb333;
           }
           left = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1e) << 15) * (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) >> 4),size);
           right = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) * (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf),size);
@@ -1045,7 +1045,7 @@ LAB_80064a0c:
 
 
 
-        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData[2] /* skill */]), (stateType_t)4);
 
         if (this->blockade_.reverse != 0) {
           AIPhysic_ChangeDirection(this->carObj_,0x40); } } break;
@@ -1065,7 +1065,7 @@ LAB_80064a0c:
         this->GetCheckChasePosition(&pos);
 
 
-        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData[2] /* skill */]), (stateType_t)4);
 
         Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_); break;
       }
@@ -1539,7 +1539,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
 
 
-      if (GameSetup_gData.skill == 2) {
+      if (GameSetup_gData[2] /* skill */ == 2) {
         fRandomChance = 0x10000;
       }
       if (simGlobal.gameTicks - thisPlayer->LastPullOverTime() <= 0x1bf)

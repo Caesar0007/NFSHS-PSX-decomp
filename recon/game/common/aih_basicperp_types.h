@@ -72,7 +72,7 @@ struct Speech {
 };
 
 /* Canonical foreign aggregates used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail aih_basicperp.obj (GameSetup_gData is read through its word view) */
 
 
 

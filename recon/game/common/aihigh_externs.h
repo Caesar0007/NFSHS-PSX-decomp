@@ -8,7 +8,7 @@
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aihigh.obj records no GameSetup_tData */
 extern int            Cars_gNumCars;
 extern int       Cars_gNumHumanRaceCars;
 extern int AI_elapsedTime;   /* @0x8013c554 */

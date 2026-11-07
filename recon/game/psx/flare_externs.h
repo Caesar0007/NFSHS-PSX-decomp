@@ -15,7 +15,7 @@ extern short         DrawC_gReflectOffset;       /* 0x8013d814 */
 extern int           R3DCar_InMenu;              /* 0x8013d324 */
 
 /* ---- track / setup / sim ---- */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail flare.obj records no GameSetup_tData */
 extern CTrackSpec TrackSpec_gSpec;
 extern Sim_tSimGlobalVar simGlobal;
 

@@ -418,11 +418,11 @@ void TexturesLoadInitial(void)
 
 
 
-  if (GameSetup_gData.Time != 0) { if (GameSetup_gData.Weather != 0) {
+  if (GameSetup_gData[21] /* Time */ != 0) { if (GameSetup_gData[18] /* Weather */ != 0) {
       success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("S0.psh"),(void *)0x0));
     } else {
       success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("N0.psh"),(void *)0x0));
-  } } else if (GameSetup_gData.Weather != 0) {
+  } } else if (GameSetup_gData[18] /* Weather */ != 0) {
     success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("W0.psh"),(void *)0x0));
   } else {
     success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("0.psh"),(void *)0x0));

@@ -10,7 +10,7 @@ extern void trap(int);  /* Ghidra builtin = MIPS `break` (gcc div-by-zero 0x1C00
 /* ---- PsyQ libpad ---- */
 
 /* ---- harvested from sealed *_externs.h ---- */
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[325][2]; /* word view (2600 bytes): retail device.obj records no GameSetup_tData */
 extern Sim_tSimSystemVar simVar;
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 extern int             Input_gHandler[];        /* 0x80113c14  per-control packed input descriptor */

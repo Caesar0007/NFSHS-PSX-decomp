@@ -2074,7 +2074,7 @@ void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
   CVECTOR color;
   DVECTOR posOnScreen;
   int pshift = 0x78, vertRezBy2, dvz, otz;
-  if (GameSetup_gData.commMode == 1)
+  if (GameSetup_gData[3] /* commMode */ == 1)
   {
     pshift = 0x3c;
   }
@@ -2101,7 +2101,7 @@ gte_stlvnl(&diff);
   posOnScreen.vy = (short)((diff.vy >> 2) + pshift);
 
   vertRezBy2 = 0x78;
-  if (GameSetup_gData.commMode == 1)
+  if (GameSetup_gData[3] /* commMode */ == 1)
     vertRezBy2 = 0x3c;
 
 
@@ -2114,7 +2114,7 @@ gte_stlvnl(&diff);
   gte_SetTransVector(&diff);
 
   if (posOnScreen.vx < 0x13d)
-    if ((GameSetup_gData.commMode != 1) && ((TrackSpec_gSpec.skyspec.flags & 0x100U) == 0))
+    if ((GameSetup_gData[3] /* commMode */ != 1) && ((TrackSpec_gSpec.skyspec.flags & 0x100U) == 0))
       Flare_LensFlare(&posOnScreen,sd);
 
 
@@ -2157,7 +2157,7 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
   CVECTOR color;
   DVECTOR posOnScreen;
   int pshift = 0x78;
-  if (GameSetup_gData.commMode == 1)
+  if (GameSetup_gData[3] /* commMode */ == 1)
   {
     pshift = 0x3c;
   }

@@ -51,7 +51,7 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART
 
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail aihigh.obj (GameSetup_gData is read through its word view) */
 
 
 

@@ -63,7 +63,7 @@ extern int   Force_IsForceOn(Car_tObj *car);
 extern int   Sched_ExecuteCheck(int a, int b, int c, int d, int *e, int *f, int *g, int h);
 
 /* ---- globals ---- */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail newton.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;

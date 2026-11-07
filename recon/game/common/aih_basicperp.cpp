@@ -86,7 +86,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 
-  if (AITune_oneWay != 0) { switch (((u_int)carObj_->currentSpeed + (GameSetup_gData.reverseTrack != 0
+  if (AITune_oneWay != 0) { switch (((u_int)carObj_->currentSpeed + (GameSetup_gData[12] /* reverseTrack */ != 0
 
              ? -2U * (u_int)carObj_->currentSpeed : 0U)) >> 31) { case 0: break; default: if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) && (crime == CRIME_NONE))
 
@@ -160,7 +160,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 { int absSpeed; int perpUpright; int skill;
 
 
-  skill = GameSetup_gData.skill;
+  skill = GameSetup_gData[2] /* skill */;
 
 
   if ((this->carObj_->carFlags & 2U) != 0) {
@@ -189,13 +189,13 @@ int AIHigh_BasicPerp::CheckIfCaught()
       for (int carLoop = 0; ; carLoop = carLoop + 1) { Car_tObj *cop; int diffSpeed; int validCar; if (Cars_gNumCars <= carLoop) { return 0; }
 
         cop = Cars_gList[carLoop];
-        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed; validCar = 0; if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
+        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed; validCar = 0; if (((((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
 
 
 
             && ((cop->carFlags & 0x200U) != 0)))
           validCar = 1;
-        else if (((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) && ((cop->carFlags & 0x20U) != 0)))) {
+        else if (((((GameSetup_gData[0] /* raceType */ != RaceType_HotPursuit && (GameSetup_gData[0] /* raceType */ != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) && ((cop->carFlags & 0x20U) != 0)))) {
           validCar = 1; }
 
 
@@ -234,7 +234,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
             if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) && (barrierInWay == 0))
             { int xDot; int zDot;
 
-              xDot = 0; zDot = 0x10000; if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
+              xDot = 0; zDot = 0x10000; if (((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
 
               ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
@@ -301,7 +301,7 @@ void AIHigh_BasicPerp::RemoveCloseCops()
     {
       AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
 
-      cop->desiredDirection = cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1; cop->driveDirection = 1;
+      cop->desiredDirection = cop->direction = GameSetup_gData[12] /* reverseTrack */ == 0 ? -1 : 1; cop->driveDirection = 1;
 
 
       if (distance < 0x1e0000)

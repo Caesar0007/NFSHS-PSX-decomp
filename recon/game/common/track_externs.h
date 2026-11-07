@@ -33,7 +33,7 @@ extern CTrackSpec TrackSpec_gSpec;
 extern CVECTOR * Chunk_lightTable;
 extern Chunk * Track_chunkList;
 extern Draw_tPixMap Track_gReflectionMaps[4];
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail track.obj records no GameSetup_tData */
 extern Group * gPersistMidgroundObjInst;
 extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;

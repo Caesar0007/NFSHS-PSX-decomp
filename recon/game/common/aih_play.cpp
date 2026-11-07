@@ -878,9 +878,9 @@ inline AICop_PerpChaseInfo::AICop_PerpChaseInfo()
    * and keep that read AT its use in the chaseLevel_ statement -- moving it earlier costs
    * ~16 diffs. The nested initializer preserves retail's pointer copy without
    * introducing a new caller object; literal original helper names are unknown. */
-  lapIndex = (u_int)(GameSetup_gData.numLaps != 2);
+  lapIndex = (u_int)(GameSetup_gData[1] /* numLaps */ != 2);
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
     gameIndex = 2;
 
@@ -908,7 +908,7 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 
   this->numWarnings_ = 0;
   this->numBusts_ = 0;
-  if (GameSetup_gData.cops != 0)
+  if (GameSetup_gData[5] /* cops */ != 0)
   { this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
         this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
 
@@ -1188,8 +1188,8 @@ void AIHigh_Player::HandlePullOver()
 
     {
       this->numBusts_ = this->numBusts_ + 1;
-      (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1; int lapIndex; lapIndex = GameSetup_gData.numLaps == 2 ? 0
-                     : (GameSetup_gData.numLaps == 4 ? 1 : 2);
+      (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1; int lapIndex; lapIndex = GameSetup_gData[1] /* numLaps */ == 2 ? 0
+                     : (GameSetup_gData[1] /* numLaps */ == 4 ? 1 : 2);
 
       if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[lapIndex]) || ((this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1) &&
 

@@ -23,7 +23,7 @@ extern bool gMPauseUpdate, gMPauseUpdateNextTime;  /* SYM BOOL; C++ source spell
 // [owned->defined in render.cpp] extern RECT gPauseMenuRect;  /* SYM: one 8-byte RECT; render.cpp uses -G8 */
 extern dflip gEnviro[2];
 extern FLARE_DEF gFlare_LensFlare;
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail render.obj records no GameSetup_tData */
 
 /* ---- functions ---- */
 extern void BWorld_OnyxBuildFacets(DRender_tView *v);

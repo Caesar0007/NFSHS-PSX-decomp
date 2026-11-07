@@ -14,7 +14,7 @@ extern long              colourRGB[16];       /* 0x8011fd70  array-end sentinel 
 
 /* ---- shared game globals ---- */
 extern Sim_tSimGlobalVar simGlobal;
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[325][2]; /* word view (2600 bytes): retail force.obj records no GameSetup_tData */
 extern Car_tObj         *Cars_gHumanRaceCarList[9]; /* 0x8010fa48 (36 bytes) */
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 

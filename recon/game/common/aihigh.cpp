@@ -47,7 +47,7 @@ void AIHigh_StartUp(void)
   int carLoop, copCounter = 0, humanCopCounter = 0;
 
 
-  AIState_StartUp(); if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 &&
+  AIState_StartUp(); if (((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 &&
 
 
          ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))

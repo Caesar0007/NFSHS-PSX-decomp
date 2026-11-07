@@ -102,7 +102,7 @@ int Device_VerifyType(int port)
       InGame_ResetPSXController(port != 0,
 
 
-          GameSetup_gData.controllerData.controllerConfig[port != 0]);
+          GameSetup_gData[12][port != 0] /* controllerData.controllerConfig[port != 0] */);
 
       frontEnd.controlType[port != 0] = gPadinfo.buf[port].ID;
       return 1;
@@ -193,7 +193,7 @@ void Device_Update(void)
       Device_gPausePort = 0;
       Device_gPausePortIndex = '\0';
     }
-    else { if ((GameSetup_gData.commMode == 1) && (Device_Fail(4) != 0)) {
+    else { if ((GameSetup_gData[1][1] /* commMode */ == 1) && (Device_Fail(4) != 0)) {
         /* the SYM has no local here; retail stores the literal 1 (same bytes as a commMode copy, which is 1 in this arm) */
         Device_gForcePause = 1;
         Device_gPausePort = 4;
@@ -359,7 +359,7 @@ int Device_PSXPadMulti(u_long param)
   }
 
 
-  if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) { if (Device_ReadPad(4,param) == 0) {
+  if ((1 < Replay_ReplayMode) || (GameSetup_gData[1][1] /* commMode */ == 1)) { if (Device_ReadPad(4,param) == 0) {
       return 0;
     }
 

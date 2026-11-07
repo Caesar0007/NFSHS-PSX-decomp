@@ -14,7 +14,7 @@
 
 
 
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail device.obj (GameSetup_gData is read through its word view) */
 
 
 

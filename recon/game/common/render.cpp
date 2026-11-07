@@ -99,7 +99,7 @@ void Render_CreatePlayerViews(void)
 
 {
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
 
 
 
@@ -199,7 +199,7 @@ void Render_StartRenderingWorldView(int viewid)
 
 
 
-  *(int *)0x1F80000C = GameSetup_gData.mirrorTrack;
+  *(int *)0x1F80000C = GameSetup_gData[11] /* mirrorTrack */;
 
 
 
@@ -456,7 +456,7 @@ void Render_Render(int pause)
     }
     else {
 
-      if (GameSetup_gData.commMode == 1) {
+      if (GameSetup_gData[3] /* commMode */ == 1) {
 
 
         Render_StartFrameRender();
@@ -517,7 +517,7 @@ void FlareThing(void)
   int players;
 
   players = 1;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] /* commMode */ == 1) {
     players = 2;
   }
   for (int i = 0; i < players; i++) {
@@ -543,7 +543,7 @@ void Render_InitTrackRender(void)
 
 {
 
-  TrackSpec_Load(GameSetup_gData.Weather,GameSetup_gData.Time);
+  TrackSpec_Load(GameSetup_gData[18] /* Weather */,GameSetup_gData[21] /* Time */);
 
   Render_CreateViews();
 
@@ -714,7 +714,7 @@ void Render_InitBlurMode(void)
 
 
 {
-  switch (GameSetup_gData.sgge) {
+  switch (GameSetup_gData[14] /* sgge */) {
   case 0x10:
     Render_gBlurEffectMode = 0xb;
     break;

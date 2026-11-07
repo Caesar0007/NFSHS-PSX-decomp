@@ -35,7 +35,7 @@ typedef enum forceFocus_t {
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 /* Canonical gmesetup.obj aggregate retained by flare.obj. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail flare.obj (GameSetup_gData is read through its word view) */
 
 
 

@@ -5,7 +5,7 @@
 /* ---- globals ---- */
 extern char          *smallShapeFile;          /* 0x8013d9d0  Loadb.psh progress tiles */
 extern int            totalAvailMem;           /* 0x8013d9dc */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail loading.obj records no GameSetup_tData */
 extern char          *Paths_Paths[];           /* 0x80116468 */
 
 /* ---- eaclib / syslib / Draw helpers ---- */

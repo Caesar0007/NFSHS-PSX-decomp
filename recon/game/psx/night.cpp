@@ -707,7 +707,7 @@ void Night_PauseLightningEffect(int player)
   int slice; slice = Camera_gInfo[player].slicePos.slice;
 
 
-  track = GameSetup_gData.track;
+  track = GameSetup_gData[15] /* track */;
 
   {   /* retail SYM: startp / endp live in their own scope */
     int startp;
@@ -1032,7 +1032,7 @@ void Night_GenerateAllLightTables(void)
 
   for (int colorIndex = 0; colorIndex < Night_gTotalLights; colorIndex = colorIndex + 1) {
 
-      if (GameSetup_gData.Weather == 1) {
+      if (GameSetup_gData[18] /* Weather */ == 1) {
         Night_SetWeatherColors(colorIndex);
       } for (int i = 0; i < 0x10; i = i + 1) {
         int bright;
@@ -1046,7 +1046,7 @@ void Night_GenerateAllLightTables(void)
 
 
 
-        if ((GameSetup_gData.cops != 0) && (i < 8)) {
+        if ((GameSetup_gData[5] /* cops */ != 0) && (i < 8)) {
           Night_SetCopLightColors(colorIndex,bright);
         } }
     }
@@ -1096,9 +1096,9 @@ void Night_InitNightDriving(void)
 
 
 {
-  gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
+  gNight_renderNight = GameSetup_gData[21] /* Time */ != 0 && GameSetup_gData[3] /* commMode */ != 1;
 
-  if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
+  if ((GameSetup_gData[21] /* Time */ != 0) && (gNight_renderNight == 0)) {
 
     TrackSpec_gSpec.depthcuespec.distance = 0xff;
     *(long *)&TrackSpec_gSpec.depthcuespec.color = 0;
@@ -1129,16 +1129,16 @@ void Night_InitNightDriving(void)
 
 
 
-    if (GameSetup_gData.cops != 0) {
+    if (GameSetup_gData[5] /* cops */ != 0) {
       Night_InitCopLightColors();
     }
-    if (GameSetup_gData.Weather == 1) {
+    if (GameSetup_gData[18] /* Weather */ == 1) {
       Night_InitWeatherTables();
     }
     Night_GenerateAllLightTables();
 
 
-    if (GameSetup_gData.Weather == 1) {
+    if (GameSetup_gData[18] /* Weather */ == 1) {
 
       Night_gLightning = 0;
       Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
@@ -1198,7 +1198,7 @@ void Night_RestartNightDriving(void)
 
 
 {
-  if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
+  if ((GameSetup_gData[18] /* Weather */ == 1) && (GameSetup_gData[21] /* Time */ != 0)) {
 
     Night_gLightning = 0;
     Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
@@ -1442,7 +1442,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
 {
 
 
-  if (GameSetup_gData.Time != 0)
+  if (GameSetup_gData[21] /* Time */ != 0)
   {
 
 
@@ -1456,7 +1456,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
 
     Night_gDrawLightning = '\0';
 
-    if (GameSetup_gData.Weather == 1) {
+    if (GameSetup_gData[18] /* Weather */ == 1) {
 
 
       Night_PauseLightningEffect(Vi->player);

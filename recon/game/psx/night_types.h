@@ -16,7 +16,7 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail night.obj (GameSetup_gData is read through its word view) */
 
 
 

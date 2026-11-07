@@ -13,7 +13,7 @@ extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
 extern Car_tObj *Cars_gTotalSortedList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aih_cop.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern copTuning_t copTuningInfo[];
@@ -78,10 +78,10 @@ inline void AICop_PerpChaseInfo::ResetEngagementTime()
   perTick = 0x10000 / ((engagement >> 0x10) << 5);
   engagementTime_ = (engagement >> 0x10) << 0x15;
   engagementPercentIncreasePerTick_ = perTick;
-  if (GameSetup_gData.numLaps == 2) {
+  if (GameSetup_gData[1] /* numLaps */ == 2) {
     factor = 0x13333;
   }
-  else if (GameSetup_gData.numLaps == 4) {
+  else if (GameSetup_gData[1] /* numLaps */ == 4) {
     factor = 0xa8f5;
   }
   else {

@@ -88,7 +88,7 @@ void HudPmx_InitTextures(void)
 
 
 
-  sprintf(mapname,"mp%02d",GameSetup_gData.track);
+  sprintf(mapname,"mp%02d",GameSetup_gData[15] /* track */);
 
 
   char *shapes[132] = {
@@ -164,9 +164,9 @@ void HudPmx_InitTextures(void)
 
 
 
-  carType0 = GameSetup_gData.carInfo[0].carType;
-  carType1 = GameSetup_gData.carInfo[1].carType;
-  if (GameSetup_gData.Time != 0) {
+  carType0 = GameSetup_gData[245] /* carInfo[0].carType */;
+  carType1 = GameSetup_gData[290] /* carInfo[1].carType */;
+  if (GameSetup_gData[21] /* Time */ != 0) {
 
     if (carType0 < 0x1e) { shapes[129] = ntachs[carType0]; } else { shapes[129] = "nbon";
     } if (carType1 < 0x1e) { shapes[131] = ntachs[carType1]; goto HudPmxInit_shapeLoadLoop; } shapes[131] = "nbon";

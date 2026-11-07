@@ -133,7 +133,7 @@ void InitializeSpinningCars(void)
 
     Fe3D_InitShowroom();
 
-    GameSetup_gData.Weather = 0;
+    GameSetup_gData[18] /* Weather */ = 0;
 
 
 
@@ -142,7 +142,7 @@ void InitializeSpinningCars(void)
       carObj = ((i = i, (int)reservememadr("carObj",0x8dc,0)) ?: 0) + ((carObj = 0) != 0);
       gCarObj[i] = (Car_tObj *)carObj; blockclear((void *)carObj,0x8dc);
 
-      ((Car_tObj *)carObj)->carInfo = &GameSetup_gData.carInfo[i];
+      ((Car_tObj *)carObj)->carInfo = (GameSetup_tCarData *)&GameSetup_gData[245] + i /* &carInfo[i] */;
 
       ((Car_tObj *)carObj)->carInfo->carType = 1;
       strcpy(((Car_tObj *)carObj)->carName,GameSetup_gCarNames[((Car_tObj *)carObj)->carInfo->carType]);

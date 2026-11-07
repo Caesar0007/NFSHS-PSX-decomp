@@ -84,7 +84,7 @@ extern int Draw_gDoVSync[];
 extern int Draw_gPlayer1View[];  /* unsized array shape: forces the separate-%hi-scratch arg load (methodology 3.12 #5) */
 extern int Draw_gRearView[];
 extern char GameSetup_gCarNames[51][5];
-extern PSXFront_GameSetupCodegenView GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail PSXFront.obj records no GameSetup type */
 extern char *Paths_Paths[50];
 extern int R3DCar_InMenu[];
 extern u_long font_tint;

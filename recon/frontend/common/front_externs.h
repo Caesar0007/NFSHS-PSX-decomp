@@ -113,7 +113,7 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cp
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 extern int CountryMeasurement[16];
 extern tCreditManager CreditManager;   /* W58-A1: real type -- Setup__14tCreditManager */
-extern GameSetup_tData GameSetup_gData;
+extern GameSetup_tData GameSetup_gData NFS4_FRONT_GS_DIMS;
 extern bool MEMCARDFRONTENDISINITTED;  /* SYM BOOL; CC1PLPSX bool is 4 bytes */
 /* TRUE TYPE = the array object (was a bare `int`; W62-A17).  Owner def:
    game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94; every

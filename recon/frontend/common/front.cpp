@@ -1241,7 +1241,7 @@ int Front_Menu(tFront_ProcessingType role)
 
     gCalculateVictory = (char)one;
 
-    if ((frontEnd.raceType == RaceType_Tournament) && (GameSetup_gData.replayMode == 0)) {
+    if ((frontEnd.raceType == RaceType_Tournament) && (GameSetup_gData[4][1] /* replayMode */ == 0)) {
 
 
 
@@ -1250,7 +1250,7 @@ int Front_Menu(tFront_ProcessingType role)
       tournamentManager.UpdateAwardInformation();
     }
     else if ((frontEnd.raceType == RaceType_PinkSlips) &&
-             (GameSetup_gData.replayMode == 0))
+             (GameSetup_gData[4][1] /* replayMode */ == 0))
     {
       Car_tStats *dummyCars = Cars_NewCarStatsList();
       if (((dummyCars[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
@@ -3282,17 +3282,17 @@ void Front_GetInGameVars(void)
   frontEnd.engineVolume = (char)gMasterEngineLevel[0];
   frontEnd.narrationVolume = (char)gMasterFENarrationLevel[0];
   frontEnd.ambientVolume = (char)gMasterAmbientLevel[0];
-  frontEnd.pinkSlipsForfeit = (short)GameSetup_gData.pinkSlipsForfeit;
+  frontEnd.pinkSlipsForfeit = (short)GameSetup_gData[23][0] /* pinkSlipsForfeit */;
 
   i = 0; do {
 
-    frontEnd.controlConfig[i] = (char)GameSetup_gData.controllerData.controllerConfig[i];
-    frontEnd.deadSpot[i] = (char)GameSetup_gData.controllerData.deadSpot[i];
-    frontEnd.steeringRange[i] = (char)GameSetup_gData.controllerData.steeringRange[i];
-    frontEnd.IImaxRange[i] = (char)GameSetup_gData.controllerData.IImaxRange[i];
-    frontEnd.ImaxRange[i] = (char)GameSetup_gData.controllerData.ImaxRange[i];
-    frontEnd.shockMode[i] = (char)GameSetup_gData.controllerData.shockMode[i];
-    frontEnd.shockImpact[i] = (char)GameSetup_gData.controllerData.shockImpact[i];
+    frontEnd.controlConfig[i] = (char)GameSetup_gData[12][i] /* controllerData.controllerConfig[i] */;
+    frontEnd.deadSpot[i] = (char)GameSetup_gData[13][i] /* controllerData.deadSpot[i] */;
+    frontEnd.steeringRange[i] = (char)GameSetup_gData[14][i] /* controllerData.steeringRange[i] */;
+    frontEnd.IImaxRange[i] = (char)GameSetup_gData[15][i] /* controllerData.IImaxRange[i] */;
+    frontEnd.ImaxRange[i] = (char)GameSetup_gData[16][i] /* controllerData.ImaxRange[i] */;
+    frontEnd.shockMode[i] = (char)GameSetup_gData[21][i] /* controllerData.shockMode[i] */;
+    frontEnd.shockImpact[i] = (char)GameSetup_gData[22][i] /* controllerData.shockImpact[i] */;
     i = i + 1; } while (i < 2); return;
 }
 

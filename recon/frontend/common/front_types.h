@@ -245,15 +245,15 @@ struct Front_MissionManagerCodegenView {
 };
 #define tMissionManager Front_MissionManagerCodegenView
 
-struct Front_GameSetupCodegenView {
-    int _beforeReplayMode[9];
-    int replayMode;
-    int _beforeControllerData[14];
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit;
-    char _tail[2600 - 188];
-};
-#define GameSetup_tData Front_GameSetupCodegenView
+/* GameSetup_gData: Front.obj records no GameSetup type -- read through a word-pair view of the same 2600
+   bytes (front_externs.h: `extern int GameSetup_gData[325][2];`): replayMode [4][1], pinkSlipsForfeit [23][0],
+   controllerData.X[i] -> [12..22][i] (controllerConfig 12, deadSpot 13, steeringRange 14, IImaxRange 15,
+   ImaxRange 16, shockMode 21, shockImpact 22). */
+#define GameSetup_tData int
+#define NFS4_FRONT_GS_DIMS [325][2]
+
+
+
 
 struct tCreditManager {
     char _storage[56];

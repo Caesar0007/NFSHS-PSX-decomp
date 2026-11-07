@@ -123,22 +123,22 @@ typedef unsigned int qfunc();
 /* These completed foreign-owner tags are absent from PSXFront.obj.  Exact
  * private compiler-boundary views preserve the known extents and field
  * offsets used by the byte-matched bodies without claiming foreign types. */
-struct PSXFront_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+/* GameSetup_gData: PSXFront.obj records no GameSetup type -- read through a word view of the same 2600 bytes
+   (psxfront_externs.h: `extern int GameSetup_gData[650];`; Weather [18], &carInfo[i] = [245] + i*45 words). */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct PSXFront_DRenderCodegenView {
     int id, player;

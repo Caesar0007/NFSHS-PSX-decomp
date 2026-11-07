@@ -2160,23 +2160,23 @@ void tInsideBoxTwoWaySlider::Calibrate()
 {
   int range;
   int player;
-  __typeof__(gPadinfo) *padInfo; __typeof__(gPadinfo) *padBase; player = (u_char)FEApp->fInputPlayer;
+  u_char *padInfo; u_char *padBase; player = (u_char)FEApp->fInputPlayer;
 
-  padBase = &gPadinfo; padInfo = (__typeof__(gPadinfo) *)((char *)padBase + player * 0x20);
+  padBase = (u_char *)&gPadinfo; padInfo = padBase + player * 0x20;
 
   fHelpText = GetHelpText(screenControllerConfig[0]);
   switch (this->fType) {
   case 0:
 
-    if (padInfo->buf[0].ID == '#') {
+    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
 
-      range = padInfo->buf[0].data.negcon.twist;
+      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.twist;
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
       if (range < (u_char)frontEnd.deadSpot[player] + 10) { range = (u_char)frontEnd.deadSpot[player] + 10;
       } frontEnd.steeringRange[player] = (char)range;
     }
 
-    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange(player);
       if (range < (u_char)frontEnd.J1MIN[player] + 10) { range = (u_char)frontEnd.J1MIN[player] + 10;
@@ -2184,9 +2184,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.J1MAX[player] = (char)range;
     } break;
   case 1:
-    if (padInfo->buf[0].ID == '#') {
+    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
 
-      range = padInfo->buf[0].data.negcon.twist;
+      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.twist;
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
 
       if ((u_char)frontEnd.steeringRange[player] - 10 < range) { range = (u_char)frontEnd.steeringRange[player] - 10;
@@ -2194,7 +2194,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.deadSpot[player] = (char)range; }
 
 
-    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange(player);
 
@@ -2204,14 +2204,14 @@ void tInsideBoxTwoWaySlider::Calibrate()
 
     break;
   case 2:
-    if (padInfo->buf[0].ID == '#') {
+    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
 
-      range = padInfo->buf[0].data.negcon.buttonI;
+      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.buttonI;
       range = (range < 0) ? 0 : range;
       frontEnd.ImaxRange[player] = (char)range;
     }
 
-    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange2(player);
       if (range < (u_char)frontEnd.J2MIN[player] + 10) { range = (u_char)frontEnd.J2MIN[player] + 10;
@@ -2224,14 +2224,14 @@ void tInsideBoxTwoWaySlider::Calibrate()
   case 3:
 
 
-    if (padInfo->buf[0].ID == '#') {
+    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
 
-      range = padInfo->buf[0].data.negcon.buttonII;
+      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.buttonII;
       range = (range < 10) ? 10 : range;
       frontEnd.IImaxRange[player] = (char)range;
     }
 
-    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange2(player);
       if ((u_char)frontEnd.J2MAX[player] - 10 < range) { range = (u_char)frontEnd.J2MAX[player] - 10;

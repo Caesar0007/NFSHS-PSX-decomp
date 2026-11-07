@@ -653,7 +653,7 @@ void tScreenCarSelect::Initialize()
 
 {
   short i;
-  tTrackInformation *trackByID; tCarInfo carInfo;
+  tCarInfo carInfo; tTrackInformation *trackByID;
   tTrackInformation trackInfo;
   tTrackInfo tourneyTrack;
   

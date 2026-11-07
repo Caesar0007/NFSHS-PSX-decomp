@@ -36,14 +36,14 @@ struct tMenuCommand;
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-struct helpKeyData {
-    short text, button;
-};
 
-struct tHelpData {
-    char autoGenerate;
-    helpKeyData items[4];
-};
+
+
+
+
+
+
+
 #endif
 
 

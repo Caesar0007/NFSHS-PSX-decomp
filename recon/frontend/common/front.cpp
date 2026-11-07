@@ -810,7 +810,7 @@ void InitFrontEndStructure(void)
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read i, j. */
   int i;
-  int j;
+  int j; tCarInfo *car;
 
   frontEnd.randomSeed = 0;
   frontEnd.currentPlayer = '\0';
@@ -913,8 +913,8 @@ void InitFrontEndStructure(void)
 
     for (j = 0; j < 0x30; j++) {
 
-      frontEnd.carColors[i][j] = ((tCarInfo *)carManager.GetCarFromID((short)j))->fDefaultColor;
-
+      car = carManager.GetCarFromID((short)j);
+      frontEnd.carColors[i][j] = car->fDefaultColor;
     }
 
 

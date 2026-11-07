@@ -356,6 +356,14 @@ void tDialogHelp::AddItem(short textID,short controllerID)
   /* retail FeDialog.obj .rdata opens with an UNREFERENCED "SimpleMem" literal (0x80010238,
    * 12 bytes) right before this function's helpArray template (0x80010244) -- the same
    * dead tag string r3dcar.obj carries; the constant-false call keeps it, no code. */
+struct helpKeyData {
+    short text, button;
+};
+
+struct tHelpData {
+    char autoGenerate;
+    helpKeyData items[4];
+};
 #line 283 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogHelp::CalculateDimensions()
 

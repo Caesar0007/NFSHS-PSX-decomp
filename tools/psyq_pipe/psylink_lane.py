@@ -60,6 +60,8 @@ OFFICIAL = os.environ.get('NFS4_LANE_OFFICIAL') == '1'   # slink_lane.py: object
 EALIB_DECL_ORDER = os.environ.get('NFS4_LANE_EALIB_COMM') != 'native'   # official lane: EA library objects keep declaration order
 OFFICIAL_NATIVE_COMM = OFFICIAL and os.environ.get('NFS4_LANE_COMM') != 'model'   # official lane: .comm/.lcomm go to ASPSX 2.77 + the linker untouched
 #   (measured 2026-09-21: .bss +4 that way, against -40 with the PSYLINK lane's hand-made COMMON layout; NFS4_LANE_COMM=model = old)
+SRCROOT = Path(os.environ.get('NFS4_LANE_SRCROOT', 'C:/nfs4'))   # retail's compile directory (ASPSX cwd), see crlf()
+SRCROOT_OK = OFFICIAL and SRCROOT.is_dir() and os.environ.get('NFS4_LANE_SRCROOT') != 'off'
 ONLY = [f for f in os.environ.get('NFS4_LANE_ONLY', '').split(',') if f]   # per-file loop: assemble just these TUs
 WOUT = OUT if GMODE else W      # scratch OUTPUTS; inputs (sym_obj_order.json) always come from W
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
@@ -375,7 +377,20 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
 def crlf(src: Path, dst: Path, front=False, pads=None, g=None):
     # same dtor-prefix convention as build.py's GNU lane (`_._X` -> `___X`) so the
     # hand-written vtable references resolve; the compare step maps it back.
-    dst.write_bytes(sn_text(src, vtables='vtables_' in src.name, front=front, pads=pads, g=g).replace(b'_._', b'___'))
+    data = sn_text(src, vtables='vtables_' in src.name, front=front, pads=pads, g=g)
+    if OFFICIAL and os.environ.get('NFS4_LANE_DTOR') != 'gnu':
+        # SYMLANE 2026-11-07: the retail SYM spells every destructor `_._<class>` (420 records, no `___<class>`), i.e.
+        # the SN assembler/linker kept cc1plus's own name.  The official lane keeps it and maps the source's hand-written
+        # `___<len><class>` references (extern "C" aliases of dtors) to that spelling instead (NFS4_LANE_DTOR=gnu = old).
+        data = re.sub(rb'(?<![\w.$])___(?=\d)', b'_._', data)
+        if SRCROOT_OK:
+            # SYMLANE 2026-11-07: ASPSX writes a relative `.file` name as <its cwd, case kept> + <name upper-cased, / -> \>;
+            # an absolute one is upper-cased whole.  Retail SLD/Function paths are `C:\nfs4\GAME\COMMON\AI.CPP` = cwd
+            # C:\nfs4 + relative GAME/COMMON/AI.CPP.  So the anchors lose their root and ASPSX runs in that directory.
+            data = re.sub(rb'(\.file\s+\d+\s+")C:/nfs4/', rb'\1', data)
+        dst.write_bytes(data)
+    else:
+        dst.write_bytes(data.replace(b'_._', b'___'))
 
 
 def objname(rel):
@@ -423,7 +438,7 @@ if '--assemble' in steps:
         cmd = [ASPSX, '-q', *(['-g'] if dbg else []), f'-G{g}', str(tmp), '-o', str(obj)]
         if obj.exists():
             obj.unlink()
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(ROOT))
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(SRCROOT if SRCROOT_OK else ROOT))
         # ASPSX 2.77 can crash after creating an empty .obj (native COMMON
         # probe, 2026-10-12). Existence alone must never count as assembly
         # success. Backup: build/diagnostics/nativecommon_full_20261012/

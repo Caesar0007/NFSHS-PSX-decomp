@@ -83,6 +83,7 @@ RET = [('front.rdata', 0x28F0), ('front.text', 0x3E970), ('front.data', 0x18D8),
 # ---------------------------------------------------------------- 1. split the lane's script into game / EA lib / Sony
 src = (OUT / 'nfs4.lnk').read_text(encoding='latin-1').splitlines()
 head, game, equs = [], [], []
+RETNAME = {}           # our object file -> the name retail's script included it under (SYM FILE record name)
 ealibs = {}            # lib -> [(member, our object file)]
 sony_dropped, gaps = [], []
 prev_kind = 'game'
@@ -125,6 +126,8 @@ for ln in src:
             ealibs[lib].append((Path(fn).name.split('__')[-1].split('.')[0] + '_x', fn))
     else:
         game.append('\tinclude\t%s' % fn)
+        if note and not note.startswith('<'):
+            RETNAME[fn] = note
 
 # ---------------------------------------------------------------- 2. EA's libraries, made with the SN librarian
 LIBDIR = OUT / 'ealib'
@@ -149,10 +152,15 @@ for lib, members in ealibs.items():
 sony_libs = sorted({re.search(r'lib\\(\w+)\.lib', n).group(1).lower() for _, n in sony_dropped if re.search(r'lib\\(\w+)\.lib', n)})
 liborder = LIBORDER or (list(ealibs) + sony_libs)
 lnk = []
+ORG = next((l.split()[1] for l in head if re.match(r'^\s+org\s', l)), '$80010000')
 for ln in head:
     s = ln.strip()
     if s.startswith('front') and 'group' in s:
-        ln = 'front\tgroup\tover(text),file("%s_front.bin")' % variant
+        # SYMLANE 2026-11-07: retail's SYM has no overlay header / `set overlay` records and no `_SN_OVL_text_*` labels,
+        # which slink writes for an over() group.  An org() group at the image origin with file() gives the same CPE and
+        # FRONT.BIN bytes and the retail SYM header (--over = old form).
+        ln = ('front\tgroup\tover(text),file("%s_front.bin")' % variant if '--over' in sys.argv
+              else 'front\tgroup\torg(%s),file("%s_front.bin")' % (ORG, variant))
     lnk.append(ln)
     if re.match(r'^\s+org\s', ln):
         lnk.append('\tregs\tpc=__SN_ENTRY_POINT')
@@ -171,7 +179,8 @@ else:
     lnk.insert(k, 'last\tgroup\tbss')
     lnk += ['\tsection\t.rdata,text', '\tsection\t.text,text', '\tsection\t.data,text', '\tsection\t.sdata,text',
             '\tsection\t.ctors,text', '\tsection\t.dtors,text',
-            '\tsection\ttextpsx.text,text', '\tsection\ttextpsx.rdata,text', '\tsection\ttextpsx.data,text', '\tsection\ttextpsx.sdata,text',
+            # retail SYM label order: _textpsx_rdata_*, _textpsx_text_*, _textpsx_data_*, _textpsx_sdata_* (SYMLANE 2026-11-07)
+            '\tsection\ttextpsx.rdata,text', '\tsection\ttextpsx.text,text', '\tsection\ttextpsx.data,text', '\tsection\ttextpsx.sdata,text',
             '\tsection\t.sbss,bss', '\tsection\t.bss,bss', '\tsection\t.last,last',
             '\tsection\tfront.rdata,front', '\tsection\tfront.text,front', '\tsection\tfront.data,front',
             '\tsection\tfront.sdata,front', '\tsection\tfront.sbss,front', '\tsection\tfront.bss,front',
@@ -200,16 +209,57 @@ for f in (variant + '.cpe', variant + '.sym', variant + '.map', variant + '_fron
     if (OUT / f).exists():
         (OUT / f).unlink()
 cmd = [SLINK, '/psx', '/c', *(['/strip'] if STRIP else ['/st']), *extra, '@%s.lnk,%s.cpe,%s.sym,%s.map' % ((variant,) * 4)]
+# SYMLANE 2026-11-07: the SYM FILE records carry the include/inclib path exactly as the script wrote it.  Retail's are
+# `AI.obj`, `..\eaclib\psx\pad.obj`, `..\syslib\psx\lib\2mbyte.obj`, `..\syslib\psx\lib\libc.lib(C43.obj)`,
+# `..\eaclib\psx\eacpsxz.lib(fixdmult.obj)` = a link run in a game directory next to `..\syslib` and `..\eaclib`, with
+# the objects under their retail names.  Reproduce that tree (copies only; no object is modified) and link from it.
+LINKDIR = OUT
+if '--flatpaths' not in sys.argv:
+    RL = OUT / 'rl'
+    if RL.exists():
+        shutil.rmtree(RL)
+    LINKDIR = RL / 'nfs4'
+    LINKDIR.mkdir(parents=True)
+
+    def place(src, rel):
+        dst = LINKDIR / rel.replace(BS, '/')
+        dst = Path(os.path.normpath(dst))
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, dst)
+        return rel
+    out = []
+    for l in lnk:
+        m = re.match(r'^(\s+include\s+)("?)([^",\s]+)\2(,front)?\s*$', l)
+        mi = re.match(r'^(\s+inclib\s+)"([^"]+)"\s*$', l)
+        if m:
+            fn = m.group(3)
+            if fn in RETNAME:
+                out.append(m.group(1) + place(OUT / fn, RETNAME[fn]) + (m.group(4) or ''))
+            elif fn.upper().endswith('2MBYTE.OBJ'):
+                out.append(m.group(1) + place(fn, '..' + BS + 'syslib' + BS + 'psx' + BS + 'lib' + BS + '2mbyte.obj'))
+            else:
+                out.append(m.group(1) + place(OUT / fn, fn) + (m.group(4) or ''))
+        elif mi:
+            p = Path(mi.group(2)); lib = p.stem.lower()
+            sub = ('eaclib' + BS + 'psx') if lib in ealibs else ('syslib' + BS + 'psx' + BS + 'lib')
+            out.append(mi.group(1) + place(p, '..' + BS + sub + BS + lib + '.lib'))
+        else:
+            out.append(l)
+    lnk = out
 # pass 1 without any `equ`: only the names NOTHING defines (residual data labels of the game objects) get equated to their
 # retail address; the PSYLINK lane's other equates were holes inside Sony's data, which Sony's libraries define themselves.
-(OUT / (variant + '.lnk')).write_text('\r\n'.join(lnk) + '\r\n', encoding='latin-1')
-r = subprocess.run(cmd, cwd=OUT, capture_output=True, text=True, env=ENV, timeout=900)
+(LINKDIR / (variant + '.lnk')).write_text('\r\n'.join(lnk) + '\r\n', encoding='latin-1')
+r = subprocess.run(cmd, cwd=LINKDIR, capture_output=True, text=True, env=ENV, timeout=900)
 undefined = set(re.findall(r"Symbol '([^']+)' not defined", r.stdout + r.stderr))
 need = [e for e in equs if e.split()[0] in undefined]
-(OUT / (variant + '.lnk')).write_text('\r\n'.join(lnk + need) + '\r\n', encoding='latin-1')
+(LINKDIR / (variant + '.lnk')).write_text('\r\n'.join(lnk + need) + '\r\n', encoding='latin-1')
 print('equ      %d of the PSYLINK lane\'s %d equates needed (game data labels no source owns yet); still undefined: %d'
       % (len(need), len(equs), len(undefined - {e.split()[0] for e in equs})))
-r = subprocess.run(cmd, cwd=OUT, capture_output=True, text=True, env=ENV, timeout=900)
+r = subprocess.run(cmd, cwd=LINKDIR, capture_output=True, text=True, env=ENV, timeout=900)
+if LINKDIR != OUT:
+    for f in (variant + '.lnk', variant + '.cpe', variant + '.sym', variant + '.map', variant + '_front.bin', 'statcov.txt'):
+        if (LINKDIR / f).exists():
+            shutil.copy(LINKDIR / f, OUT / f)
 log = (r.stdout + r.stderr)
 (OUT / (variant + '.log')).write_text(log)
 errs = [l for l in log.splitlines() if 'rror' in l]

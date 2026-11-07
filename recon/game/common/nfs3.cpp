@@ -1006,7 +1006,7 @@ void NFS4_LoadingIcon(void)
 #if defined(__mips__)
 /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
  * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
-#define NFS3_TRAP_666() { register int z0 __asm__("$6") = 0; register int z1 __asm__("$4") = 0; __asm__ __volatile__("break 0x666\n\tnop" : : "r"(z0), "r"(z1)); }
+#define NFS3_TRAP_666() __asm__ __volatile__("move $4,%0\n\tbreak 0x666\n\tnop" : : "r"(0) : "$4")   /* retail `addu a0,a2,zero` is asm text (user-approved 2026-11-07) */
 #else
 #define NFS3_TRAP_666() trap(0x666)   /* host build: no MIPS break */
 #endif
@@ -1015,14 +1015,14 @@ void NFS3_CheckForFileOperations(void)
 
 
 {
-  int *p; int *e; p = (int *)gFileMgr.oparray; if (p < (int *)gFileMgr.handlearray) { e = (int *)gFileMgr.handlearray; do {
+  for (int *p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p++) {
 
-      if (*p != 0) {
+    if (*p != 0) {
 
 
-        NFS3_TRAP_666();
+      NFS3_TRAP_666();
       }
-      p = p + 1; } while (p < e); }
+    }
 }
 
 

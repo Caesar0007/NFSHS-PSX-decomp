@@ -5,13 +5,6 @@
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_CARS_LATE
 /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
-
-
-
-
-
-
-
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
@@ -53,10 +46,17 @@ struct tMenu;
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #include "screendisplay.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: kernpair/tDrawShapeExtended + dialogs before the car/track graph */
+#ifndef NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* FEDialog/Front graphs have no tDrawShapeExtended */
+#include "shared/tDrawShapeExtended.h"
+#endif
+#include "fedialog.h"
+#endif
 #include "fe_core_cars.h"
 #define NFS4_FE_TRACK_NO_PLAYER
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
+
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
     int fCarListFilter;
@@ -180,10 +180,10 @@ struct tListIteratorTournament : public tListIterator {
     tListIteratorTournament(char *, tTournamentManager *);
     ~tListIteratorTournament();
     char Value(tPlayer);
+#endif
     short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-    bool ValidTournament(char);
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    void Increment(tPlayer); void Decrement(tPlayer); bool ValidTournament(char);
 #endif
 };
 
@@ -326,15 +326,15 @@ struct tOptionsMenu : public tMenu {
     tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                  void (*)(tMenuCommand &), short, int, int,
                  tMenuItem *, ...);
-    ~tOptionsMenu();
-    long DebounceKeys();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition();
-    void Draw();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    ~tOptionsMenu(); long DebounceKeys(); void TransitionOff(); void TransitionOn();
 #endif
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_SCREENDISPLAY_CONTROLLER_METHODS)
+    bool TransitionIsFinished();
+#endif
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void UpdateTransition(); void Draw(); void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
+
 };
 inline int tOptionsMenu::GetScreenFade() { return fScreenFade; }
 struct tInsideBoxMenu : public tMenu {
@@ -362,7 +362,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     short fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;
     bool fInTransition, fTransitioningOut, fClosing;
     short fDiffX, fDiffY;
-    bool fFillback;
+    bool fFillback; void SetMenu(bool, tInsideBoxMenu *);
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
     ~tMenuItemSlidingMenu();
@@ -375,7 +375,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     virtual void UpdatefOpenHeight(bool);
     void Draw(int, int, bool);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void SetMenu(bool, tInsideBoxMenu *);
+
 #endif
 };
 

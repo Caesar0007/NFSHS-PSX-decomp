@@ -1,3 +1,4 @@
+#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 /* Owner-specific type surface for ScreenMain.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H

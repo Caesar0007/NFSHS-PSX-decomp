@@ -6,16 +6,16 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #include "../../game/common/draw_leaf_types.h"
+#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #endif
 #endif
 #include "fe_player_types.h"   /* ScreenTournSelect keeps the input-key record, not the foreign player enum; ScreenPost keeps both. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root parameter types */
-/* ScreenMemcard is the nearest exact implemented base graph.  Exclude its memory-card, saved-game, audio-song, and FE3d owner records here. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #define NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 #ifdef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #define NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE
 #endif
-#include "screenmemcard_types.h"
+#include "screenmemcard_types.h"   /* ScreenMemcard is the nearest exact implemented base graph.  Exclude its memory-card, saved-game, audio-song, and FE3d owner records here. */
 #ifdef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #undef NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE
 #endif

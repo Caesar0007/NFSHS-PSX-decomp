@@ -1,3 +1,4 @@
+#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #ifndef _FE_SCREENS_SCREENCONGRATS_H_
 #define _FE_SCREENS_SCREENCONGRATS_H_   /* frontend/common/screencongrats.h - reconstructed decls for ScreenCongrats.obj (C++ TU) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */

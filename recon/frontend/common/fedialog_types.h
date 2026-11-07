@@ -1,9 +1,10 @@
-/* Owner-specific type surface for FEDialog.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H
-#define NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H
-
+#define NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H   /* Owner-specific type surface for FEDialog.obj. */
+#if !defined(NFS4_FEMENUDEFS_SURFACE) && !defined(NFS4_SCREENDISPLAY_DIALOGS_EARLY)   /* FEDialog.obj (first header); not FEMenuDefs.obj (retail: car graph before dialogs there) */
+#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
+#define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* no tDrawShapeExtended in this graph */
+#endif
 #include "fe_input_enums.h"
-
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
@@ -19,7 +20,6 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 #endif
-
 struct tMenu;
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct tMenuCommand;

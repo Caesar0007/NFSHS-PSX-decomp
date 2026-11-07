@@ -2,11 +2,11 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H   /* Owner-specific type surface for ScreenMain.obj. */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenMain: frontend core before the MATRIX core (fe_core_types.h) */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
 /* ScreenMain retains tInputKeyType but not the foreign tPlayer tag. */
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "fe_input_enums.h"
 #undef NFS4_FE_INPUT_NO_PLAYER
-
 /* Reuse ScreenDisplay's exact shared frontend graph without its owner class
  * or foreign-global compiler view. */
 #define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS

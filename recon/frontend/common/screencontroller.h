@@ -5,8 +5,8 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph after the dialogs, before the car/track graph */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
 #endif
-
 #include "fe_player_types.h"   /* ScreenController retains tInputKeyType but not the foreign tPlayer enum. FeMenuOptions reuses this graph and retains both input enums. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #define uchar unsigned char
 struct tMenuCommand;

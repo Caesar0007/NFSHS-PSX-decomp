@@ -5,6 +5,7 @@
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* no tDrawShapeExtended in this graph */
 #define NFS4_FE_COLOR_LATE   /* retail FEDialog: color.obj graph after the dialogs, before the car graph */
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color site in screendisplay_types.h */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
 #endif
 #include "fe_input_enums.h"
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -36,7 +37,6 @@ struct tMenuCommand;
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-
 
 
 

@@ -2,10 +2,10 @@
 #define _FE_SCREENS_SCREENCONTROLLER_H_   /* Canonical SCREENCONTROLLER.H type surface recovered from retail SYM. Actual definitions live here; foreign codegen views below remain unsealed. No compiler source-location directives or new declarations are introduced. */
 #ifndef _FE_SCREENS_FEMENUOPTIONS_H_   /* ScreenController.obj only (FeMenuOptions reuses this graph) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph after the dialogs, before the car/track graph */
+#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #endif
-
-
-
 
 #include "fe_player_types.h"   /* ScreenController retains tInputKeyType but not the foreign tPlayer enum. FeMenuOptions reuses this graph and retains both input enums. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #define uchar unsigned char

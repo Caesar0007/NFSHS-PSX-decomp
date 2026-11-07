@@ -2,6 +2,10 @@
 #define NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H   /* Owner-specific type surface for ScreenPinkSlips.obj. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
+#ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
+#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
+#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph right before the car/track graph */
+#endif
 #define NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #include "screentournselect_types.h"
 #undef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE

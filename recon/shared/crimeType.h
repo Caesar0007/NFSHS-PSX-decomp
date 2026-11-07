@@ -3,11 +3,19 @@
 #ifndef NFS4_SHARED_CRIMETYPE_H
 #define NFS4_SHARED_CRIMETYPE_H
 
+#ifdef NFS4_CRIMETYPE_PLAIN_ENUM   /* aidebug.obj: plain C++ enum; its TPDEF is the field re-emission */
+enum crimeType {
+#else
 typedef enum crimeType {
+#endif
     CRIME_NONE = 0,
     CRIME_SPEEDER = 1,
     CRIME_WRONGSIDE = 2,
     CRIME_BUMPCOP = 3,
     CRIME_SMASHCOP = 4
+#ifdef NFS4_CRIMETYPE_PLAIN_ENUM
+};
+#else
 } crimeType;
+#endif
 #endif

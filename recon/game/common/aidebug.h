@@ -16,6 +16,7 @@
  * build/nc12/aidebug_ai_source_20261030/final-proof.json. */
 #ifndef _GAME_COMMON_AIDEBUG_H_
 #define _GAME_COMMON_AIDEBUG_H_
+#define NFS4_CRIMETYPE_PLAIN_ENUM
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "shared/MATRIX.h"
@@ -32,20 +33,19 @@
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/Sched_tSchedule.h"
-#include "shared/kernpair.h"
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#include "shared/Skidmark_Segment.h"
-#include "shared/Skidmark_Chunk.h"
-#include "shared/BW_tContext.h"
-#include "shared/FLARE_PIECE_DEF.h"
+
+
+
+
+
+
+
+
 
 /* Supplied AI data declarations,without importing unrelated state classes
  * or their inline construction/vtable references. AIDelayCar's existing
  * owner header supplies its actual class and observation-array typedef. */
-#include "shared/copLevel_t.h"
-#include "shared/copGame_t.h"
+#include "aicop_info_types.h"   /* retail aidebug.obj: copLevel/copGame/copType/crimeType + the perp info records */
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"
 #include "shared/trigger_roadblock_t.h"
@@ -54,8 +54,21 @@
 #include "shared/trigger_pathPosition_t.h"
 #include "shared/trigger_trafficPath_t.h"
 #include "shared/trigger_t.h"
+#include "aidelaycar_types.h"
+#include "shared/cruiseMode_t.h"
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"
-#include "aidelaycar_types.h"
-
+#include "shared/stateType_t.h"
+#include "shared/Wingman_Role.h"
+#include "shared/AIHigh_tAttackMode.h"
+#include "shared/blockadeMode_t.h"
+#include "shared/AIHigh_tDriveAwayMode.h"
+#include "shared/kernpair.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#include "shared/BW_tContext.h"
+#include "shared/FLARE_PIECE_DEF.h"
 #endif /* _GAME_COMMON_AIDEBUG_H_ */

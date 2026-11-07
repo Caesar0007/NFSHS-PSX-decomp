@@ -3,6 +3,8 @@
 #if !defined(NFS4_FEMENUDEFS_SURFACE) && !defined(NFS4_SCREENDISPLAY_DIALOGS_EARLY)   /* FEDialog.obj (first header); not FEMenuDefs.obj (retail: car graph before dialogs there) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* no tDrawShapeExtended in this graph */
+#define NFS4_FE_COLOR_LATE   /* retail FEDialog: color.obj graph after the dialogs, before the car graph */
+#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color site in screendisplay_types.h */
 #endif
 #include "fe_input_enums.h"
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -26,7 +28,6 @@ struct tMenuCommand;
 #else
 #include "shared/tMenuCommand.h"
 #endif
-
 #define NFS4_FE_CORE_FEDIALOG_METHODS
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #define NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
@@ -34,7 +35,6 @@ struct tMenuCommand;
 #undef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
-
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 
 

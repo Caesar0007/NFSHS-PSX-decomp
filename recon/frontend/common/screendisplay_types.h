@@ -33,10 +33,10 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
-struct tDrawShapeExtended;
+#include "felines_types.h"   /* no-op unless NFS4_FE_CORE_FELINES_LATE (fe core emitted before the core types) */
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
-struct tMenu;
+struct tMenu; struct tDrawShapeExtended;
 #include "fescreen.h"
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
 #include "../../game/common/draw_leaf_types.h"
@@ -53,139 +53,139 @@ struct tMenu;
 #ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */
 #include "../../game/common/color_types.h"
 #endif
-#include "fe_core_cars.h"
-#define NFS4_FE_TRACK_NO_PLAYER
-#include "fe_tournament_types.h"
-#undef NFS4_FE_TRACK_NO_PLAYER
-struct tCarManager;
-struct tListIteratorCar : public tListIterator {
-    int fCarListFilter;
-    tCarManager *fCarManager;
-    tCarNameLength fNameLength;
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
-    short TextValue(tPlayer);
-    void Increment(tPlayer)
-        __asm__("Increment__16tListIteratorCar7tPlayer");
-    void Decrement(tPlayer)
-        __asm__("Decrement__16tListIteratorCar7tPlayer");
+#ifndef NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* else emitted after the tMenuNFS4/options family (below) */
+#include "screendisplay_carblock.h"
 #endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCar(char *, tCarManager *);
-    ~tListIteratorCar();
-    char Value(tPlayer);
-    void AdjustPosition(tPlayer, short);
-    bool ValidCar(tPlayer, char);
-    inline void SetFilter(int filter) { fCarListFilter = filter; }
-#endif
-};
 
-struct tListIteratorCarColor : public tListIterator {
-    char *fPlayer, *fPlayerCar;
-    int fIndexSize;
-    tCarManager *fCarManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCarColor(char *, char *, char *, int, tCarManager *);
-    ~tListIteratorCarColor();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
-};
 
-struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65];
-    short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
-#ifdef NFS4_TSCREENCONGRATS_OWNER
-    /* Real nonvirtual methods/signatures from the FETourn SYM and owner. */
-    short PlayerRanking(short);
-    void GetAwardInformation(tAwardInformation &);
-    /* ORIGINAL-NAME-UNRESOLVED: same reconstructed CurrentTourney accessor
-       used by FETourn; retail's inline pair does not retain its spelling. */
-    tTourneyInfo *CurrentTourney() {
-        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
-    }
-    /* ORIGINAL-NAME-UNRESOLVED: inferred accessor spelling for the racer-count
-       field; retail's inline pair does not record the original method name. */
-    int NumRacers() { return fNumRacers; }
-    /* ORIGINAL-NAME-UNRESOLVED: inferred getter for the previous-placement
-       read pairs. Preserve the signed byte value seen in the retail loads. */
-    int PreviousPlacement() { return (signed char)fPrevBestPlacement; }
-#endif
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
-    void GetTrackToRace(tTrackInfo &);
-#endif
-#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
-    void CalcTrackFinishDamageBill(bool, long &, long &);
-    void GetAwardInformation(tAwardInformation &);
-    short TournPointTotal(short *);
-    short PlayerRanking(short);
-#endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    void StartNewTournament(unsigned char, unsigned char);
-    /* Inferred overload/signature/parameter spellings of the known query:
-       explicit frontend selection, not the manager's cached selection.
-       Retail inline records verify the operation, not its literal name. */
-    inline tTourneyInfo *CurrentTourney(unsigned char tier, unsigned char tournament) {
-        return &fDefinition->fTournaments[fDefinition->fTiers[tier].fTournOffset + tournament];
-    }
-    /* Inferred getter spelling; the retail initial money-read inline pair
-       retains no method name. No storage or virtual slot is added. */
-    inline long GetMoney() { return fMoney; }
-    /* Original inline name/signature not uniquely recovered. Mutator spelling
-       follows the track-info reconstruction; retail here records LONG amount
-       in the parameter scope. No storage or virtual slot is added. */
-    inline void SubtractMoney(long amount) {
-        (u_long &)fMoney -= (u_long)amount;
-    }
-    void GetAwardInformation(tAwardInformation &);
-    short IsTournamentFinished(); /* retail EXT5c91d6: FCN SHORT */
-#endif
-#if defined(NFS4_FRONT_SURFACE)
-    short AdvanceToNextTrack(); short GetLastTrackRaced();
-    void UpdateCarLineup(); void UpdateAwardInformation();
-#elif defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
-    tTournamentDefinition *Definition() { return fDefinition; } /* Existing inferred accessor; no layout/virtual slot. */
-#endif
-};
 
-struct tListIteratorTrack : public tListIteratorIndexed {
-    tTrackManager *fTrackManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTrack(char *, char *, tTrackManager *);
-    ~tListIteratorTrack();
-#endif
-    short TextValue(tPlayer); void Increment(tPlayer); void Decrement(tPlayer);
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    bool ValidTrack(char);
-#endif
-};
 
-struct tListIteratorTournament : public tListIterator {
-    tTournamentManager *fTournamentManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTournament(char *, tTournamentManager *);
-    ~tListIteratorTournament();
-    char Value(tPlayer);
-#endif
-    short TextValue(tPlayer);
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    void Increment(tPlayer); void Decrement(tPlayer); bool ValidTournament(char);
-#endif
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
@@ -443,26 +443,26 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
     void Calibrate();
 #endif
 };
-
 #define NFS4_FEMENUOPTIONS_TYPE_PART 6
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-
 #define NFS4_FEMENUOPTIONS_TYPE_PART 7
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-
 #define NFS4_FEMENUOPTIONS_TYPE_PART 8
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
 #define NFS4_FEMENUOPTIONS_TYPE_PART 10
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-
 #define NFS4_FEMENUOPTIONS_TYPE_PART 9
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
 
+#ifdef NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS   /* owner records after the menu family, before the car graph */
+#include NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS
+#endif
+#include "screendisplay_carblock.h"   /* NFS4_SCREENDISPLAY_CARS_AFTER_MENUS site (no-op otherwise: guarded) */
 enum tTVState {
     tv_StateOff = 0,
     tv_StateOn = 1,

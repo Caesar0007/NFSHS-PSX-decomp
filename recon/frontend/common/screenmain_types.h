@@ -1,7 +1,7 @@
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #ifndef NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H   /* Owner-specific type surface for ScreenMain.obj. */
-
+#define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenMain: frontend core before the MATRIX core (fe_core_types.h) */
 /* ScreenMain retains tInputKeyType but not the foreign tPlayer tag. */
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "fe_input_enums.h"

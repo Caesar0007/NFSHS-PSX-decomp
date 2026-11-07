@@ -4890,7 +4890,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 #line 2345 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 {
-  u_char type; ObjectAnim *anim; Trk_SimObject *simObjs; int doFrustumClip; short light; Group *instGroup; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int objectOffset; matrixtdef matrix; int groupNumElements;
+  ObjectAnim *anim; short light; Trk_SimObject *simObjs; Group *instGroup; int doFrustumClip; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; matrixtdef matrix;
   simObjs = gObjInfo->simObjs;
   instGroup = gObjInfo->objInstanceBuf; objInstance = (Trk_SimpleInst *)instGroup->GetData();
   doFrustumClip = gObjInfo->doFrustumClip;
@@ -4909,7 +4909,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     DW_WORLDMAT.t[2] = 0; DW_WORLDMAT.t[1] = 0; *(int *)0x1f800028 = 0; gte_SetTransMatrix(&DW_WORLDMAT);
 
 
-    for (int objectIndex = 0; objectIndex < groupNumElements; ++objectIndex) {
+    for (int objectIndex = 0; objectIndex < groupNumElements; ++objectIndex) { int objectOffset; u_char type;
 
       objectOffset = goffsets[objInstance->zoffset];
       type = objInstance->type;

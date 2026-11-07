@@ -28,21 +28,21 @@ int textnpixels(char *str, int n)
   int i;
 
 
-  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- direct form is 5 diffs, 36/37 */ i = 0;
+  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- every direct/cast/index form folds to %hi/%lo(currentfont+160) (FAIL 5, 36/37); a stmt-expr base ({ currentfont; }) + 0xa0 = PASS but +6 blocks (GAME11) */ i = 0;
 
 
 
 
 
 
-  stringlen = 0; if (0 < n) { fontbase = currentfont;
-    do {
+  stringlen = 0; while (i < n) {
+
       struct charactertbl *ch;
-
+      fontbase = currentfont;
 
       code = (*(getcode *)(fontbase + 0xa0))(&str);
       if (code == 0) {
-        return stringlen;
+        break;
       }
       i = i + 1;
       ch = getcharacter(code);
@@ -57,8 +57,8 @@ int textnpixels(char *str, int n)
 
         stringlen = stringlen + dx;
       }
-    } while (i < n);
-  } return stringlen;
+    }
+  return stringlen;
 }
 
 /* ---- textpixels  [TEXTPIX.C:101-102] SLD-VERIFIED ---- */

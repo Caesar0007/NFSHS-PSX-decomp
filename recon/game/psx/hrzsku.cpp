@@ -2404,6 +2404,12 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * Cursor/source/SLD proof: build/nc12/hrz_horizon_cursor_20261023.
  * Rejected packet/color trials: hrz_horizon_packet_20261023 and
  * hrz_horizon_color_20261023. Remaining captures are not exempted. */
+/* GAME11 2026-11-07: the cw/ch launder asm is gone. Retail's lui 0x1F80 / lhu / sll 16 / sra 16 at both clip
+ * reads = a pointer pseudo with a constant equivalence and TWO uses (loop.c's single-use constant substitution
+ * and combine cannot fold it into the load; the shorten_compare HImode compare leaves the extension as two
+ * shifts). It gets no hard reg, so reload rematerialises the constant (fresh lui) and sdbout emits no record.
+ * `hdr` (fn scope) reproduces BYTE+SYM+SLD exactly; hsd->head.clipW = FAIL 44 (s5 base), the literal cast = FAIL 63
+ * (single use -> folded to lh), a block-scoped hdr = FAIL 7. */
 
 #line 1335 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildHorizon(DRender_tView *Vi)
@@ -2420,7 +2426,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
 
   Draw_HorizonCache *hsd = (Draw_HorizonCache *)0x1f800000;
 
-
+  Draw_tCacheHeader *hdr = (Draw_tCacheHeader *)0x1f800000; /* DEVICE (exact-only): record-less clip-header pointer (no hard reg, const-equivalent -> retail lui/lhu/sll/sra at both clip reads) */
 
 
 
@@ -2541,11 +2547,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
 
       if (!(mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0)) continue;
 
-      { int cw = (u_short)((Draw_HorizonCache *)0x1f800000)->head.clipW; __asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx)); if (!((short)cw >= mpts[0].vx || (short)cw >= mpts[1].vx || (short)cw >= mpts[2].vx || (short)cw >= mpts[3].vx)) continue; }
+      if (!(hdr->clipW >= mpts[0].vx || hdr->clipW >= mpts[1].vx || hdr->clipW >= mpts[2].vx || hdr->clipW >= mpts[3].vx)) continue;
 
       if (!(mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0)) continue;
 
-      { int ch = (u_short)((Draw_HorizonCache *)0x1f800000)->head.clipH; __asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy)); if (!((short)ch >= mpts[0].vy || (short)ch >= mpts[1].vy || (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy)) continue; }
+      if (!(hdr->clipH >= mpts[0].vy || hdr->clipH >= mpts[1].vy || hdr->clipH >= mpts[2].vy || hdr->clipH >= mpts[3].vy)) continue;
 
 
 

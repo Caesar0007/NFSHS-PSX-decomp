@@ -5382,8 +5382,8 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
     }
 
 
-    signed char m1  = -1; i = 0x1f; signed char *hs  = &hilight_state[0x1f]; do {
-      *hs = m1; i = i + -1; hs = hs + -1; } while (-1 < i);
+    for (i = 0; i < 0x20; i = i + 1) {
+      hilight_state[i] = -1; }
     i = 0; do {
       j = 0; do {
 

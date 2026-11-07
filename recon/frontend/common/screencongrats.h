@@ -1,5 +1,7 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph before the car/track graph */
+#define NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail: color.obj graph right after the car graph */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* car part at site 1 only */
+#define NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* track part right after the color graph */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #ifndef _FE_SCREENS_SCREENCONGRATS_H_

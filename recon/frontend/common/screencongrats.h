@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail: color.obj graph right after the car graph */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* car part at site 1 only */

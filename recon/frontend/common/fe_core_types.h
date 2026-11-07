@@ -112,7 +112,9 @@ typedef struct tMenuItem {
     /* FEDialog only (tMenuItem's key TU FEMenu never sees these): retail tDialogHelp::CalculateDimensions records
        one receiver-free inline pair at each item flag test (47, 49). IsEnabled = the femenu_externs.h spelling;
        LeftRightFlag is ORIGINAL-NAME-UNRESOLVED. */
+#if defined(NFS4_FE_CORE_FEDIALOG_ITEM_METHODS) || !defined(NFS4_FE_CORE_MENUITEM_ISENABLED)   /* TMENU_ALL_INLINES: owner spelling wins */
     inline bool IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
+#endif
     inline unsigned int LeftRightFlag() { return fFlags & 0x400; }
 #endif
 #ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
@@ -125,10 +127,8 @@ typedef struct tMenuItem {
     inline int ButtonImage() { return fButtonImage; }
 #endif
 } tMenuItem;
-
 /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }
-
 typedef tMenuItem *tItemList[16];
 
 struct tMenuItemInteractive : public tMenuItem {

@@ -6,6 +6,10 @@
 #define NFS4_FE_COLOR_LATE   /* retail FEDialog: color.obj graph after the dialogs, before the car graph */
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color site in screendisplay_types.h */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #endif
 #include "fe_input_enums.h"
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -37,10 +41,6 @@ struct tMenuCommand;
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-
-
-
-
 
 
 

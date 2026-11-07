@@ -1,16 +1,18 @@
-#ifndef NFS4_GAME_COMMON_NFS3_TYPES_H
+#if !defined(NFS4_GAME_COMMON_NFS3_TYPES_H)
 #define NFS4_GAME_COMMON_NFS3_TYPES_H   /* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
+#define NFS4_PADS_HOOK_AFTER "nfs3_types.h"   /* retail nfs3.obj: scheduler + GameSetup records right after PAD_COMMON */
+#define NFS4_PADS_HOOK_BEFORE "nfs3_types.h"   /* retail: tNfsSystemInfo right after CCOORD16, before the pads */
+#define NFS4_COLOR_HOOK_AFTER_CAR "nfs3_types.h"   /* retail: forceFocus_t, BW_tContext right after Car_tObj */
+#define NFS4_AUDIOCMN_HOOK_BEFORE_FE "nfs3_types.h"   /* retail: Speech classes, tTexture_ShapeInfo, kernpair before the frontend block */
+#define NFS4_AUDIOCLC_LATE_KERNEL
+#define NFS4_AUDIOCMN_KERNEL_LATER
+#define NFS4_AUDIOCLC_KERNPAIR_LATE
+#define NFS4_AUDIOCMN_CAR_ORDER "nfs3_types.h"   /* retail: tCarClassType tCarNameLength after tOwnedCarInfo; tPersonalities tCarLineup after tCarManager */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 #define cheat_Roadster 0
 #define kFront_InitialLoad 0
 
-typedef enum tCarClassType {
-    cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,
-    cct_SportsCar = 3, cct_SuperCar = 4, cct_GTRCar = 5,
-    cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
-    cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
-} tCarClassType;
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_BEFORE_GS   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
@@ -36,7 +38,7 @@ typedef enum tTrackClassType {
     tct_Bonus = 4
 } tTrackClassType;
 
-typedef struct tNfsSystemInfo { int userRam; } tNfsSystemInfo;
+
 
 #include "shared/Sim_tSimSystemVar.h"
 
@@ -215,6 +217,11 @@ struct tMissionManager {
     void ReleaseDescription();
 };
 
+#include "shared/TCB.h"   /* retail nfs3.obj: kernel/skidmark types after tMissionManager */
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
 #include "shared/tActiveLine.h"
 
 
@@ -259,4 +266,48 @@ typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];
 
+#elif defined(NFS4_PADS_IN_HOOK_BEFORE) && !defined(NFS4_NFS3_PADSB_DONE)
+#define NFS4_NFS3_PADSB_DONE
+typedef struct tNfsSystemInfo { int userRam; } tNfsSystemInfo;
+#elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_NFS3_PADS_DONE)
+#define NFS4_NFS3_PADS_DONE
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+#define NFS4_COLOR_SCHED_DONE
+#include "gamesetup_leaf_types.h"
+#elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_NFS3_CAR_DONE)
+#define NFS4_NFS3_CAR_DONE
+enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+};
+#define NFS4_FORCE_FOCUS_DONE
+#include "shared/BW_tContext.h"
+#elif defined(NFS4_NFS3_CAR_DONE) && !defined(NFS4_NFS3_FE_DONE)
+#define NFS4_NFS3_FE_DONE
+#include "speech_class.h"
+#include "shared/tTexture_ShapeInfo.h"
+#include "shared/kernpair.h"
+typedef kernpair KERN;
+#elif defined(NFS4_AUDIOCMN_IN_CAR) && NFS4_AUDIOCMN_IN_CAR == 1
+typedef enum tCarClassType {
+    cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,
+    cct_SportsCar = 3, cct_SuperCar = 4, cct_GTRCar = 5,
+    cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
+    cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
+} tCarClassType;
+enum tCarNameLength {
+    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
+};
+#elif defined(NFS4_AUDIOCMN_IN_CAR) && NFS4_AUDIOCMN_IN_CAR == 2
+enum tPersonalities {
+    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
+    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
+    kPersonalityMenace = 4, kPersonalityCop1 = 5,
+    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
+    kPersonalityTraffic = 8, kPersonalityNUM = 9
+};
+#include "shared/tCarLineup.h"
 #endif

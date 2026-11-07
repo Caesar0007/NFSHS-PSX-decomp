@@ -3,12 +3,12 @@
  * can place it after a frontend screen graph (NFS4_DRAW_LEAF_CORE_ONLY, retail type order). */
 #ifndef NFS4_GAME_COMMON_PADS_TYPES_H
 #define NFS4_GAME_COMMON_PADS_TYPES_H
-
+#ifdef NFS4_PADS_HOOK_BEFORE   /* an owner's own types right before the pads (owner second pass; retail nfs3.obj: tNfsSystemInfo) */
+#define NFS4_PADS_IN_HOOK_BEFORE
+#include NFS4_PADS_HOOK_BEFORE
+#undef NFS4_PADS_IN_HOOK_BEFORE
+#endif
 #include "shared/PAD_PSX.h"
-
-
-
-
 #include "shared/PAD_NEGCON.h"
 
 

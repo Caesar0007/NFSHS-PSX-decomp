@@ -1,7 +1,7 @@
 /* DrawC.obj's exact source-visible type surface reconstructed from SYM.
  * psxcontroller.obj is an exact 86-record subset; the records below are
  * precisely the 19-name delta retained by the standalone DrawC owner. */
-#ifndef NFS4_GAME_PSX_DRAWC_TYPES_H
+#if !defined(NFS4_GAME_PSX_DRAWC_TYPES_H)
 #define NFS4_GAME_PSX_DRAWC_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
@@ -12,7 +12,14 @@
 #define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_FT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_COLOR_GS_AFTER_SAVE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/drawc_types.h"   /* retail drawc.obj: Skidmark_*, DrawC_tEnvMap, GameSetup, Udff right after tSaveSurface */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/drawc_types.h"   /* retail: forceFocus_t right after BO_tNewtonObj */
+#define NFS4_COLOR_HOOK_AFTER_CAR "../psx/drawc_types.h"   /* retail: FLARE_PIECE_DEF, BW_tContext, kernpair right after Car_tObj */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail: Draw_tVertex right after Draw_tPixMap */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
+#define NFS4_OWNER_DEFINES_UDFF_TYPES
+#define NFS4_DRAWC_R3DCAR_FF_EARLY
+#define NFS4_DRAWC_HOOKS
 #endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
@@ -111,4 +118,26 @@ typedef enum forceFocus_t {
 #include "shared/DrawC_tEnvMap.h"
 #endif
 
+#elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWC_BO_DONE)   /* second pass, color_types.h AFTER_BO */
+#define NFS4_DRAWC_BO_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
+} forceFocus_t;
+#elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_DRAWC_CAR_DONE)   /* AFTER_CAR */
+#define NFS4_DRAWC_CAR_DONE
+#include "shared/FLARE_PIECE_DEF.h"
+#include "shared/BW_tContext.h"
+#include "shared/kernpair.h"
+#elif defined(NFS4_DRAWC_HOOKS) && !defined(NFS4_DRAWC_SAVE_DONE)   /* AFTER_SAVE (plain hook: the owner's first re-entry) */
+#define NFS4_DRAWC_SAVE_DONE
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#include "shared/DrawC_tEnvMap.h"
+#include "../common/gamesetup_leaf_types.h"
+typedef enum Udff_tAccessType {
+    UDFF_FILE = 0,
+    UDFF_MEMORY = 1
+} Udff_tAccessType;
+struct Udff_tInfo;
+typedef Udff_tInfo *Udff_tHandle;
 #endif

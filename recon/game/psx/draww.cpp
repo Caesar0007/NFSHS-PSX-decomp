@@ -4521,7 +4521,7 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
       transform(&tmp.x,gCopMat.m,&tmp2.x);
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
 
-    MATRIX &m = *(MATRIX *)&sd->matB; m.t[2] = 0; m.t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(&m); }
+    sd->matB.t[0] = (&sd->matB)->t[1] = (&sd->matB)->t[2] = 0; gte_SetTransMatrix(&sd->matB); }
 
 
   tmp.x = -(Vi->cview.translation.x) + pCp->x;
@@ -4562,7 +4562,7 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
 
 
     DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)&sd->matB);
-    MATRIX &m = *(MATRIX *)&sd->matB; m.t[2] = 0; m.t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(&m);
+    sd->matB.t[0] = (&sd->matB)->t[1] = (&sd->matB)->t[2] = 0; gte_SetTransMatrix(&sd->matB);
 
   return objDef->quadCount; }
 

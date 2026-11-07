@@ -203,7 +203,7 @@ static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 
 static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
 
-static inline char *Text_WaitingForPlayer(void) { return TextSys_Word(0x2a8); }
+static inline char *Text_PlayerName(int p) { return PlayerName(p); } /* ORIGINAL-NAME-UNRESOLVED: retail SetDialog(TwoPlayer) has a record-less inline pair here whose code follows the line-6 word lookup */
 
 static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
 
@@ -266,10 +266,10 @@ inline void tDialogMessageString::Display(char *text)
   tDialogBase::Display();
 }
 
-inline void tDialogMessageString::Display(int word)
+inline tDialogMessageString *tDialogMessageString::SetString(int word)
 {
   string = TextSys_Word(word);
-  tDialogBase::Display();
+  return this;
 }
 
 #endif

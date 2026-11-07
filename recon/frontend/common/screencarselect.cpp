@@ -2149,9 +2149,9 @@ void tScreenCarSelectTwoPlayer::SetDialog()
   int player = FEApp->GetPlayer();
   if (FEApp->waitingForOtherPlayer[player] != 0)
   {
-    Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
-
-      (sprintf(WaitingString,Text_WaitingForPlayer(),PlayerName(1 - player)), WaitingString));
+    int ok = (Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
+    /* DEVICE (exact-only): record-less dead decl; its note (DECL_SOURCE_LINE 4) tags the select, the initializer's inline expansions end with note 6 = retail SLD/blocks */
+      (sprintf(WaitingString,TextSys_Word(0x2a8),Text_PlayerName(1 - player)), WaitingString)), 0);
 
     this->CarDialog.tDialogBase::Display();
   }
@@ -2517,8 +2517,8 @@ void tScreenPinkSlipsCarSelect::SetDialog()
     if (this->fCardFailed == 0)
     {
       if (this->fStartCheckTick == 0) { this->fStartCheckTick = FE_Ticks();
-      } this->CarDialog.Display(FE_Ticks() - this->fStartCheckTick <= 799 ? player + 0x2ab : player + 0x2a9);
-    }
+      } this->CarDialog.SetString(FE_Ticks() - this->fStartCheckTick <= 799 ? player + 0x2ab : player + 0x2a9);
+    this->CarDialog.tDialogBase::Display(); }
     else
 
     {
@@ -2531,38 +2531,38 @@ void tScreenPinkSlipsCarSelect::SetDialog()
     }
     break;
   case CardFailedNotFound:
-    this->CarDialog.Display(player + 0x2af);
+    this->CarDialog.SetString(player + 0x2af); this->CarDialog.tDialogBase::Display();
     this->fCardFailed = 1;
     this->fStartCheckTick = 0;
 
     return;
   case CardFailedUnformatted:
-    this->CarDialog.Display(player + 0x2b1);
+    this->CarDialog.SetString(player + 0x2b1); this->CarDialog.tDialogBase::Display();
     this->fCardFailed = 1;
     this->fStartCheckTick = 0;
 
     return;
   case CardFailed:
-    this->CarDialog.Display(player + 0x2ad);
-
+    this->CarDialog.SetString(player + 0x2ad);
+    this->CarDialog.tDialogBase::Display();
     this->fCardFailed = 1;
     this->fStartCheckTick = 0;
     return;
   case NotEnoughCars:
-    this->CarDialog.Display(player + 0x32d);
+    this->CarDialog.SetString(player + 0x32d); this->CarDialog.tDialogBase::Display();
     this->fStartCheckTick = 0;
     this->fCardFailed = 0;
 
     return;
   case TooManyCars:
-    this->CarDialog.Display(player + 0x32f);
+    this->CarDialog.SetString(player + 0x32f); this->CarDialog.tDialogBase::Display();
     this->fStartCheckTick = 0;
     this->fCardFailed = 0;
 
     return;
   case CardCurrentlyLoading:
-    this->CarDialog.Display(player + 0x280);
-
+    this->CarDialog.SetString(player + 0x280);
+    this->CarDialog.tDialogBase::Display();
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn: this->fCardFailed = 0;
     return;

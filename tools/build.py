@@ -368,6 +368,19 @@ PER_TU_FLAGS = {
     # removes the P852 StoringControllerData-only compiler splice below and
     # restores source-only PASS243 for the canonical four-copy source body.
     # Evidence/backup: scratchpad/p877_replay (whole-TU source/identity matrix).
+    "recon/frontend/common/femenuextended.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenaudio.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screencarselect.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screencongrats.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screendisplay.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenmain.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenmemcard.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenpinkslips.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenpost.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screentrackinfo.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screentrackrecords.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screentrophyinfo.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
+    "recon/frontend/common/screenusername.cpp": {"cc1plus_ver": "2.8.1-sn"},   # SYMLANE: retail global synthesized dtors
     "recon/game/common/replay.cpp": {"cc1plus_ver": "2.8.1-sn", "g_value": "8"},   # trial 2026-09-17: StatsTimer[2] bare-macro stores need it small
     # P878: all18 current AudioClc functions and branch distances match with
     # one normal2.8.0 -G4 -fno-thread-jumps compile. Its complete object equals
@@ -605,7 +618,7 @@ PER_TU_FLAGS = {
     # full %hi/%lo sequences in retail, proving they were outside small data.
     # Whole-TU gate: DrawController 886->805, SetActuators 29->19,
     # SetCurrentController 331->329, Initialize 4->PASS; no regressions.
-    "recon/frontend/common/screencontroller.cpp": {"g_value": "0"},
+    "recon/frontend/common/screencontroller.cpp": {"cc1plus_ver": "2.8.1-sn", "g_value": "0"},
     # hud.obj has the same exact -G8 threshold signature as cars/genericpmx/cario
     # (w39-a1, cross-checked with a9's night/sfx finding): hud.cpp OWNS the 8-byte
     # arrays Hud_gHudView[2]/Hud_gMapView[2]/Hud_gTacView[2] (@0x8013D950/58/60) and

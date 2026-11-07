@@ -306,22 +306,22 @@ struct tMenuOptions : public tMenuNFS4 {
     bool IsSubMenu();
 #endif
 };
-
 #define NFS4_FEMENUOPTIONS_TYPE_PART 1
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-
 struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
     signed char fTransitionDirection;
     short fPrevItem;
     int fScreenFade, fFirstFrame, fNumFrames;
-    /* W86-S4 SYM: tScreenUserName::DrawBackground's `8c` block carries a NESTED
-       block whose only record is `REG this $2 v0 PTR STRUCT tag tOptionsMenu`,
-       emitted at the function's first statement -- an INLINED tOptionsMenu
-       accessor reading fScreenFade there (the SYM records the inlined `this`,
-       not the method's name). */
-    int GetScreenFade() { return fScreenFade; }
+    /* W86-S4 SYM: tScreenUserName::DrawBackground's `8c` block carries a NESTED block whose only record is `REG this $2 v0 PTR STRUCT tag
+       tOptionsMenu`, emitted at the function's first statement -- an INLINED tOptionsMenu accessor reading fScreenFade there (the SYM records the inlined `this`, not the method's name). */
+#ifdef NFS4_FEMENUOPTIONS_OWNER   /* FeMenuOptions.obj emits standalone copies of these inline members; SLINK /strip removed them (P6 Route C 2026-11-07) */
+#define NFS4_SCREENDISPLAY_STRIP LINK_STRIPPED
+#else
+#define NFS4_SCREENDISPLAY_STRIP
+#endif
+    int GetScreenFade() NFS4_SCREENDISPLAY_STRIP;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                  void (*)(tMenuCommand &), short, int, int,
@@ -336,27 +336,27 @@ struct tOptionsMenu : public tMenu {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
-
+inline int tOptionsMenu::GetScreenFade() { return fScreenFade; }
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                    void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    /* non-variadic form for derived classes (tInsideBoxSongMenu): retail's SongMenu ctor calls the tMenu ctor
-     * directly and stores only its own table, i.e. this one is inline */
-    /* Retail SongMenu's expanded constructor records these exact parameter
-       names at depth1 in registers8/9; they are not caller locals o/fn.
-       The other spellings follow the recorded variadic overload's argument
-       roles; their literal inline spellings are absent from optimized SYM. */
+    /* non-variadic form for derived classes (tInsideBoxSongMenu): retail's SongMenu ctor calls the tMenu ctor directly and stores only its own table, i.e. this one is inline */
+    /* Retail SongMenu's expanded constructor records these exact parameter names at depth1 in registers8/9; they are not caller locals o/fn.
+       The other spellings follow the recorded variadic overload's argument roles; their literal inline spellings are absent from optimized SYM. */
     tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
-                   void (*OnButtonPress)(tMenuCommand &), short title)
-        : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
+                   void (*OnButtonPress)(tMenuCommand &), short title) NFS4_SCREENDISPLAY_STRIP;   /* defined right after the class */
     ~tInsideBoxMenu();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     virtual void Draw(short, short, short, short, short);
 #endif
 };
-
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+inline tInsideBoxMenu::tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
+                                      void (*OnButtonPress)(tMenuCommand &), short title)
+    : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
+#endif
 struct tMenuItemSlidingMenu : public tMenuItem {
     tInsideBoxMenu *currMenu, *nextMenu;
     short fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;

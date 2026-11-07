@@ -216,15 +216,17 @@ typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BTC_HumanCop;
-
 #elif defined(NFS4_AIHIGH_TYPE_PART)
-/* Reconstruction-only part routing preserves the existing owner type sets.
-   This is not a claim of the original preprocessor/include dependency graph. */
+/* Reconstruction-only part routing preserves the existing owner type sets.  This is not a claim of the original preprocessor/include dependency graph. */
+#if defined(NFS4_AIH_COP_OWNER) || defined(NFS4_AIH_TRAF_OWNER)   /* AIH_Cop.obj / AIH_Traf.obj emit standalone copies of the inline members below; SLINK /strip removed them (P6 Route C 2026-11-07) */
+#define NFS4_AIHIGH_STRIP LINK_STRIPPED
+#else
+#define NFS4_AIHIGH_STRIP
+#endif
 #if NFS4_AIHIGH_TYPE_PART == 1
 #ifndef NFS4_AIHIGH_COP_TYPE_DEFINED
 #define NFS4_AIHIGH_COP_TYPE_DEFINED
-/* Retail AIHigh_Cop is108bytes; field names/types/offsets come from SYM.
-   Consolidates former private method subsets without a new data member. */
+/* Retail AIHigh_Cop is108bytes; field names/types/offsets come from SYM.  Consolidates former private method subsets without a new data member. */
 struct AIHigh_Cop : public AIHigh_BasicCop {
     AIHigh_Player *perpTarget_;
     int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
@@ -238,16 +240,14 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     void AssignToPlayer(AIHigh_Player *p);
     int GetCheckChasePosition(coorddef *pt);
     trigger_t *CheckForNewTriggers();
-    /* Inferred spelling already used by Traffic's retail inline receiver. */
-    inline AIHigh_Player *PerpTarget() { return perpTarget_; }
+    inline AIHigh_Player *PerpTarget() NFS4_AIHIGH_STRIP;   /* Inferred spelling already used by Traffic's retail inline receiver. */
 #line 448 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+}; inline AIHigh_Player *AIHigh_Cop::PerpTarget() { return perpTarget_; }
 #endif
 #elif NFS4_AIHIGH_TYPE_PART == 2
 #ifndef NFS4_AIHIGH_TRAFFIC_TYPE_DEFINED
 #define NFS4_AIHIGH_TRAFFIC_TYPE_DEFINED
-/* Retail AIHigh_Traffic is36bytes. Shared owner-specific inline bodies add
-   neither class storage nor a virtual slot. */
+/* Retail AIHigh_Traffic is36bytes. Shared owner-specific inline bodies add neither class storage nor a virtual slot. */
 struct AIHigh_Cop;
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
@@ -258,10 +258,10 @@ struct AIHigh_Traffic : public AIHigh_Base {
     void HighExecute();
     trigger_t *CheckForNewTriggers();
     /* These inline-only spellings remain inferred, not uniquely SYM-named. */
-    inline int ForcePurgatory() { return forcePurgatory_; }
-    inline void SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; }
+    inline int ForcePurgatory() NFS4_AIHIGH_STRIP;
+    inline void SetAccidentData(SceneElem *accidentData) NFS4_AIHIGH_STRIP;
 #line 584 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+}; inline int AIHigh_Traffic::ForcePurgatory() { return forcePurgatory_; } inline void AIHigh_Traffic::SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; }
 #endif
 #else
 #error Unknown AIHIGH.H type part

@@ -342,11 +342,11 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     void FalseArrest(AIHigh_BTC_Perp *p);
     virtual void FreezeAndEndChase();
     void HudOff();
-    inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
+    inline AIHigh_BTC_Perp *PerpTarget() LINK_STRIPPED;
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 #line 347 "recon/game/common/aih_btccop_types.h"
-
+inline AIHigh_BTC_Perp *AIHigh_BTC_Cop::PerpTarget() { return perpTarget_; }
 typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
     static int lastInputRequestTick_;
@@ -377,20 +377,20 @@ typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void SetDesiredSpeed();
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
-    /* accessors (retail HumanCop pairs; aih_btccop is built with no_implement_inlines) */
-    inline int CurrentStage() { return currentStage_; }
-    inline int InitialDirection() { return initialDirection_; }
-    inline int InitialMovement() { return initialMovement_; }
-    inline void SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
-    inline int RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
-    inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
-    inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
+    /* accessors (retail HumanCop pairs); their standalone copies were removed by SLINK /strip (P6 Route C 2026-11-07) */
+    inline int CurrentStage() LINK_STRIPPED; inline int InitialDirection() LINK_STRIPPED; inline int InitialMovement() LINK_STRIPPED;
+    inline void SetRequestedDesiredSpeed(int speed) LINK_STRIPPED; inline int RequestedDesiredSpeed() LINK_STRIPPED;
+    inline void SetInitialDirection(int initialDirection) LINK_STRIPPED; inline void SetInitialMovement(int initialMovement) LINK_STRIPPED;
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BTC_HumanCop;
 #line 387 "recon/game/common/aih_btccop_types.h"
-
-
-
+inline int AIHigh_BTC_HumanCop::CurrentStage() { return currentStage_; }
+inline int AIHigh_BTC_HumanCop::InitialDirection() { return initialDirection_; }
+inline int AIHigh_BTC_HumanCop::InitialMovement() { return initialMovement_; }
+inline void AIHigh_BTC_HumanCop::SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
+inline int AIHigh_BTC_HumanCop::RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
+inline void AIHigh_BTC_HumanCop::SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
+inline void AIHigh_BTC_HumanCop::SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
 struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     Wingman_Role currentRole_, newRole_;
     AIHigh_BTC_HumanCop *newHumanBoss_;

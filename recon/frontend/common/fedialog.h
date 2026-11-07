@@ -1,16 +1,16 @@
-/* frontend/common/fedialog.h -- retail FRONTEND\COMMON\FEDIALOG.H: the one definition of the
- * dialog class family.  The SYM records the header (SLD records of its inline members) and the layout of every
- * class (tDialogBase 144, tDialogMessageString 152, tDialogInteractive 160, tDialogYesNo 168, tDialogHelp 212);
- * the methods themselves are FEDIALOG.CPP's.  The including surface provides tScreen (fescreen.h) and the types
- * the declarations name (tPlayer, tInputKeyType, tMenuCommand). */
+/* frontend/common/fedialog.h -- retail FRONTEND\COMMON\FEDIALOG.H: the one definition of the dialog class family.  The SYM records the header (SLD records of its inline members) and the layout of every class
+ * (tDialogBase 144, tDialogMessageString 152, tDialogInteractive 160, tDialogYesNo 168, tDialogHelp 212); the methods themselves are FEDIALOG.CPP's.  The including surface provides tScreen (fescreen.h) and the types the declarations name (tPlayer, tInputKeyType, tMenuCommand). */
 #ifndef NFS4_FRONTEND_COMMON_FEDIALOG_H
 #define NFS4_FRONTEND_COMMON_FEDIALOG_H
-
+#ifdef NFS4_FEDIALOG_DIRECT   /* FEDialog.obj emits standalone copies of these inline members; SLINK /strip removed them (P6 Route C 2026-11-07) */
+#include "../../link_stripped.h"
+#define NFS4_FEDIALOG_STRIP LINK_STRIPPED
+#else
+#define NFS4_FEDIALOG_STRIP
+#endif
 struct tDialogBase : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
-    virtual void CalculateDimensions() = 0;
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* overrides (retail vtable), declared on every owner surface */
+    virtual void CalculateDimensions() = 0;   /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
     virtual void Draw();
     short specificPlayer, left, top, width, height, reservedheight;
     bool currentlyOn;
@@ -20,14 +20,14 @@ struct tDialogBase : public tScreen {
     short fDefault, ReturnValue;
     int fFadeText;
     void Display();
-    tDialogBase();
+    tDialogBase() NFS4_FEDIALOG_STRIP;
     void Hide();
     short ShouldTimeOut();
     static void InitializeClass();
     static void DrawAllDialogs();
     static void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();
-    inline bool IsVisible() { return currentlyOn != 0; }
+    inline bool IsVisible() NFS4_FEDIALOG_STRIP;
     inline tDialogBase *SetPosition(short, short, tPlayer);
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
     /* Inferred two-call position/player spelling; no original names survive. */
@@ -37,7 +37,7 @@ struct tDialogBase : public tScreen {
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
-
+inline bool tDialogBase::IsVisible() { return currentlyOn != 0; }
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -47,22 +47,19 @@ struct tDialogHelp : public tDialogBase {
     int cont[7];
     short numItems, helpcontrollers, lefttext;
     void AddItem(short, short); inline void SetVariant(int);
-    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
+    inline void CalculateDimensionsVirtual() NFS4_FEDIALOG_STRIP;
     tDialogHelp();
 #line 174 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 51 "recon/frontend/common/fedialog.h"
-
+inline void tDialogHelp::CalculateDimensionsVirtual() { CalculateDimensions(); }
 struct tDialogMessageString : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
     void Draw();
     char *string;
     bool Centerit;
-    inline tDialogMessageString *SetString(char *mess) {
-        string = mess;
-        return this;
-    }
+    inline tDialogMessageString *SetString(char *mess) NFS4_FEDIALOG_STRIP;
 #ifdef NFS4_FEMENUDEFS_SURFACE
     /* Inferred word-ID overload: retail SaveGame holds this across the word
        lookup. The operation/receiver are verified; literal original signature
@@ -75,16 +72,19 @@ struct tDialogMessageString : public tDialogBase {
     inline void Display(char *text);
     inline void Display(int word);
 #endif
-    tDialogMessageString();
+    tDialogMessageString() NFS4_FEDIALOG_STRIP;
 #if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_FEDIALOG_FULLYOPEN_SURFACE)
     /* ORIGINAL-NAME-UNRESOLVED: retail tDialogYesNo::ProcessInput records an inline pair with a
        tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
-    inline bool IsFullyOpen() { return fFullyOpen == true; }
+    inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
 #endif
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 76 "recon/frontend/common/fedialog.h"
-
+inline tDialogMessageString *tDialogMessageString::SetString(char *mess) { string = mess; return this; }
+#if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_FEDIALOG_FULLYOPEN_SURFACE)
+inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
+#endif
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
     tDialogMessageStringWithTimeout();
 #line 215 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
@@ -128,20 +128,8 @@ struct tDialogYesNo : public tDialogInteractive {
     void Draw();
     int yesnowords[2];
     tDialogYesNo();
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord,
-                                    short defaultValue, short player) {
-        yesnowords[0] = yesWord;
-        yesnowords[1] = noWord;
-        fDefault = defaultValue;
-        specificPlayer = player;
-        return this;
-    }
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue) {
-        yesnowords[0] = yesWord;
-        yesnowords[1] = noWord;
-        fDefault = defaultValue;
-        return this;
-    }
+    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
+    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue) NFS4_FEDIALOG_STRIP;
 #ifdef NFS4_FEDIALOG_MEMCARD_CONFIRM_SURFACE
     /* ORIGINAL-NAME-UNRESOLVED: retail fememcard Confirm__Fii records a receiver-free inline pair with param `yes`
        (REG $20) at its yes-word setup. Only the TU defining this surface macro sees it (no out-of-line copy). */
@@ -153,7 +141,19 @@ struct tDialogYesNo : public tDialogInteractive {
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 127 "recon/frontend/common/fedialog.h"
-
+inline tDialogYesNo *tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue, short player) {
+    yesnowords[0] = yesWord;
+    yesnowords[1] = noWord;
+    fDefault = defaultValue;
+    specificPlayer = player;
+    return this;
+}
+inline tDialogYesNo *tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue) {
+    yesnowords[0] = yesWord;
+    yesnowords[1] = noWord;
+    fDefault = defaultValue;
+    return this;
+}
 struct tDialogYesNoMem : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);

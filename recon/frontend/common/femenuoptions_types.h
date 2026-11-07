@@ -1,7 +1,7 @@
 /* Owner-specific type surface for FeMenuOptions.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H
 #define NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H
-
+#define NFS4_FEMENUOPTIONS_OWNER   /* screendisplay_types.h: tOptionsMenu / tInsideBoxMenu inline copies LINK_STRIPPED */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
@@ -17,7 +17,7 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 #include "shared/tMenuCommand.h"
-
+#include "../../link_stripped.h"
 /* physadr: the complete SDK type (retail size 4) */
 #define NFS4_FEMENUOPTIONS_SURFACE
 #define NFS4_FE_CORE_FEMENU_METHODS

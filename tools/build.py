@@ -320,15 +320,15 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
-    "recon/frontend/common/screentracks.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
-    "recon/frontend/common/fedialog.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
+    "recon/frontend/common/screentracks.cpp": {"cc1plus_ver": "2.8.1-sn"},   # P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
+    "recon/frontend/common/fedialog.cpp": {"cc1plus_ver": "2.8.1-sn"},   # P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
     # 2026-10-16: retail FEMenuDefs has full local/block/SLD debug records.
     # With compact inline bodies and no initializer shapers, the native -g
     # stream reproduces the passing 640-byte frame. Apply to the WHOLE TU,
     # not one function. No post-compile rewrite. Backups/controls:
     # build/nc12/globalmenu_sketch_review_20261016/{build-before.py,probe.py}.
     "recon/frontend/common/femenudefs.cpp": {"no_implement_inlines": True, "debug_g": True},
-    "recon/frontend/common/femenuoptions.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
+    "recon/frontend/common/femenuoptions.cpp": {"cc1plus_ver": "2.8.1-sn"},   # P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
     # P905: ordinary primate COMMON globals must remain public when lowered
     # into their native .sbss run. This preserves compiler-declared binding,
     # not a register/instruction dial. Unique ownership and all25 GP words
@@ -482,7 +482,7 @@ PER_TU_FLAGS = {
     "recon/game/common/aidebug.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aidelaycar.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aih_basiccop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
-    "recon/game/common/aih_cop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aih_cop.cpp": {"cc1plus_ver": "2.8.1-sn"},   # P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
     # 2026-10-16: Human's implicit virtual destructor needs the native2.8.1
     # frontend/linkage identity; tested as a whole TU, never a function splice.
     # Backup: build/nc12/opp_linkage_gdb_20261015/build-before-human.py.
@@ -501,7 +501,7 @@ PER_TU_FLAGS = {
     "recon/game/common/aistate.cpp":        {"g_value": "8"},  # pass 29->37  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/common/object.cpp":         {"g_value": "8"},  # pass 13->30
     "recon/game/common/pausemenu.cpp":      {"g_value": "8"},  # pass 51->57
-    "recon/game/common/aidatarecord.cpp":   {"g_value": "8", "no_implement_inlines": True},  # pass 23->26 (all)
+    "recon/game/common/aidatarecord.cpp":   {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},  # pass 23->26 (all); P6: 4.4 makes the AccTable synthesized dtor global (= retail), inline copies LINK_STRIPPED
     # w67-a8 batch2-safe: gate-improve at -G8 with sdata=0 (no own small data, so
     # cannot shift the .sdata layout / break SOURCE_DATA_OWNERS; pure gp-relative
     # addressing-mode change toward retail).
@@ -511,7 +511,7 @@ PER_TU_FLAGS = {
     # All-consumer/native receipts: build/nc12/ai_humanperp_implicit_20261016.
     # Backup: build/nc12/ai_humanperp_implicit_20261016/build-before.py.
     "recon/game/common/aih_btcperp.cpp":    {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},  # AI-NII: NOT set -- carries retail inline virtual dtor copies
-    "recon/game/common/aih_traf.cpp":       {"g_value": "8", "no_implement_inlines": True},  # +1
+    "recon/game/common/aih_traf.cpp":       {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},  # +1; P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
     "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/psx/fe3dmenu.cpp":          {"g_value": "0"},  # 2026-09-19: its 4-byte publics showRoomFlag/gShowroomLights are retail front.data, not small data
     "recon/game/common/aih_play.cpp":       {"g_value": "8", "no_implement_inlines": True},  # class (b) 2026-09-17: its 5-byte literal is retail .sdata 0x8013c568 (data row), not .rodata
@@ -532,7 +532,7 @@ PER_TU_FLAGS = {
     # replay.cpp held at -G4: its split .sdata.replay_counter section makes -G8
     # regress the image (2038 diff); needs its own placement handling.
     "recon/game/common/bworldSm.cpp":       {"g_value": "8"},  # +11
-    "recon/game/common/aih_btccop.cpp":     {"g_value": "8", "no_implement_inlines": True},  # +7
+    "recon/game/common/aih_btccop.cpp":     {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},  # +7; P6 2026-11-07: PsyQ 4.4 cc1plus (retail global synthesized dtors) replaces NII; the inline copies it emits are LINK_STRIPPED (linkers/link_stripped.json)
     "recon/game/common/aihigh.cpp":         {"g_value": "8", "no_implement_inlines": True},  # +3 (14/14)
     "recon/game/common/camera.cpp":         {"g_value": "8"},  # +3
     "recon/game/common/clock.cpp":          {"g_value": "8"},  # +3

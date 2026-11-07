@@ -1,9 +1,9 @@
 /* aih_traf.obj owner types; Cop/Traffic use canonical AIHIGH.H definitions. */
 #ifndef NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
 #define NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
-
+#define NFS4_AIH_TRAF_OWNER   /* aihigh.h: AIHigh_Traffic inline copies LINK_STRIPPED */
 #include "aih_hierarchy_types.h"
-
+#include "../../link_stripped.h"
 #define NFS4_AIHIGH_TYPE_PART 1
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART

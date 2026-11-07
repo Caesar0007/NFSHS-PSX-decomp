@@ -5,8 +5,8 @@
 #include "aih_hierarchy_types.h"
 
 #include "shared/BW_tContext.h"
-
-
+#define NFS4_AIH_COP_OWNER   /* aihigh.h: AIHigh_Cop inline copies LINK_STRIPPED */
+#include "../../link_stripped.h"
 
 
 

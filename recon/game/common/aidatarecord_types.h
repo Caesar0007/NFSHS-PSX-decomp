@@ -46,13 +46,13 @@ typedef struct AIDataRecord_t {
     AIDataRecord_RecordMethod_t recordMethod_;
     /* Inferred accessor spellings: retail inline receiver pairs establish
        these operations, but do not preserve their original identifiers. */
-    inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; }
-    inline char *Name() { return name_; }
-    inline char *DataBuffer() { return dataBuffer_; }
-    inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; }
-    inline int BufferSize() { return bSize_; }
-    inline int NumElements() { return numElements_; }
-    inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
+    inline AIDataRecord_RecordMethod_t RecordMethod() LINK_STRIPPED;   /* AIDATARECORD.obj's standalone copies: SLINK /strip removed them (P6 Route C 2026-11-07) */
+    inline char *Name() LINK_STRIPPED;
+    inline char *DataBuffer() LINK_STRIPPED;
+    inline char *PreAllocatedBuffer() LINK_STRIPPED;
+    inline int BufferSize() LINK_STRIPPED;
+    inline int NumElements() LINK_STRIPPED;
+    inline void SetDataBuffer(char *buffer) LINK_STRIPPED;
     AIDataRecord_t(AIDataRecord_WhichRecord_t which, char *name);
     virtual ~AIDataRecord_t();
     int AddRecordToCollection();
@@ -65,13 +65,13 @@ typedef struct AIDataRecord_t {
     int Load();
     int SaveAndPurge();
 } AIDataRecord_t;
-
-
-
-
-
-
-
+inline AIDataRecord_RecordMethod_t AIDataRecord_t::RecordMethod() { return recordMethod_; }
+inline char *AIDataRecord_t::Name() { return name_; }
+inline char *AIDataRecord_t::DataBuffer() { return dataBuffer_; }
+inline char *AIDataRecord_t::PreAllocatedBuffer() { return preAllocatedBuffer_; }
+inline int AIDataRecord_t::BufferSize() { return bSize_; }
+inline int AIDataRecord_t::NumElements() { return numElements_; }
+inline void AIDataRecord_t::SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
 
 
 

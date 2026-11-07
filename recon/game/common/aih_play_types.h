@@ -1,26 +1,18 @@
 /* aih_play.obj's exact owner delta over the shared AI hierarchy. */
-#ifndef NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AIH_PLAY_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
+#define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "aih_play_types.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t (second pass below) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #include "aih_hierarchy_types.h"
 
+
+
+#include "shared/BW_tContext.h"
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
 } forceFocus_t;
-
-enum triggerType {
-    TRIGGER_NONE = 0,
-    TRIGGER_COP_SIMPLE = 1,
-    TRIGGER_COP_ROADBLOCK = 2,
-    TRIGGER_COP_OFFROAD = 3,
-    TRIGGER_TRAFFIC_ACCIDENT = 4,
-    TRIGGER_TRAFFIC_PATH = 5,
-    TRIGGER_NUM_TRIGGER_TYPES = 6
-};
-
-#include "shared/BW_tContext.h"
 
 
 
@@ -77,22 +69,6 @@ struct Speech {
     static Speaker *Mobile(Car_tObj *carObj);
 };
 
-struct AITrigger_TriggerManager {
-    int numTriggers_, invNumTriggers_;
-    int InvNumTriggers(); /* inferred inverse-count getter, retail records the receiver */
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-    int InsertTrigger(trigger_t *trigger, bool fromFile);
-    trigger_t *GetNextTrigger(int car);
-    trigger_t *GetPrevTrigger(int car);
-    int CheckForTriggerAtSlice(int car, int slice);
-    trigger_t *GetTrigger(int trigger, int *used);
-    int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
-    void DescribeTrigger(trigger_t *trigger);
-    void Sort();
-};
 
 /* Canonical foreign aggregates used by this translation unit. */
 /* GameSetup_tData: not in retail aih_play.obj (GameSetup_gData is read through its word view) */
@@ -153,4 +129,32 @@ typedef char *(*MemAllocFuncPtr)();
 typedef void (*MemFreeFuncPtr)();
 typedef void (*SetSentenceRuleFuncPtr)();
 
+#elif !defined(NFS4_AIH_PLAY_TRIG_DONE)   /* second pass: aih_hierarchy_types.h NFS4_AIH_HIERARCHY_TRIGGERS_TAIL */
+#define NFS4_AIH_PLAY_TRIG_DONE
+#include "shared/Sched_tSchedule.h"
+enum triggerType {
+    TRIGGER_NONE = 0,
+    TRIGGER_COP_SIMPLE = 1,
+    TRIGGER_COP_ROADBLOCK = 2,
+    TRIGGER_COP_OFFROAD = 3,
+    TRIGGER_TRAFFIC_ACCIDENT = 4,
+    TRIGGER_TRAFFIC_PATH = 5,
+    TRIGGER_NUM_TRIGGER_TYPES = 6
+};
+struct AITrigger_TriggerManager {
+    int numTriggers_, invNumTriggers_;
+    int InvNumTriggers(); /* inferred inverse-count getter, retail records the receiver */
+    trigger_t *triggers_[100];
+    int checkTime_[100];
+    int lastTriggerChecked_[9];
+    void Init(char *rawTriggers);
+    int InsertTrigger(trigger_t *trigger, bool fromFile);
+    trigger_t *GetNextTrigger(int car);
+    trigger_t *GetPrevTrigger(int car);
+    int CheckForTriggerAtSlice(int car, int slice);
+    trigger_t *GetTrigger(int trigger, int *used);
+    int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
+    void DescribeTrigger(trigger_t *trigger);
+    void Sort();
+};
 #endif

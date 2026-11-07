@@ -124,10 +124,10 @@ struct AIHigh_Opponent : public AIHigh_Player {
     int DoProvokedAttack();
 #line 242 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
-
-/* Cop definitions: retail destructor records also identify AIHIGH.H.
-   Method bodies and data-type dependencies are unchanged. */
-#include "shared/blockadeMode_t.h"
+#ifndef NFS4_AIHIGH_BLOCKADE_HEAD   /* Cop definitions: retail destructor records also identify AIHIGH.H; method bodies and data-type dependencies are unchanged. */
+#define NFS4_AIHIGH_BLOCKADE_HEAD "shared/blockadeMode_t.h"   /* aih_btcperp.obj: its AIHigh_BTC_AIPerp first (aih_btcperp_types.h) */
+#endif
+#include NFS4_AIHIGH_BLOCKADE_HEAD
 #include "shared/blockade_t.h"
 #include "shared/AIHigh_tDriveAwayMode.h"
 

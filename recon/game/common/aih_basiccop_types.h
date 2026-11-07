@@ -48,6 +48,7 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
 };
+#include "shared/FLARE_PIECE_DEF.h"   /* retail aih_basiccop.obj: right after ObjectFinishedSignAnim */
 
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"
@@ -96,7 +97,7 @@ struct Speech {
 };
 
 #include "shared/Trk_SFX.h"
-#include "shared/FLARE_PIECE_DEF.h"
+
 
 
 

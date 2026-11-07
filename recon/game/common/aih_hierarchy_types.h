@@ -26,9 +26,9 @@ typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; 
 #include "aicop_info_types.h"
 #include "shared/AIPhysic_ModelConfig_t.h"
 #endif
-
-
-
+#ifndef NFS4_AIH_HIERARCHY_TRIGGERS_TAIL   /* aih_play.obj: AITrigger_TriggerManager right after trigger_t (its types header) */
+#define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "shared/Sched_tSchedule.h"
+#endif
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"
@@ -39,7 +39,7 @@ typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; 
 #include "shared/trigger_trafficPath_t.h"
 #include "shared/trigger_t.h"
 
-#include "shared/Sched_tSchedule.h"
+#include NFS4_AIH_HIERARCHY_TRIGGERS_TAIL
 
 struct AIDelayCar {
     int delayFactor_;

@@ -2,6 +2,7 @@
 #ifndef NFS4_GAME_COMMON_MINFRONT_TYPES_H
 #define NFS4_GAME_COMMON_MINFRONT_TYPES_H
 
+#define NFS4_PADS_HOOK_AFTER "gamesetup_leaf_types.h"   /* retail minfront.obj: GameSetup records right after PAD_COMMON */
 #include "color_types.h"
 
 typedef enum forceFocus_t {

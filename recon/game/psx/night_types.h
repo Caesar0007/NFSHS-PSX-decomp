@@ -1,12 +1,15 @@
 /* night.obj's exact source-visible type surface reconstructed from SYM.
  * Its shared game graph is the already-exact color.obj surface; the records
  * below are precisely the named delta retained by the standalone night owner. */
-#ifndef NFS4_GAME_PSX_NIGHT_TYPES_H
+#if !defined(NFS4_GAME_PSX_NIGHT_TYPES_H)
 #define NFS4_GAME_PSX_NIGHT_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES   /* the standalone owner only */
+#define NFS4_COLOR_HOOK_AFTER_BO "../psx/night_types.h"   /* retail night.obj: forceFocus_t right after BO_tNewtonObj (second pass below) */
+#define NFS4_NIGHT_SKID_LATE   /* retail: the Skidmark types after CWorldColor */
+#define NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
@@ -56,14 +59,18 @@
 
 
 #include "shared/Track_tMaterial.h"
+#ifndef NFS4_NIGHT_SKID_LATE
 #include "shared/Skidmark_Segment.h"
-
-
+#endif
+#ifndef NFS4_NIGHT_SKID_LATE
 #include "shared/Skidmark_Chunk.h"
+#endif
 #ifndef NFS4_NIGHT_RENDER_LATE   /* render.obj: forceFocus_t via the BO hook, C*Spec late, no CTrackSpec (render_types.h) */
+#ifndef NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
+#endif
 
 #include "shared/CHorizonSpec.h"
 
@@ -82,6 +89,10 @@ typedef enum forceFocus_t {
 #include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
 #include "shared/CWorldColor.h"
+#ifdef NFS4_NIGHT_SKID_LATE
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
+#endif
 
 
 
@@ -146,4 +157,9 @@ typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];
 
+#elif defined(NFS4_COLOR_IN_HOOK) && defined(NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER) && !defined(NFS4_NIGHT_BO_DONE)   /* second pass: color_types.h AFTER_BO */
+#define NFS4_NIGHT_BO_DONE
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
+} forceFocus_t;
 #endif

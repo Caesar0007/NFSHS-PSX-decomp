@@ -53,6 +53,9 @@ struct Group {
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
+#ifdef NFS4_COLOR_HOOK_AFTER_SIMSLICE   /* an owner's own type right after Trk_NewSimSlice (bworldsm.obj: Trk_NewSlice) */
+#include NFS4_COLOR_HOOK_AFTER_SIMSLICE
+#endif
 #ifdef NFS4_COLOR_TRK_OBJ
 #ifdef NFS4_COLOR_TRK_SFX
 #include "shared/Trk_SFX.h"
@@ -111,9 +114,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 #endif
 /* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
 #include "shared/Transformer_z.h"
-
-
-
 
 
 

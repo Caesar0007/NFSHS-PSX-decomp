@@ -34,21 +34,21 @@
 
 
 typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
-#include "shared/AIPhysic_ModelConfig_t.h"
+
 
 
 
 
 
 #include "shared/trigger_anyTrigger_t.h"
-#include "shared/trigger_offroad_t.h"
+#include "shared/trigger_simple_t.h"
 
 
 
 
 
 #include "shared/trigger_roadblock_t.h"
-#include "shared/trigger_simple_t.h"
+#include "shared/trigger_offroad_t.h"
 #include "shared/trigger_trafficAccident_t.h"
 
 
@@ -90,6 +90,7 @@ struct AIDelayCar {
 
 
 #include "aistate.h"
+#include "shared/AIPhysic_ModelConfig_t.h"   /* retail aistate.obj: right after AIState_Cruise */
 
 #include "shared/kernpair.h"
 typedef kernpair KERN;

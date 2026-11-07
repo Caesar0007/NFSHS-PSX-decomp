@@ -24,17 +24,17 @@ typedef struct tListIterator {
     int Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
     short Selection(int i) { return fSelectionList[i]; }
 } tListIterator;
+#ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own type right after tListIterator (nfs3.obj: tListIteratorIndexed) */
+#include NFS4_FE_SURFACE_HOOK
+#endif
 struct tListIteratorRange : public tListIterator {};
-
 typedef struct tMenuItem {
     unsigned int fFlags, fTextDescription;
     short fSelFade;
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
-    virtual ~tMenuItem();
-    virtual long DebounceKeys();
-    virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    virtual void Draw(bool);
+    virtual ~tMenuItem(); virtual long DebounceKeys();
+    virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &); virtual void Draw(bool);
     virtual void Draw(int, int, bool);
     virtual void Draw(int, int, int, bool);
     virtual void TransitionOff();
@@ -43,7 +43,6 @@ typedef struct tMenuItem {
     virtual void UpdateTransition(bool);
 } tMenuItem;
 typedef tMenuItem *tItemList[16];
-
 typedef struct tMenu {
     unsigned int fFlags;
     short fTitle;
@@ -66,8 +65,9 @@ typedef struct tMenu {
     virtual void UpdateTransition();
 } tMenu;
 struct tMenuItemInteractive : public tMenuItem {};
-
+#ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own types right after tMenuItemInteractive (nfs3.obj: tScreen) */
+#include NFS4_FE_SURFACE_HOOK
+#endif
 #undef tPlayer
 #undef tInputKeyType
-
 #endif

@@ -1,17 +1,17 @@
 /* aih_btcperp.obj's exact owner delta over the shared AI hierarchy. */
-#ifndef NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_AIHIGH_BLOCKADE_HEAD "aih_btcperp_types.h"   /* retail: AIHigh_BTC_AIPerp right after AIHigh_BTC_HumanPerp (aihigh.h, second pass below) */
 #include "aih_hierarchy_types.h"
+#include "shared/BW_tContext.h"
+
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
 } forceFocus_t;
-
-#include "shared/BW_tContext.h"
-
 
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 static inline void _btc_perp_dtor_ref(AIHigh_BTC_Perp *p) { p->~AIHigh_BTC_Perp(); }
@@ -37,42 +37,7 @@ static inline void _btc_perp_dtor_ref(AIHigh_BTC_Perp *p) { p->~AIHigh_BTC_Perp(
 
 
 
-struct AnimScript {
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-};
-#include "shared/AnimDef.h"
-struct DRender_tView;
-struct Draw_DCache;
-/* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
-struct ObjectAnim {
-    virtual ~ObjectAnim();
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-struct ObjectFinishedMultiAnim : public ObjectAnim { };
-struct ObjectFinishedSignAnim : public ObjectAnim {
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-};
-
-struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
-    __typeof__(PERPMODE_CRUISE) perpMode_;
-    int creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_;
-    int originalMass_, originalMassInv_;
-    Car_tObj *closestCopCarObj_;
-    int closestCopCarDistanceMeters_;
-    AIHigh_BTC_AIPerp(Car_tObj *carObj);
-    ~AIHigh_BTC_AIPerp();
-    void AvoidCops();
-    void CalculateTimeTillContact();
-    void FindClosestCop();
-    void HighExecute();
-    void NewStage(AIHigh_BTC_HumanCop *cop);
-};
-
 #include "aistate.h"
-
 
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"
@@ -118,6 +83,24 @@ struct Speech {
     };
     static Speaker *Dispatch();
     static Speaker *Mobile(Car_tObj *carObj);
+};
+struct AnimScript {
+    int baseTicks, baseFrame, flags, numParts;
+    Trk_AnimateInst **inst;
+};
+#include "shared/AnimDef.h"
+struct DRender_tView;
+struct Draw_DCache;
+/* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
+struct ObjectAnim {
+    virtual ~ObjectAnim();
+    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
+};
+struct ObjectFinishedMultiAnim : public ObjectAnim { };
+struct ObjectFinishedSignAnim : public ObjectAnim {
+    matrixtdef finalMatrix;
+    Trk_ObjectDef *objDef;
+    Trk_CollideBoomInst *objCollideInstance;
 };
 
 /* Canonical foreign aggregates used by this translation unit. */
@@ -190,4 +173,21 @@ typedef char *(*MemAllocFuncPtr)();
 typedef void (*MemFreeFuncPtr)();
 typedef void (*SetSentenceRuleFuncPtr)();
 
+#elif !defined(NFS4_AIH_BTCPERP_BLK_DONE)   /* second pass: aihigh.h NFS4_AIHIGH_BLOCKADE_HEAD */
+#define NFS4_AIH_BTCPERP_BLK_DONE
+struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
+    __typeof__(PERPMODE_CRUISE) perpMode_;
+    int creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_;
+    int originalMass_, originalMassInv_;
+    Car_tObj *closestCopCarObj_;
+    int closestCopCarDistanceMeters_;
+    AIHigh_BTC_AIPerp(Car_tObj *carObj);
+    ~AIHigh_BTC_AIPerp();
+    void AvoidCops();
+    void CalculateTimeTillContact();
+    void FindClosestCop();
+    void HighExecute();
+    void NewStage(AIHigh_BTC_HumanCop *cop);
+};
+#include "shared/blockadeMode_t.h"
 #endif

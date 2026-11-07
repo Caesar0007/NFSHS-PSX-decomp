@@ -2,8 +2,8 @@
 #define NFS4_GAME_PSX_TRSPROJ_TYPES_H   /* TrsProj.obj's exact source-visible type surface reconstructed from SYM. */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail trsproj.obj: Draw_tVertex right after Draw_tPixMap */
 #include "../common/draw_leaf_types.h"
-#include "../common/gamesetup_leaf_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 /* GameSetup_tData: not in retail trsproj.obj (GameSetup_gData is read through its word view) */
@@ -36,8 +36,8 @@
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
 
-
 #include "shared/RelCoord16.h"
+#include "../common/gamesetup_leaf_types.h"   /* retail: GameSetup records right after RelCoord16 */
 
 struct Group {
     int m_num_elements;

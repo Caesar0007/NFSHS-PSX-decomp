@@ -1,5 +1,6 @@
-#ifndef NFS4_GAME_COMMON_AIPERSON_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AIPERSON_TYPES_H)
 #define NFS4_GAME_COMMON_AIPERSON_TYPES_H   /* Reconstructed aiperson types and the owner-proven shared GameSetup layout. */
+#define NFS4_TRANSFORMER_Z_HOOK "../game/common/aiperson_types.h"   /* retail aiperson.obj: Udff types right after Transformer_zOverlay */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
@@ -36,6 +37,11 @@
 
 
 
+
+typedef int CarLogic_tObservations[1][3];
+
+#elif defined(NFS4_TRANSFORMER_IN_HOOK) && !defined(NFS4_AIPERSON_TZ_DONE)   /* second pass: shared/Transformer_z.h */
+#define NFS4_AIPERSON_TZ_DONE
 typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
@@ -48,7 +54,4 @@ typedef enum Udff_tAccessType {
 
 typedef struct Udff_tInfo Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;
-
-typedef int CarLogic_tObservations[1][3];
-
 #endif

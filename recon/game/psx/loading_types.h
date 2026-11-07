@@ -2,6 +2,7 @@
 #ifndef NFS4_GAME_PSX_LOADING_TYPES_H
 #define NFS4_GAME_PSX_LOADING_TYPES_H
 
+#define NFS4_PADS_HOOK_AFTER "gamesetup_leaf_types.h"   /* retail loading.obj: GameSetup records right after PAD_COMMON */
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 

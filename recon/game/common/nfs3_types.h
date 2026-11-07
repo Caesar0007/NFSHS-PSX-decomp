@@ -8,6 +8,7 @@
 #define NFS4_AUDIOCMN_KERNEL_LATER
 #define NFS4_AUDIOCLC_KERNPAIR_LATE
 #define NFS4_AUDIOCMN_CAR_ORDER "nfs3_types.h"   /* retail: tCarClassType tCarNameLength after tOwnedCarInfo; tPersonalities tCarLineup after tCarManager */
+#define NFS4_FE_SURFACE_HOOK "../game/common/nfs3_types.h"   /* retail: tListIteratorIndexed after tListIterator, tScreen after tMenuItemInteractive */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 #define cheat_Roadster 0
@@ -45,9 +46,9 @@ typedef enum tTrackClassType {
 
 
 
-struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 
-#include "shared/tShapeInformation.h"
+
+
 
 
 
@@ -59,11 +60,11 @@ struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 struct tMenuCommand;
 struct tMenu;
 /* this owner defines neither tPlayer nor tInputKeyType: the int spellings it always used */
-#define tPlayer int
-#define tInputKeyType int
-#include "frontend/common/fescreen.h"
-#undef tPlayer
-#undef tInputKeyType
+
+
+
+
+
 
 #include "shared/tCarLineup.h"
 
@@ -310,4 +311,13 @@ enum tPersonalities {
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
 #include "shared/tCarLineup.h"
+#elif defined(NFS4_NFS3_FE_DONE) && !defined(NFS4_NFS3_LI_DONE)   /* fe_menu_game_surface.h hook 1 */
+#define NFS4_NFS3_LI_DONE
+struct tListIteratorIndexed : public tListIterator { char *fIndex; };
+#elif defined(NFS4_NFS3_LI_DONE) && !defined(NFS4_NFS3_SCR_DONE)   /* hook 2 (tPlayer/tInputKeyType are int inside the surface) */
+#define NFS4_NFS3_SCR_DONE
+#include "shared/tShapeInformation.h"
+struct tMenuCommand;
+struct tMenu;
+#include "frontend/common/fescreen.h"
 #endif

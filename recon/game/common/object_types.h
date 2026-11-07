@@ -2,8 +2,12 @@
 #if !defined(NFS4_GAME_COMMON_OBJECT_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "object_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
+#define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #include "link_stripped.h"
 #define NFS4_COLOR_HOOK_AFTER_BO "object_types.h"   /* retail: anim/object types right after the BO types (second pass below) */
+#define NFS4_COLOR_HOOK_AFTER_RELCOORD "object_types.h"   /* retail: Chunk right after Group (pass below) */
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 #include "sim_types.h"
 #undef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
@@ -52,16 +56,13 @@ struct AnimScript {
     int GetStatus();
 };
 #include "shared/AnimDef.h"
-
 #include "shared/DRender_tView.h"
 #include "shared/Draw_DCache.h"
 
-
-
-
-
-
-
+#endif
+#if defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_OBJECT_CHUNK_DONE)   /* pass from color_types.h (after Group) */
+#define NFS4_OBJECT_CHUNK_DONE
+struct SerializedGroup; struct SimpleMem;
 struct Chunk {
     RelCoord16 boundPts[4], chunkboundPts[4];
     u_char quadCounts[6], pad[2];
@@ -73,12 +74,11 @@ struct Chunk {
     Group *vertexBuf;
     void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
 };
-
+#endif
+#if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_EARLY2_DONE)   /* second pass, continued */
+#define NFS4_OBJECT_EARLY2_DONE
 #include "shared/Object_tSimObjList.h"
 #include "shared/Object_tIMassObjInfo.h"
-
-
-
 
 
 /* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
@@ -155,7 +155,7 @@ struct ObjectSignAnim : public ObjectAnim {
 #include "shared/tQuat.h"
 typedef tQuat Quatern_quat;
 #endif
-#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_TAIL_DONE)   /* first pass, after sim_types.h */
+#if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_OBJECT_TAIL_DONE)   /* first pass, after sim_types.h */
 #define NFS4_OBJECT_TAIL_DONE
 #include "shared/Trk_NewSlice.h"
 

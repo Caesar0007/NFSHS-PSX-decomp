@@ -1,10 +1,10 @@
 /* draw.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_DRAW_TYPES_H
 #define NFS4_GAME_PSX_DRAW_TYPES_H
+#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
-
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 #include "shared/GameSetup_tData.h"
 

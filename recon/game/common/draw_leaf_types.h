@@ -57,9 +57,9 @@ typedef struct matrixtdef MATRIX3DT;
 
 
 #include "shared/Draw_tCacheHeader.h"
-
-
-
+#ifdef NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (every includer) */
+#include "shared/Draw_DCache.h"
+#endif
 
 
 #include "shared/Draw_CarVertex.h"

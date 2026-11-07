@@ -6,9 +6,9 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
+#define NFS4_CORE_DCACHE   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #include "../common/draw_leaf_types.h"
-
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 /* Canonical gmesetup.obj aggregate retained by hrzsku.obj. */

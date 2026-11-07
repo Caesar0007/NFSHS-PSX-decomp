@@ -745,6 +745,8 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 
 /* ---- DrawSlider  [FEMENU.CPP:665-761] SLD-VERIFIED ---- */
+/* red/green/blue/color: retail SYM records none of them; `short` channel locals get no record (promoted
+   pseudo) and give the retail sign-extensions; tags 31/32/33 + compose 35 + call 36 (rel) = retail. Names inferred. */
 #line 659 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,short fHeight,
                short rectwidth,short rectspace,bool reverse,bool shadow,
@@ -759,7 +761,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   short factor;
   int myDarkBlue;
   int Col;
-  int redVal; int greenVal; int redVal2; int greenVal2; factor = !fSelFade;
+  short red; short green; short blue; int color; factor = !fSelFade;
 
 
 
@@ -783,16 +785,16 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
           if (fSelFade) {
 
-            redVal = (((x1 - fX) * 0xbe) / fWidth) >> factor;
-            greenVal = ((((x1 - fX) * 0x7c) / fWidth) + 0x42) >> factor;
-            Col = CalcFadeVal(myDarkBlue, ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16 | (greenVal << 16) >> 8 | (short)redVal,fSelFade);
+            red = (((x1 - fX) * 0xbe) / fWidth) >> factor;
+            green = ((((x1 - fX) * 0x7c) / fWidth) + 0x42) >> factor;
+            blue = (((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor;
+
+            color = blue << 16 | green << 8 | red;
+            Col = CalcFadeVal(myDarkBlue, color, fSelFade);
           }
           else {
             Col = myDarkBlue;
           }
-
-
-
 
 
           Col = CalcFadeVal(Col,fFadeVal);
@@ -825,14 +827,14 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
           if (fSelFade) {
 
-            redVal2 = (((fX + fWidth - x1) * 0xbe) / fWidth) >> factor;
-            greenVal2 = ((((fX + fWidth - x1) * 0x7c) / fWidth) + 0x42) >> factor;
-            Col = CalcFadeVal(myDarkBlue, ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16 | (greenVal2 << 16) >> 8 | (short)redVal2,fSelFade);
+            red = (((fX + fWidth - x1) * 0xbe) / fWidth) >> factor;
+            green = ((((fX + fWidth - x1) * 0x7c) / fWidth) + 0x42) >> factor;
+            blue = (((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor;
+
+            color = blue << 16 | green << 8 | red;
+            Col = CalcFadeVal(myDarkBlue, color, fSelFade);
           }
           else {
-
-
-
 
             Col = myDarkBlue;
           }
@@ -940,31 +942,31 @@ void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
   int frameFiller[2]; if (!IsEnabled()) {
     return;
   }
-  if (keyval != kInput_KeyType_Cross) {
+  if (keyval == kInput_KeyType_Cross)
+  {
+
+    if (NewMenu() != (tMenu *)0x0)
+
+
+
+
+
+
+
+    {
+      if ((this->fFlags & 0x40) != 0) {
+        command.type = kMenu_Command_GoToMenuOneWay;
+      }
+      else { command.type = kMenu_Command_GoToMenu;
+      } command.nextMenu = NewMenu();
+    }
+    if (this->fOnButtonPress != 0x0) {
+      (*this->fOnButtonPress)(command);
+    } keyval = kInput_KeyType_AlreadyProcessed;
+
+
     return;
   }
-  if (this->fNewMenu != (tMenu *)0x0) {
-
-
-
-
-
-
-
-
-    if ((this->fFlags & 0x40) != 0) {
-      command.type = kMenu_Command_GoToMenuOneWay;
-    }
-    else { command.type = kMenu_Command_GoToMenu;
-    } command.nextMenu = this->fNewMenu;
-  }
-  if (this->fOnButtonPress != 0x0) {
-    (*this->fOnButtonPress)(command);
-  } keyval = kInput_KeyType_AlreadyProcessed;
-  return;
-
-
-
 }
 
 

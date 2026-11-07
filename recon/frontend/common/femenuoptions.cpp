@@ -1864,12 +1864,9 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer,tInputKeyType &keyval,
      subtraction UN-reassociated. Inline, gcc rewrites it as
      `(x + 0xb0) - width`; this value preserves retail's
      `addiu a2,a2,-176; subu a2,s1,a2`. */
-  /* SOURCE-REVIEW-UNRESOLVED: y -- absent from retail. Earlier x-only28dif
-     does not certify the original producer/name; current129 words match. */
-  /* SOURCE-REVIEW-UNRESOLVED: x -- absent from retail. Earlier parameter
-     mutation34dif and y-only24dif do not prove a separate source object. */
-  /* SYM ORDER: shape, Col, ColText precede the AUTO drawFlags/tCol slots;
-     only the x/y coordinate carriers still survive as extra debug locals. */
+  /* x/y: `short` locals (FRONT14 2026-11-07): retail records neither; the short register locals get no
+     SYM record (same as DrawSlider's channel values) and bytes stay PASS. Names inferred (uses are all (short)x). */
+  /* SYM ORDER: shape, Col, ColText precede the AUTO drawFlags/tCol slots (= retail, exact). */
   /* Retail ABI bool is unnamed while the `iib` linkage retains it.
      MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
      ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
@@ -1886,7 +1883,7 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
 {
   tTexture_ShapeInfo *shape;
   int Col;
-  int ColText; int x; int y; x = TextSys_WordX(this->fTextDescription) + ox;
+  int ColText; short x; short y; x = TextSys_WordX(this->fTextDescription) + ox;
   y = TextSys_WordY(this->fTextDescription) + oy;
 
   shape = &gHelpShapes[0x1e];

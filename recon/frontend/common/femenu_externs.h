@@ -42,5 +42,8 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * definition avoids a non-retail standalone getter in this key-function TU. */
 #pragma interface
 inline bool tMenuItem::IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
+/* ORIGINAL-NAME-UNRESOLVED: fNewMenu getter; retail GoToMenuButton::ProcessInput records its tMenuItem `this`
+ * pairs at the test (904) and the nextMenu store (916). Interface-only like IsEnabled (no standalone copy). */
+inline tMenu *tMenuItem::NewMenu() { return fNewMenu; }
 
 #endif

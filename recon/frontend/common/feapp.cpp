@@ -12,10 +12,10 @@
 
 
 
-#define tPsyQPrimTag struct _tPsyQPrimTag   /* '_' tag: no SYM record (user ruling 2026-11-07) */
-struct _tPsyQPrimTag { unsigned int addr : 24;
+typedef struct tPsyQPrimTag {
+  unsigned int addr : 24;
   unsigned int len : 8;
-};
+} tPsyQPrimTag;
 
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */

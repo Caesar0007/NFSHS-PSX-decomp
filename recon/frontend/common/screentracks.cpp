@@ -15,10 +15,10 @@ static inline int FE_Ticks(void) { return ticks; }
 /* Retail screentracks.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-#define tTrackSelectPrimTag struct _tTrackSelectPrimTag   /* '_' tag: no SYM record (user ruling 2026-11-07) */
-struct _tTrackSelectPrimTag { u_int addr : 24;
+typedef struct tTrackSelectPrimTag {
+  u_int addr : 24;
   u_int len : 8;
-};
+} tTrackSelectPrimTag;
 
 
 /* ---- tScreenTrackSelect::DrawBackground ---- */

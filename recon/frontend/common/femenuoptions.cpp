@@ -20,10 +20,10 @@
 int PulsateYellow;       /* @0x800515ac; SYM EXT INT */
 int fHelpText;           /* @0x800515b0; SYM EXT INT */
 
-#define tPsyQPrimTag struct _tPsyQPrimTag   /* '_' tag: no SYM record (user ruling 2026-11-07) */
-struct _tPsyQPrimTag { unsigned int addr : 24;
+typedef struct tPsyQPrimTag {
+  unsigned int addr : 24;
   unsigned int len : 8;
-};
+} tPsyQPrimTag;
 
 
 

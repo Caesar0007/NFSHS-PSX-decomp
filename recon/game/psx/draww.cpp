@@ -2202,14 +2202,14 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
       if (flag & 0x80) { DR_TWIN *aprim; RECT r; aprim = (DR_TWIN *)Render_gPacketPtr; r.w = 0; r.h = 0; r.x = 0; r.y = 0; ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr; Render_gPacketPtr = (u_char *)&aprim[1]; ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr = (u_long)aprim; SetTexWindow(aprim,&r);
       }
       if (doSubdivision) {
-        __asm__("" : : "i"(0));
+        /* fence-free (user 2026-11-07): the else arm's addPrim asm reads prim ("+r"), so reorg cannot steal this arm into the guard slot */
 
         prim = &sd->GT4Prim;
       }
       else {
 
 
-        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr; __asm__ volatile("lw\t$12,0(%2)\n        lw\t$13,0(%1)\n        addiu\t$14,%0,52\n        sll\t$12,$12,2\n        addu\t$13,$13,$12\n        sw\t$14,4(%1)\n        lwl\t$14,2($13)\n        lui\t$12,0x0C00\n        srl\t$14,$14,8\n        or\t$14,$14,$12\n        sll\t$12,%0,8\n        sw\t$14,0(%0)\n        swl\t$12,2($13)" : : "r"(prim), "r"(sd), "r"(&sd->otz) : "$12", "$13", "$14", "memory"); }
+        __asm__ volatile("lw\t%0,4(%1)\n        lw\t$12,0(%2)\n        lw\t$13,0(%1)\n        addiu\t$14,%0,52\n        sll\t$12,$12,2\n        addu\t$13,$13,$12\n        sw\t$14,4(%1)\n        lwl\t$14,2($13)\n        lui\t$12,0x0C00\n        srl\t$14,$14,8\n        or\t$14,$14,$12\n        sll\t$12,%0,8\n        sw\t$14,0(%0)\n        swl\t$12,2($13)" : "+r"(prim) : "r"(sd), "r"(&sd->otz) : "$12", "$13", "$14", "memory"); }
 
 
 

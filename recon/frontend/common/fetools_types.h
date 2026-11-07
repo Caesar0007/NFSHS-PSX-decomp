@@ -42,5 +42,7 @@ struct tMenu;
 #include "fescreen.h"
 #include "shared/tActiveLine.h"
 #include "shared/tDrawShapeExtended.h"
-
+#ifdef NFS4_FE_CORE_CARS_LATE
+#include "fe_core_cars.h"
+#endif
 #endif

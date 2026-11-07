@@ -22,7 +22,7 @@ enum tMenuCommandType {
 };
 
 #include "shared/tMenuCommand.h"
-
+#define NFS4_FE_CORE_CARS_LATE   /* retail FEMenu.obj: car tail last (fe_core_cars.h below) */
 #define NFS4_FE_CORE_FEMENU_METHODS inline bool IsEnabled() LINK_STRIPPED; inline tMenu *NewMenu() LINK_STRIPPED; /* owner-only interface declarations */
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
 #include "fe_core_types.h"
@@ -92,5 +92,5 @@ typedef struct {
 #define getaddr(p) ((u_long)(((P_TAG *)(p))->addr))
 #define setaddr(p, value) (((P_TAG *)(p))->addr = (u_long)(value))
 #define addPrim(ot, p) setaddr((p), getaddr(ot)), setaddr((ot), (p))
-
+#include "fe_core_cars.h"   /* retail: car types at the end of FEMenu.obj */
 #endif

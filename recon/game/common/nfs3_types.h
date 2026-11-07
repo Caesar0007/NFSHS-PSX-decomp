@@ -1,6 +1,6 @@
-/* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
 #ifndef NFS4_GAME_COMMON_NFS3_TYPES_H
-#define NFS4_GAME_COMMON_NFS3_TYPES_H
+#define NFS4_GAME_COMMON_NFS3_TYPES_H   /* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
+#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 #define cheat_Roadster 0
 #define kFront_InitialLoad 0
@@ -11,7 +11,7 @@ typedef enum tCarClassType {
     cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
     cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
 } tCarClassType;
-
+#define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #define NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #define NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES

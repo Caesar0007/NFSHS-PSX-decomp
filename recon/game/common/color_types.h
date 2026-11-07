@@ -12,13 +12,13 @@
 #ifdef NFS4_COLOR_GS_FIRST   /* retail: GameSetup ahead of Group (owner first header) */
 #include "gamesetup_leaf_types.h"
 #endif
-
-
-
-
-
-
-
+#ifdef NFS4_COLOR_SCHED_FIRST   /* retail: scheduler types ahead of Group (owner first header) */
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#ifdef NFS4_COLOR_SCHED_SCHEDULE
+#include "shared/Sched_tSchedule.h"
+#endif
+#endif
 
 
 
@@ -96,13 +96,13 @@ struct BO_tNewtonObj;
 
 
 
-
-
 #ifdef NFS4_COLOR_GS_AFTER_BO   /* retail: GameSetup after the BO types, before the scheduler */
 #include "gamesetup_leaf_types.h"
 #endif
+#ifndef NFS4_COLOR_SCHED_FIRST
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
+#endif
 #ifdef NFS4_COLOR_SCHED_SCHEDULE   /* retail: Sched_tSchedule always right after Sched_tFunctionSchedule */
 #include "shared/Sched_tSchedule.h"
 #endif

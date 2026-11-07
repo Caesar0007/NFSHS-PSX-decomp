@@ -87,7 +87,7 @@
 #include "shared/Track_tMaterial.h"
 
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-#include "shared/GameSetup_tData.h"
+/* GameSetup_tData: not in retail sim.obj (GameSetup_gData is read through its word view) */
 
 
 

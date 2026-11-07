@@ -5,7 +5,7 @@
 
 /* ---- libc + harvested + SYM free-fns/globals ---- */
 extern Car_tObj * Cars_gHumanRaceCarList[9]; /* retail EXT: 36 bytes, dims 1 9 */
-extern GameSetup_tData GameSetup_gData;
+extern int GameSetup_gData[650]; /* word view (2600 bytes): retail sim.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
 extern Sim_tSimSystemVar simVar;
 extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */

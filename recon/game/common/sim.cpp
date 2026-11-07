@@ -79,7 +79,7 @@ void Sim_StartUp(void)
   simGlobal.schedule32Hz2 = Sched_CreateNewSchedule(D_8013D418,0xb);   /* "Sc32-2" */
   simGlobal.schedule64Hz = Sched_CreateNewSchedule(D_8013D420,0x1a);   /* "Sc64" */
 
-  FastRandom_StartUp(GameSetup_gData.randSeed);
+  FastRandom_StartUp(GameSetup_gData[22] /* randSeed */);
 
 
 
@@ -120,9 +120,9 @@ void Sim_Restart(void)
   simVar.currentClockTicks = 0;
   simGlobal.gameStarted = 0;
   simGlobal.gameTicks = 0;
-  GameSetup_gData.perpArrests = 0;
+  GameSetup_gData[109] /* perpArrests */ = 0;
 
-  FastRandom_StartUp(GameSetup_gData.randSeed);
+  FastRandom_StartUp(GameSetup_gData[22] /* randSeed */);
   AICop_Restart();
   AIInit_Reset1();
   R3DCar_Restart();
@@ -180,15 +180,15 @@ void Sim_FadeInSFX(void)
 {
   if (simGlobal.gameTicks == 0)
   {
-    GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
+    GameSetup_gData[61] /* userSetting.sfxLevel */ = gMasterSFXLevel;
     gMasterSFXLevel = 0;
   }
   else if (simGlobal.gameTicks - 0x11U < 0x40)
   {
     if (Replay_ReplayInterface.statsScreen != 0)
-      gMasterSFXLevel = (GameSetup_gData.userSetting.sfxLevel >> 2) * (simGlobal.gameTicks - 0x10) >> 6;
+      gMasterSFXLevel = (GameSetup_gData[61] /* userSetting.sfxLevel */ >> 2) * (simGlobal.gameTicks - 0x10) >> 6;
     else
-      gMasterSFXLevel = GameSetup_gData.userSetting.sfxLevel * (simGlobal.gameTicks - 0x10) >> 6;
+      gMasterSFXLevel = GameSetup_gData[61] /* userSetting.sfxLevel */ * (simGlobal.gameTicks - 0x10) >> 6;
   }
 }
 
@@ -212,7 +212,7 @@ void Sim_ProcessSimSchedules(void)
 
 
 {
-  if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  if (!(((GameSetup_gData[0] /* raceType */ == RaceType_HotPursuit) || (GameSetup_gData[0] /* raceType */ == RaceType_Id5)) &&
        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))))
   {
     if (simGlobal.gameStarted == 0)
@@ -399,7 +399,7 @@ static void Sim_ProcessPause(void)
       if (1 < r - 4U) {
         return;
       } if (r == 5) {
-        GameSetup_gData.pinkSlipsForfeit = (int)(Device_gPausePortIndex != '\0');
+        GameSetup_gData[46] /* pinkSlipsForfeit */ = (int)(Device_gPausePortIndex != '\0');
       }
       Hud_BTC_QuitOut();
 
@@ -669,7 +669,7 @@ void Sim_MainGameLoop(void)
 
           Replay_ReplayInterface.depressed = 0;
           simVar.endSimGame = Replay_ReplayInterface.end;
-          if (((GameSetup_tData *)replaySetup)->instantReplay != 0) {
+          if (((int *)replaySetup)[10] /* instantReplay */ != 0) {
             AudioCmn_UnPauseAndRestart();
           } else { if ((Replay_ReplayInterface.end != 0) && (simVar.quickPauseSim != 0)) {
               simVar.quickPauseSim = 0;
@@ -722,7 +722,7 @@ void Sim_MainGameLoop(void)
             }
           }
           else {
-            int i; char *gameSetup; i = 0; if (i > (int)(u_int)(((GameSetup_tData *)replaySetup)->commMode == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
+            int i; char *gameSetup; i = 0; if (i > (int)(u_int)(((int *)replaySetup)[3] /* commMode */ == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
 SimMainLoop_inputLoop:
               if (Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0)
                 if (Replay_ReplayMode < 2) {
@@ -843,6 +843,6 @@ SimMainLoop_endGame:
 
   if (Replay_ReplayMode < 2) {
 
-    GameSetup_gData.finalPerpArrests = GameSetup_gData.perpArrests; } return; }
+    GameSetup_gData[110] /* finalPerpArrests */ = GameSetup_gData[109] /* perpArrests */; } return; }
 
 /* end of sim.cpp */

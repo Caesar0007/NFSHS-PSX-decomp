@@ -188,4 +188,11 @@ static inline tTourneyInfo *CurrentTourney(void)
           tournamentManager.fTournament);
 }
 
+/* ORIGINAL-NAME-UNRESOLVED: record-less inline pairs in Front_InitOpponentCars (tier/tournament lookup at 1392, racer count at 1401) */
+static inline tTourneyInfo *TourneyAt(unsigned char tier, unsigned char tournament)
+{
+  return &tournamentManager.fDefinition->fTournaments[tournamentManager.fDefinition->fTiers[tier].fTournOffset + tournament];
+}
+static inline int NumRacers(void) { return tournamentManager.fNumRacers; }
+
 #endif

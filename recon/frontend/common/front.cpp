@@ -1754,12 +1754,11 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
        Ghidra artifact; it cost one insn AND (by stretching the fn-scope
        carLineup pseudo's live range across this arm) inverted the whole
        s0/s1 handout the W61-A17 certificate priced.  111 -> 6 @357/357. */
-      /* SYM-CODEGEN-CARRIER: numRacers2 -- the direct sibling expression is
-         likewise count-exact but reads with `lhu` (FAIL 2 at 357/357); the
-         explicit int value preserves retail's `lw 16(s0)`. */
-      /* SYM-CODEGEN-CARRIER: numRacers -- a direct expression is count-exact
-         but reads the int field with `lhu` (FAIL 2 at 357/357); this statement
-         boundary preserves retail's `lw` without changing the value. */
+      /* FRONT13 (2026-11-07): BYTE+SYM+SLD tags exact.  The numRacers/numRacers2 carriers were retail's record-less
+         NumRacers() inline (the int `lw` comes from its return type); the tourney index chains are CurrentTourney()/
+         TourneyAt(2, carID) pairs; each pair's statement sits on the line after its `if` (`{ stmt` own line);
+         `i = i + 1` on the do-while line; the added-model test is two nested ifs.  Blocks left: 2nd pair at 1454
+         (unknown inline), else-if scope {1475 vs retail {1475-2 (needs a code-less note on 1474). */
     /* MATCH W64-A17: the 5 is the ELSE ARM, not a pre-assigned default.  A
        top-of-block `numOpponents = 5;` followed by a bare `if` makes gcc
        materialise the 5 ahead of the raceType guard and reuse the guard's
@@ -1795,36 +1794,36 @@ static void Front_InitOpponentCars(tFEStream &streamData)
   streamData.numOpponents = 0;
   if ((frontEnd.raceType == RaceType_Tournament) ||
 
-     ((frontEnd.raceType == RaceType_SingleRace && (frontEnd.oppNumber == '\x02')))) {
-    tCarInfo *carInfo;
+     ((frontEnd.raceType == RaceType_SingleRace && (frontEnd.oppNumber == '\x02'))))
+  { tCarInfo *carInfo;
     tCarModels carModel;
     char carColor;
     tCarClassType opponentClass;
     bool usePlayerUpgrades;
-    tTourneyInfo *tourn;
-
-    usePlayerUpgrades = 0;
+    tTourneyInfo *tourn; usePlayerUpgrades = 0;
 
 
 
-    if (frontEnd.raceType == RaceType_Tournament) {
-      opponentClass = (tCarClassType)((tTourneyInfo *) (((uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament) * sizeof(tTourneyInfo) + (int)tournamentManager.fDefinition->fTournaments))->fOpponentCarClass;
+
+
+    if (frontEnd.raceType == RaceType_Tournament)
+    { opponentClass = (tCarClassType)CurrentTourney()->fOpponentCarClass;
     } else { opponentClass = cct_OpenClass;
     }
-    if (opponentClass == cct_OpenClass) {
+    if (opponentClass == cct_OpenClass)
+    { tourn = TourneyAt(2, streamData.playerCars[0].fCarID);
 
 
-
-      usePlayerUpgrades = 1; tourn = &tournamentManager.fDefinition->fTournaments [(uint)tournamentManager.fDefinition->fTiers[2].fTournOffset + (uint)(byte)streamData.playerCars[0].fCarID];
+      usePlayerUpgrades = 1;
     }
-    else { tourn = &tournamentManager.fDefinition->fTournaments [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
+    else { tourn = CurrentTourney();
     }
 
-    if (frontEnd.raceType == RaceType_Tournament) {
-      int numRacers = tournamentManager.fNumRacers; numOpponents = numRacers + -1;
-    }
-    else {
-      numOpponents = 5; } i = 0; if (0 < numOpponents) { do {
+    if (frontEnd.raceType == RaceType_Tournament)
+    { numOpponents = NumRacers() + -1;
+    } else { numOpponents = 5; }
+
+      i = 0; if (0 < numOpponents) { do {
 
 
       carModel = (tCarModels)tourn->fOpponentCar[i];
@@ -1833,11 +1832,11 @@ static void Front_InitOpponentCars(tFEStream &streamData)
       carColor = carInfo->fDefaultColor;
 
 
-      if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData.totalModels < 0x10)) {
+      if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
 
-
+        if (streamData.totalModels < 0x10) {
         streamData.totalModels = streamData.totalModels + 3;
-      }
+      } }
 
       carManager.FindSimilarCar(carModel,carColor,0,(tCarModels *)0x0);
 
@@ -1867,17 +1866,17 @@ static void Front_InitOpponentCars(tFEStream &streamData)
         } else { streamData.carLineup[i + 1].carUpgrades = '\0';
         }
       }
-      i = i + 1; streamData.totalCars = streamData.totalCars + 2;
+      streamData.totalCars = streamData.totalCars + 2;
 
 
       streamData.numOpponents = streamData.numOpponents + 1;
-      } while (i < numOpponents);
+      i = i + 1; } while (i < numOpponents);
     }
-    if (frontEnd.raceType == RaceType_Tournament) {
-      tournamentManager.UpdateCarLineup();
-      int numRacers2 = tournamentManager.fNumRacers;
+    if (frontEnd.raceType == RaceType_Tournament)
+    { tournamentManager.UpdateCarLineup();
 
-      streamData.numOpponents = numRacers2 + -1;
+
+      streamData.numOpponents = NumRacers() + -1;
       carLineup = tournamentManager.fCarLineup; for (i = 0; i < numOpponents + 1; i = i + 1) {
 
         streamData.carLineup[i].personality = carLineup[i].personality;

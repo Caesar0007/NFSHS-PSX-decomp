@@ -68,7 +68,7 @@ int  FeTools_deinit(void);
 void LoadAllHelpShapes(void);
 
 /* input / clock / memcard / stats / misc subsystems */
-int  FEInput_GetKeyFromPlayer(tPlayer, int) asm("FEInput_GetKeyFromPlayer__F7tPlayerl");
+int  FEInput_GetKeyFromPlayer(tPlayer, long);
 void Front_ResetPSXController(int controller, int mode);
 void Clock_SystemStartUp(void);
 void Clock_SystemCleanUp(void);
@@ -80,7 +80,7 @@ short StatChk_IsTopTime(Car_tStats *, short);
 int  SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 char *PlayerName(int);
 void MenuExtended_PostGameMenu(tMenuCommand &command);  /* SYM `Def class EXT type FCN VOID` @0x8002db04 -> void, matching the femenudefs.cpp definition */
-void play_movie(int) asm("play_movie__Fc");
+void play_movie(char);
 
 /* CRT */
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */

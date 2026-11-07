@@ -21,11 +21,11 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 }
 
 
-/* PSXFront.obj STAT helper.  Keep the recovered source name while preserving
- * the exact retail linkage label for the pointer-form reconstruction. */
-static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,
-                               int bright,int *color,tDrawShapeExtended *extra)
-  asm("AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended");
+/* PSXFront.obj STAT helper.  x/y/flags are int references: g++ mangles that as
+ * Ri..N21 = the retail AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended. */
+static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int &x,int &y,int &flags,
+                               int bright,int *color,tDrawShapeExtended *extra);
+
 
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
 /* Retail PSXFront.obj front.data interleaves these INITIALIZED statics with
@@ -642,47 +642,47 @@ void Init_PSX_FrontEnd(void)
     /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
      * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
 #line 835 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
-static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
+static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int &x,int &y,int &flags,int bright,int *color,
                tDrawShapeExtended *extra)
 
 
 {
   short fadetop;
   short fadebottom;
-  if ((*flags & 0x400U) != 0) {
+  if ((flags & 0x400U) != 0) {
 
-    *x = *x - tShp->centerx;
-    *y = *y - tShp->centery;
+    x = x - tShp->centerx;
+    y = y - tShp->centery;
   }
 
 
 
-  else if (*y <= 0) {
+  else if (y <= 0) {
 
-    *x = *x - tShp->centerx;
-    *y = -(tShp->centery + *y);
+    x = x - tShp->centerx;
+    y = -(tShp->centery + y);
   }
 
 
-  if ((*flags & 0x100U) != 0) {
+  if ((flags & 0x100U) != 0) {
 
-    *x = *x - ((int)((uint)(ushort)tShp->width << 0x10) >> 0x11);
-    *y = *y - ((int)((uint)(ushort)tShp->height << 0x10) >> 0x11);
-  }
-
-
-
-  if ((*flags & 0x20U) != 0) {
-
-
-    *y = (extra->flip_axis * 2 - (*y + tShp->height)) + 1;
-    *flags = *flags | 2;
+    x = x - ((int)((uint)(ushort)tShp->width << 0x10) >> 0x11);
+    y = y - ((int)((uint)(ushort)tShp->height << 0x10) >> 0x11);
   }
 
 
 
+  if ((flags & 0x20U) != 0) {
 
-  if ((*flags & 0x10U) != 0) {
+
+    y = (extra->flip_axis * 2 - (y + tShp->height)) + 1;
+    flags = flags | 2;
+  }
+
+
+
+
+  if ((flags & 0x10U) != 0) {
     /* byte-2 term spelled (w>>16)&0xff so combine narrows IT to `lbu +2` and leaves the >>8 term
      * on the full word load (`lw; sra 8; andi 0xff`) -- retail's exact 3-load mix (w42-a7). */
     *color = (((extra->tint[0] >> 0x10) & 0xff) * bright / 128) << 0x10 |
@@ -690,7 +690,7 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
 
              (int)*(byte *)((int)extra->tint) * bright / 128;
   }
-  else if ((*flags & 0x80U) != 0)
+  else if ((flags & 0x80U) != 0)
   {
     short i;
 
@@ -703,16 +703,16 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
                  (int)*(byte *)((int)(extra->tint + i)) * bright / 128;
     }
   }
-  else if ((*flags & 0x40U) != 0)
+  else if ((flags & 0x40U) != 0)
   {
-    int fbot, ftop; fadetop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    int fbot, ftop; fadetop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)y) + 1;
     if (fadetop < 0)
       fadetop = -fadetop;
     fadetop = (uint)fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fadebottom = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    fadebottom = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)y + (uint)(ushort)tShp->height)) + 1;
     if (fadebottom < 0)
       fadebottom = -fadebottom;
     fadebottom = (uint)fadebottom << 1;
@@ -1279,7 +1279,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,x,y,flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
 
@@ -1414,7 +1414,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
     tShp = extra->custom_shapes + index;
   }
 
-  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,x,y,flags,bright * 0x10000 >> 0x10,color,extra);
 
 
   if ((flags & 0xc0U) != 0) {

@@ -2164,7 +2164,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
 
   padBase = (u_char *)&gPadinfo; padInfo = padBase + player * 0x20;
 
-  fHelpText = GetHelpText(screenControllerConfig[0]);
+  fHelpText = screenControllerConfig[0]->GetHelpText();
   switch (this->fType) {
   case 0:
 

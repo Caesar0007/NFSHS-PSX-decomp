@@ -267,7 +267,7 @@ void tScreenAudio::DrawBackground()
   }
   if ((-1 < percent) || (-1 < lastpercentage))
   { int ColText;
-    char sBuildOutput [255]; if ((percent == -1) || (!::TransitionIsFinished(&menuDefs->menuAudio))) {
+    char sBuildOutput [255]; if ((percent == -1) || (!menuDefs->menuAudio.TransitionIsFinished())) {
       perfade = perfade + 4;
     }
     else { perfade = perfade + -4;
@@ -326,7 +326,7 @@ void tScreenAudio::Initialize()
 {
   this->fPrevSelectedSong = -1;
 
-  SetMenu((tMenuItemSlidingMenu *)&menuDefs->itemSlidingPlayList,true,(tInsideBoxMenu*)&menuDefs->menuPlayListMenu);
+  ((tMenuItemSlidingMenu *)&menuDefs->itemSlidingPlayList)->SetMenu(true,(tInsideBoxMenu*)&menuDefs->menuPlayListMenu);
 
   this->tScreen::Initialize();
   this->prevAudioMode = frontEnd.audioMode;

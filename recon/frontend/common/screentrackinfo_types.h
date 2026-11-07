@@ -152,7 +152,7 @@ struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
     signed char fTransitionDirection;
     short fPrevItem;
-    int fScreenFade, fFirstFrame, fNumFrames;
+    int fScreenFade, fFirstFrame, fNumFrames; bool TransitionIsFinished();
     /* Same nonvirtual field accessor as the recovered display/user-name
        surface. Original inline spelling is not uniquely recorded by SYM. */
     int GetScreenFade() { return fScreenFade; }
@@ -169,7 +169,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     short fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;
     bool fInTransition, fTransitioningOut, fClosing;
     short fDiffX, fDiffY;
-    bool fFillback;
+    bool fFillback; void SetMenu(bool, tInsideBoxMenu *);
 };
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {

@@ -50,7 +50,7 @@ void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void Font_TextColor(int);  void Font_TextTint(int);  void Font_TextXY(char*,int,int);
 void DrawShapeFlat(int,int,int,int,int);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
-int  GetHelpText(tScreenControllerConfig*) asm("GetHelpText__23tScreenControllerConfig");
+
 extern char ginfo[256];  extern int gFlip;  extern int Draw_gPlayer1View;
 DRAWENV *Draw_GetDRAWENV(int,int); /* retail FCN PTR STRUCT DRAWENV */
 int  TextSys_WordFlags(int);

@@ -27,8 +27,8 @@ extern SPEECHINFO ginfo;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern "C" int textpixels(char *str);
-void SetMenu(tMenuItemSlidingMenu *thisobj, short i, void *menu) asm("SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu");   /* sliding-menu method; menu is tMenu-derived */
-bool TransitionIsFinished(tOptionsMenu *thisobj) asm("TransitionIsFinished__12tOptionsMenu");   /* method on the options menu */
+   /* sliding-menu method; menu is tMenu-derived */
+   /* method on the options menu */
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */
 int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 

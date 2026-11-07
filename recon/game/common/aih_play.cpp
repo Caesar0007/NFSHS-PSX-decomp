@@ -464,8 +464,8 @@ void AIHigh_Player::SetupBlockade()
  * 184/184 byte PASS, native/source/SLD recovery still open] ---- */
 
 inline int AITrigger_TriggerManager::InvNumTriggers() { return invNumTriggers_; }
-
-
+static inline int One() { return 1; } /* DEVICE (exact-only): CheckForNewLevel `force || (RET <= 0 && One())`;
+   retail value funnel a0=0/a0=1 + a second empty inline nest at +180 (li a0,1) = an un-foldable constant inline */
 #line 431 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CheckForNewLevel(int force)
 
@@ -517,7 +517,7 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
 
 
-  {
+  { if (force ||
 
 
 
@@ -526,12 +526,12 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
 
 
-    if (force == 0) { bool doIt = false; if (this->perpChaseInfo_.RemainingEngagementTime() <= 0) { doIt = true; } if (!doIt) goto check_level_changed; } {
-
+        (this->perpChaseInfo_.RemainingEngagementTime() <= 0 && One()))
+    {
       chaseLevel = chaseLevel + 1;
-      if (this->perpChaseInfo_.GetNumLevels() <= chaseLevel) {
-        chaseLevel = this->perpChaseInfo_.GetNumLevels() + -2; } this->perpChaseInfo_.SetChaseLevel(chaseLevel); } } check_level_changed:
-
+      if (this->perpChaseInfo_.GetCopGameInfo()->numLevels <= chaseLevel)
+        chaseLevel = this->perpChaseInfo_.GetNumLevels() + -2;
+      this->perpChaseInfo_.SetChaseLevel(chaseLevel); } }
 
 
 

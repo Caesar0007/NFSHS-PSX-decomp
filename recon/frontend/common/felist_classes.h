@@ -24,14 +24,20 @@ struct tListIterator {
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
 #ifdef NFS4_FE_LIST_RANGE_INLINE
-    inline int MinValue() { return (unsigned char)fMinValue; }
-    inline int MaxValue() { return (unsigned char)fMaxValue; }
-    inline int Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
+#include "../../link_stripped.h"   /* SLINK /strip removed the standalone copies: build/tmp/v/strip_proof_20261107.md */
+    inline int MinValue() LINK_STRIPPED;
+    inline int MaxValue() LINK_STRIPPED;
+    inline int Range() LINK_STRIPPED;
 #endif
 #ifdef NFS4_FE_LIST_SELECTION_INLINE
     inline short Selection(int i) { return fSelectionList[i]; }
 #endif
 };
+#ifdef NFS4_FE_LIST_RANGE_INLINE
+inline int tListIterator::MinValue() { return (unsigned char)fMinValue; }
+inline int tListIterator::MaxValue() { return (unsigned char)fMaxValue; }
+inline int tListIterator::Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
+#endif
 
 struct tListIteratorIndexed : public tListIterator {
     char *fIndex;

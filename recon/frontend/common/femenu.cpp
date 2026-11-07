@@ -2,8 +2,8 @@
  *   71 fns across 12 classes: tListIterator(+Indexed/DoubleIndexed/MultiPlayer/Range/
  *   RangeIndexed) list iterators; tMenuItem(+Interactive/LeftRightChoice/LeftRightSlider/
  *   GoToMenuButton) menu items; tMenu container; + free DrawSlider (GPU slider widget).
- *   Member defs; base ctors via member-init-lists; manual _vf vtable dispatch; ref params.
- */
+ *   Member defs; base ctors via member-init-lists; manual _vf vtable dispatch; ref params. */
+#define NFS4_FE_LIST_RANGE_INLINE   /* tListIterator range accessors; standalone copies LINK_STRIPPED */
 #include "femenu.h"
 
 
@@ -883,7 +883,7 @@ void tMenuItemLeftRightSlider::Draw(bool selected)
   FETextRender_MenuTextPositioned((short)this->fTextDescription,this->fX + 8,
              this->fY + 3,(tMenuTextState)(selected != 0),textType_Options);
   DrawSlider((u_char)this->fData->Value((tPlayer)-1),
-             (u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
+             (u_short)this->fData->MinValue(),(u_short)this->fData->MaxValue(),
              this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,
              selected ? 0x80 : 0,0);
 }

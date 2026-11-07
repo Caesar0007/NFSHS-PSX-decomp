@@ -539,6 +539,24 @@
    "function": "free",
    "sdk": "LIBC/free",
    "evidence": "libc.lib(C52.obj) is in the retail SYM FILE list; retail has no `free` label and no A0:0x34 trampoline in the image"
+  },
+  {
+   "object": "build/recon/frontend/common/femenu.cpp.o",
+   "function": "MinValue__13tListIterator",
+   "source": "recon/frontend/common/felist_classes.h",
+   "evidence": "tListIterator range accessor, inline in recon/frontend/common/felist_classes.h (NFS4_FE_LIST_RANGE_INLINE). FEMenu.obj owns tListIterator's key function, so g++ 2.8 emits a standalone copy (Range 0x10, MinValue 0xc, MaxValue 0xc) when tMenuItemLeftRightSlider::Draw uses the inlines (retail's `this` record pair). Original SLINK Beta3 /strip removes exactly these three (101 -> 104 removed, +40 B), none is in the retail MAP, and FRONT.BIN stays byte-identical to the retail disc file. Receipt: build/tmp/v/strip_proof_20261107.md."
+  },
+  {
+   "object": "build/recon/frontend/common/femenu.cpp.o",
+   "function": "MaxValue__13tListIterator",
+   "source": "recon/frontend/common/felist_classes.h",
+   "evidence": "tListIterator range accessor, inline in recon/frontend/common/felist_classes.h (NFS4_FE_LIST_RANGE_INLINE). FEMenu.obj owns tListIterator's key function, so g++ 2.8 emits a standalone copy (Range 0x10, MinValue 0xc, MaxValue 0xc) when tMenuItemLeftRightSlider::Draw uses the inlines (retail's `this` record pair). Original SLINK Beta3 /strip removes exactly these three (101 -> 104 removed, +40 B), none is in the retail MAP, and FRONT.BIN stays byte-identical to the retail disc file. Receipt: build/tmp/v/strip_proof_20261107.md."
+  },
+  {
+   "object": "build/recon/frontend/common/femenu.cpp.o",
+   "function": "Range__13tListIterator",
+   "source": "recon/frontend/common/felist_classes.h",
+   "evidence": "tListIterator range accessor, inline in recon/frontend/common/felist_classes.h (NFS4_FE_LIST_RANGE_INLINE). FEMenu.obj owns tListIterator's key function, so g++ 2.8 emits a standalone copy (Range 0x10, MinValue 0xc, MaxValue 0xc) when tMenuItemLeftRightSlider::Draw uses the inlines (retail's `this` record pair). Original SLINK Beta3 /strip removes exactly these three (101 -> 104 removed, +40 B), none is in the retail MAP, and FRONT.BIN stays byte-identical to the retail disc file. Receipt: build/tmp/v/strip_proof_20261107.md."
   }
  ]
 }

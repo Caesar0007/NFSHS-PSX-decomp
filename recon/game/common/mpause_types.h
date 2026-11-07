@@ -2,6 +2,8 @@
 #define NFS4_GAME_COMMON_MPAUSE_TYPES_H   /* mpause.obj's exact source-visible delta over the shared color graph. */
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES   /* mpause.obj itself, not pausemenu.obj */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_MPAUSE_SND_LATE   /* retail: kernpair, AudioMus, SND* right before tPauseMenuDefs */
+#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/tPMenuCommandType.h"   /* retail: tPMenuCommandType right after Draw_CarVertex */
 #endif
 #include "link_stripped.h"   /* SLINK /strip removed the standalone copies of the inlines below (no #pragma) */
 #include "color_types.h"
@@ -65,7 +67,7 @@ typedef enum tPlayer {
     kPlayerTwo = 1
 } tPlayer;
 
-#ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
+#if !defined(NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES) && !defined(NFS4_MPAUSE_SND_LATE)   /* mpause.obj: SND* after kernpair/AudioMus (tPauseMenuDefs block) */
 #include "shared/SNDSYSCAP.h"
 
 
@@ -82,7 +84,7 @@ typedef enum tPlayer {
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 #endif
-#ifndef NFS4_MPAUSE_PAUSEMENU_ORDER   /* pausemenu.obj: AudioMus after the pause classes (below) */
+#if !defined(NFS4_MPAUSE_PAUSEMENU_ORDER) && !defined(NFS4_MPAUSE_SND_LATE)   /* pausemenu.obj: AudioMus after the pause classes; mpause.obj: before tPauseMenuDefs (below) */
 #include "shared/AudioMus_tSongEntry.h"
 #endif
 
@@ -208,25 +210,23 @@ struct tPMenu {
     int ItemEnabledNum(int);
 };
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
+#ifdef NFS4_MPAUSE_SND_LATE   /* retail mpause.obj: kernpair, AudioMus, SND* right before tPauseMenuDefs */
+#include "shared/kernpair.h"
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/SNDSYSCAP.h"
+#include "shared/SNDSYSSET.h"
+#include "shared/SNDSYSVEC.h"
+#include "shared/SNDSAMPLEFORMAT.h"
+#endif
 struct tPauseMenuDefs {
     tPauseMenuDefs();
     ~tPauseMenuDefs();
-    tPMenuItemNonInteractiveText itemGamePaused;
-    tPMenuItemCommandButton itemContinue, itemRestart;
-    tPMenuItemGoToMenuButton itemOptions;
-    tPMenuItemCommandButton itemQuitRace, itemForfeitRace;
-    tPMenu menuPause;
-    tPMenuItemNonInteractiveText itemOptionsTitle;
-    tPMenuItemGoToMenuButton itemAudioSettings, itemControllerSettings;
-    tPMenu menuOptions;
-    tPMenuItemNonInteractiveText itemAudioSettingsTitle;
-    tPListIterator iteratorAudioMode;
-    tPMenuItemLeftRightChoice itemAudioSettingsAudioMode;
-    tPMenuItemLeftRightSlider itemAudioSettingsMusicVolume, itemAudioSettingsFXVolume;
-    tPMenuItemLeftRightSlider itemAudioSettingsSpeechVolume, itemAudioSettingsEngineVolume;
-    tPMenuItemLeftRightSlider itemAudioSettingsAmbientVolume;
-    tPMenu menuAudioSettings;
-    tPListIteratorIndexed iteratorConfig;
+    tPMenuItemNonInteractiveText itemGamePaused; tPMenuItemCommandButton itemContinue, itemRestart; tPMenuItemGoToMenuButton itemOptions; tPMenuItemCommandButton itemQuitRace, itemForfeitRace;
+    tPMenu menuPause; tPMenuItemNonInteractiveText itemOptionsTitle; tPMenuItemGoToMenuButton itemAudioSettings, itemControllerSettings; tPMenu menuOptions;
+    tPMenuItemNonInteractiveText itemAudioSettingsTitle; tPListIterator iteratorAudioMode;
+    tPMenuItemLeftRightChoice itemAudioSettingsAudioMode; tPMenuItemLeftRightSlider itemAudioSettingsMusicVolume, itemAudioSettingsFXVolume;
+    tPMenuItemLeftRightSlider itemAudioSettingsSpeechVolume, itemAudioSettingsEngineVolume; tPMenuItemLeftRightSlider itemAudioSettingsAmbientVolume;
+    tPMenu menuAudioSettings; tPListIteratorIndexed iteratorConfig;
     tPMenuItemNonInteractiveText itemControllerSettingsTitle;
     tPMenuItemLeftRightChoice itemControllerConfig;
     tPMenuItemLeftRightSliderIndexed itemControllerShockMode, itemControllerShockImpact;

@@ -1,5 +1,6 @@
-#ifndef NFS4_GAME_COMMON_AIINIT_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AIINIT_TYPES_H)
 #define NFS4_GAME_COMMON_AIINIT_TYPES_H   /* aiinit.obj reconstruction types over the shared color graph. */
+#define NFS4_TRANSFORMER_Z_HOOK "../game/common/aiinit_types.h"   /* retail aiinit.obj: Udff types right after Transformer_zOverlay */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
@@ -30,16 +31,6 @@
 
 
 
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
-#include "shared/Udff_tInfo.h"
-
-
-
-
-typedef Udff_tInfo *Udff_tHandle;
 
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -148,4 +139,16 @@ struct AITrigger_TriggerManager {
 
 typedef int CarLogic_tObservations[1][3];
 
+#elif defined(NFS4_TRANSFORMER_IN_HOOK) && !defined(NFS4_AIINIT_TZ_DONE)   /* second pass: shared/Transformer_z.h */
+#define NFS4_AIINIT_TZ_DONE
+typedef enum Udff_tAccessType {
+    UDFF_FILE = 0,
+    UDFF_MEMORY = 1
+} Udff_tAccessType;
+#include "shared/Udff_tInfo.h"
+
+
+
+
+typedef Udff_tInfo *Udff_tHandle;
 #endif

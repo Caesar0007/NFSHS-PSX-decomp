@@ -1,5 +1,6 @@
-#ifndef NFS4_GAME_COMMON_AISPEEDS_TYPES_H
+#if !defined(NFS4_GAME_COMMON_AISPEEDS_TYPES_H)
 #define NFS4_GAME_COMMON_AISPEEDS_TYPES_H   /* aispeeds.obj's exact source-visible delta over the shared color graph. */
+#define NFS4_TRANSFORMER_Z_HOOK "../game/common/aispeeds_types.h"   /* retail aispeeds.obj: Udff types right after Transformer_zOverlay */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
@@ -20,16 +21,6 @@
 
 
 
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
-#include "shared/Udff_tInfo.h"
-
-
-
-
-typedef Udff_tInfo *Udff_tHandle;
 
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -115,4 +106,16 @@ typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
 
+#elif defined(NFS4_TRANSFORMER_IN_HOOK) && !defined(NFS4_AISPEEDS_TZ_DONE)   /* second pass: shared/Transformer_z.h */
+#define NFS4_AISPEEDS_TZ_DONE
+typedef enum Udff_tAccessType {
+    UDFF_FILE = 0,
+    UDFF_MEMORY = 1
+} Udff_tAccessType;
+#include "shared/Udff_tInfo.h"
+
+
+
+
+typedef Udff_tInfo *Udff_tHandle;
 #endif

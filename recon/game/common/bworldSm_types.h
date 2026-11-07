@@ -3,6 +3,7 @@
 #define NFS4_GAME_COMMON_BWORLDSM_TYPES_H
 
 /* bworldSm.obj contains color.obj's complete 71-record game/platform graph. */
+#define NFS4_COLOR_HOOK_AFTER_BWSM "gamesetup_leaf_types.h"   /* retail bworldsm.obj: GameSetup records right after BWorldSm_Pos */
 #include "color_types.h"
 
 #include "shared/Trk_NewSlice.h"

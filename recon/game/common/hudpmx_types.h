@@ -2,7 +2,6 @@
 #ifndef NFS4_GAME_COMMON_HUDPMX_TYPES_H
 #define NFS4_GAME_COMMON_HUDPMX_TYPES_H
 
-#include "textsys_types.h"
 #include "draw_leaf_types.h"
 
 #include "shared/HudPmx_tShape.h"
@@ -15,6 +14,7 @@ struct HudPmx_tUV {
     u_short clut;
 };
 
+#include "textsys_types.h"   /* retail hudpmx.obj: the full core + draw leaf first, kernpair after HudPmx_tUV */
 #include "gamesetup_leaf_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */

@@ -2,6 +2,8 @@
 #ifndef NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
 #define NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_CORE_HOOK_AFTER_PADS "shared/Input_tResults.h"   /* retail simqueue.obj: Input_tResults ahead of MATRIX (nfs4_types.h) */
+#define NFS4_PADS_HOOK_AFTER "gamesetup_leaf_types.h"   /* retail: GameSetup records right after PAD_COMMON */
 #include "color_types.h"
 
 #include "shared/Input_tResults.h"

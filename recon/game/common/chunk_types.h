@@ -5,9 +5,10 @@
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_PADS_HOOK_AFTER "group_types.h"   /* retail chunk.obj: SimpleMem SerializedGroup Group right after PAD_COMMON */
+#define NFS4_GROUP_KERNEL_LATE
 #endif
 #include "draw_leaf_types.h"
-
 #include "group_types.h"
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/POLY_GT4.h"
@@ -92,12 +93,11 @@ typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tSchedule.h"
 #endif
 
-
-
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
+#include "shared/TCB.h"   /* retail chunk.obj: kernel types after GameSetup (group_types.h NFS4_GROUP_KERNEL_LATE) */
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
 #include "shared/Skidmark_Segment.h"
-
-
 
 
 

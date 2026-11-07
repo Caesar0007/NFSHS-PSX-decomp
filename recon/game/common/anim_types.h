@@ -1,21 +1,21 @@
-#ifndef NFS4_GAME_COMMON_ANIM_TYPES_H
+#if !defined(NFS4_GAME_COMMON_ANIM_TYPES_H) && !defined(NFS4_PADS_IN_HOOK)
 #define NFS4_GAME_COMMON_ANIM_TYPES_H   /* anim.obj's exact source-visible type surface. */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_PADS_HOOK_AFTER "anim_types.h"   /* retail anim.obj: tQuat, scheduler, Group right after PAD_COMMON; GameSetup after the Skidmark types */
 #include "draw_leaf_types.h"
-#include "schedule_types.h"
-#include "shared/POLY_GT4.h"
-
-
-
-
-
-
-
-#include "shared/CCOORD16.h"
-
+#endif
+#if defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_ANIM_PADS_DONE)   /* second pass: game_common_pads_types.h */
+#define NFS4_ANIM_PADS_DONE
 #include "shared/tQuat.h"
+typedef void (*Sched_tFunctionPt)(void *);
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
+
+
+
+
 typedef struct tQuat Quatern_quat;
 
 struct Group {
@@ -23,7 +23,11 @@ struct Group {
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
 };
-
+#endif
+#if defined(NFS4_ANIM_PADS_DONE) && !defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_ANIM_B_DONE)
+#define NFS4_ANIM_B_DONE
+#include "shared/POLY_GT4.h"
+#include "shared/CCOORD16.h"
 #include "shared/Draw_SubdivStruct.h"
 
 #include "shared/Trk_AnimateInst.h"
@@ -98,13 +102,10 @@ struct AnimScript {
 
 
 #include "shared/Skidmark_Chunk.h"
-
-
-
-
+#include "gamesetup_leaf_types.h"   /* retail: GameSetup after the Skidmark types */
+#include "shared/Sim_tSimGlobalVar.h"
 
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;
 typedef short (*tPA32)[32];
-
 #endif

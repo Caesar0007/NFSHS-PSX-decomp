@@ -19,10 +19,10 @@
 
 extern tFEApplication *FEAppB[] asm("FEApp");
 
-typedef struct tPsyQPrimTag {
-  unsigned int addr : 24;
+#define tPsyQPrimTag struct _tPsyQPrimTag   /* '_' tag: no SYM record (user ruling 2026-11-07) */
+struct _tPsyQPrimTag { unsigned int addr : 24;
   unsigned int len : 8;
-} tPsyQPrimTag;
+};
 
 
 /* SYM-INLINE reconstruction (original identifier/declaration site unavailable):

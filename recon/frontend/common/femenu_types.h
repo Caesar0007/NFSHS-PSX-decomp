@@ -83,14 +83,14 @@ struct tFEApplication;
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-/* Canonical PsyQ 4.3 LIBGPU primitive tag and macro expansion. */
-typedef struct {
+/* PsyQ 4.3 LIBGPU primitive tag as `struct _P_TAG` (record-free: user ruling 2026-11-07). */
+struct _P_TAG {
     unsigned addr : 24;
     unsigned len : 8;
     u_char r0, g0, b0, code;
-} P_TAG;
-#define getaddr(p) ((u_long)(((P_TAG *)(p))->addr))
-#define setaddr(p, value) (((P_TAG *)(p))->addr = (u_long)(value))
+};
+#define getaddr(p) ((u_long)(((struct _P_TAG *)(p))->addr))
+#define setaddr(p, value) (((struct _P_TAG *)(p))->addr = (u_long)(value))
 #define addPrim(ot, p) setaddr((p), getaddr(ot)), setaddr((ot), (p))
 
 #endif

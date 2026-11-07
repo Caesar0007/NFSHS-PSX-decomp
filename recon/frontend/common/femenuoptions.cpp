@@ -20,10 +20,10 @@
 int PulsateYellow;       /* @0x800515ac; SYM EXT INT */
 int fHelpText;           /* @0x800515b0; SYM EXT INT */
 
-typedef struct tPsyQPrimTag {
-  unsigned int addr : 24;
+#define tPsyQPrimTag struct _tPsyQPrimTag   /* '_' tag: no SYM record (user ruling 2026-11-07) */
+struct _tPsyQPrimTag { unsigned int addr : 24;
   unsigned int len : 8;
-} tPsyQPrimTag;
+};
 
 
 
@@ -1348,18 +1348,18 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
 
 
 
-  if (this->fSlideOffset == 0) { if (this->fActive == 0) goto SlideActivProc_callBaseProcess;
+  if (this->fSlideOffset == 0) { if (this->fActive != 0) {
 
     if (this->currMenu != (tInsideBoxMenu *)0x0) {
       this->currMenu->ProcessInput(fromPlayer,keyval,command);
-      goto SlideActivProc_getActive;
     }
-  } SlideActivProc_getActive: if (this->fActive != 0) {
+    }
+  } if (this->fActive != 0) {
 
   if ((keyval == kInput_KeyType_Up || (keyval == kInput_KeyType_Down))) {
     keyval = kInput_KeyType_AlreadyProcessed;
   } }
-SlideActivProc_callBaseProcess:
+
   this->tMenuItem::ProcessInput(fromPlayer,keyval,command); return;
 }
 

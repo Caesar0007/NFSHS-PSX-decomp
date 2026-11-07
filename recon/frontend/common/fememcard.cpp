@@ -1107,9 +1107,9 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     memCardResult = MCRD_handlecardevents(cardNum);
     systemtask(0);
     VSync(0);
-    switch(memCardResult) {
+    switch(memCardResult)
+    {
     case 0x16:
-
 
 
 
@@ -1117,14 +1117,14 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
       break;
     case 0xf:
 
-      if (VerifySuccessfulRead(&memCardData)) {
+      if (VerifySuccessfulRead(&memCardData))
+      {
 
 
 
 
 
-
-        if (FrontEnd().gPinkSlipsNoCheat[player] != memCardData.pinkSlipsNoCheat) {
+        if (frontEnd.gPinkSlipsNoCheat[player] != memCardData.pinkSlipsNoCheat) {
           /* anti-cheat token mismatch: not the original card */
           finished = true;
           result = (PinkSlipsErrorCode)finished;   /* oracle: addu s2,s3,zero -- =1 NotOriginalCard as a COPY of finished */
@@ -1177,10 +1177,10 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           systemtask(0);
           VSync(0);
 
-          switch(event) {
+          switch(event)
+          {
           case 0x16:
-
-            if (gMemCardInfo.bReady != 0) {
+            if (MemCard_IsReady() != 0) {
 
 
 
@@ -1211,9 +1211,9 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
 
 
 
-
-            Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
             {
+              Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+
 
               CARDINFO_def *cardInfo = MCRD_getcard(player * 4 + 1);
               __asm__(""); result = PinkSlipsError_CardFull; if (cardInfo->status != -3) {
@@ -1225,11 +1225,11 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
                   result = PinkSlipsError_CardNotFound;
                 }
               }
-            }
+
+              (void)result; /* DEVICE (exact-only): code-less statement = retail surviving line-167 note (arm block }168); the finishedsave store (170) is moved into the break delay slot */ }
+
+
             finishedsave = true;
-
-
-
 
 
 
@@ -1248,8 +1248,8 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
            with, and the jump-table proof in scratchpad/w65a1/RECEIPTS.md. */
 
 
-
         result = PinkSlipsError_LoadFailed;
+
       }
       finished = true; break;
 
@@ -1268,11 +1268,11 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
             result = PinkSlipsError_CardNotFound;
           }
         }
-      }
+
 
       finished = true;
 
-      break;
+      break; }
     case 3:
     case 7:
     case 10:

@@ -119,6 +119,10 @@ static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
    through an inline getter, not directly */
 static inline volatile int FE_Ticks(void) { return ticks; }
 
+/* SavePinkSlipsCars: retail records a param-less inline pair at the bReady test (SLD line 122).
+   ORIGINAL-NAME-UNRESOLVED: inferred getter spelling. */
+static inline int MemCard_IsReady(void) { return gMemCardInfo.bReady; }
+
 /* header inline (retail Confirm records param `num` REG $18 in its pair at the caller line) */
 inline tDialogMessageString *tDialogMessageString::SetString(int num)
 {

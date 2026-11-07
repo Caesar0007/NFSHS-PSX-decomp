@@ -529,28 +529,19 @@ void tDialogHelp::CalculateDimensions()
 
 
 /* ---- tDialogHelp::Draw  [FEDIALOG.CPP:459-546] SLD-VERIFIED ---- */
-/* MATCH: PASS. The 4th arg is written `(i-1)*0xf +
-   this->top + 0x13` (mul-first reassociation) so the multiply lands in the
-   retail destination register.  More importantly, the pad-65, pad-35, and
-   special-control arms retain their separate natural DrawPSXButton calls;
-   gcc cross-jump-merges their common tails only after each arm computes
-   `(i-1)`, reproducing both `j` delay-slot fills and the retail block order.
-   A single explicit goto-shared call instead hoists the prefix and costs ten
-   diffs.  Duplicating the two-button Y expression directly costs 13 diffs;
-   `DialogHelpButtonY` preserves its shared value without a non-SYM local.  The
-   two-stage tick materialization preserves retail's load/copy pair.  Keeping
-   the tick live through the letter-count division, and initializing the loop
-   index and stack-buffer cursor first, reproduces its allocation and schedule. */
-
-    /* SYM-CODEGEN-CARRIER: loadedTicks -- direct `ticks = ::ticks[0]`
-       measures FAIL 3 (186/187): retail has a separate `v0 -> a0` value copy
-       between the global tick load and comparison.  The zero-instruction
-       allocation fence preserves that proven quantity without rewriting the
-       compiled object. */
-  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
-     measures FAIL 4 (189/187), inserting two load-delay nops and moving the
-     member load past retail's tick-value copy. */
+/* MATCH: PASS.  FRONT15 (2026-11-07): SLD tags 0 and blocks exact; SYM = retail plus one carrier (`by`).
+   - `CalculateDimensions(); long ticks = FE_Ticks();` = retail's record-less FE_Ticks pair {1 {1 at +0
+     (declaration-initializer inline) and the v0 -> a0 tick copy (no loadedTicks/firstTick carriers, no fences).
+   - Early-return guard `if (ticks < startTicks + 0x32) { tDialogBase::Draw(); return; }` (cross-jumped into
+     the final call): no kept if/then scope, so the for-scope opens at 29 after numLetters (28) as in retail.
+   - `switch (helpcontrollers) { case 1: default: ... case 2: ... case 3: ... }`: gcc's 3-node case tree
+     (root 2, case 1 sharing the default body) gives retail's beq 2 / slti 3 -> default / beq 3 dispatch;
+     the old goto ladder + 4 LABEL records are gone.  Without `case 1:` (2 nodes) no slti: FAIL 4.
+   - SYM-CODEGEN-CARRIER: by -- retail keeps (i-1)*0xf + 0xf in s0 across the two special-arm calls and
+     adds 4 after `top`; written inline, fold reassociates 0xf + 4 into 0x13 (FAIL 9: u_int/long casts,
+     const local, operand orders all fold); a (short) cast adds sll/sra (FAIL 2); a static inline helper
+     adds an inline pair with a param record + a kept switch scope.  `by` is the only extra record.
+     Next angle: a tree split_tree cannot see through that expands to the same RTL, record-less. */
 #line 456 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogHelp::Draw()
 
@@ -560,24 +551,6 @@ void tDialogHelp::Draw()
   short j;
   char buffer [80];
   short y;
-  long ticks;
-  int numLetters;
-  /* SYM-CODEGEN-CARRIER: bufferPtr -- direct `buffer[j]`/`buffer` use is
-     behaviorally equivalent but measures FAIL 2 (187/187): GCC materializes
-     the stack-buffer address two instructions after retail. */
-  char *bufferPtr;
-  long firstTick;
-
-
-  {
-
-
-    CalculateDimensions(); long loadedTicks = ::ticks[0];
-
-
-
-
-    firstTick = startTicks; ticks = loadedTicks; __asm__("" : "+r"(loadedTicks)); } if (firstTick + 0x32 <= ticks) {
 
 
 
@@ -588,61 +561,79 @@ void tDialogHelp::Draw()
 
 
 
-    i = 0; bufferPtr = buffer; numLetters = (ticks - firstTick - 0x32) / 3; __asm__("" : : "r"(ticks)); for (; i < numItems; i++) {
 
 
-      if (i == 0) {
-        y = top + 4;
-      } else { y = top + (i - 1) * 0xf + 0x13;
-      }
-
-      if (i > 0) {
+  CalculateDimensions(); long ticks = FE_Ticks();
 
 
-        int control = cont[i];
-        if (helpcontrollers == 2) goto DialogHelpDraw_pad35; if (helpcontrollers < 3) goto DialogHelpDraw_pad65; if (helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
-DialogHelpDraw_pad65:
+
+
+  if (ticks < startTicks + 0x32) { tDialogBase::Draw(); return; }
+
+
+
+
+
+  int numLetters = (ticks - startTicks - 0x32) / 3;
+
+
+
+
+  for (i = 0; i < numItems; i++) {
+
+
+    if (i == 0) {
+      y = top + 4;
+    } else { y = top + (i - 1) * 0xf + 0x13;
+    }
+
+    if (i > 0)
+    {
+
+      int control = cont[i]; int by;
+      switch (helpcontrollers) {
+      case 1: default:
         FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
 
                    (i - 1) * 0xf + top + 0x13);
-        goto DialogHelpDraw_buttonsDone;
-DialogHelpDraw_pad35:
+        break;
+      case 2:
         FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x14, (i - 1) * 0xf + top + 0x13);
-        goto DialogHelpDraw_buttonsDone;
-DialogHelpDraw_specialButtons:
-        if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
-          goto DialogHelpDraw_pad65Special;
-        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14, top + DialogHelpButtonY(i) + 4);
-        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x28, top + DialogHelpButtonY(i) + 4); goto DialogHelpDraw_buttonsDone;
-DialogHelpDraw_pad65Special:
-        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
+        break;
+      case 3:
+        if ((control != 0xa0) && (control != 0x50) && (control != 0x40)) {
+
+          by = (i - 1) * 0xf + 0xf; FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14, top + by + 4);
+          FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x28, top + by + 4);
+        } else {
+          FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
                    (i - 1) * 0xf + top + 0x13);
-DialogHelpDraw_buttonsDone:;
-      }
+        } break; }
+    }
 
 
 
-      if (numLetters < (int)strlen(text[i])) {
-        j = 0;
-        if (numLetters > 0) { do {
+    if (numLetters < (int)strlen(text[i])) {
+      j = 0;
+      if (numLetters > 0) { do {
 
-            bufferPtr[j] = text[i][j];
-            j++; } while (j < numLetters);
-        } bufferPtr[numLetters] = '\0';
-        FETextRender_FullText(bufferPtr,left + lefttext,y,
-                             i == 0 ? textType_PopUpTitle : textType_PopUpText, textState_Selected,0);
-      }
-      else {
-        FETextRender_FullText(text[i],left + lefttext,y,
-                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+          buffer[j] = text[i][j];
+          j++; } while (j < numLetters);
+      } buffer[numLetters] = '\0';
+      FETextRender_FullText(buffer,left + lefttext,y,
+                           i == 0 ? textType_PopUpTitle : textType_PopUpText, textState_Selected,0);
+    }
+    else {
+      FETextRender_FullText(text[i],left + lefttext,y,
+                           i == 0 ? textType_PopUpTitle : textType_PopUpText,
 
-                             textState_Selected,0);
-      }
+                           textState_Selected,0);
     }
   }
 
+
   tDialogBase::Draw();
-  return; }
+}
 
 
 

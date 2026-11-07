@@ -56,15 +56,6 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/blkmov.h"
 }
 extern "C" void PAD_update(void);
-/* Draw's 8c record has no `buttonY` local.  Retail nevertheless shares this
-   expression across the two controller-button calls; this inline boundary
-   preserves that CSE without inventing a caller local.  The body is proven,
-   while the original helper/macro spelling is not recoverable. */
-static inline int DialogHelpButtonY(short item)
-{
-  return (item - 1) * 0xf + 0xf;
-}
-
 /* same spelling as fefades_externs.h / screencontroller_externs.h: retail SYM records an inline pair per lookup */
 static inline int TextDefinitionColor(int type, int column)
 {

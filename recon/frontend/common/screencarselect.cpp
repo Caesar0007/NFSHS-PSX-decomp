@@ -419,8 +419,8 @@ void tScreenCarSelect::SetState(int state)
   }
 
 
-  switch (state) {
-  case 0:
+  switch (state)
+  { case 0:
   case 2:
   case 5:
   case 6:
@@ -436,12 +436,12 @@ void tScreenCarSelect::SetState(int state)
     if (this->fInShowroom != 0) {
 
       AudioMus_StopSong(1000);
-      i = 0; this->fSplineInterval = 0;
+      this->fSplineInterval = 0;
 
 
       gKnots[1][4] = this->fCameraRotation & 0x3ff;
 
-      do {
+      i = 0; do {
 
         gKnots[0][i] = gKnots[1][i] - (gKnots[2][i] - gKnots[1][i]);
         i = i + 1; } while (i < 5);
@@ -458,9 +458,9 @@ void tScreenCarSelect::SetState(int state)
 
       if (fPreviousState != 1) {
         this->tScreen::TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-      }
+      } TurnOn(this->fVideoWall);
 
-      TurnOn(this->fVideoWall);
+      return;
     }
   }
 }
@@ -653,7 +653,7 @@ void tScreenCarSelect::Initialize()
 
 {
   short i;
-  tCarInfo carInfo;
+  tTrackInformation *trackByID; tCarInfo carInfo;
   tTrackInformation trackInfo;
   tTrackInfo tourneyTrack;
   
@@ -663,8 +663,8 @@ void tScreenCarSelect::Initialize()
   if (frontEnd.raceType == RaceType_Tournament) {
 
     tournamentManager.GetTrackToRace(tourneyTrack);
-    GameSetup_gData.track = (int)trackManager.GetTrackByID((short)tourneyTrack.fTrackNumber)->fSimNumber;
-  }
+    trackByID = trackManager.GetTrackByID((short)tourneyTrack.fTrackNumber);
+    GameSetup_gData.track = (int)trackByID->fSimNumber; }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
 
@@ -676,9 +676,9 @@ void tScreenCarSelect::Initialize()
   MenuItem_Enable(&menuDefs->itemDamage);
 
 
-  if (frontEnd.raceType == RaceType_Tournament) {
-    MenuItem_Disable(&menuDefs->itemDamage);
-  }
+  if (frontEnd.raceType == RaceType_Tournament)
+  { MenuItem_Disable(&menuDefs->itemDamage); }
+
   this->tScreen::Initialize();
 
   this->AllocateAsyncBuffer();
@@ -701,10 +701,10 @@ void tScreenCarSelect::Initialize()
     this->fPreviousCarID = -1;
   }
   this->fShowroomTicks = VSyncTicks();
-  this->fFadeTicks[0] = this->fFadeTicks[1] =
-      VSyncTicks() + -0x100; this->fBrightness[1] = 0; this->fBrightness[0] = 0;
-  this->fDestBrightness[1] = 0; this->fDestBrightness[0] = 0;
 
+  this->fBrightness[1] = 0; this->fBrightness[0] = 0;
+  this->fDestBrightness[1] = 0; this->fDestBrightness[0] = 0;
+  this->fFadeTicks[0] = this->fFadeTicks[1] = VSyncTicks() + -0x100;
 
   this->InitializeVideoWall();
 
@@ -835,13 +835,13 @@ void tScreenCarSelect::DrawVideoWall(short y)
   this->DrawOverlay(this->fCurrentOverlays[0]);
 
 
-  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if ((this->fSwapShapes.fFlags & 1) != 0)
 
-
+  { if (this->fTVsInitialized == 0) {
 
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
-  }
+  } }
 
 
 
@@ -1476,15 +1476,15 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
-  if (((this->fSwapShapes.fFlags & 1) != 0) &&
-     (this->fTVsInitialized == 0)) {
 
+  if ((this->fSwapShapes.fFlags & 1) != 0)
 
+  { if (this->fTVsInitialized == 0) {
 
     this->fVideoWall->SetOffset(6,0);
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
-  }
+  } }
 
 
   ::UpdateTransition(this->fVideoWall);
@@ -1513,15 +1513,15 @@ void tScreenCarSelectDuel::DrawOpponentVideoWall(short y)
     TurnOffInstant(this->fVideoWall + 1);
     this->SetBrightness(0,1);
   }
-  if (((this->fSwapShapes.fFlags & 1) != 0) &&
-     (this->fOpponentTVsInitialized == 0)) {
 
+  if ((this->fSwapShapes.fFlags & 1) != 0)
 
+  { if (this->fOpponentTVsInitialized == 0) {
 
     (this->fVideoWall + 1)->SetOffset(6,0x69);
     UpdateImages(this->fVideoWall + 1);
     this->fOpponentTVsInitialized = 1;
-  }
+  } }
 
 
   ::UpdateTransition(this->fVideoWall + 1);
@@ -1625,14 +1625,14 @@ void tScreenCarSelectDuel::DrawBackground()
   RECT r;
   tCarInfo carInfo;
   DRAWENV *drenv; DR_AREA *daprim; RECT temp; bool validCar; drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  daprim = (DR_AREA *)Render_gPacketPtr;
+
 
 
 
   this->fState = 7;
 
   temp.x = 0; temp.y = *(short *)((char *)drenv + 2); temp.w = 0x200; temp.h = (short)screenheight;
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
+  daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
 
 
@@ -1694,9 +1694,9 @@ void tScreenCarSelectDuel::DrawBackground()
 
 
   this->DrawOpponentVideoWall(0x69);
-  daprim = (DR_AREA *)Render_gPacketPtr;
+
   temp.x = 0; temp.y = *(short *)((char *)drenv + 2) + 0x80; temp.w = 0x200; temp.h = (short)screenheight + -0x80;
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
+  daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
 
 
@@ -1888,10 +1888,10 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   i = 0; do {
     DrawShapeExtended(i,0,0,-(int)y, (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0); i = i + 1; } while (i < 0xc);
 
-  if ((this->fSwapShapes.fFlags & 1) != 0) {
-
-    if (this->fTVsInitialized == 0) {
-
+  if ((this->fSwapShapes.fFlags & 1) != 0)
+  {
+    if (this->fTVsInitialized == 0)
+    {
       this->fVideoWall->SetOffset(6,(FEApp->GetPlayer() != 0) ? 0x69 : 0);
       SetAvailableText(this->fVideoWall,0xf8,0x10e, (FEApp->GetPlayer() != 0) ? 0x96 : 0x2d);
       UpdateImages(this->fVideoWall);
@@ -2000,11 +2000,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
 
 
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  daprim = (DR_AREA *)Render_gPacketPtr;
+
 
 
   setRECT(&temp,0,drenv->clip.y,0x200,(short)screenheight);
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
+  daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
 
 
@@ -2117,19 +2117,19 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   gotcar = this->GetCar(carInfo);
 
 
-
-  if (FEApp->GetPlayer() == 0) {
+  if (FEApp->GetPlayer() == 0)
+  {
     MenuItem_Enable(&menuDefs->itemColorP1);
-    if (gotcar == 0 || carInfo.fCarClass == 7) {
-      MenuItem_Disable(&menuDefs->itemColorP1);
-    }
+    if (gotcar == 0 || carInfo.fCarClass == 7)
+    { MenuItem_Disable(&menuDefs->itemColorP1); }
   }
+
   else {
     MenuItem_Enable(&menuDefs->itemColorP2);
-    if (gotcar == 0 || carInfo.fCarClass == 7) {
-      MenuItem_Disable(&menuDefs->itemColorP2);
-    }
+    if (gotcar == 0 || carInfo.fCarClass == 7)
+    { MenuItem_Disable(&menuDefs->itemColorP2); }
   }
+
   for (j = 0; j < 5; j++) {
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);

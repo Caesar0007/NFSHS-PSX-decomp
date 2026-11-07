@@ -30,13 +30,14 @@ typedef struct tListIterator {
 #define NFS4_FE_LIST_STRIP
 #endif
     inline int MinValue() NFS4_FE_LIST_STRIP; inline int MaxValue() NFS4_FE_LIST_STRIP; inline int Range() NFS4_FE_LIST_STRIP;
-#ifndef NFS4_FE_LIST_OWNER   /* FEMenu.obj: Selection's standalone copy has no /strip proof yet (retail FEMenu 19 vs 18) */
-    inline short Selection(int i) { return fSelectionList[i]; }
-#endif
+    inline short Selection(int i) NFS4_FE_LIST_STRIP;
+
+
 } tListIterator;
 inline int tListIterator::MinValue() { return (unsigned char)fMinValue; }
 inline int tListIterator::MaxValue() { return (unsigned char)fMaxValue; }
 inline int tListIterator::Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
+inline short tListIterator::Selection(int i) { return fSelectionList[i]; }
 #undef NFS4_FE_LIST_STRIP
 /* The four inline accessors exist in every object: retail records tListIterator 6 times wherever it is declared
  * (2 for the typedef'd class + 1 per inline member definition); FEMenu/FEMenuOptions/FEMenuExtended keep their `this`

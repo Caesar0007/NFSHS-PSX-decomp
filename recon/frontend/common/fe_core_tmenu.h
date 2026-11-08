@@ -79,6 +79,10 @@ typedef struct tMenu {
           void (*)(tMenuCommand &), short);
     short GetNumberEnabledItems();
 #endif
+#if defined(NFS4_FE_CORE_TMENU_ALL_INLINES) && !defined(NFS4_FE_CORE_TMENU_KEY_TU)
+    /* INFERRED bodies: retail TPDEF tMenu x16 per object (2 inline bodies beyond the 12 spelled); builtin-only, never called */
+    inline short TitleText() { return fTitle; } inline bool NeverAnyEnabled() { return fNeverAnyEnabled; }
+#endif
 } tMenu;
 
 #endif

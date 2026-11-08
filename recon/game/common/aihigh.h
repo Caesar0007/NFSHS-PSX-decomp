@@ -46,6 +46,13 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     void RemoveChaser(int a, int b, copType ct);
     int CheckChaserPosition(int a, int b);
     AIHigh_BasicPerp(Car_tObj *carObj);
+#ifdef NFS4_AIHIGH_PLAYER_PLAIN   /* aih_cop.obj already records AIHigh_Player TPDEF above retail: plain struct there (aih_cop_types.h) */
+#define NFS4_AIHIGH_PLAYER_TD
+#define NFS4_AIHIGH_PLAYER_NAME
+#else   /* C-style typedef form: retail records TPDEF AIHigh_Player twice (one short in the other includers) */
+#define NFS4_AIHIGH_PLAYER_TD typedef
+#define NFS4_AIHIGH_PLAYER_NAME AIHigh_Player
+#endif
 #line 164 "C:/nfs4/GAME/COMMON/AIHIGH.H"
     ~AIHigh_BasicPerp() {}
     virtual void CheckForCrimes();
@@ -54,7 +61,7 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     void Clear();
 };
 
-struct AIHigh_Player : public AIHigh_BasicPerp {
+NFS4_AIHIGH_PLAYER_TD struct AIHigh_Player : public AIHigh_BasicPerp {
     int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
     AICop_PerpChaseInfo perpChaseInfo_;
     AIHigh_Player(Car_tObj *carObj);
@@ -71,7 +78,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     inline copLevel_t *ChaseLevel() { return perpChaseInfo_.chaseLevel_; }   /* retail pairs (this typed AIHigh_Player) */
     inline int LastPullOverTime() { return lastPullOverTime_; } inline int NewTriggerProb() { return newTriggerProb_; }
     int ExchangeLastTriggerCheckSlice(int newSlice); /* inferred exchange name; supplied inline newSlice/temp records */
-};
+} NFS4_AIHIGH_PLAYER_NAME;
 #include "shared/AIHigh_tAttackMode.h"
 struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
@@ -156,7 +163,7 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
 #line 414 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BasicCop;
 
-struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
+typedef struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* C-style typedef form: retail records TPDEF AIHigh_BTC_Cop twice in every includer */
     AIHigh_BTC_Perp *perpTarget_;
     int chaseIndex_;
     enum {
@@ -176,7 +183,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     virtual void FreezeAndEndChase();
     void HudOff();
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
+} AIHigh_BTC_Cop;
 
 typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;

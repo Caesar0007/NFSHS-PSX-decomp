@@ -3,6 +3,7 @@
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
 #define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "aih_play_types.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t (second pass below) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #include "aih_hierarchy_types.h"
 
 

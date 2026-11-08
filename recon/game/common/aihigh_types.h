@@ -4,6 +4,7 @@
 #define NFS4_AIH_HIERARCHY_WINGMAN "aihigh_types.h"   /* retail aihigh.obj: AIHigh_CopGameType_t right after stateType_t (second pass below) */
 #define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
+#define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #include "aih_hierarchy_types.h"
 
 
@@ -14,7 +15,6 @@
 
 
 #include "aistate.h"
-
 /* Exact foreign class layouts needed by placement construction in this TU;
    their completed tags are omitted by AIHIGH.OBJ's linked debug graph. */
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"

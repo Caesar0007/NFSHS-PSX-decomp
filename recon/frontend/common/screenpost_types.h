@@ -1,6 +1,9 @@
 /* Owner-specific type surface for ScreenPost.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
+#define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail ScreenPost: core + draw leaf, then tTexture_ShapeInfo (after Draw_PrimStruct) */
+#define NFS4_FE_CORE_FELINES_AT_LEAF   /* felines only at the after-leaf site (fe_core_types.h skips its early include) */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"

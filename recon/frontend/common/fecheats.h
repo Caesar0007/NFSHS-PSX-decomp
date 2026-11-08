@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #include "fecheats_cheatcode.h"   /* retail: tCheatCode first */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail fecheats object: tListIterator, Indexed, Range */

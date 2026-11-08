@@ -1,4 +1,4 @@
-/* Owner-specific type surface for ScreenTrackInfo.obj. */
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* Owner-specific type surface for ScreenTrackInfo.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE

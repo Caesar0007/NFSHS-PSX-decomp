@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #ifndef NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* Owner-specific type surface for ScreenAudio.obj. */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */

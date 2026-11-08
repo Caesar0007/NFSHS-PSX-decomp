@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #define NFS4_FE_LIST_NO_INDEXED   /* retail psxfront object: tListIterator + Range only */
 /* frontend/psx/psxfront.h - reconstructed declarations for PSXFRONT.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_PSXFRONT_H_

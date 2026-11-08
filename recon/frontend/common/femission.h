@@ -2,5 +2,6 @@
 #define NFS4_CORE_FEMISSION_FIRST   /* retail: tMissionTierInfo..tMissionManager before MATRIX (nfs4_types.h) */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_LIST_NO_INDEXED   /* retail femission object: tListIterator + Range only */
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
 #include "femission_types.h"
 #include "femission_externs.h"

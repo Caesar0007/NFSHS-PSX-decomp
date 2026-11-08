@@ -8,7 +8,7 @@
 #ifndef NFS4_FRONTEND_PSX_MMEFFECT_TYPES_H   /* game owners: the tMenu/tMenuItem inline set of FRONTORD set 23 (retail TPDEF tMenu/tMenuItem 16) */
 #define NFS4_FE_SURFACE_TMENU_INLINES
 #endif
-
+#include "shared/fe_menu_game_tmenucommand.h"   /* retail: tMenuCommand (tMenu forward copy) before tListIterator; opt-out NFS4_FE_SURFACE_NO_TMENUCOMMAND */
 #define tPlayer int
 #define tInputKeyType int
 

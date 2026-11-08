@@ -3,6 +3,7 @@
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail feaudio object: tListIterator, Indexed, Range */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* retail Feaudio.obj: full core (MATRIX/DR_MODE/matrixtdef) first; draw leaf after the sound records */
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
 #include "../../game/common/draw_leaf_types.h"
 #undef NFS4_DRAW_LEAF_CORE_ONLY
 #include "shared/PCOORD16.h"

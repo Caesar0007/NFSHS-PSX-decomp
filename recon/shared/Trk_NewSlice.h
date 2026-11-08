@@ -10,4 +10,7 @@ struct Trk_NewSlice {
     short pavedProfile, leftDrive, rightDrive;
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
+#if defined(NFS4_TU_BWORLDSM)   /* owner object: retail records the C-style `typedef struct Trk_NewSlice {..} Trk_NewSlice;` form (TPDEF twice) */
+typedef struct Trk_NewSlice Trk_NewSlice;
+#endif
 #endif

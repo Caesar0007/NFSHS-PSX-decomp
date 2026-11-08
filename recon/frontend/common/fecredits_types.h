@@ -30,7 +30,7 @@ struct tMenu;
 
 
 
-struct tCreditManager {
+typedef struct tCreditManager {
     tCredit *CreditBuffer;
     int fTVFade, fTextFade, fTextFadeDir;
     bool fCreditsInitialized, fRequestDeInit;
@@ -45,7 +45,7 @@ struct tCreditManager {
     void Draw(bool);
     void SetupCurrCredit();
     void DrawCurrCredit();
-};
+} tCreditManager;
 
 
 enum tTVState {

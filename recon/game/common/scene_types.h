@@ -65,16 +65,16 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectFinishedMultiAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim {
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
+} ObjectFinishedMultiAnim;
 
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedSignAnim : public ObjectAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
+} ObjectFinishedSignAnim;
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_SCENE_TAIL_DONE)   /* first pass tail */
 #define NFS4_SCENE_TAIL_DONE

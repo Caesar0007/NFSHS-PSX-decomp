@@ -7,4 +7,7 @@ struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
     int goalClockTicks, currentClockTicks;
 };
+#if defined(NFS4_TU_SIM)   /* owner object: retail records the C-style `typedef struct Sim_tSimSystemVar {..} Sim_tSimSystemVar;` form (TPDEF twice) */
+typedef struct Sim_tSimSystemVar Sim_tSimSystemVar;
+#endif
 #endif

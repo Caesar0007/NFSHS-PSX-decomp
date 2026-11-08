@@ -136,12 +136,12 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectFinishedMultiAnim : public ObjectAnim { };
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim {  } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedSignAnim : public ObjectAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
-};
+} ObjectFinishedSignAnim;
 typedef int CarLogic_tObservations[1][3];
 
 #endif

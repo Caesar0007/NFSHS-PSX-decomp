@@ -1,8 +1,8 @@
 /* game/common/bworldSm.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
  *   bworldSm.obj (GAME\COMMON\bworldSm.cpp) = 28 fns: simplified BWorld road-follower
  *   (slice/quad/triangle finding, normal cache, sim-quad update). SYM-v3 locals; self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
- */
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++. */
+#define NFS4_TU_BWORLDSM   /* owner key: Trk_NewSlice keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "bworldSm_types.h"
 #include "bworldSm_externs.h"
 

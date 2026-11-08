@@ -14,4 +14,7 @@ struct CTrackSpec {
     CDepthCueSpec depthcuespec;
     CWorldColor worldcolorspec;
 };
+#if defined(NFS4_TU_TRACKSPEC)   /* owner object: retail records the C-style `typedef struct CTrackSpec {..} CTrackSpec;` form (TPDEF twice) */
+typedef struct CTrackSpec CTrackSpec;
+#endif
 #endif

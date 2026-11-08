@@ -61,12 +61,12 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-struct ObjectFinishedMultiAnim : public ObjectAnim { };
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim {  } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedSignAnim : public ObjectAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
-};
+} ObjectFinishedSignAnim;
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_CARS_TAIL_DONE)   /* first pass, after copspeak_types.h */
 #define NFS4_CARS_TAIL_DONE

@@ -6,4 +6,7 @@
 struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
+#if defined(NFS4_TU_REPLAY)   /* owner object: retail records the C-style `typedef struct tReplayInterface {..} tReplayInterface;` form (TPDEF twice) */
+typedef struct tReplayInterface tReplayInterface;
+#endif
 #endif

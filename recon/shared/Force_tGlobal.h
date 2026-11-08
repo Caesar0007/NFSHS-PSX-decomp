@@ -7,4 +7,7 @@ struct Force_tGlobal {
     u_char active, high, low, jolt, time, fade;
     u_char actuator[2];
 };
+#if defined(NFS4_TU_FEMENUDEFS)   /* owner object: retail records the C-style `typedef struct Force_tGlobal {..} Force_tGlobal;` form (TPDEF twice) */
+typedef struct Force_tGlobal Force_tGlobal;
+#endif
 #endif

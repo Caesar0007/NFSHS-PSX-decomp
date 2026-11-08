@@ -16,7 +16,7 @@ enum tTVState {
 
 #include "shared/tTVConfig.h"
 
-struct tVideoWall {
+typedef struct tVideoWall {
     tTVConfig *fTVs;
     short fFirstTVShape, fNumTVs;
     tTexture_ShapeInfo *fTVShapes;
@@ -44,7 +44,7 @@ struct tVideoWall {
     void TurnOff();
     void TurnOffInstant();
     void TurnOn();
-};
+} tVideoWall;
 
 #include "shared/kernpair.h"
 

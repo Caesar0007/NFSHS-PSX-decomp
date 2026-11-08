@@ -1,7 +1,7 @@
 /* game/common/aiinit.cpp -- RECONSTRUCTED (NFS4 AI action/reaction scripting; 8 free AIScript_* fns).
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
- *   NOT original source; SYM-faithful, recompilable C++.
- */
+ *   NOT original source; SYM-faithful, recompilable C++. */
+#define NFS4_TU_AIINIT   /* owner key: Udff_tInfo keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "aiinit_types.h"
 #include "aiinit_externs.h"
 

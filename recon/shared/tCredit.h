@@ -9,4 +9,7 @@ struct tCredit {
     short textX, textY, textJustify, creditType, bgNumber, pad;
     char text[292];
 };
+#if !defined(NFS4_TU_FECREDITS) && !defined(NFS4_TU_SCREENMAIN) && !defined(NFS4_GAME_COMMON_NFS3_TYPES_H)   /* retail: every includer except fecredits/screenmain/nfs3 records the C-style `typedef struct tCredit {..} tCredit;` form (TPDEF twice) */
+typedef struct tCredit tCredit;
+#endif
 #endif

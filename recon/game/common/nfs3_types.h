@@ -248,14 +248,14 @@ struct tMissionManager {
 
 
 
-struct tCreditManager {
+typedef struct tCreditManager {
     tCredit *CreditBuffer;
     int fTVFade, fTextFade, fTextFadeDir;
     bool fCreditsInitialized, fRequestDeInit;
     int fNumCredits, fShowCreditNum, fCurrCredit;
     bool StartedTransition, StartedLines, StartedTextFade;
     int fLineTicks, fStartTicks;
-};
+} tCreditManager;
 
 #include "shared/tRecordBuffer.h"
 

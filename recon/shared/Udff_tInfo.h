@@ -8,4 +8,7 @@ struct Udff_tInfo {
     int handle;
     char *memPtr;
 };
+#if defined(NFS4_TU_AIINIT) || defined(NFS4_TU_AISPEEDS)   /* owner object: retail records the C-style `typedef struct Udff_tInfo {..} Udff_tInfo;` form (TPDEF twice) */
+typedef struct Udff_tInfo Udff_tInfo;
+#endif
 #endif

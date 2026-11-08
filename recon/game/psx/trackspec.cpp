@@ -1,8 +1,8 @@
 /* game/psx/trackspec.cpp -- RECONSTRUCTED (NFS4 PSX track-spec load; C++ TU)
  *   5 fns: TrackSpec_SetDefault (fill a CTrackSpec with defaults), SetUp (push night/weather
  *   to GameSetup), static read (byte-copy from a buffer cursor), Read (load TrXX.bin + parse),
- *   Load (weather/night -> spec index -> Read).
- */
+ *   Load (weather/night -> spec index -> Read). */
+#define NFS4_TU_TRACKSPEC   /* owner key: CTrackSpec keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "trackspec_types.h"
 #include "trackspec_externs.h"
 

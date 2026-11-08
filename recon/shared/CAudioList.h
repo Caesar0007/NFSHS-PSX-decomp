@@ -9,4 +9,7 @@ struct CAudioList {
     inline AudioElem *Elems() { return (AudioElem *)(this + 1); }
 #endif
 };
+#if defined(NFS4_TU_AUDEDIT)   /* owner object: retail records the C-style `typedef struct CAudioList {..} CAudioList;` form (TPDEF twice) */
+typedef struct CAudioList CAudioList;
+#endif
 #endif

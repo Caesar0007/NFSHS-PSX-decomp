@@ -1,7 +1,7 @@
 /* frontend/common/fecredits.cpp -- RECONSTRUCTED (credits/scroll-text manager; C++ TU)
  *   class tCreditManager ; 7 methods. DrawCurrCredit phantoms (tCredit field offsets,
- *   anim-frame DrawShapeExtended, CalcFadeVal 2nd args, WordWrap color/justify) via m2c.
- */
+ *   anim-frame DrawShapeExtended, CalcFadeVal 2nd args, WordWrap color/justify) via m2c. */
+#define NFS4_TU_FECREDITS   /* owner key: tCredit stays single-form here keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "fecredits.h"
 
 

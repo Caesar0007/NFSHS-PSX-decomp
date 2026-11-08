@@ -7,4 +7,7 @@ struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
+#if defined(NFS4_TU_SIM)   /* owner object: retail records the C-style `typedef struct Sim_tSimGlobalVar {..} Sim_tSimGlobalVar;` form (TPDEF twice) */
+typedef struct Sim_tSimGlobalVar Sim_tSimGlobalVar;
+#endif
 #endif

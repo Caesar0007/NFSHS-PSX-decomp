@@ -1,7 +1,7 @@
 /* game/psx/sim.cpp -- RECONSTRUCTED (NFS4 PSX sim engine core / main loop; C++ TU)
  *   8 fns: Sim_StartUp/Restart/CleanUp/FadeInSFX/ProcessSimSchedules/ProcessPause/CheckForPause/MainGameLoop.
- *   GTE-free. Named SYM locals applied; source-only captures and SLD remain under review.
- */
+ *   GTE-free. Named SYM locals applied; source-only captures and SLD remain under review. */
+#define NFS4_TU_SIM   /* owner key: Sim_tSimGlobalVar, Sim_tSimSystemVar keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "sim_types.h"
 #include "sim_externs.h"
 

@@ -1,7 +1,7 @@
 /* frontend/common/femenudefs.cpp -- RECONSTRUCTED (menu-command callbacks + menu-defs ctor; C++ TU)
  *   66 fns: free MenuExtended_* command callbacks + tGlobalMenuDefs ctor/dtor (menu-defs init)
- *   + TransitionIsFinished button methods. Free fns in ns nfs4::FRONTEND::COMMON::FEMenuDefs.
- */
+ *   + TransitionIsFinished button methods. Free fns in ns nfs4::FRONTEND::COMMON::FEMenuDefs. */
+#define NFS4_TU_FEMENUDEFS   /* owner key: Force_tGlobal keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "femenudefs.h"
 
 

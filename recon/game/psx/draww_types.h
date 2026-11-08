@@ -142,13 +142,13 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-struct ObjectFinishedMultiAnim : public ObjectAnim { int Draw(DRender_tView *, Draw_DCache *, int); };
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { int Draw(DRender_tView *, Draw_DCache *, int);  } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedSignAnim : public ObjectAnim {
     int Draw(DRender_tView *, Draw_DCache *, int);
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
-};
+} ObjectFinishedSignAnim;
 #include "shared/DRender_tView.h"
 #include "shared/Draw_DCache.h"
 

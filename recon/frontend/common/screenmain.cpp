@@ -2,8 +2,8 @@
  *   single class tScreenMain : tScreen ; 13 fns (no ctor in this TU).
  *   Phantoms (warning-image DrawShapeExtended/ScaleShapeExtended coords, dot-grid numberValues
  *   bitmap + x-walker, tvOrder/animLocations/tintColors statics, gNameBuffer/gPermBuffer sprintf
- *   dsts, void ProcessInput) resolved via m2c oracle + binary static reads.
- */
+ *   dsts, void ProcessInput) resolved via m2c oracle + binary static reads. */
+#define NFS4_TU_SCREENMAIN   /* owner key: tCredit stays single-form here keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "screenmain_types.h"
 #include "screenmain_externs.h"
 

@@ -65,16 +65,16 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectFinishedMultiAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim {
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
+} ObjectFinishedMultiAnim;
 
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedSignAnim : public ObjectAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
+} ObjectFinishedSignAnim;
 
 #include "shared/CAudioList.h"
 #endif

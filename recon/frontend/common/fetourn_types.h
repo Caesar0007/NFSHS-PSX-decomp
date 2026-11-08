@@ -44,7 +44,7 @@ typedef enum tTrophySize {
 
 typedef tRecordBuffer tSaveRecords[187];
 
-struct tCarManager {
+typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
     tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
@@ -62,7 +62,7 @@ struct tCarManager {
     void GetStockCar(short carNumber, tCarInfo &carInfo);
     void GetGarageCar(short garageNumber, tCarInfo &carInfo, short playerNum);
     short GetNumOwnedCars(short playerNum);
-};
+} tCarManager;
 
 typedef struct tTournamentManager {
     char fNumTiers;

@@ -1,7 +1,7 @@
 /* frontend/common/fecars_manager.h -- FECars.obj owner records emitted through the fe_core_cars.h hook NFS4_FE_CORE_CARS_HOOK_MANAGER (retail order). */
 #ifndef NFS4_FRONTEND_COMMON_FECARS_MANAGER_H
 #define NFS4_FRONTEND_COMMON_FECARS_MANAGER_H
-struct tCarManager {
+typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
     tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
@@ -45,5 +45,5 @@ struct tCarManager {
     void AddCarToIngameList(tCarModels &model, char &color);
     bool FindSimilarCar(tCarModels &model, char &color, short count,
                         tCarModels *models);
-};
+} tCarManager;
 #endif

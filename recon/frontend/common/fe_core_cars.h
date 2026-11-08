@@ -50,7 +50,11 @@ enum tCarNameLength {
 #include NFS4_FE_CORE_CARS_HOOK_MANAGER
 #undef NFS4_FE_CORE_CARS_IN_HOOK
 #else
+#if defined(NFS4_FRONT_SURFACE) || defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)   /* Front/ScreenCarSelect: own member bodies already make retail's 3; FETourn: codegen-view alias */
 struct tCarManager {
+#else
+typedef struct tCarManager {   /* retail: C-style typedef form (TPDEF recorded twice at the definition) */
+#endif
     u_long fNumCars;
     tCarInfo *fCars;
     tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
@@ -89,7 +93,11 @@ struct tCarManager {
     void AddCarToIngameList(tCarModels &, char &);
     bool FindSimilarCar(tCarModels &, char &, short, tCarModels *);
 #endif
+#if defined(NFS4_FRONT_SURFACE) || defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)   /* Front/ScreenCarSelect: own member bodies already make retail's 3; FETourn: codegen-view alias */
 };
+#else
+} tCarManager;
+#endif
 #endif
 #ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER   /* owner hook: right after tCarManager (retail: tListIteratorCar, tListIteratorCarColor) */
 #define NFS4_FE_CORE_CARS_IN_HOOK

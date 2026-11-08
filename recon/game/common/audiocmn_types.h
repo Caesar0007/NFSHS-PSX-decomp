@@ -188,7 +188,7 @@ enum tPersonalities {
 #undef NFS4_AUDIOCMN_IN_CAR
 #endif
 
-struct tCarManager {
+typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
     tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
@@ -201,7 +201,7 @@ struct tCarManager {
     void ReleaseDescription();
     void SetClassViewable(tCarClassType carClass, bool viewFlag);
 #endif
-};
+} tCarManager;
 #ifdef NFS4_AUDIOCMN_CAR_ORDER
 #define NFS4_AUDIOCMN_IN_CAR 2
 #include NFS4_AUDIOCMN_CAR_ORDER

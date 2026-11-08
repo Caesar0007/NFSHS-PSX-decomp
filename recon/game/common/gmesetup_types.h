@@ -152,14 +152,14 @@ typedef enum tCarNameLength { cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2 } tCar
 
 
 
-struct tCarManager {
+typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
     tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
     u_char fAvailableCars[48], fViewableCars[48];
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
-};
+} tCarManager;
 typedef enum tPersonalities {
     kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
     kPersonalityZippy = 2, kPersonalityJetBoy = 3,

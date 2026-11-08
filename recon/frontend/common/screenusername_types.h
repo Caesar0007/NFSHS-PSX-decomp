@@ -10,12 +10,12 @@
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: FE menu core BEFORE the MATRIX core, then FE3d, then ScreenDisplay graph */
 #define NFS4_FE_CORE_CARS_LATE
 #include "fe_core_types.h"
+#include "screendisplay_menuitems.h"   /* retail: the three menu items right after tMenuItemInteractive */
 #include "../../game/common/draw_leaf_types.h"   /* MATRIX .. Draw_* (felines_types.h did this before) */
 #include "shared/tTexture_ShapeInfo.h"   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, then screenusername_screen.h */
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #include "screenusername_screen.h"   /* tScreen, FE3d, kernpair (retail order) */
-
 
 #define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS   /* ScreenDisplay's shared graph, not its owner records */
 #define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: menu family, tScreenUserName, then the car/track graph */

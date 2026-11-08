@@ -14,6 +14,7 @@
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: MATRIX core, FE menu core, PCOORD16..Draw_*, then tTexture_ShapeInfo.. */
 #define NFS4_FE_CORE_CARS_LATE
 #include "fe_core_types.h"
+#include "screendisplay_menuitems.h"   /* retail: the three menu items right after tMenuItemInteractive */
 #undef NFS4_DRAW_LEAF_CORE_ONLY
 #include "../../game/common/draw_leaf_types.h"
 #include "shared/tTexture_ShapeInfo.h"   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, tScreen, FE3d, kernpair */
@@ -53,7 +54,6 @@ enum tMenuTextState {
 #define tMenuTextType int
 #define textType_TrackRecords 11
 #include "shared/FLARE_PIECE_DEF.h"
-
 
 
 

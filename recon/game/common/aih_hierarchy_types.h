@@ -231,12 +231,12 @@ typedef struct AIHigh_Base {
         state_ = newState;
         stateType_ = newStateType;
     }
-    inline Car_tObj *CarObj() { return carObj_; } inline void ClearSchedulingOff() { schedulingOff_ = 0; }
+    inline Car_tObj *CarObj() { return carObj_; } /* ClearSchedulingOff() folded into SetSchedulingOff(0) (same store) */
     /* Inferred inline spelling: retail HighExecute records Base receivers at
        both schedulingOff_ stores; no standalone name survives in SYM. */
-    void SetSchedulingOff(int off);
-    bool SchedulingOff(); /* inferred query: retail Execute has empty inline receiver scopes */
-    int ExchangeTrafficTriggerCheckSlice(int newSlice); /* inferred exchange; this/newSlice/temp are retail */
+    void SetSchedulingOff(int off) { schedulingOff_ = off; }
+    bool SchedulingOff() { return schedulingOff_ != 0; } /* inferred query: retail Execute has empty inline receiver scopes */
+    int ExchangeTrafficTriggerCheckSlice(int newSlice) { int temp = lastTrafficTriggerCheckSlice_; lastTrafficTriggerCheckSlice_ = newSlice; return temp; } /* inferred exchange */
 } AIHigh_Base;
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,

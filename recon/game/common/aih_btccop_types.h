@@ -159,7 +159,7 @@ typedef struct AIHigh_Base {
         state_ = newState;
         stateType_ = newStateType;
     }
-    inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
+    inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */ void SetSchedulingOff(int off) { schedulingOff_ = off; } bool SchedulingOff() { return schedulingOff_ != 0; } int ExchangeTrafficTriggerCheckSlice(int newSlice) { int temp = lastTrafficTriggerCheckSlice_; lastTrafficTriggerCheckSlice_ = newSlice; return temp; }
 } AIHigh_Base;
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,

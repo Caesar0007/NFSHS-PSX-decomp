@@ -162,7 +162,7 @@ void AIHigh_CleanUp(void)
 
 
 
-inline bool AIHigh_Base::SchedulingOff() { return schedulingOff_ != 0; }
+
 
 /* ---- AIHigh_Execute__Fv [retail AIHIGH.CPP:134-148; native ownership exact,
  * full SLD attribution open] ---- */
@@ -211,7 +211,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
   this->stateType_ = 0; this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
 
-  this->ClearSchedulingOff(); this->lastTrafficTriggerCheckSlice_ = (int)(this->carObj_->N).simRoadInfo.slice; }
+  this->SetSchedulingOff(0); this->lastTrafficTriggerCheckSlice_ = (int)(this->carObj_->N).simRoadInfo.slice; }
 
 
 

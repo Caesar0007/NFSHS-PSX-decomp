@@ -828,7 +828,7 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
     this->closestCopCarObj_ = Cars_gList[closestCarIndex];
     this->closestCopCarDistanceMeters_ = closestCopInMeters; } }
 
-inline void AIHigh_Base::SetSchedulingOff(int off) { schedulingOff_ = off; }
+
 
 /* ---- HighExecute__17AIHigh_BTC_AIPerp [retail AIH_BTCPERP.CPP:620-802; native ownership exact, SLD open] ---- */
 /* MATCH: 304/304 instructions, all17 native local records/all67 scope regions.

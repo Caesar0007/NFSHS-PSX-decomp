@@ -22,7 +22,7 @@ void AIHigh_Human::HighExecute()
 
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail aih_hum.obj type record #113 (TPDEF coorddef) between SHAPE and LIBCOORD, inside HighExecute__12AIHigh_Human's record run (locals-before-params, GSDATA_state 7h) */
 
 
 

@@ -353,7 +353,7 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 
 #line 392 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail bworld.obj type record #331 (TPDEF coorddef) between coorddef and matrixtdef, inside SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache's record run (locals-before-params, GSDATA_state 7h) */
 
 
 

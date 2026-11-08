@@ -43,7 +43,7 @@ AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 
 #line 57 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_StartUp(void)
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail aihigh.obj type record #114 (TPDEF coorddef) between SHAPE and LIBCOORD, inside AIHigh_StartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */
   int carLoop, copCounter = 0, humanCopCounter = 0;
 
 

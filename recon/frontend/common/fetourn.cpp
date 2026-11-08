@@ -185,7 +185,7 @@ short * tTournamentManager::GetTrackList(short tier,short tournament)
 void tTournamentManager::GetTrackToRace(tTrackInfo &track)
 
 
-{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTourneyInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail fetourn.obj type record #319 (TPDEF tTourneyInfo) between tTournamentManager and tTournamentManager, inside GetTrackToRace__18tTournamentManagerR10tTrackInfo's record run (locals-before-params, GSDATA_state 7h) */
   blockmove(this->fDefinition->fTracks +
              (this->CurrentTourney()->fTrackOffset + this->fCurrentTrack),&track,sizeof(tTrackInfo));
   track.fDirection = this->fDirection[this->fCurrentTrack];
@@ -874,7 +874,7 @@ void tTournamentManager::LoadTournament(tSaveTournament &load)
 
 #line 802 "C:/nfs4/FRONTEND/COMMON/FETOURN.CPP"
 short tTournamentManager::GetNumCompetitors()
-{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTourneyInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail fetourn.obj type record #367 (TPDEF tTourneyInfo) between tTournamentManager and tTournamentManager, inside GetNumCompetitors__18tTournamentManager's record run (locals-before-params, GSDATA_state 7h) */
 
   return this->CurrentTourney()->fNumCars;
 }

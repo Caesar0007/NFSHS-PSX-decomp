@@ -25,7 +25,7 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */ char *str;
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail pausemenu.obj type record #257 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside PauseMenu_FullText__FPcsss's record run (locals-before-params, GSDATA_state 7h) */ char *str;
 
 
 
@@ -961,7 +961,7 @@ void tPMenu::CheckForDisabled()
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 
-{ tPMenu *devLocal_tPMenu; /* DEVICE (exact-only): record-less unused local; retail requests tPMenu inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tPMenu *devLocal_tPMenu; /* DEVICE (exact-only): record-less unused local; retail pausemenu.obj type record #414 (TPDEF tPMenu) between tPMenu and tPMenu, inside ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand's record run (locals-before-params, GSDATA_state 7h) */
 
 
   if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {

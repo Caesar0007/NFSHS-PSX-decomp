@@ -891,7 +891,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 
-{ tScreenCarSelect *devLocal_tScreenCarSelect; /* DEVICE (exact-only): record-less unused local; retail requests tScreenCarSelect inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tScreenCarSelect *devLocal_tScreenCarSelect; /* DEVICE (exact-only): record-less unused local; retail screencarselect.obj type record #584 (TPDEF tScreenCarSelect) between tScreenCarSelect and tScreenCarSelect, inside GetCar__16tScreenCarSelectR8tCarInfo's record run (locals-before-params, GSDATA_state 7h) */
   switch(this->fState)
   {
   case 0: case 5:

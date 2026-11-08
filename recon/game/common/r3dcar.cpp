@@ -94,7 +94,7 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi);
 void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 
 
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail r3dcar.obj type record #280 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside R3DCar_ChangeTrafficColor__FP8Car_tObji's record run (locals-before-params, GSDATA_state 7h) */
   int color;
 
   if ((carObj->render).palCopy != (char *)0x0) {
@@ -3604,7 +3604,7 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
 void R3DCar_Showroom(DRender_tView *Vi)
 
 
-{ Draw_CarCache *devLocal_Draw_CarCache; /* DEVICE (exact-only): record-less unused local; retail requests Draw_CarCache inside this function (locals-before-params law, GSDATA_state 7h) */
+{ Draw_CarCache *devLocal_Draw_CarCache; /* DEVICE (exact-only): record-less unused local; retail r3dcar.obj type record #399 (TPDEF Draw_CarCache) between Car_tObj and DRender_tView, inside R3DCar_Showroom__FP13DRender_tView's record run (locals-before-params, GSDATA_state 7h) */
 
 
 

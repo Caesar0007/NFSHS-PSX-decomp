@@ -65,7 +65,7 @@ static inline void SpikeBelt_SetFreshenTime(int timeNow) { AICop_spikeBelt.fresh
 
 #line 40 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 void AIHigh_BasicCop::CheckSpikeBelt()
-{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail requests Car_tObj inside this function (locals-before-params law, GSDATA_state 7h) */
+{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail aih_basiccop.obj type record #575 (TPDEF Car_tObj) between Car_tObj and AIHigh_BasicCop, inside CheckSpikeBelt__15AIHigh_BasicCop's record run (locals-before-params, GSDATA_state 7h) */
 
   if (SpikeBelt_IsActive() && !SpikeBelt_IsFresh(simGlobal.gameTicks))
   { int slice = SpikeBelt_Slice();

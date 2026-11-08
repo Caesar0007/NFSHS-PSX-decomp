@@ -231,7 +231,7 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
 
 #line 220
 void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
-{ tMenuCommand *devLocal_tMenuCommand; /* DEVICE (exact-only): record-less unused local; retail requests tMenuCommand inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tMenuCommand *devLocal_tMenuCommand; /* DEVICE (exact-only): record-less unused local; retail femenudefs.obj type record #592 (TPDEF tMenuCommand) between tMenuCommand and tDialogYesNoTri, inside MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand's record run (locals-before-params, GSDATA_state 7h) */
   tDialogYesNoTri YesNoDialog;
 
   if ((short)carManager.GetNumOwnedCars(0) < 1)
@@ -1084,7 +1084,7 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 #line 694 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
-{ tMenuCommand *devLocal_tMenuCommand; /* DEVICE (exact-only): record-less unused local; retail requests tMenuCommand inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tMenuCommand *devLocal_tMenuCommand; /* DEVICE (exact-only): record-less unused local; retail femenudefs.obj type record #621 (TPDEF tMenuCommand) between tMenuCommand and tMenuCommand, inside MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand's record run (locals-before-params, GSDATA_state 7h) */
   tTourneyInfo *tourn;
 
   frontEnd.tier = '\x01';

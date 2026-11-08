@@ -278,7 +278,7 @@ void CleanupSpinningCarsMenu(void)
 void DoTitleScreen(void)
 
 
-{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTexture_ShapeInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail psxfront.obj type record #326 (TPDEF tTexture_ShapeInfo) between Cars_tRenderInfo and Car_tObj, inside DoTitleScreen__Fv's record run (locals-before-params, GSDATA_state 7h) */
 
   shapetbl *tempShp2;
   char fileName [48];

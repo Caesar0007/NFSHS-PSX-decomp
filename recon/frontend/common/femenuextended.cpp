@@ -20,7 +20,7 @@ static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
 #line 57 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 static void MenuNFS4_SetHelpPos(RECT &r)
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail femenuextended.obj type record #291 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside MenuNFS4_SetHelpPos__FR4RECT's record run (locals-before-params, GSDATA_state 7h) */
   gHelpPos.x = r.x;
   gHelpPos.y = r.y;
   gHelpPos.w = r.w;

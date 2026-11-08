@@ -262,7 +262,7 @@ void Hud_Perp_OverlayOff(int player);
 
 #line 272 "C:/nfs4/GAME/PSX/HUD.CPP"
 void Hud_CreateHudViews(void)
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail hud.obj type record #284 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside Hud_CreateHudViews__Fv's record run (locals-before-params, GSDATA_state 7h) */
 
 
   Hud_InitTables();

@@ -145,7 +145,7 @@ extern int gMusicHandle;
 
 #line 277 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_MusicLevel(int level)
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail audiocmn.obj type record #285 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside AudioCmn_MusicLevel__Fi's record run (locals-before-params, GSDATA_state 7h) */
   if (0x56 <= level) { return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7; } return level * 0x46 >> 7;
 }
 

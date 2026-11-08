@@ -25,7 +25,7 @@
 #line 45 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
-{ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail requests Car_tStats inside this function (locals-before-params law, GSDATA_state 7h) */
+{ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail screenpost.obj type record #311 (TPDEF Car_tStats) between AISpeechInfo_t and Car_tStats, inside DrawMoney__Fiiilii's record run (locals-before-params, GSDATA_state 7h) */
 
   char string1 [50];
   char string2 [50];
@@ -531,7 +531,7 @@ void tScreenTournamentStandings::DrawBackground()
 #line 318 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenPinkSlipStandings::DrawBackground()
 
-{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTexture_ShapeInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail screenpost.obj type record #503 (TPDEF tTexture_ShapeInfo) between tTrackInformation and tDrawShapeExtended, inside DrawBackground__24tScreenPinkSlipStandings's record run (locals-before-params, GSDATA_state 7h) */
   int fade;
   char sBuildOutput [50]; int i; tMenuTextState state; tMenuTextType type; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; fade = (int)this->fScreenFadeVal;
 

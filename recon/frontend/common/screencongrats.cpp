@@ -72,7 +72,7 @@ extern "C" void ___7tScreen(void *);
 void tScreenCongrats::Cleanup()
 
 
-{ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail requests Car_tStats inside this function (locals-before-params law, GSDATA_state 7h) */
+{ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail screencongrats.obj type record #378 (TPDEF Car_tStats) between AISpeechInfo_t and Car_tStats, inside Cleanup__15tScreenCongrats's record run (locals-before-params, GSDATA_state 7h) */
   
 
   CleanupSpinningCarsMenu();

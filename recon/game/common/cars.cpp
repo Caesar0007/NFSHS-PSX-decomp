@@ -103,7 +103,7 @@ void Cars_CheckForAccidentScenes(void);
 
 #line 373 "C:/nfs4/GAME/COMMON/CARS.CPP"
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail cars.obj type record #351 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside Cars_DoGravityEffectsOnAcc__FP8Car_tObji's record run (locals-before-params, GSDATA_state 7h) */
 
   coorddef gravity_ch;
 
@@ -428,7 +428,7 @@ void Cars_ResetVariablesAfterACollision(Car_tObj *carObj)
 
 #line 712 "C:/nfs4/GAME/COMMON/CARS.CPP"
 void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
-{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail requests Car_tObj inside this function (locals-before-params law, GSDATA_state 7h) */
+{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail cars.obj type record #524 (TPDEF Car_tObj) between Car_tObj and Car_tObj, inside Cars_ResetCollidedCars__FP8Car_tObjii's record run (locals-before-params, GSDATA_state 7h) */
   int y;
   int newSlice;
   coorddef offset; int resetCounter; int direction; memset((u_char *)&offset,'\0',0xc);

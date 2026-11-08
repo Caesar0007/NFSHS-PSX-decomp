@@ -22,7 +22,7 @@ static int debounce[2];     /* @0x80052b60; SYM STAT INT[2] */
 void FEInput_VerifyControllerValues(int controller)
 
 
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail feinput.obj type record #151 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside FEInput_VerifyControllerValues__Fi's record run (locals-before-params, GSDATA_state 7h) */
   if (gPadinfo.buf[controller * 4].nopad == '\0')
 
 

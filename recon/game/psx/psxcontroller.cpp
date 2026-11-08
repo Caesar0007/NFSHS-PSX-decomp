@@ -222,7 +222,7 @@ static int hoff[2] = { 0x4d, 1 };
 void InGame_ResetPSXController(int player,int config)
 
 
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail psxcontroller.obj type record #240 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside InGame_ResetPSXController__Fii's record run (locals-before-params, GSDATA_state 7h) */
   int *h;
   int type; h = Input_gHandler;
 

@@ -88,7 +88,7 @@ tCarInfo * tCarManager::GetCarFromID(short carID)
 tCarInfo * tCarManager::GetCarFromSimID(short carID)
 
 
-{ tCarManager *devLocal_tCarManager; /* DEVICE (exact-only): record-less unused local; retail requests tCarManager inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarManager *devLocal_tCarManager; /* DEVICE (exact-only): record-less unused local; retail fecars.obj type record #227 (TPDEF tCarManager) between tCarManager and tCarManager, inside GetCarFromSimID__11tCarManagers's record run (locals-before-params, GSDATA_state 7h) */
   u_long i;
 
   for (i = 0; i < this->fNumCars; i++) {
@@ -475,7 +475,7 @@ void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
 void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFlags,short playerNum)
 
 
-{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail fecars.obj type record #249 (TPDEF tCarInfo) between tCarManager and tCarManager, inside AddUpgradesToPinkSlipsList__11tCarManagersss's record run (locals-before-params, GSDATA_state 7h) */
   short i;
   short mask;
 
@@ -698,7 +698,7 @@ void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 
-{ tCarManager *devLocal_tCarManager; /* DEVICE (exact-only): record-less unused local; retail requests tCarManager inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tCarManager *devLocal_tCarManager; /* DEVICE (exact-only): record-less unused local; retail fecars.obj type record #272 (TPDEF tCarManager) between tCarManager and tCarManager, inside GetStockCar__11tCarManagersR8tCarInfo's record run (locals-before-params, GSDATA_state 7h) */
   if ((u_int)(int)carNumber >= this->fNumCars) {
     this->GetGarageCar(carNumber,carInfo,0);
   }

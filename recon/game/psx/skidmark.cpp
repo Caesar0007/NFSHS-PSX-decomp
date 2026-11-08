@@ -183,7 +183,7 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail skidmark.obj type record #232 (TPDEF coorddef) between tSkid and Skidmark_Chunk, inside Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii's record run (locals-before-params, GSDATA_state 7h) */
   Skidmark_Chunk *sm;
 
 
@@ -281,7 +281,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
                         CVECTOR *color,int tireWidth,int type,int slice)
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail skidmark.obj type record #237 (TPDEF coorddef) between tSkid and Skidmark_Segment, inside Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii's record run (locals-before-params, GSDATA_state 7h) */
   Skidmark_Chunk *sm;
 
 

@@ -94,7 +94,7 @@ void tTrackManager::GetTrack(short trackNumber,tTrackInformation &trackInfo)
 void tTrackManager::LoadDescription()
 
 
-{ tTrackManager *devLocal_tTrackManager; /* DEVICE (exact-only): record-less unused local; retail requests tTrackManager inside this function (locals-before-params law, GSDATA_state 7h) */
+{ tTrackManager *devLocal_tTrackManager; /* DEVICE (exact-only): record-less unused local; retail fetracks.obj type record #184 (TPDEF tTrackManager) between tTrackManager and tTrackManager, inside LoadDescription__13tTrackManager's record run (locals-before-params, GSDATA_state 7h) */
   char *input;
   char *data;
   char filename [80];

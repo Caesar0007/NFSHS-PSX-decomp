@@ -104,8 +104,18 @@
 #ifdef NFS4_TU_FEAPP
 #define NFS4_FEDIALOG_NO_INFERRED_HELP
 #endif
-#ifdef NFS4_TU_FECHEATS
+#if defined(NFS4_TU_FECHEATS) || defined(NFS4_TU_FEAPP)   /* FEApp: its own WT ctor (feapp.cpp) already gives retail WT x4 (FESCR3) */
 #define NFS4_FEDIALOG_NO_INFERRED_WT
+#endif
+/* fedialog.h FESCR3 INFERRED bodies (GetMaxW / FadeText / IsRunning) opt-outs: TUs whose own dialog bodies already supply that record */
+#if (defined(NFS4_FEDIALOG_NO_INFERRED_BASE) && !defined(_FE_SCREENS_SCREENCARSELECT_H_)) || defined(NFS4_TU_FECHEATS) || defined(NFS4_TU_FEMENUDEFS) || (defined(_FE_SCREENS_SCREENCONTROLLER_H_) && !defined(_FE_SCREENS_FEMENUOPTIONS_H_))
+#define NFS4_FEDIALOG_NO_INFERRED_FESCR3_BASE
+#endif
+#if defined(NFS4_FEDIALOG_NO_INFERRED_MS) && !defined(_FE_SCREENS_SCREENCARSELECT_H_)
+#define NFS4_FEDIALOG_NO_INFERRED_FESCR3_MS
+#endif
+#if defined(_FE_SCREENS_SCREENCONTROLLER_H_) && !defined(_FE_SCREENS_FEMENUOPTIONS_H_)
+#define NFS4_FEDIALOG_NO_INFERRED_FESCR3_INT
 #endif
 #if defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs (FEScreen too, FESCR); PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
 #define NFS4_TD_tScreen typedef

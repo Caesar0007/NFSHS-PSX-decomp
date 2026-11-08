@@ -62,6 +62,11 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */
 #include "../../game/common/color_types.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR   /* owner records right after the early color.obj graph (ScreenController: tScreenControllerConfig) */
+#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR
+#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
+#endif
 #if !defined(NFS4_SCREENDISPLAY_CARS_AFTER_MENUS) && !defined(NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN)   /* else emitted later (after the menu family) or earlier (after tScreen) */
 #include "screendisplay_carblock.h"
 #endif
@@ -71,11 +76,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
-
-
 
 
 
@@ -463,15 +463,15 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 #include NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS
 #endif
 #include "screendisplay_carblock.h"   /* NFS4_SCREENDISPLAY_CARS_AFTER_MENUS site (no-op otherwise: guarded) */
+#ifndef NFS4_SCREENDISPLAY_TV_LATE   /* else after the dialogs (late site below) */
 #include "shared/tTVState.h"   /* the enum (owners with an earlier mission/TV block include it before) */
-
-
-
-
-
-
+#endif
+#ifdef NFS4_SCREENDISPLAY_COLOR_AFTER_MENUCARS   /* retail FeMenuOptions: color.obj graph after the late car block */
+#include "../../game/common/color_types.h"
+#endif
+#ifndef NFS4_SCREENDISPLAY_TV_LATE
 #include "shared/tTVConfig.h"
-
+#endif
 
 
 
@@ -482,21 +482,21 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 
 
 #include "fedialog.h"
-
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* FEDialog.obj: retail order is Base, Help, MessageString, ... */
 #endif
-
-
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* ..., MessageString, BackUpOnly, NoInputMessage, Interactive, ... */
 #endif
-
-
-
-
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_DIALOGS   /* owner records right after the dialogs (FeMenuOptions: tFEApplication) */
+#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_DIALOGS
+#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS
+#endif
+#ifdef NFS4_SCREENDISPLAY_TV_LATE   /* retail FeMenuOptions: track/tournament part + TV after the dialogs */
+#include "screendisplay_carblock.h"
+#include "shared/tTVState.h"
+#include "shared/tTVConfig.h"
+#endif
 #include "shared/tCredit.h"
-
-
-
 
 
 
@@ -518,14 +518,14 @@ enum tScreenMainState {
 
 
 #include "shared/tVideo.h"
-
-
-
+#ifdef NFS4_SCREENDISPLAY_AUDIOMUS_AFTER_VIDEO   /* retail FeMenuOptions: AudioMus song records right after tVideo */
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/AudioMus_tSongList.h"
+#endif
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 /* Only this offset is used by ScreenDisplay.  The real aggregate owner is
  * reconstructed in FEMenuDefs; keep this compiler-boundary view explicit. */
 struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members reached by offset */
-
 
 
 

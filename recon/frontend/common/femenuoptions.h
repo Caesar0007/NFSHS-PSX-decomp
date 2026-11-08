@@ -3,7 +3,19 @@
 #ifndef _FE_SCREENS_FEMENUOPTIONS_H_
 #define _FE_SCREENS_FEMENUOPTIONS_H_
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph before the car/track graph (screendisplay_types.h) */
+#define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail FeMenuOptions: menu family, cars, color.obj graph, dialogs, tFEApplication, tracks, TV */
+#define NFS4_SCREENDISPLAY_COLOR_AFTER_MENUCARS   /* color.obj graph after the late car block (screendisplay_types.h) */
+#define NFS4_SCREENDISPLAY_TV_LATE   /* track/tournament part + TV after the dialogs (screendisplay_types.h) */
+#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "shared/tDrawShapeExtended.h"   /* retail: tDrawShapeExtended right after kernpair/tActiveLine */
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* list iterators right after their managers (set 18 route) */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities */
+#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
+#define NFS4_PRIM_POLY_G4   /* retail: libgpu POLY_G4 / DR_AREA at their core place (nfs4_types.h) */
+#define NFS4_PRIM_DR_AREA
+#define NFS4_SCREENDISPLAY_AUDIOMUS_AFTER_VIDEO   /* retail: AudioMus song records right after tVideo */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "femenuoptions_externs.h"

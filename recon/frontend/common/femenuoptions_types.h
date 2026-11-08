@@ -1,11 +1,13 @@
-#ifndef NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H) || defined(NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS)
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS   /* else: the screendisplay_types.h after-dialogs hook pass (tFEApplication only) */
 #define NFS4_FRONTEND_COMMON_FEMENUOPTIONS_TYPES_H   /* Owner-specific type surface for FeMenuOptions.obj. */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FeMenuOptions: frontend core before the MATRIX core (fe_core_types.h) */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail FeMenuOptions: track/tournament graph after the menu family */
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
 #define NFS4_FEMENUOPTIONS_OWNER   /* screendisplay_types.h: tOptionsMenu / tInsideBoxMenu inline copies LINK_STRIPPED */
-struct tMenu;
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_DIALOGS "femenuoptions_types.h"   /* retail FeMenuOptions: tFEApplication right after the dialogs */
+#include "fe_input_enums.h"   /* retail FeMenuOptions: tPlayer, tInputKeyType before tMenuCommandType */
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0,
@@ -18,7 +20,7 @@ enum tMenuCommandType {
     kMenu_Command_ReStartRace = 7,
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
-};
+}; struct tMenu;
 #include "shared/tMenuCommand.h"
 #include "../../link_stripped.h"
 /* physadr: the complete SDK type (retail size 4) */
@@ -41,19 +43,17 @@ enum tMenuCommandType {
 #define textState_Hilighted 2
 #define tMenuTextType int
 #define textType_Options 6
-
 #include "shared/DR_AREA.h"
 #include "shared/POLY_G4.h"
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"
-
 /* The linked owner retains this public array typedef while attributing the
  * already-seen element body elsewhere. */
 #include "shared/tRecordBuffer.h"
 
-
 typedef tRecordBuffer tSaveRecords[187];
-
+#endif
+#ifndef NFS4_FEMENUOPTIONS_FEAPP_DONE
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -80,7 +80,9 @@ struct tFEApplication {
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
 #endif
 };
-
+#define NFS4_FEMENUOPTIONS_FEAPP_DONE
+#endif
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS
 struct FeMenuOptions_ScreenAudioCodegenView {
     char _beforeSelectedSong[116];
     short fSelectedSong;
@@ -99,5 +101,6 @@ static inline void _femenuoptions_dtor_fade(tMenuItemLeftRightFade *p) { p->~tMe
 #line 404 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 static inline void _femenuoptions_dtor_btnfade(tMenuItemGoToMenuButtonFade *p) { p->~tMenuItemGoToMenuButtonFade(); }
 #line 93 "recon/frontend/common/femenuoptions_types.h"
+#endif
 
 #endif

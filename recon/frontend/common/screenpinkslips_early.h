@@ -8,3 +8,4 @@
 #include "shared/tTVConfig.h"
 #include "screenpinkslips.h"
 #include "fedialog.h"
+#include "screenpinkslips_feapp.h"   /* retail: tFEApplication right after tDialogYesNo */

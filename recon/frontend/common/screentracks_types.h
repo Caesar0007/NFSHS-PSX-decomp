@@ -19,6 +19,7 @@
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS "screenpinkslips_feapp.h"   /* retail: tFEApplication right after the early dialogs */
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 #define textState_Unselected 0
@@ -31,7 +32,6 @@ typedef enum VIDEOSTATE {
     VIDEOSTATE_PLAYING = 3
 } VIDEOSTATE;
 #include "screentracks_videowall.h"   /* emitted earlier via screentracks_early.h (retail order) */
-
 
 
 

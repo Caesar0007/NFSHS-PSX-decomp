@@ -9,6 +9,11 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
+#define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo / tCarClassType after tOwnedCarInfo, tCarLineup after tPersonalities */
+#define NFS4_FE_CORE_CARS_CLASSTYPE
+#define NFS4_FE_CORE_CARS_LINEUP
+#define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
+#define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "fe_track_types.h"   /* retail FEMenuDefs: the track graph right after the car iterators */
 #include "../../game/common/draw_leaf_types.h"
 #include "femenudefs_types.h"
 #include "../../game/common/color_types.h"

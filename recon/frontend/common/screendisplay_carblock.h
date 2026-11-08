@@ -118,7 +118,7 @@ typedef struct tTournamentManager {
     short AdvanceToNextTrack(); short GetLastTrackRaced();
     void UpdateCarLineup(); void UpdateAwardInformation();
 #elif defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
-    tTournamentDefinition *Definition() { return fDefinition; } /* Existing inferred accessor; no layout/virtual slot. */
+    /* (Definition(): now the first body of shared/tTournamentManager_inl.h, INV-B I5b) */
 #endif
 } tTournamentManager;
 

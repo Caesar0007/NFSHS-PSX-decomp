@@ -71,10 +71,10 @@ int sprintf(char *, const char *, ...);
 }
 
 /* Explicit frontend selection (see screentournselect.cpp); a header inline, so SLD records its blocks at the caller's line. */
-static inline tTourneyInfo *TourneyInTier(byte tier, byte tournament)
-{
-  return tournamentManager.fDefinition->fTournaments +
-      (tournament + tournamentManager.fDefinition->fTiers[tier].fTournOffset);
-}
+/* (TourneyInTier removed: tTournamentManager::CurrentTourney(tier, tournament) in-class body, INV-B I4) */
+
+
+
+
 
 #endif

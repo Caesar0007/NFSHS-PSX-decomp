@@ -58,7 +58,7 @@ typedef struct tTournamentManager {
     tAwardInformation fAwards;
 #include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
     /* ORIGINAL-NAME-UNRESOLVED: inferred receiver-free definition accessor. */
-    tTournamentDefinition *Definition() { return fDefinition; }
+    /* (Definition(): now the first body of shared/tTournamentManager_inl.h, INV-B I5b) */
 } tTournamentManager;
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph (after the tracks). */
 #include "../../game/common/color_types.h"

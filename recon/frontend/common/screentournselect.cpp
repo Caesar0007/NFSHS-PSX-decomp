@@ -61,7 +61,7 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 
 
 {
-  tTourneyInfo *const tourney = TourneyInTier((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)); /* DEVICE (exact-only): retail selects the tourney on line 1; const temp, no SYM record */
+  tTourneyInfo *const tourney = tournamentManager.CurrentTourney((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)); /* DEVICE (exact-only): retail selects the tourney on line 1; const temp, no SYM record */
 
   numPermShapes = 0x40;
   numSwapShapes = 0x20;
@@ -130,7 +130,7 @@ void tScreenTournSelect::Initialize()
     }
   }
 
-  tTourneyInfo *const previous = TourneyInTier((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)); /* DEVICE (exact-only): retail looks up on 45, stores on 46; const temp, no SYM record */
+  tTourneyInfo *const previous = tournamentManager.CurrentTourney((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)); /* DEVICE (exact-only): retail looks up on 45, stores on 46; const temp, no SYM record */
   this->fPreviousTrophy = previous->fTrophyID;
   this->fTVTicks = FE_Ticks();
   this->fTransitionDirection = 1; return; }
@@ -279,7 +279,7 @@ void tScreenTournSelect::DrawBackground()
   RECT r;
   tTourneyInfo *tourn;
   int YellowCol;
-  int DarkGreyCol; int GreyCol; short shapeY; u_long movieRGB; int tvIdx; tourn = TourneyInTier((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
+  int DarkGreyCol; int GreyCol; short shapeY; u_long movieRGB; int tvIdx; tourn = tournamentManager.CurrentTourney((byte)frontEnd.tier, (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
 
   YellowCol = CalcFadeVal(0xbebe,this->fScreenFadeVal);
   DarkGreyCol = CalcFadeVal(0x232323,this->fScreenFadeVal);

@@ -5,7 +5,11 @@
  * listed here: the two tTourneyInfo accessors and five builtin-field accessors.  A member is skipped where the
  * struct copy already defines or declares it.  Gap vs retail: the tTierInfo, tCarLineup and tCompetitor bodies and
  * four more builtin-only bodies (no source evidence for their names or bodies). */
-#if !defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H) && !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)   /* measured: bodies over-emit field types here (FETourn: tCompetitor; trophy*: their non-retail Definition() + field block = tTournamentDefinition x2; Front: its own code already records the extra tTourneyInfo) */
+#if !defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)   /* measured: bodies over-emit field types here (FETourn: tCompetitor; trophy*: their non-retail Definition() + field block = tTournamentDefinition x2; Front: its own code already records the extra tTourneyInfo) */
+    /* EVIDENCE: retail ScreenTrophyInfo/ScreenTrophyRoom (DrawBackground x2, GetShapeInfo, Initialize) record an inline-call block
+       pair at every fDefinition read; retail's FIRST tTournamentManager body: its this + tTournamentDefinition* records merge into
+       the field block (no separate TM+tTournamentDefinition body record, merge law).  Descriptive name (inlined everywhere). */
+    tTournamentDefinition *Definition() { return fDefinition; }
 #ifndef NFS4_TSCREENCONGRATS_OWNER   /* retail order: a builtin-only body first (it emits the field block on its own), then the tTourneyInfo bodies */
     int NumRacers() { return fNumRacers; }
 #endif
@@ -15,7 +19,7 @@
     }
 #endif
 #ifndef NFS4_FEMENUDEFS_SURFACE
-#ifndef NFS4_SCREENTOURNSELECT_OWNER_KEYS   /* ScreenTournSelect: its own TourneyInTier(tier, tournament) inline already records this tTourneyInfo */
+#ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H   /* ScreenTrophyRoom: its own TourneyInTier/TourneyInTierSelf inlines (screentrophyroom.cpp) already record this tTourneyInfo */
     tTourneyInfo *CurrentTourney(unsigned char tier, unsigned char tournament) {
         return &fDefinition->fTournaments[fDefinition->fTiers[tier].fTournOffset + tournament];
     }
@@ -46,5 +50,4 @@
     int TierIndex() { return fTier; }
     int TournamentIndex() { return fTournament; }
     int TierCount() { return fNumTiers; }
-    int RankingAt(int i) { return fRanking[i]; }
 #endif

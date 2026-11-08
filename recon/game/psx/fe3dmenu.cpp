@@ -1,7 +1,7 @@
 /* game/psx/fe3dmenu.cpp -- RECONSTRUCTED (showroom geometry and car rendering)
  *   fe3dmenu.obj: Fe3D_InitShowroom, CameraLookAt, Draw_MenuRenderingView.
  *   Its code/data are linked into the frontend overlay despite the GAME/PSX path. */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (INV-A3) NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef TPDEF is the inferred Fe3D_SetViewFromCamera body */
 #include "fe3dmenu_externs.h"
 
 /* Retail fe3dmenu.obj opens .rodata with this unreferenced class tag. */
@@ -328,6 +328,6 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
     R3DCar_InMenu = R3DCar_InMenu & 0x7f;
     sd->head.mirror = sd->head.mirror ^ 1; } return; }
 
-
+/* INFERRED body: retail fe3dmenu.obj TPDEF/param run evidence (matrixtdef, coorddef, matrixtdef, DRender_tView after Draw_MenuRenderingView); never called */ inline void Fe3D_SetViewFromCamera(matrixtdef *camMatrix, coorddef *camPos, matrixtdef *viewMatrix, DRender_tView *Vi) { }
 
 /* end of fe3dmenu.cpp */

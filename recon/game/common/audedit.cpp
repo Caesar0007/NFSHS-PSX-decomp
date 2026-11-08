@@ -2,7 +2,7 @@
  *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained. Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++. */
 #define NFS4_TU_AUDEDIT   /* owner key: CAudioList keep retail's C-style typedef form (2nd TPDEF at the definition) */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (INV-A3) NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef TPDEF is the ObjectFinishedSignAnim ctor field walk */
 #include "audedit_types.h"
 #include "audedit_externs.h"
 

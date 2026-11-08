@@ -64,10 +64,10 @@ struct Chunk {
 #include "shared/Trk_CollideBoomInst.h"
 #include "shared/Trk_AnimateInst.h"
 #include "shared/Trk_SimObject.h"
-#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail bworld.obj: SignAnim without the inline ctor body (matrixtdef would overshoot) */
-#define NFS4_DRAWW_SIGN_CTOR ObjectFinishedSignAnim() {}
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* INV-A3: retail draww.obj Multi state body run has no coorddef param; bworld.obj has it */
+#define NFS4_DRAWW_MULTI_COORD_PARAM
 #else
-#define NFS4_DRAWW_SIGN_CTOR
+#define NFS4_DRAWW_MULTI_COORD_PARAM coorddef *impactVel,
 #endif
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical bworldSm.obj aggregate (SYM: Trk_NewSlice, size 32). */
@@ -142,8 +142,8 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} int Draw(DRender_tView *, Draw_DCache *, int);  } ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { NFS4_DRAWW_SIGN_CTOR
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} int Draw(DRender_tView *, Draw_DCache *, int); /* INFERRED body: retail draww.obj (bworld.obj: + coorddef first) TPDEF/param run evidence (Multi x4, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef); static (no this record), never called */ static void InheritMultiAnimState(NFS4_DRAWW_MULTI_COORD_PARAM Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef); } ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(NFS4_DRAWW_MULTI_COORD_PARAM Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
+typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     int Draw(DRender_tView *, Draw_DCache *, int);
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;

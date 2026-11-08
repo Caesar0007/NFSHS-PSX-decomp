@@ -12,7 +12,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
 /* ---- bworldSm.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
-tNormalCacheEntry BWSM_NormalCache[16];   /* @0x8010f0ac  (bss(zero)) */
+/* BWSM_NormalCache: defined before NormalCache_AddEntry (INV-A3: retail type-record position) */
 Trk_NewSimQuad GlobalSimQuad = {14u};   /* @0x8013c7bc */
 Trk_NewSlice *BWorldSm_slices;   /* @0x8013c7c0  (bss(zero)) */
 int          sim_Handle;   /* @0x8013c7c4  (bss(zero)) */
@@ -956,8 +956,8 @@ bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
   return 0; }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */
-
-
+struct tNormalCacheEntry { short sliceInd; u_char triangleFlag; signed char quadInd; coorddef normal, forward; u_long accessTime; };
+tNormalCacheEntry BWSM_NormalCache[16];   /* @0x8010f0ac  (bss(zero)) */
 #line 1340 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 {

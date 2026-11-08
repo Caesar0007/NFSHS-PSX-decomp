@@ -136,7 +136,7 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}  } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail ai.obj TPDEF/param run evidence (Multi x4, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef); static (no this record), never called */ static void InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef); } ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;

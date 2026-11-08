@@ -78,7 +78,7 @@ int Scene_BuildCustomSceneList(void)
 
 
 
-  if (gGameSceneList != (CSceneList *)0x0) { SceneElem *se; se = gGameSceneList->Elements();
+  if (gGameSceneList != (CSceneList *)0x0) { SceneElem *se; se = (SceneElem *)gGameSceneList->Elements();
 
 
 

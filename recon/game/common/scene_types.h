@@ -50,10 +50,10 @@ struct AnimScript {
 
 
 #include "shared/SceneSortedElem.h"
-typedef struct CSceneList { int id_, numElements_, slice_, versionNumber_; SceneElem *Elements(); } CSceneList;
+typedef struct CSceneList { int id_, numElements_, slice_, versionNumber_; void *Elements(); } CSceneList;   /* INV-A3: untyped return -- retail records CSceneList x3 and no SceneElem field walk here */
 /* The element array follows the 16-byte list header. Retail SYM records a code-less inline scope
    pair ({8 {8 }8 }8, no records) where Scene_BuildCustomSceneList takes it; accessor spelling inferred. */
-inline SceneElem *CSceneList::Elements() { return (SceneElem *)(this + 1); }
+inline void *CSceneList::Elements() { return (void *)(this + 1); }
 #include "shared/AnimDef.h"
 
 struct DRender_tView;
@@ -65,9 +65,9 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail scene.obj TPDEF/param run evidence (Multi x4, coorddef, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef); static (no this record), never called */ static void InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef);
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedMultiAnim;
+} ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
 
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;

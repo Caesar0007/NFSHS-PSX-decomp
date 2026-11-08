@@ -1,7 +1,7 @@
 /* game/psx/track.cpp -- RECONSTRUCTED (NFS4 PSX track load/resources/materials; C++ TU)
  *   29 fns: track init/deinit, art+texture resources, LoadShapesAndMakePmx, material linking,
  *   object bounding spheres, kill data, SaveSurface class. GTE-free. Full SYM-locals applied. */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (INV-A3) NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef TPDEF is the ObjectFinishedSignAnim ctor field walk */
 #include "track_types.h"
 
 /* Retail track.obj opens .rodata with this unreferenced class tag. */
@@ -1009,8 +1009,8 @@ void CalcObjDefPtrs(void)
   offsets[0] = (int)gPersistObjDef->GetData();
   for (int i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
     offsets[i] = offsets[i - 1] + offsets[i]; }
-  Trk_ObjectDef **objDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
-  Track_gObjDefs = objDefs; }
+  void *objDefs = gObjDefOffsetsGroup->GetData();   /* INV-A3: untyped (record-less) -- retail requests no Trk_ObjectDef type here */
+  Track_gObjDefs = (Trk_ObjectDef **)objDefs; }
 
 /* ---- Track_InitPersistentData__FP15SerializedGroup [TRACK.CPP:1212-1292] ----
  * Historical 2026-10-24 receipt; the diagnostics follow-up below supersedes

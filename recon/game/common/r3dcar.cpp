@@ -25,6 +25,14 @@ char         R3DCar_DamageSpoiler[28] = { 0, 0, 0, 0, -128, -128, 0, 0, 0, 0, 0,
 char         R3DCar_CopIndex[6][5] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 3, 4, 5, 5, 6, 6, 6, 6, 6, 7, 8, 9, 9, 9, 10, 11, 12, 13, 14 };   /* @0x8011687c */
 char         R3DCar_CopCountry[15] = { 99, 99, 98, 102, 103, 97, 99, 98, 102, 103, 98, 102, 103, 97, 117 };   /* @0x8011689c */
 char         R3DCar_ObjectVisible[57];   /* @0x801168ac  (bss(zero)) */
+/* INV-A3: InMenu..center moved before shadowVertex (retail type-record order); .sdata/.sbss relative order unchanged */ int          R3DCar_InMenu = 0;   /* @0x8013d324  W67-A4: explicit =0 -- retail emits
+    this cell BEFORE the TU's -G8 string-literal pool (0x8013d328..0x8013d384), so it
+    cannot have been tentative (16E =0 discriminator); initialised objects emit at
+    definition position, tentative ones after every literal.  DO NOT strip the =0. */
+int          R3DCar_aSyncLoading;   /* @0x8013d384  (bss(zero)) */
+matrixtdef   *R3DCar_orientMat;   /* @0x8013d388  (bss(zero)) */
+coorddef     *R3DCar_position;   /* @0x8013d38c  (bss(zero)) */
+Draw_tVertex R3DCar_center;   /* @0x8013d390  (bss(zero)) */
 Draw_tVertex R3DCar_shadowVertex[4];   /* @0x801168e8  (bss(zero)) */
 Transformer_zScene *R3DCar_LoadedScenePointer[2][50];   /* @0x80116908  (bss(zero)) */
 char         R3DCar_LoadedSceneCounter[2][50];   /* @0x80116a98  (bss(zero)) */
@@ -33,15 +41,7 @@ short        R3DCar_LoadedSceneColor[2][50];   /* @0x80116b30  (bss(zero)) */
 short        R3DCar_LoadedSceneVRam[2][50][2];   /* @0x80116bf8  (bss(zero)) */
 int          R3DCar_PositionZ[9];   /* @0x80116d88  (bss(zero)) */
 u_long       *R3DCar_subOtStart[2][2];   /* @0x80116dac  (bss(zero)) */
-R3DCar_tEnvMapInfo R3DCar_EnvMapInfo[28];   /* @0x80116dbc  (bss(zero)) */
-int          R3DCar_InMenu = 0;   /* @0x8013d324  W67-A4: explicit =0 -- retail emits
-    this cell BEFORE the TU's -G8 string-literal pool (0x8013d328..0x8013d384), so it
-    cannot have been tentative (16E =0 discriminator); initialised objects emit at
-    definition position, tentative ones after every literal.  DO NOT strip the =0. */
-int          R3DCar_aSyncLoading;   /* @0x8013d384  (bss(zero)) */
-matrixtdef   *R3DCar_orientMat;   /* @0x8013d388  (bss(zero)) */
-coorddef     *R3DCar_position;   /* @0x8013d38c  (bss(zero)) */
-Draw_tVertex R3DCar_center;   /* @0x8013d390  (bss(zero)) */
+typedef struct R3DCar_tEnvMapInfo { int eScaleX, eScaleY, rideHeight, upgradeHeight; } R3DCar_tEnvMapInfo; R3DCar_tEnvMapInfo R3DCar_EnvMapInfo[28];   /* @0x80116dbc  (bss(zero)) */
 int          R3DCar_shadowFlag;   /* @0x8013d398  (bss(zero)) */
 CVECTOR      R3DCar_shadowColour;   /* @0x8013d39c  (bss(zero)) */
 CVECTOR      R3DCar_eMapColour;   /* @0x8013d3a0  (bss(zero)) */

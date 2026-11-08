@@ -37,12 +37,12 @@ struct Chunk {
 
 
 
-struct tNormalCacheEntry {
-    short sliceInd;
-    u_char triangleFlag;
-    signed char quadInd;
-    coorddef normal, forward;
-    u_long accessTime;
-};
+/* tNormalCacheEntry: defined in bworldSm.cpp before NormalCache_AddEntry (INV-A3: retail type-record position) */
+
+
+
+
+
+
 
 #endif

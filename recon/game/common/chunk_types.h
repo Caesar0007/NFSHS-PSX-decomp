@@ -50,10 +50,10 @@
 
 
 #include "shared/Trk_AnimateInst.h"
-#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* retail track.obj: SignAnim without the inline ctor body (its field re-emission overshoots Trk_ObjectDef/matrixtdef) */
+#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* SignAnim ctor body in both (INV-A3: with the Multi state body before it, track.obj no longer overshoots) */
 #define NFS4_CHUNK_SIGN_CTOR ObjectFinishedSignAnim() {}
 #else
-#define NFS4_CHUNK_SIGN_CTOR
+#define NFS4_CHUNK_SIGN_CTOR ObjectFinishedSignAnim() {}
 #endif
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
@@ -189,9 +189,9 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail chunk.obj TPDEF/param run evidence (Multi x4, coorddef, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef); static (no this record), never called */ static void InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef);
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedMultiAnim;
+} ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
 
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { NFS4_CHUNK_SIGN_CTOR
     matrixtdef finalMatrix;

@@ -26,9 +26,9 @@ struct Texture_pal8bit;
 
 
 
-typedef struct R3DCar_tEnvMapInfo {
-    int eScaleX, eScaleY, rideHeight, upgradeHeight;
-} R3DCar_tEnvMapInfo;
+/* R3DCar_tEnvMapInfo: defined in r3dcar.cpp right before R3DCar_EnvMapInfo (INV-A3: retail type-record position) */
+
+
 
 /* Canonical AITune.obj aggregate used by this translation unit. */
 #include "shared/AITune_tTrackInfo.h"

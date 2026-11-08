@@ -4890,7 +4890,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 #line 2345 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 {
-  ObjectAnim *anim; short light; Trk_SimObject *simObjs; Group *instGroup; int doFrustumClip; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; matrixtdef matrix;
+  short light; Trk_SimObject *simObjs; Group *instGroup; int doFrustumClip; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; matrixtdef matrix;
   simObjs = gObjInfo->simObjs;
   instGroup = gObjInfo->objInstanceBuf; objInstance = (Trk_SimpleInst *)instGroup->GetData();
   doFrustumClip = gObjInfo->doFrustumClip;
@@ -5130,7 +5130,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 
 
-            anim = Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex); if (!anim) {
+            if (!Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex)) {
               int t1, t2, t3, sx, sy, sz;
 
 
@@ -5171,7 +5171,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
             }
 
 
-            { ObjectAnim *anim = Object_GetAnim( simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex); anim->Draw(Vi,(Draw_DCache *)0x1f800000,objectOffset);
+            { Object_GetAnim( simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex)->Draw(Vi,(Draw_DCache *)0x1f800000,objectOffset);
             }
             break;
           }

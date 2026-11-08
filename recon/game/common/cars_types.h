@@ -10,8 +10,8 @@
 #define NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #define NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #define NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
-#define NFS4_COPSPEAK_KEEP_CAMERA_VIEW
-#define NFS4_COPSPEAK_KEEP_FORCE_FOCUS
+/* camera_info + forceFocus_t: the copspeak path omits camera_info and views forceFocus_t as int; retail cars.obj records
+   forceFocus_t as its LAST type (after Speaker) -> both are defined in the tail block below */
 #define NFS4_COLOR_OMIT_UDFF_HANDLE
 #define NFS4_COLOR_HOOK_AFTER_CAR "cars_types.h"   /* retail: physics/AIDataRecord/anim/object types right after Car_tObj (second pass below) */
 #include "copspeak_types.h"
@@ -72,15 +72,15 @@ typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAn
 #define NFS4_CARS_TAIL_DONE
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 #undef NFS4_COLOR_OMIT_UDFF_HANDLE
-#undef NFS4_COPSPEAK_KEEP_FORCE_FOCUS
-#undef NFS4_COPSPEAK_KEEP_CAMERA_VIEW
+
+
 #undef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 #undef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #undef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #undef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-
-
+enum forceFocus_t { FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2 };   /* retail cars.obj: forceFocus_t is the last type record, after Speaker */
+#include "shared/camera_info.h"   /* its forceFocus field keeps the enum referenced (SLINK) */
 
 typedef int CarLogic_tObservations[1][3];
 

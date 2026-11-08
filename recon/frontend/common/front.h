@@ -20,6 +20,7 @@
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO "front_after_video.h"   /* retail: tScreenMain + memory-card records right after tVideo */
 #define NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR "front_before_standings.h"   /* retail: Duel, PinkSlipsCarSelect, TournSelect before the standings */
 #define NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS "front_after_standings.h"   /* retail: PinkSlipStandings .. tScreenUserName before the congrats enums */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail Front: tShapeInformation + tScreen definition right after tActiveLine (forward copy earlier) */
 #include "felines_types.h"   /* retail Front: pads, MATRIX core, draw leaf, tTexture_ShapeInfo, kernpair, then the frontend core */
 #include "front_types.h"
 #include "front_externs.h"

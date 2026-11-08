@@ -6,14 +6,14 @@
 #include "shared/tpdef_keys.h"   /* typedef-form keys (owner-selected) */
 #if !defined(NFS4_FE_CORE_FELINES_LATE) && !defined(NFS4_FE_CORE_FELINES_AT_LEAF)   /* FELINES_LATE: frontend core before the MATRIX core; FELINES_AT_LEAF (owner opt-in, with NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF): felines only at the after-leaf site */
 #include "felines_types.h"
+#elif defined(NFS4_FE_CORE_AT_LEAF_HDR)   /* FELINES_AT_LEAF owners whose MATRIX core still precedes the frontend core (ScreenController: draw_leaf_types.h) */
+#include NFS4_FE_CORE_AT_LEAF_HDR
 #endif
 #if defined(NFS4_FE_CORE_GS_EARLY) && !defined(NFS4_FE_CORE_FELINES_LATE)   /* retail: GameSetup before tMenuCommandType (feinput femenu fetools ...) */
 #include "../../game/common/gamesetup_leaf_types.h"
-#endif
-/* These source spellings are not typedef records in FEMission.obj. */
+#endif   /* below: these source spellings are not typedef records in FEMission.obj */
 #define byte unsigned char
 #define uint unsigned int
-
 struct tMenu;
 struct tScreen;
 

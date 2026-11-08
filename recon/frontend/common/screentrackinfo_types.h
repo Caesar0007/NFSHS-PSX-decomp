@@ -34,6 +34,9 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
+#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* ScreenAudio: tMenu right after its own tMenuItemGoToMenuButton (retail) */
+#include "fe_core_tmenu.h"
+#endif
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* ScreenAudio: draw_leaf phase 2 (PCOORD16 .. Draw_*) after the menu core */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, then kernpair */
 #include "felines_types.h"
@@ -59,9 +62,6 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
 #endif
-
-
-
 
 
 

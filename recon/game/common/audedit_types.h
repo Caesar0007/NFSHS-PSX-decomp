@@ -65,7 +65,7 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 } ObjectFinishedMultiAnim;
 

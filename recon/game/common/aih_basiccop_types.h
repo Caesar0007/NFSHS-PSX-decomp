@@ -43,12 +43,12 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-struct ObjectFinishedMultiAnim : public ObjectAnim { };
-struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
-};
+} ObjectFinishedSignAnim;
 #include "shared/FLARE_PIECE_DEF.h"   /* retail aih_basiccop.obj: right after ObjectFinishedSignAnim */
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"

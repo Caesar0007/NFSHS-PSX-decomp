@@ -64,11 +64,11 @@ struct Chunk {
 #include "shared/Trk_CollideBoomInst.h"
 #include "shared/Trk_AnimateInst.h"
 #include "shared/Trk_SimObject.h"
-
-
-
-
-
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail bworld.obj: SignAnim without the inline ctor body (matrixtdef would overshoot) */
+#define NFS4_DRAWW_SIGN_CTOR ObjectFinishedSignAnim() {}
+#else
+#define NFS4_DRAWW_SIGN_CTOR
+#endif
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical bworldSm.obj aggregate (SYM: Trk_NewSlice, size 32). */
 #include "shared/Trk_NewSlice.h"
@@ -142,8 +142,8 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { int Draw(DRender_tView *, Draw_DCache *, int);  } ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim {
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} int Draw(DRender_tView *, Draw_DCache *, int);  } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedSignAnim : public ObjectAnim { NFS4_DRAWW_SIGN_CTOR
     int Draw(DRender_tView *, Draw_DCache *, int);
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;

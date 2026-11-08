@@ -139,7 +139,7 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
 };
 #line 131 "recon/frontend/common/screencongrats_types.h"
 #else
-struct tScreenTournamentTrophy;
+#include "screencongrats_tt.h"   /* struct tScreenTournamentTrophy; (owner hook NFS4_SCREENCONGRATS_HOOK_TT: the definition here) */
 struct tScreenBeTheCopCongrats;
 struct tScreenTournamentCongrats;
 struct tScreenPinkSlipCongrats : public tScreenCongrats {

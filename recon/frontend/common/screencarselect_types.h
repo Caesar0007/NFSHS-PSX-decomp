@@ -167,6 +167,11 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     void UpdateOpponentVideoWall(tCarInfo &);
 #line 285 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
 };
+#endif
+#ifdef NFS4_SCREENCARSELECT_HOOK_AFTER_DUEL   /* owner records right after tScreenCarSelect(Duel), before tScreenCarSelectTwoPlayer (Front: tScreenCarSelectDuel) */
+#include NFS4_SCREENCARSELECT_HOOK_AFTER_DUEL
+#endif
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE   /* closed by the #endif after the anchor */
 #line 178 "recon/frontend/common/screencarselect_types.h"
 #endif
 

@@ -21,6 +21,8 @@
 #define NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR "front_before_standings.h"   /* retail: Duel, PinkSlipsCarSelect, TournSelect before the standings */
 #define NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS "front_after_standings.h"   /* retail: PinkSlipStandings .. tScreenUserName before the congrats enums */
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail Front: tShapeInformation + tScreen definition right after tActiveLine (forward copy earlier) */
+#define NFS4_SCREENCARSELECT_HOOK_AFTER_DUEL "front_duel.h"   /* retail: tScreenCarSelectDuel right after tScreenCarSelect */
+#define NFS4_SCREENCONGRATS_HOOK_TT "front_tournamenttrophy.h"   /* retail: tScreenTournamentTrophy right after tScreenCongrats */
 #include "felines_types.h"   /* retail Front: pads, MATRIX core, draw leaf, tTexture_ShapeInfo, kernpair, then the frontend core */
 #include "front_types.h"
 #include "front_externs.h"

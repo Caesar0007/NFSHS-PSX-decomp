@@ -24,7 +24,6 @@
 #endif
 #ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "shared/Force_tGlobal.h"
-#include "shared/tRecordBuffer.h"   /* retail: right after tScreenControllerConfig (2 pairs off; the struct keeps its lines) */
 
 
 
@@ -57,6 +56,7 @@ struct tScreenControllerConfig : public tScreen {
 
     tScreenControllerConfig();
 };
+#include "shared/tRecordBuffer.h"   /* retail: right after tScreenControllerConfig (2 pairs off; the struct keeps its lines) */
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "screenmain.h"
@@ -75,16 +75,16 @@ struct tScreenControllerConfig : public tScreen {
 
 #include "screenaudio.h"
 
-struct tScreenTournamentTrophy : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    short fShapeCount;
-    char fDoUpdate;
-    /* implicit ctor (retail declares none: no body block in SYM) */
-};
+#include "front_tournamenttrophy.h"   /* tScreenTournamentTrophy (moved verbatim) */
+
+
+
+
+
+
+
+
+
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */

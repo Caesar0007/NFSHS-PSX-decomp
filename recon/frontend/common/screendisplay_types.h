@@ -7,6 +7,9 @@
 #include "fe_core_types.h"
 #ifndef NFS4_SCREENDISPLAY_IN_MENUS_PASS
 #include "screendisplay_menuitems.h"   /* tMenuItemLeftRightChoice / Slider / GoToMenuButton (an owner may include it earlier: retail right after tMenuItemInteractive) */
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_MENUITEMS   /* owner records right after tMenuItemGoToMenuButton (retail femenuextended/fecheats: tActiveLine) */
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_MENUITEMS
+#endif
 #ifndef NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
 #include "felines_types.h"   /* no-op unless NFS4_FE_CORE_FELINES_LATE (fe core emitted before the core types) */
 #endif
@@ -68,9 +71,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
 
 
 

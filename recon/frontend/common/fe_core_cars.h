@@ -44,6 +44,11 @@ enum tCarNameLength {
     cnl_Short = 1,
     cnl_Long = 2
 };
+#ifdef NFS4_FE_CORE_CARS_HOOK_BEFORE_MANAGER   /* owner hook: between tCarNameLength and tCarManager (retail ScreenCarSelect: tCarStatType) */
+#define NFS4_FE_CORE_CARS_IN_HOOK
+#include NFS4_FE_CORE_CARS_HOOK_BEFORE_MANAGER
+#undef NFS4_FE_CORE_CARS_IN_HOOK
+#endif
 
 #ifdef NFS4_FE_CORE_CARS_HOOK_MANAGER   /* owner hook: the owner spells its own tCarManager (fecars) */
 #define NFS4_FE_CORE_CARS_IN_HOOK

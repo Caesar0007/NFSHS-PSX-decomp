@@ -10,20 +10,20 @@
 /* The 14 speech-token wrappers, as the retail debug records of these functions type them (Speech.obj's block: each is a
  * struct with the single member `unsigned long flags`; SPCHEVNT.C is C, so the tags need the typedef). */
 #ifndef SPCHEVNT_IN_SPEECH_OBJ
-typedef struct SPCHNFSType_POSITION { unsigned long flags; } SPCHNFSType_POSITION;
-typedef struct SPCHNFSType_DISTANCE { unsigned long flags; } SPCHNFSType_DISTANCE;
-typedef struct SPCHNFSType_COLOUR { unsigned long flags; } SPCHNFSType_COLOUR;
-typedef struct SPCHNFSType_ACCIDENT { unsigned long flags; } SPCHNFSType_ACCIDENT;
-typedef struct SPCHNFSType_AMBULANCE { unsigned long flags; } SPCHNFSType_AMBULANCE;
-typedef struct SPCHNFSType_PURS_UPDT { unsigned long flags; } SPCHNFSType_PURS_UPDT;
-typedef struct SPCHNFSType_ARREST { unsigned long flags; } SPCHNFSType_ARREST;
-typedef struct SPCHNFSType_vs_RDBLK_SSTRP { unsigned long flags; } SPCHNFSType_vs_RDBLK_SSTRP;
-typedef struct SPCHNFSType_PERP_NAME { unsigned long flags; } SPCHNFSType_PERP_NAME;
-typedef struct SPCHNFSType_CONFIRM { unsigned long flags; } SPCHNFSType_CONFIRM;
-typedef struct SPCHNFSType_SPIKE_BELT_SIDE { unsigned long flags; } SPCHNFSType_SPIKE_BELT_SIDE;
-typedef struct SPCHNFSType_REVINTRO { unsigned long flags; } SPCHNFSType_REVINTRO;
-typedef struct SPCHNFSType_vs_KMH_MPH { unsigned long flags; } SPCHNFSType_vs_KMH_MPH;
-typedef struct SPCHNFSType_VOICE { unsigned long flags; } SPCHNFSType_VOICE;
+typedef struct { unsigned long flags; } SPCHNFSType_POSITION;
+typedef struct { unsigned long flags; } SPCHNFSType_DISTANCE;
+typedef struct { unsigned long flags; } SPCHNFSType_COLOUR;
+typedef struct { unsigned long flags; } SPCHNFSType_ACCIDENT;
+typedef struct { unsigned long flags; } SPCHNFSType_AMBULANCE;
+typedef struct { unsigned long flags; } SPCHNFSType_PURS_UPDT;
+typedef struct { unsigned long flags; } SPCHNFSType_ARREST;
+typedef struct { unsigned long flags; } SPCHNFSType_vs_RDBLK_SSTRP;
+typedef struct { unsigned long flags; } SPCHNFSType_PERP_NAME;
+typedef struct { unsigned long flags; } SPCHNFSType_CONFIRM;
+typedef struct { unsigned long flags; } SPCHNFSType_SPIKE_BELT_SIDE;
+typedef struct { unsigned long flags; } SPCHNFSType_REVINTRO;
+typedef struct { unsigned long flags; } SPCHNFSType_vs_KMH_MPH;
+typedef struct { unsigned long flags; } SPCHNFSType_VOICE;
 
 #endif
 

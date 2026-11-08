@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_COLOUR_H
 #define NFS4_SHARED_SPCHNFSTYPE_COLOUR_H
 
-struct SPCHNFSType_COLOUR { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_COLOUR;
 #endif

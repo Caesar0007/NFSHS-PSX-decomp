@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_PERP_NAME_H
 #define NFS4_SHARED_SPCHNFSTYPE_PERP_NAME_H
 
-struct SPCHNFSType_PERP_NAME { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_PERP_NAME;
 #endif

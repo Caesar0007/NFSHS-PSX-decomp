@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_POSITION_H
 #define NFS4_SHARED_SPCHNFSTYPE_POSITION_H
 
-struct SPCHNFSType_POSITION { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_POSITION;
 #endif

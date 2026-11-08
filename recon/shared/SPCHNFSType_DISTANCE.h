@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_DISTANCE_H
 #define NFS4_SHARED_SPCHNFSTYPE_DISTANCE_H
 
-struct SPCHNFSType_DISTANCE { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_DISTANCE;
 #endif

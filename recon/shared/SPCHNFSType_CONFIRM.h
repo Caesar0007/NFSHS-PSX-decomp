@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_CONFIRM_H
 #define NFS4_SHARED_SPCHNFSTYPE_CONFIRM_H
 
-struct SPCHNFSType_CONFIRM { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_CONFIRM;
 #endif

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_SPIKE_BELT_SIDE_H
 #define NFS4_SHARED_SPCHNFSTYPE_SPIKE_BELT_SIDE_H
 
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_SPIKE_BELT_SIDE;
 #endif

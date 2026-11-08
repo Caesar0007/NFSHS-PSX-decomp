@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_VOICE_H
 #define NFS4_SHARED_SPCHNFSTYPE_VOICE_H
 
-struct SPCHNFSType_VOICE { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_VOICE;
 #endif

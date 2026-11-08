@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_ARREST_H
 #define NFS4_SHARED_SPCHNFSTYPE_ARREST_H
 
-struct SPCHNFSType_ARREST { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_ARREST;
 #endif

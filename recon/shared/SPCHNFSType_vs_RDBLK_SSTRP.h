@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_VS_RDBLK_SSTRP_H
 #define NFS4_SHARED_SPCHNFSTYPE_VS_RDBLK_SSTRP_H
 
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_vs_RDBLK_SSTRP;
 #endif

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_ACCIDENT_H
 #define NFS4_SHARED_SPCHNFSTYPE_ACCIDENT_H
 
-struct SPCHNFSType_ACCIDENT { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_ACCIDENT;
 #endif

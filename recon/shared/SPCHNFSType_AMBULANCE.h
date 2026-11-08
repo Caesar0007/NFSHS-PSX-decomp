@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_AMBULANCE_H
 #define NFS4_SHARED_SPCHNFSTYPE_AMBULANCE_H
 
-struct SPCHNFSType_AMBULANCE { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_AMBULANCE;
 #endif

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SPCHNFSTYPE_PURS_UPDT_H
 #define NFS4_SHARED_SPCHNFSTYPE_PURS_UPDT_H
 
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
+typedef struct { u_long flags; } SPCHNFSType_PURS_UPDT;
 #endif

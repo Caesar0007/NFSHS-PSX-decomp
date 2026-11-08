@@ -191,7 +191,7 @@ int AIHigh_BTC_Perp::CheckForControlsPressed()
 
 
 
-inline bool AIHigh_BTC_HumanCop::HasCatchTime() { return timeLeft_ > 5; }
+
 
 /* ---- HandlePullOver__15AIHigh_BTC_Perp [retail AIH_BTCPERP.CPP:153-222; native ownership exact, SLD open] ---- */
 /* MATCH: 118/118 instructions; all three native local records and11 regions.
@@ -431,12 +431,12 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
 
 
-inline void AIHigh_BTC_HumanCop::SetNeedPerp(int needPerp) { needPerp_ = needPerp; }
-inline int AIHigh_BTC_HumanCop::NeedsPerp() { return copIndex_ == 0 ? needPerp_ : 0; }
-inline int AIHigh_BTC_HumanCop::CurrentStage() { return currentStage_; }
-inline int AIHigh_BTC_HumanCop::InitialDirection() { return initialDirection_; }
-inline int AIHigh_BTC_HumanCop::InitialMovement() { return initialMovement_; }
-inline void AIHigh_BTC_HumanCop::SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
+
+
+
+
+
+
 
 inline void AICop_BasicPerpInfo::SetCopsAssigned(copType type, int count) {
   copsAssigned_[type] = count;

@@ -185,7 +185,7 @@ typedef struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* C-style typedef fo
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BTC_Cop;
 
-typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
+struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct + 10 in-class accessors = 11 TPDEFs per includer */
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
     enum {
         WINGMAN_NONE = 0,
@@ -196,13 +196,13 @@ typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
         WINGMAN_BLOCKADER_ACTIVE = 5
     } wingmanStatus_;
     int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
-    void SetNeedPerp(int); /* inferred flag setter: retail records this in ClearForNewStage */
-    int CurrentStage(); /* inferred stage getter: retail records this at the stage read */
-    int InitialDirection(); /* inferred getter for the placement direction */
-    int InitialMovement(); /* inferred getter for the placement movement */
-    bool HasCatchTime(); /* inferred query: HumanCop receiver, timeLeft_ > 5 in retail */
-    int NeedsPerp(); /* inferred lead-cop request query: copIndex_ == 0 ? needPerp_ : 0 */
-    void SetRequestedDesiredSpeed(int); /* inferred setter at the three speed arms */
+    inline void SetNeedPerp(int needPerp) { needPerp_ = needPerp; } /* inferred flag setter: retail records this in ClearForNewStage */
+    inline int CurrentStage() { return currentStage_; } /* inferred stage getter: retail records this at the stage read */
+    inline int InitialDirection() { return initialDirection_; } inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; } /* placement direction pair */
+    inline int InitialMovement() { return initialMovement_; } inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; } /* placement movement pair */
+    inline bool HasCatchTime() { return timeLeft_ > 5; } /* inferred query: HumanCop receiver, timeLeft_ > 5 in retail */
+    inline int NeedsPerp() { return copIndex_ == 0 ? needPerp_ : 0; } /* inferred lead-cop request query */
+    inline void SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; } inline int RequestedDesiredSpeed() { return requestedDesiredSpeed_; } /* speed pair */
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
     int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
     void ReleaseAndStartChase(AIHigh_BTC_Perp *p);
@@ -222,7 +222,7 @@ typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-} AIHigh_BTC_HumanCop;
+};
 #elif defined(NFS4_AIHIGH_TYPE_PART)
 /* Reconstruction-only part routing preserves the existing owner type sets.  This is not a claim of the original preprocessor/include dependency graph. */
 #if defined(NFS4_AIH_COP_OWNER) || defined(NFS4_AIH_TRAF_OWNER)   /* AIH_Cop.obj / AIH_Traf.obj emit standalone copies of the inline members below; SLINK /strip removed them (P6 Route C 2026-11-07) */

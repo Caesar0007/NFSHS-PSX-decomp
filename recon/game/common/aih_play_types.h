@@ -1,4 +1,4 @@
-#define NFS4_AISTATE_NONE_KEEP   /* aih_play.obj's exact owner delta over the shared AI hierarchy; key: keep AIState_None bodies (Car_tObj count) */
+/* aih_play.obj's exact owner delta over the shared AI hierarchy. */
 #if !defined(NFS4_GAME_COMMON_AIH_PLAY_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
 #define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "aih_play_types.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t (second pass below) */
@@ -25,51 +25,51 @@ enum forceFocus_t {
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART
 
-#include "shared/SPCHNFSType_POSITION.h"
-#include "shared/SPCHNFSType_DISTANCE.h"
-#include "shared/SPCHNFSType_COLOUR.h"
-#include "shared/SPCHNFSType_ACCIDENT.h"
-#include "shared/SPCHNFSType_AMBULANCE.h"
-#include "shared/SPCHNFSType_PURS_UPDT.h"
-#include "shared/SPCHNFSType_ARREST.h"
-#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
-#include "shared/SPCHNFSType_PERP_NAME.h"
-#include "shared/SPCHNFSType_CONFIRM.h"
-#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
-#include "shared/SPCHNFSType_REVINTRO.h"
+#define NFS4_SPEECH_AI_VIEW   /* speech_class.h: Speech + Speaker + banks, no MobileSpeaker/DispatchSpeaker (retail AI-object view) */
+#include "speech_class.h"   /* retail: the full Speech class graph (Speaker + CarBank/LocationBank/CallSignBank with their inline bodies) is recorded in this AI object */
 
-#include "shared/CarBank.h"
-#include "shared/LocationBank.h"
-#include "shared/CallSignBank.h"
 
-/* Speech's nested banks are retained although its outer definition is not. */
-struct { CarBank Mobile[9], Dispatch[9]; };
-struct { LocationBank Mobile[16], Dispatch[16]; };
-struct { CallSignBank Mobile, Dispatch; };
 
-/* Speech, as this surface needs it: the nested polymorphic Speaker and the two static finders */
-struct Speech {
-    struct Speaker {
-        SPCHNFSType_POSITION fPosition;
-        SPCHNFSType_DISTANCE fDistance;
-        SPCHNFSType_COLOUR fColour;
-        SPCHNFSType_ACCIDENT fAccident;
-        SPCHNFSType_AMBULANCE fAmbulance;
-        SPCHNFSType_vs_RDBLK_SSTRP fBlockade;
-        SPCHNFSType_REVINTRO fReverse;
-        SPCHNFSType_CONFIRM fConfirm;
-        SPCHNFSType_PERP_NAME fPerpName;
-        SPCHNFSType_SPIKE_BELT_SIDE fSpikeSide;
-        SPCHNFSType_PURS_UPDT fUpdate;
-        SPCHNFSType_ARREST fArrest;
-        int fCar, fLocation, fFrom, fTo, fWing;
-        bool fHavePerp;
-        Speaker *fSub;
-#include "speech_speaker_virtuals.inc"
-    };
-    static Speaker *Dispatch();
-    static Speaker *Mobile(Car_tObj *carObj);
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Canonical foreign aggregates used by this translation unit. */

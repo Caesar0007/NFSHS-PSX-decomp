@@ -7,9 +7,7 @@
  * Late/implicit declarations are not a portable C++ interface. */
 extern "C" int strlen(char *);
 extern "C" int strncmp(char *, char *, int);
-
 struct Car_tObj;
-
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"
 #include "shared/SPCHNFSType_COLOUR.h"
@@ -146,12 +144,15 @@ struct Speech {
         inline SPCHNFSType_DISTANCE *Distance() { return &fDistance; }
         inline SPCHNFSType_COLOUR *Colour() { return &fColour; }
 #if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* INFERRED bodies: retail cars/copspeak/nfs3.obj Speaker TPDEF run = 13 more unused in-class inline bodies (4 Car_tObj*, 1 LocationBank*, 1 CallSignBank*, 1 LocationBank*+CarBank*, 6 no class param; INVA speaker evidence); speech.obj (owner) excluded */
-        inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { } inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } inline void InferredOp6() { }
+#if !defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)   /* retail aih_cop.obj records none of the four Car_tObj-param bodies (per-TU exclusion) */
+        inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { }
 #endif
-        /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local
-           bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
+        inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } inline void InferredOp6() { }
+#endif
+        /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
     };
-    /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
+    struct MobileSpeaker; struct DispatchSpeaker;   /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
+#if !defined(NFS4_SPEECH_AI_VIEW)   /* AI objects (retail aih_*.obj) record no MobileSpeaker/DispatchSpeaker class: both are only forward-declared there */
     struct DispatchSpeaker : public Speaker {
         /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
            (MobileSpeaker's user constructor adds a body block after that pair) */
@@ -179,10 +180,8 @@ struct Speech {
         void Status();
         void Report(Car_tObj *perp);
     };
-
     struct MobileSpeaker : public Speaker {
-        /* inline ctor: retail's Speech::Speech() shows it expanded in place */
-        MobileSpeaker() { fCarObj = 0; }
+        MobileSpeaker() { fCarObj = 0; }   /* inline ctor: retail's Speech::Speech() shows it expanded in place */
         SPCHNFSType_VOICE fVoice;
         SPCHNFSType_vs_KMH_MPH fSpeedType;
         int fSpeed, fUnit;
@@ -198,8 +197,7 @@ struct Speech {
         inline int Speed() { return fSpeed; }
         inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }
         inline void ClearCarObj();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
-        /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
-        inline bool IsCar(Car_tObj *carObj);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
+        inline bool IsCar(Car_tObj *carObj);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */   /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
         inline bool IsFree();   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
         Car_tObj *Perp();
         int Unit();
@@ -226,6 +224,7 @@ struct Speech {
         void Status();
         void Engage(Car_tObj *perp);
     };
+#endif
     int fLocationCount;
     bool fFileOpen;
     int fFileHandle;
@@ -252,7 +251,9 @@ struct Speech {
     static inline CarBank *DispatchCarBank(int carIndex) { return &fgSpeech->fCarBank.Dispatch[carIndex]; }
     /* SubmitRequest: retail shows a variable-free inline pair where the dispatch status is reset, and a second
        one right after the bank offset is taken that emits no instructions; both names are inferred */
+#if !defined(NFS4_SPEECH_AI_VIEW)
     static inline void ResetStatus() { fgSpeech->fDispatch->fStatusSub = 0; fgSpeech->fDispatch->fStatusCount = 0x200; }
+#endif
     static inline void Idle() {}
     /* bank accessors: retail's one-line Speaker accessors are each a single inline-call pair -- a member on
        the instance (`this` only) or a forwarding member (`this` + `slice`) */
@@ -271,8 +272,7 @@ struct Speech {
                          int h, int hd) {
         return a == period && b == h && c == hd && d == 'r';
     }
-    /* pointer form (CalculateBankSize): retail's pair records `this` and the four char locals, like ReadBE32 */
-    inline bool IsHeader(char *ext, int period, int h, int hd) {
+    inline bool IsHeader(char *ext, int period, int h, int hd) {   /* pointer form (CalculateBankSize): retail's pair records `this` and the four char locals, like ReadBE32 */
         int a = (u_char)ext[0];
         int b = (u_char)ext[1];
         int c = (u_char)ext[2];

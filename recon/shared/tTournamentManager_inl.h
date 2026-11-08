@@ -10,7 +10,6 @@
     int NumRacers() { return fNumRacers; }
     int PreviousPlacement() { return (signed char)fPrevBestPlacement; }
 #endif
-#ifndef NFS4_FRONTEND_COMMON_FRONT_TYPES_H   /* Front: its own free inlines (front_externs.h) stand for the accessors below */
 #if !defined(NFS4_TSCREENCONGRATS_OWNER) && !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)
     tTourneyInfo *CurrentTourney() {
         return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
@@ -29,7 +28,6 @@
 #endif
 #if !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)
     int CurrentTrack() { return fCurrentTrack; }
-#endif
 #endif
     /* EVIDENCE: retail Front_InitOpponentCars (FRONT.CPP) records TWO empty inline-call block pairs at relative line 89
        (right after UpdateCarLineup()); the reconstruction had only NumRacers().  The second is this accessor behind

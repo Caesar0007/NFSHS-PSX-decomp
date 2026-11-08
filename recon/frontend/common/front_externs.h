@@ -179,21 +179,8 @@ static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 /* Retail front.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-/* retail's SYM opens Front_GetLapsForType and Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
-   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
-static inline tTourneyInfo *CurrentTourney(void)
-{
-  return tournamentManager.fDefinition->fTournaments +
-         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-          tournamentManager.fTournament);
-}
-
-/* ORIGINAL-NAME-UNRESOLVED: record-less inline pairs in Front_InitOpponentCars (tier/tournament lookup at 1392, racer count at 1401) */
-static inline tTourneyInfo *TourneyAt(unsigned char tier, unsigned char tournament)
-{
-  return &tournamentManager.fDefinition->fTournaments[tournamentManager.fDefinition->fTiers[tier].fTournOffset + tournament];
-}
-static inline int NumRacers(void) { return tournamentManager.fNumRacers; }
+/* Front_GetLapsForType / Front_InitTourneyTraffic / Front_InitOpponentCars read the tourney through tTournamentManager's
+   in-class inline members CurrentTourney(), CurrentTourney(tier, tournament) and NumRacers() (shared/tTournamentManager_inl.h). */
 
 /* Header inline (retail tags its code at the caller line, not at a definition line in FRONT.CPP). */
 static inline int FE_Ticks(void) { return ticks; }

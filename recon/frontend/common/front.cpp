@@ -1378,14 +1378,14 @@ int Front_GetLapsForType(void)
 
 
 {
-  short lapconv[2] = {2, 4};
+  short lapconv[2] = {2, 4}; tTourneyInfo *tourn;   /* DEVICE (exact-only) */ /* retail Front.obj records a tTourneyInfo TPDEF in this function (between Front_Menu's tTrackInformation and the next tFEStream) with no SYM local: a combined-away temp */
 
 
   switch (frontEnd.raceType) {
   case RaceType_Tournament:
 
 
-    return CurrentTourney()->fNumLaps;
+    tourn = tournamentManager.CurrentTourney(); return tourn->fNumLaps;
     break;
 
   default:
@@ -1575,7 +1575,7 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
 {
   tCarModels carModel;
   char carColor; short i; short maxTraffic; tTourneyInfo *tourn; maxTraffic = 3; carColor = '\0';
-  tourn = CurrentTourney();
+  tourn = tournamentManager.CurrentTourney();
 
 
 
@@ -1739,20 +1739,20 @@ static void Front_InitOpponentCars(tFEStream &streamData)
 
 
     if (frontEnd.raceType == RaceType_Tournament)
-    { opponentClass = (tCarClassType)CurrentTourney()->fOpponentCarClass;
+    { opponentClass = (tCarClassType)tournamentManager.CurrentTourney()->fOpponentCarClass;
     } else { opponentClass = cct_OpenClass;
     }
     if (opponentClass == cct_OpenClass)
-    { tourn = TourneyAt(2, streamData.playerCars[0].fCarID);
+    { tourn = tournamentManager.CurrentTourney(2, streamData.playerCars[0].fCarID);
 
 
       usePlayerUpgrades = 1;
     }
-    else { tourn = CurrentTourney();
+    else { tourn = tournamentManager.CurrentTourney();
     }
 
     if (frontEnd.raceType == RaceType_Tournament)
-    { numOpponents = NumRacers() + -1;
+    { numOpponents = tournamentManager.NumRacers() + -1;
     } else { numOpponents = 5; }
 
       i = 0; if (0 < numOpponents) { do {
@@ -1808,7 +1808,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
     { tournamentManager.UpdateCarLineup();
 
 
-      streamData.numOpponents = NumRacers() + -1;
+      streamData.numOpponents = tournamentManager.NumRacers() + -1;
       carLineup = tournamentManager.GetCarLineup(); for (i = 0; i < numOpponents + 1; i = i + 1) {
 
         streamData.carLineup[i].personality = carLineup[i].personality;

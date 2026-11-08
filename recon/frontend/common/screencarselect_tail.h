@@ -2,6 +2,9 @@
  * graph (retail ScreenCarSelect/FEMenuDefs: after the car-select screens), then -- ScreenCarSelect only
  * (NFS4_SCREENCARSELECT_TAIL_LATE) -- AudioMus_tSongEntry (retail: after the color graph). */
 #include "../../game/common/color_types.h"
+#ifdef NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR   /* owner records right after the color.obj graph (FEMenuDefs: mission records) */
+#include NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR
+#endif
 #ifdef NFS4_SCREENCARSELECT_TAIL_LATE
 #include "shared/AudioMus_tSongEntry.h"
 #endif

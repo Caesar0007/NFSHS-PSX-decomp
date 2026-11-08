@@ -68,79 +68,79 @@ struct GameSetup_tData;   /* incomplete here: owner object records it; members r
 
 #endif
 
-#include "shared/AudioMus_tSongEntry.h"
-#include "shared/AudioMus_tSongList.h"
+#include "femenudefs_tail.h"   /* FE3d .. tScreenUserName (moved verbatim; the fedialog.h part stays here) */
 
 
-typedef COORD16 FE3d_zVertex;
-typedef CVECTOR FE3d_zColor;
-typedef SVECTOR FE3d_zNormal;
 
-#include "shared/FE3d_zUV.h"
-#include "shared/FE3d_zFacet.h"
-#include "shared/FE3d_zObj.h"
-#include "shared/Force_tGlobal.h"
-#include "shared/tMissionTierInfo.h"
-#include "shared/tMissionInfo.h"
-#include "shared/tStageInfo.h"
-#include "shared/tAcademyDefinition.h"
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 #include "fedialog.h"
 #endif
 
-#include "shared/MCRDFILE_def.h"
 
 
-typedef MCRDFILE_def MCRDFILE;
 
-typedef short tArrowLocation[6];
-typedef short tTextLocation[5];
 
-struct tScreenMemcard : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    int theNFS4icon, card;
-    CARDINFO_def *pCI;
-    char fMemTitle[15][32];
-    char goticon[15];
-    u_char numicon[15], numblock[15];
-    MCRDFILE_def fMemFile[15];
-    u_short fMemIconClutId[15];
-    short fFadeIcon[15];
-    bool fReadyToGetNewIcons, fInitedMemCard;
-    char fMemCardMessage[40];
-    int fMemCardMessageTextSys, message;
-    short memcardanimframe, count, cursorPosition;
-    int checkingstart;
-    bool fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons;
-    int fScreenFadeReadyTick;
-    short player;
-    bool fGetNewIcons;
-#ifdef NFS4_FRONT_SURFACE
-    tScreenMemcard();
-#endif
-    inline void SetMessage(int newMessage) { message = newMessage; }
-};
 
-struct tScreenUserName : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    tOptionsMenu *callingMenu;
-    short fTextFade;
-    bool fInTransition;
-    char fRowList[10][9];
-#ifdef NFS4_FRONT_SURFACE
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#endif
-    inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NFS4_FEMENUDEFS_NO_FEAPPLICATION
 struct tFEApplication {
@@ -168,167 +168,167 @@ struct tFEApplication {
 };
 #endif
 
-#ifndef NFS4_FEMENUDEFS_NO_GLOBALMENUDEFS
-struct tGlobalMenuDefs {
-    tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace, itemMainTwoPlayerRace, itemMainTrophyRoom, itemMainOptions;
-    tMenuNFS4 menuMain;
-    tMenuItemGoToMenuNFS4Button itemTournTrophyRoom, itemSETrophyRoom;
-    tMenuNFS4 menuTrophyRoomSelect;
-    tMenuBlank menuTrophyInfo;
-    tMenuItemGoToMenuNFS4Button itemSkillBeginner, itemSkillIntermediate, itemSkillExpert;
-    tMenuNFS4 menuSkillLevel;
-    tMenuItemGoToMenuNFS4Button itemOnePlayerTestDrive, itemOnePlayerSingleRace, itemOnePlayerPursuit, itemOnePlayerTournament, itemOnePlayerSpecialEvents;
-    tMenuNFS4 menuOnePlayer;
-    tMenuItemGoToMenuNFS4Button itemSingleRaceSolo, itemSingleRaceDuel, itemSingleRaceFullGrid;
-    tMenuNFS4 menuSingleRace;
-    tMenuItemGoToMenuNFS4Button itemHotPursuitSolo, itemHotPursuitDuel;
-    tMenuNFS4 menuHotPursuit;
-    tListIteratorTournament iteratorTournament;
-    tMenuItemGoToMenuNFS4Button itemTournamentContinue;
-    tMenuItemNFS4LeftRightChoice itemTournamentSelect;
-    tMenuNFS4 menuTournament;
-    tListIteratorTournament iteratorSpecialEvent;
-    tMenuItemGoToMenuNFS4Button itemSpecialEventContinue;
-    tMenuItemNFS4LeftRightChoice itemSpecialEventSelect;
-    tMenuNFS4 menuSpecialEvent;
-    tMenuItemGoToMenuNFS4Button itemTwoPlayerTestDrive, itemTwoPlayerDuel, itemTwoPlayerHotPursuit, itemTwoPlayerPinkSlips;
-    tMenuNFS4 menuTwoPlayer;
-    tMenuItemGoToMenuNFS4Button itemBestOfOne, itemBestOfThree, itemBestOfFive;
-    tMenuNFS4 menuPinkSlipSelect;
-    tMenuItemGoToMenuNFS4Button itemPinkSlipsContinue;
-    tMenuItemNFS4LeftRightChoice itemTrack1, itemTrack2, itemTrack3, itemTrack4, itemTrack5;
-    tMenuNFS4 menuPinkSlipsBestOfThree, menuPinkSlipsBestOfFive;
-    tListIteratorTrack iteratorTrack;
-    tMenuItemGoToMenuNFS4Button itemTrackContinue;
-    tMenuItemNFS4LeftRightChoice itemTrack;
-    tMenuItemGoToMenuNFS4Button itemTrackRecords;
-    tMenuNFS4 menuSingleTrackSelect, menuTestDriveTrackSelect;
-    tListIteratorIndexed iteratorLaps, iteratorTrackDirection, iteratorTrackMirrored, iteratorTimeOfDay, iteratorWeather, iteratorTraffic;
-    tListIterator iteratorLocalSpeech;
-    tMenuItemOptionsLeftRightChoice itemLaps, itemTrackDirection;
-    tMenuItemOptionsTwoItemChoice itemTrackMirrored, itemTimeOfDay, itemWeather, itemTraffic, itemLocalSpeech;
-    tMenuOptions menuTrackOptions;
-    tBlankMenuItemGoToMenuNFS4Button menuTrackRecordsItem;
-    tOptionsMenu menuTrackRecords;
-    tMenuItemGoToMenuNFS4Button itemTrackInfoContinue;
-    tMenuNFS4 menuTrackInfo;
-    tListIteratorCar iteratorCar1;
-    tListIteratorCarColor iteratorColor;
-    tMenuItemGoToMenuNFS4Button itemCarSelectRace;
-    tMenuItemNFS4LeftRightChoice itemCar, itemColor;
-    tMenuItemGoToMenuNFS4Button itemShowcase;
-    tMenuNFS4 menuSingleCarSelect;
-    tListIteratorCar iteratorGarageCar;
-    tMenuItemNFS4LeftRightChoice itemGarageCar;
-    tMenuItemGoToMenuNFS4Button itemCarDealer, itemUpgradeCar;
-    tMenuNFS4 menuCarGarage, menuPostCarGarage;
-    tListIteratorCar iteratorOpponentCar;
-    tMenuItemGoToMenuNFS4Button itemDuelRace;
-    tMenuItemNFS4LeftRightChoice itemCar2, itemColor2;
-    tMenuItemGoToMenuNFS4Button itemGoToDuelBuyCar;
-    tMenuItemNFS4LeftRightChoice itemOpponentCar;
-    tMenuNFS4 menuDuelCarSelect, menuHPDuelCarSelect;
-    tMenuItemGoToMenuNFS4Button itemPlayerOneRace;
-    tMenuItemNFS4LeftRightChoice itemCarP1, itemColorP1;
-    tMenuNFS4TwoPlayer menuPlayerOneCarSelect;
-    tMenuItemGoToMenuNFS4Button itemPlayerTwoRace;
-    tMenuItemNFS4LeftRightChoice itemCarP2, itemColorP2;
-    tMenuNFS4TwoPlayer menuPlayerTwoCarSelect;
-    tMenuItemGoToMenuNFS4Button itemPlayerOneGarageRace;
-    tMenuItemNFS4LeftRightChoice itemGarageCarP1;
-    tMenuNFS4TwoPlayer menuPlayerOneGarage;
-    tMenuItemGoToMenuNFS4Button itemPlayerTwoGarageRace;
-    tMenuItemNFS4LeftRightChoice itemGarageCarP2;
-    tMenuNFS4TwoPlayer menuPlayerTwoGarage;
-    tListIteratorCar iteratorPinkSlipsCar;
-    tMenuItemGoToMenuNFS4Button itemPlayerOnePinkSlipRace;
-    tMenuItemNFS4LeftRightChoice itemPinkSlipCarP1;
-    tMenuNFS4TwoPlayer menuPlayerOnePinkSlipCarSelect;
-    tMenuItemGoToMenuNFS4Button itemPlayerTwoPinkSlipRace;
-    tMenuItemNFS4LeftRightChoice itemPinkSlipCarP2;
-    tMenuNFS4TwoPlayer menuPlayerTwoPinkSlipCarSelect;
-    tMenuItemGoToMenuNFS4Button itemGoToBuyCar, itemGoToSellCar;
-    tMenuNFS4 menuGoToCarDealer;
-    tListIteratorCar iteratorDealerCar;
-    tListIteratorCarColor iteratorDealerColor;
-    tMenuItemNFS4LeftRightChoice itemDealerCar, itemDealerColor;
-    tMenuItemGoToMenuNFS4Button itemBuyCar, itemDealerShowroom;
-    tMenuNFS4 menuCarDealer;
-    tListIteratorCar iteratorSellerCar;
-    tMenuItemNFS4LeftRightChoice itemSellerCar;
-    tMenuItemGoToMenuNFS4Button itemSellCar;
-    tMenuNFS4 menuCarSeller;
-    tMenuItemGoToMenuNFS4Button itemPurchaseUpgrade1, itemPurchaseUpgrade2, itemPurchaseUpgrade3;
-    tMenuNFS4 menuCarUpgrades;
-    tListIteratorIndexed iteratorTransmission, iteratorABS;
-    tListIterator iteratorDamage, iteratorOpponentUpgrades;
-    tMenuItemOptionsLeftRightChoice itemTransmission, itemABS, itemDamage, itemTransmission2, itemABS2, itemDamage2, itemOpponentUpgrades;
-    tMenuOptions menuCarOptions, menuCarOptionsPlayerOne, menuCarOptionsPlayerTwo, menuPinkSlipCarOptionsPlayerOne, menuPinkSlipCarOptionsPlayerTwo;
-    tMenuBlank menuShowroom;
-    tMenuItemGoToMenuNFS4Button itemOptionsAudio, itemOptionsDisplay, itemOptionsControllers, itemOptionsMemoryCard, itemOptionsUsername, itemOptionsCredits;
-    tMenuNFS4 menuOptions;
-    tListIteratorRange iteratorMusicVolume, iteratorSoundEffectsVolume, iteratorEngineVolume, iteratorSpeechVolume, iteratorAmbientVolume;
-    tListIterator iteratorAudioMode;
-    tMenuItemLeftRightAudioSlider itemMusicVolume, itemSoundEffectsVolume, itemEngineVolume, itemSpeechVolume, itemAmbientVolume;
-    tMenuItemDisplayLeftRightChoice itemAudioMode;
-    tMenuItemSlidingActivated itemSlidingPlayList;
-    tInsideBoxSongMenu menuPlayListMenu;
-    tOptionsMenu menuAudio;
-    tListIteratorIndexed iteratorDisplaySpeedometer, iteratorDisplayMap, iteratorDisplayOpponentID, iteratorDisplayTime, iteratorDisplayPosition, iteratorDisplayLapNumber;
-    tListIterator iteratorDisplaySplitTime;
-    tListIteratorIndexed iteratorDisplaySplitDisplay;
-    tMenuItemDisplayLeftRightChoice itemDisplaySpeedometer, itemDisplayMap, itemDisplayOpponentID;
-    tMenuItemOnOffLeftRightChoice itemDisplayTime, itemDisplayPosition, itemDisplayLapNumber;
-    tMenuItemDisplayLeftRightChoice itemDisplaySplitTime, itemDisplaySplitDisplay;
-    tOptionsMenu menuDisplayOptions;
-    tListIteratorIndexed iteratorControllerConfigSelected;
-    tMenuItemControllerLeftRightChoice itemControllerConfigSelected;
-    tMenuItemSlidingMenu itemControllerSettings;
-    tOptionsMenu menuControllerConfig;
-    tListIteratorRangeIndexed iteratorControllerShockMode;
-    tInsideBoxControllerLeftRightSlider itemControllerShockMode;
-    tListIteratorRangeIndexed iteratorControllerShockImpact;
-    tInsideBoxControllerLeftRightSlider itemControllerShockImpact;
-    tListIteratorRangeIndexed iteratorControllerSteeringRange1;
-    tInsideBoxTwoWaySlider itemControllerSteeringRange1;
-    tListIteratorRangeIndexed iteratorControllerDeadSpot1;
-    tInsideBoxTwoWaySlider itemControllerDeadSpot1;
-    tListIteratorRangeIndexed iteratorControllerSteeringRange2;
-    tInsideBoxTwoWaySlider itemControllerSteeringRange2;
-    tListIteratorRangeIndexed iteratorControllerDeadSpot2;
-    tInsideBoxTwoWaySlider itemControllerDeadSpot2;
-    tListIteratorRangeIndexed iteratorControllerJoyRange;
-    tInsideBoxTwoWaySlider itemControllerJoyRange;
-    tListIteratorRangeIndexed iteratorControllerCenterPoint;
-    tInsideBoxTwoWaySlider itemControllerCenterPoint;
-    tListIteratorRangeIndexed iteratorControllerIMax;
-    tInsideBoxTwoWaySlider itemControllerIMax;
-    tListIteratorRangeIndexed iteratorControllerIIMax;
-    tInsideBoxTwoWaySlider itemControllerIIMax;
-    tInsideBoxMenu menuControllerDualShock, menuControllerAnalog, menuControllerDualShockAnalog, menuControllerNegcon;
-    tMemoryCardMenuItem itemSaveGame, itemLoadGame;
-    tOptionsMenu menuMemory;
-    tUserNameMenuItem menuItemUserName, menuItemUserName1, menuItemUserName2;
-    tOptionsMenu menuUserName;
-    tListIterator iteratorChangeTrophy;
-    tBlankMenuItemNFS4LeftRightChoice itemChangeTrophy;
-    tMenuNFS4Bottom menuTrophyRoom;
-    tMenuItemGoToMenuNFS4Button itemPinkSlipStandingsForward, itemPinkSlipStandingsExit;
-    tMenuNFS4 menuPinkSlipStandings;
-    tMenuItemGoToMenuNFS4Button itemTournStandingsForward, itemTournStandingsExit;
-    tMenuNFS4 menuTournamentStandings;
-    tMenuItemGoToMenuNFS4Button itemTournamentFinishedHome;
-    tMenuNFS4 menuTournamentFinished;
-    tMenuBlank menuTournamentTrophy;
-    tOptionsMenu menuPostGamePlayer1Name, menuPostGamePlayer2Name;
-    tBlankMenuItemGoToMenuNFS4Button itemPostGameTrackRecordsContinue;
-    tOptionsMenu menuPostGameTrackRecords;
-    tMenuBlank menuPinkSlipCongrats, menuBeTheCopCongrats, menuTierCompleteCongrats, menuCredits;
-    tMemoryCardMenuItem itemMemContinue;
-    tOptionsMenu menuPostGameSave;
-    tGlobalMenuDefs();
-    ~tGlobalMenuDefs();
-};
-#endif
+#include "femenudefs_globalmenudefs.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

@@ -14,6 +14,12 @@
 #define NFS4_FE_CORE_CARS_LINEUP
 #define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
 #define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "fe_track_types.h"   /* retail FEMenuDefs: the track graph right after the car iterators */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO "femenudefs_after_video.h"   /* retail: tGlobalMenuDefs + memory-card records right after tVideo */
+#define NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR "femenudefs_mission.h"   /* retail: mission records right after Car_tObj */
+#define NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS "femenudefs_tail.h"   /* retail: FE3d .. tScreenUserName between the standings and the congrats classes */
+#define NFS4_CORE_LINEDEF_LATE   /* retail: pads, linedef, SHAPETABLEENTRY after tActiveLine (nfs4_types.h / game_common_min_types.h skip them) */
+#define NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2 "femenudefs_core_late.h"   /* retail: tActiveLine, pads, linedef, SHAPETABLEENTRY right after tScreen */
+#define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo/kernpair after the menu items, not with the frontend core */
 #include "../../game/common/draw_leaf_types.h"
 #include "femenudefs_types.h"
 #include "../../game/common/color_types.h"

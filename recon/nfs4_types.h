@@ -280,6 +280,8 @@ typedef struct cdstreamstruct CDSTREAM;
 #if defined(NFS4_CORE_KERN_AFTER_CD) || defined(NFS4_CORE_KERNEL_KERN_AFTER_CD)
 #include "shared/kernpair.h"
 #endif
+#ifdef NFS4_CORE_LINEDEF_LATE   /* owner emits pads, linedef, LINE, SHAPETABLEENTRY later itself (FEMenuDefs: frontend/common/femenudefs_core_late.h after tScreen) */
+#else
 #ifdef NFS4_CORE_PADS_EARLY
 /* frontend family (fecars felines fefades fecolor femission fetracks fecheats fememcard femenudefs femenuextended femenuoptions screenpinkslips screentracks): retail emits the controller pads after the CD stream, before linedef. */
 #include "shared/PAD_PSX.h"
@@ -292,6 +294,7 @@ typedef struct cdstreamstruct CDSTREAM;
 typedef struct linedef LINE;
 #define NFS4_HAVE_LINE
 #include "shared/SHAPETABLEENTRY.h"
+#endif
 #ifdef NFS4_CORE_AFTER_SHAPETABLE   /* retail PSXFront: eacelement CdlLOC kernpair charactertbl */
 #include "shared/core_after_shapetable.h"
 #endif

@@ -15,15 +15,15 @@
 typedef struct coorddef LIBCOORD;
 #endif
 
+#ifndef NFS4_CORE_LINEDEF_LATE   /* else: the owner emits linedef, LINE, SHAPETABLEENTRY later (nfs4_types.h key; FEMenuDefs) */
 #include "shared/linedef.h"
-
-
-#ifndef NFS4_HAVE_LINE
+#endif
+#if !defined(NFS4_HAVE_LINE) && !defined(NFS4_CORE_LINEDEF_LATE)
 typedef struct linedef LINE;
 #endif
-
+#ifndef NFS4_CORE_LINEDEF_LATE
 #include "shared/SHAPETABLEENTRY.h"
-
+#endif
 
 
 

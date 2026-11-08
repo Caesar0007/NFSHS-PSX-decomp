@@ -287,4 +287,7 @@ struct ScreenCarSelect_GlobalMenuDefsCodegenView {
 #define tGlobalMenuDefs ScreenCarSelect_GlobalMenuDefsCodegenView
 #endif
 
+#ifdef NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS   /* owner records right after tScreenTournamentStandings3item (FEMenuDefs: femenudefs_tail.h) */
+#include NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS
+#endif
 #endif

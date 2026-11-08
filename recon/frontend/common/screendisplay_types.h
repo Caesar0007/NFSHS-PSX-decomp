@@ -21,6 +21,9 @@ struct tMenu; struct tDrawShapeExtended;
 #ifndef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
 #include "fescreen.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2   /* owner records between tScreen (fescreen.h) and draw_leaf phase 2 (FEMenuDefs: tActiveLine, pads, linedef) */
+#include NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2
+#endif
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
 #include "../../game/common/draw_leaf_types.h"
 #ifdef NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail screenmain group: core + draw leaf, then tTexture_ShapeInfo (felines_types.h) */
@@ -48,6 +51,11 @@ struct tMenu; struct tDrawShapeExtended;
 #include "shared/tDrawShapeExtended.h"
 #endif
 #include "fedialog.h"
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS   /* owner records right after the early dialogs (retail screentracks/screenpinkslips/screenmain: tFEApplication after tDialogYesNo) */
+#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_EARLY_DIALOGS
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS
+#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_EARLY_DIALOGS
+#endif
 #endif
 #ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */
 #include "../../game/common/color_types.h"
@@ -71,14 +79,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
-
-
-
-
-
 
 
 

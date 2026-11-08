@@ -34,7 +34,7 @@ struct Group {
     int m_num_elements;
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
-#ifndef NFS4_GROUP_COUNT_SETTER_DECL_ONLY
+#if defined(NFS4_GROUP_COUNT_SETTER_INLINE)   /* retail: SetNumElements inline only where used (object.obj); elsewhere 2 Group inline bodies */
     /* Inferred setter;declaration-only consumers need not expose its body. */
     inline void SetNumElements(int numElements) { m_num_elements = numElements; }
 #else

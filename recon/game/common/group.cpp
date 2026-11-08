@@ -1,9 +1,9 @@
 /* game/common/group.cpp -- RECONSTRUCTED (NFS4 PSX SerializedGroup container layer; C++ TU)
  *   6 SerializedGroup METHODS (real members -> oracle method-mangling `__15SerializedGroup...`):
  *   LocateNextGroupType/LocateGroupType/LocateGroupNum/LocateCreateGroupType/CreateLiteGroup/
- *   CreateLiteGroupDataSize. `this` lands in $a0 exactly like the old explicit `this_` arg, so
- *   the bodies are byte-identical to the flattened free-fn form. Full SYM-locals applied. GTE-free.
+ *   CreateLiteGroupDataSize. `this` lands in $a0 exactly like the old explicit `this_` arg, so the bodies are byte-identical to the flattened free-fn form. Full SYM-locals applied. GTE-free.
  */
+#define NFS4_GROUP_COUNT_SETTER_INLINE   /* color_types.h: Group::SetNumElements inline (retail group.obj: 9 Group TPDEFs) */
 #include "group_types.h"
 #include "group_externs.h"
 

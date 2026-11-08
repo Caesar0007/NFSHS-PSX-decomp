@@ -12,9 +12,9 @@
  *     no_schedule_insns   1989 -> 4231 (+2242, 6 PASS->FAIL)
  *     no_schedule_insns2  1989 -> 2611  (+622, 9 PASS->FAIL)
  *     no_strength_reduce  1989 -> 2257  (+268, 2 PASS->FAIL)
- * These are historical results for that source/flag basin, not proof of the
- * original threshold or a restriction on later source-supported rechecks.
+ * These are historical results for that source/flag basin, not proof of the original threshold or a restriction on later source-supported rechecks.
  */
+#define NFS4_GROUP_COUNT_SETTER_INLINE   /* color_types.h: Group::SetNumElements inline (retail DrawW.obj: 10 Group TPDEFs) */
 #include "draww_types.h"
 #include "draww_externs.h"
 #include "psyq_prim_macros.h"

@@ -56,18 +56,18 @@ typedef enum s_type {
 
 #endif
 
-#ifndef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
-struct CopSpeak_tRequest {
-    Car_tObj *car;
-    int buffer, offset, size, filehandle, ophandle, phrase;
-    char player, sfx;
-    /* P879: retail bank accesses/invalid sentinel are signed. Native CHAR
-       encodes both char spellings; this restores the access contract, not
-       an unprovable original keyword/flag choice. Layout stays byte +30. */
-    signed char bank;
-    char noise;
-};
+#if !defined(NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST) && defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES)   /* audiocmn itself: after tfrontEnd (below) */
+#include "shared/CopSpeak_tRequest.h"
 #endif
+
+
+
+
+
+
+
+
+
 
 
 #include "shared/Sim_tSimGlobalVar.h"
@@ -79,7 +79,7 @@ struct CopSpeak_tRequest {
 #include NFS4_AUDIOCMN_HOOK_BEFORE_FE
 #endif
 #include "shared/tTexture_ShapeInfo.h"
-#if defined(NFS4_AUDIOCLC_KERNPAIR_LATE) && !defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES)   /* retail audiocmn: kernpair right after tTexture_ShapeInfo */
+#if defined(NFS4_AUDIOCLC_KERNPAIR_LATE) && (!defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES) || defined(NFS4_COPSPEAK_KERNPAIR_AFTER_TEX))   /* retail audiocmn/copspeak: kernpair right after tTexture_ShapeInfo */
 #include "shared/kernpair.h"
 typedef kernpair KERN;
 #endif
@@ -209,6 +209,9 @@ struct tCarManager {
 #endif
 
 #include "shared/tfrontEnd.h"
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail audiocmn: CopSpeak_tRequest right after tfrontEnd */
+#include "shared/CopSpeak_tRequest.h"
+#endif
 #if defined(NFS4_AUDIOCLC_LATE_KERNEL) && !defined(NFS4_AUDIOCMN_KERNEL_LATER)   /* retail cars/audiocmn: the kernel/skidmark types right after tfrontEnd */
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -230,9 +233,6 @@ struct AudioCmn_tAsyncSfxSlot {
     char *header;
 };
 #endif
-
-
-
 
 
 

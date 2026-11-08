@@ -57,23 +57,6 @@ struct Chunk {
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 #define gScratchLastWord   (*(int *)0x1F8003FC)
-#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_;
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
-#endif
 #include "shared/Trk_ObjectDef.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "shared/Trk_SimpleInst.h"
@@ -97,7 +80,13 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 #endif
 
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: FLARE_PIECE_DEF right before BW_tContext */
+#include "shared/FLARE_PIECE_DEF.h"
+#endif
 #include "shared/BW_tContext.h"
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: tBuildEntry right after BW_tContext */
+struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
+#endif
 
 
 
@@ -108,6 +97,24 @@ typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) 
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 } AnimScript;
+#endif
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: AIDataRecord family and tQuat right after AnimScript */
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0,
+    RECORD_M = 1,
+    TEST_M = 2
+};
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_;
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
+#include "shared/tQuat.h"
 #endif
 #include "shared/SceneElem.h"
 
@@ -151,9 +158,6 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
 
 
 
-#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it right after the BO types */
-struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
-#endif
 #include "shared/CHorizonSpec.h"
 
 
@@ -323,19 +327,9 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 
 
 
-
 #include "shared/Skidmark_Chunk.h"
-
-
-
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #include "shared/Draw_tCtrlSkidmark.h"
-struct ChunkObjectInfo {
-    Trk_SimObject *simObjs;
-    Group *objInstanceBuf;
-    int doFrustumClip, zClipSq, offset;
-    short *visList;
-};
 #endif
 #include "shared/FLARE_PIECE_DEF.h"
 #include "shared/Sched_tSchedule.h"
@@ -346,6 +340,12 @@ struct ChunkObjectInfo {
 #include "shared/tQuat.h"
 #include "shared/kernpair.h"
 typedef kernpair KERN;
+struct ChunkObjectInfo {
+    Trk_SimObject *simObjs;
+    Group *objInstanceBuf;
+    int doFrustumClip, zClipSq, offset;
+    short *visList;
+};
 typedef void (*fontblit)();
 typedef int (*getcode)();
 typedef void (*fontblitbegin)();

@@ -1,5 +1,4 @@
-/* color.obj's exact source-visible type surface reconstructed from SYM. */
-#ifndef NFS4_GAME_COMMON_COLOR_TYPES_H
+#ifndef NFS4_GAME_COMMON_COLOR_TYPES_H   /* color.obj's exact source-visible type surface reconstructed from SYM. */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #include "draw_leaf_types.h"
@@ -10,6 +9,9 @@
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
+#ifdef NFS4_COLOR_HOOK_GROUP_LATE_TRK   /* retail object/bworld: Trk_SFX/Trk_SimObject between Trk_NewSimSlice and RelCoord16 */
+#include NFS4_COLOR_HOOK_GROUP_LATE_TRK
+#endif
 #include "shared/RelCoord16.h"
 #endif
 #if defined(NFS4_COLOR_GS_FIRST) && !defined(NFS4_COLOR_SCHED_BEFORE_GS)   /* retail: GameSetup ahead of Group (owner first header) */
@@ -117,8 +119,6 @@ typedef void (*Sched_tFunctionPt)(void *);
 #endif
 /* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
 #include "shared/Transformer_z.h"
-
-
 
 
 

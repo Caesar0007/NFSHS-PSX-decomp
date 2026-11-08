@@ -5,6 +5,7 @@
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "bworld_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
+#define NFS4_COLOR_HOOK_GROUP_LATE_TRK "trk_sfx_simobject_late.h"   /* retail: Trk_SFX/Trk_SimObject after Trk_NewSimSlice */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */
 /* DrawW.obj supplies the shared graph; its owner-only records are omitted here. */
@@ -122,5 +123,4 @@ typedef int CarLogic_tObservations[1][3];
 #define RaceType_HotPursuit 1
 #define RaceType_Tournament 2
 #define RaceType_Id5 5
-
 #endif

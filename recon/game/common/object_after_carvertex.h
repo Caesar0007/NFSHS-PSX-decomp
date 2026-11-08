@@ -5,5 +5,3 @@
 #include "shared/Trk_CollideBoomInst.h"
 #include "shared/Trk_AnimateInst.h"
 #include "shared/Trk_AnimateBoomInst.h"
-#include "shared/Trk_SFX.h"
-#include "shared/Trk_SimObject.h"

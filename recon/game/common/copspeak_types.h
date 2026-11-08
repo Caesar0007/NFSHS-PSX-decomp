@@ -3,6 +3,8 @@
 #define NFS4_GAME_COMMON_COPSPEAK_TYPES_H
 #ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (audiocmn_types.h) */
+#define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (audiocmn_types.h) */
+#define NFS4_COPSPEAK_KERNPAIR_AFTER_TEX
 #define NFS4_COLOR_HOOK_AFTER_CAR "copspeak_types.h"   /* retail: BW_tContext/AudioMus/SND* right after Car_tObj (second pass below) */
 #endif
 #define NFS4_AUDIOCLC_OMIT_SCENE_TYPES
@@ -40,6 +42,7 @@
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_COPSPEAK_EARLY_DONE)   /* second pass (owner), from color_types.h */
 #define NFS4_COPSPEAK_EARLY_DONE
+#include "shared/CopSpeak_tRequest.h"
 #include "shared/BW_tContext.h"
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/SNDSYSCAP.h"

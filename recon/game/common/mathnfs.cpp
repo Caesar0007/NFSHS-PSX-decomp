@@ -1,7 +1,7 @@
 /* game/common/mathnfs.cpp -- RECONSTRUCTED (NFS4 PSX fixed-point/vector math library; C++ TU)
  *   10 free fns: Math_DistXZ/Dist3D/BetterDist/ResolveRotatedVector/VectorLength[2]/
- *   NormalizeVector/NormalizeShortVector/QDNormalizeVector/fasttransmult. Full SYM-locals applied.
- */
+ *   NormalizeVector/NormalizeShortVector/QDNormalizeVector/fasttransmult. Full SYM-locals applied. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "mathnfs_types.h"
 #include "mathnfs_externs.h"
 

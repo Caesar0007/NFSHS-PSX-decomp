@@ -1,7 +1,7 @@
 /* game/psx/fe3dmenu.cpp -- RECONSTRUCTED (showroom geometry and car rendering)
  *   fe3dmenu.obj: Fe3D_InitShowroom, CameraLookAt, Draw_MenuRenderingView.
- *   Its code/data are linked into the frontend overlay despite the GAME/PSX path.
- */
+ *   Its code/data are linked into the frontend overlay despite the GAME/PSX path. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "fe3dmenu_externs.h"
 
 /* Retail fe3dmenu.obj opens .rodata with this unreferenced class tag. */

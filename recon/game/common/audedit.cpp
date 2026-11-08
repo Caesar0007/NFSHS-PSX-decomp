@@ -1,8 +1,8 @@
 /* game/common/audedit.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
  *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
- */
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "audedit_types.h"
 #include "audedit_externs.h"
 

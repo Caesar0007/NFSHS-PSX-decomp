@@ -2,8 +2,8 @@
  *   AccTable / CurveSpeedTable / TrackCurve / BestLine record tables over a shared
  *   AIDataRecord_t base (real inheritance, real C++ virtuals since 2026-09-19).
  *   21 explicit definitions +5 generated dtors; SYM attributes CarTracking::Get and those dtors to AIDATARECORD.H.
- *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt.
- */
+ *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "aidatarecord_types.h"
 #include "aidatarecord_externs.h"
 

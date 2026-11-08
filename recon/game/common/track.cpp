@@ -1,7 +1,7 @@
 /* game/psx/track.cpp -- RECONSTRUCTED (NFS4 PSX track load/resources/materials; C++ TU)
  *   29 fns: track init/deinit, art+texture resources, LoadShapesAndMakePmx, material linking,
- *   object bounding spheres, kill data, SaveSurface class. GTE-free. Full SYM-locals applied.
- */
+ *   object bounding spheres, kill data, SaveSurface class. GTE-free. Full SYM-locals applied. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "track_types.h"
 
 /* Retail track.obj opens .rodata with this unreferenced class tag. */

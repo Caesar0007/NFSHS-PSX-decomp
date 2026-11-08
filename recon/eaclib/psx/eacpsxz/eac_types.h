@@ -12,11 +12,11 @@
 #include "../../../shared/RECT.h"
 #include "../../../shared/matrixtdef.h"
 
+#if !defined(__cplusplus) || defined(NFS4_EAC_MATRIXTDEF_CXX_ALIAS)   /* C alias; in C++ the tag already names the type and a re-typedef records a 2nd TPDEF (kept only where the TU defines the key) */
 typedef struct matrixtdef matrixtdef;   /* C alias -- shared/matrixtdef.h owns the tag */
+#endif
 
 /* internals -> trnsfrm_private.h (library sources only; no retail game object records them) */
-
-
 
 
 

@@ -1,8 +1,8 @@
 /* game/common/bworld.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
  *   bworld.obj (GAME\COMMON\bworld.cpp) = 21 native-debug-covered functions: road geometry build/render
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
- */
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++. */
+#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
 #include "bworld_types.h"
 #include "bworld_externs.h"
 

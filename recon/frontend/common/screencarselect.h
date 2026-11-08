@@ -24,8 +24,11 @@
 #define NFS4_FEDIALOG_FEAPP_DONE   /* ORDERG key: fedialog_types.h skips its default tFEApplication ... */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS "screencarselect_feapp_hook.h"   /* ... and screendisplay_types.h emits it right after the early dialogs (retail: tFEApplication after tDialogYesNo) */
 #define NFS4_FE_CORE_CARS_HOOK_BEFORE_MANAGER "screencarselect_carstat.h"   /* retail: tCarStatType right after tCarNameLength (FRONTORD3 hook) */
+#define NFS4_SCREENMEMCARD_RECBUF_EXTERNAL   /* ORDERG key: tRecordBuffer/tSaveRecords placed below (retail: last tag, after Car_tObj) */
+#define NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL   /* ORDERG key: MANAGERTASK placed by screencarselect_types.h after the memcard graph */
 #include "../../game/common/draw_leaf_types.h"
 #include "screencarselect_types.h"
 #include "../../game/common/color_types.h"
+#include "mcrd_recordbuffer.h"   /* retail ScreenCarSelect: tRecordBuffer is the LAST tag, after Car_tObj */
 #include "screencarselect_externs.h"
 #endif

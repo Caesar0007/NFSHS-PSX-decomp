@@ -57,12 +57,12 @@
     defined(NFS4_SCREENPINKSLIPS_TRACKS_SURFACE)
 #define tMenuTextState int
 #else
-typedef enum tMenuTextState {
+enum tMenuTextState {
     textState_Unselected = 0,
     textState_Selected = 1,
     textState_Hilighted = 2,
     textState_NumStates = 3
-} tMenuTextState;
+};
 #endif
 #ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #define textState_Selected 1

@@ -1,7 +1,7 @@
 /* FECheats.obj: tCheatCode is the first type record in retail (ahead of the core); included first by fecheats.h. */
 #ifndef NFS4_FRONTEND_COMMON_FECHEATS_CHEATCODE_H
 #define NFS4_FRONTEND_COMMON_FECHEATS_CHEATCODE_H
-typedef enum tCheatCode {
+enum tCheatCode {
     cheat_Roadster = 0,
     cheat_Pony = 1,
     cheat_Saloon = 2,
@@ -34,5 +34,5 @@ typedef enum tCheatCode {
     cheat_AllSilver = 29,
     cheat_AllBronze = 30,
     cheat_NumCheats = 31
-} tCheatCode;
+};
 #endif

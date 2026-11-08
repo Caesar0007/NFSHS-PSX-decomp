@@ -30,11 +30,11 @@
 #define Tourn_TRN_EntriesStart 0x7
 #define cheat_FinishedTournament 25
 
-typedef enum tTrophySize {
+enum tTrophySize {
     ts_Small = 0,
     ts_Medium = 1,
     ts_Large = 2
-} tTrophySize;
+};
 
 #include "shared/tSaveTournament.h"
 /* The linked FETourn SYM retains this public array typedef while attributing

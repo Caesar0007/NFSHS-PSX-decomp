@@ -44,12 +44,12 @@ typedef SVECTOR FE3d_zNormal;
 #elif !defined(NFS4_SCREENTRACKRECORDS_OWNER_DONE)   /* second pass (screendisplay owner hook) */
 #define NFS4_SCREENTRACKRECORDS_OWNER_DONE
 /* These foreign enum tags are absent from this owner graph. */
-typedef enum tMenuTextState {
+enum tMenuTextState {
     textState_Unselected = 0,
     textState_Selected = 1,
     textState_Hilighted = 2,
     textState_NumStates = 3
-} tMenuTextState;
+};
 #define tMenuTextType int
 #define textType_TrackRecords 11
 #include "shared/FLARE_PIECE_DEF.h"

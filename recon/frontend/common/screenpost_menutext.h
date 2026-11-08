@@ -2,7 +2,7 @@
  * Retail order: after the standings classes + kernpair + tDrawShapeExtended (screentournselect_types.h 2nd pass). */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPOST_MENUTEXT_H
 #define NFS4_FRONTEND_COMMON_SCREENPOST_MENUTEXT_H
-typedef enum tMenuTextType {
+enum tMenuTextType {
     textType_Title = 0,
     textType_FlybyHelp = 1,
     textType_BorderInfo = 2,
@@ -19,11 +19,11 @@ typedef enum tMenuTextType {
     textType_VideoWall = 13,
     textType_NumTypes = 14,
     textType_Default = 14
-} tMenuTextType;
-typedef enum tMenuTextState {
+};
+enum tMenuTextState {
     textState_Unselected = 0,
     textState_Selected = 1,
     textState_Hilighted = 2,
     textState_NumStates = 3
-} tMenuTextState;
+};
 #endif

@@ -2071,7 +2071,7 @@ void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 
   if ((Newton_GetSpikeBelt(&slice,&leftLatPos,&rightLatPos) != 0) && (newtonObj->simRoadInfo.slice == slice))
   {
-    int latPos;
+    int latPos; Car_tObj *carObj = (Car_tObj *)newtonObj; /* DEVICE (exact-only): record-less temp; retail newton.obj emits Car_tObj before SpikeBelts' BO_tNewtonObj param (locals are requested before params) */
     latPos = ((Car_tObj *)newtonObj)->roadPosition;
 
 
@@ -2118,7 +2118,7 @@ void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef nor
 {
   coorddef barrierVec;
   {
-    int impactVel; int distRetreat;
+    int impactVel; int distRetreat; Car_tObj *carObj = (Car_tObj *)newtonObj; /* DEVICE (exact-only): record-less temp; retail newton.obj emits Car_tObj between barrierVec and upVec */
     coorddef upVec;
     matrixtdef islandMatrix;
 

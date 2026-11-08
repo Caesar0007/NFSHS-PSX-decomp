@@ -7,9 +7,9 @@
 #endif
 /* Preserve the shared manager layout before declaring FETourn's real class
  * with the owner-specific method surface below. */
-#define tCarManager FETourn_CoreCarManagerCodegenView
+/* (INV-B E1: fe_core_cars.h skips its tCarManager copy for this owner; no alias view) */
 #include "fe_core_types.h"
-#undef tCarManager
+/* FETourn's real tCarManager follows below */
 
 /* FETourn retains tListIteratorIndexed's layout but not the foreign tPlayer
  * enum or its method declarations. */

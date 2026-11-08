@@ -34,6 +34,13 @@ struct tDialogBase : public tScreen {
     /* Inferred two-call position spelling; no original names survive. */
     inline tDialogBase *SetPosition(short, short);
 #endif
+#ifdef NFS4_FEDIALOG_DIRECT   /* FEDialog.obj's link-stripped standalone SetChoices copies: pre-D1 shape kept (no retail bytes survive the strip) */
+#define NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo *
+#define NFS4_FEDIALOG_SETCHOICES_RET this
+#else
+#define NFS4_FEDIALOG_SETCHOICES_T void   /* callers: retail records ONE tDialogYesNo per SetChoices body (`this` only) */
+#define NFS4_FEDIALOG_SETCHOICES_RET
+#endif
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
@@ -128,8 +135,8 @@ struct tDialogYesNo : public tDialogInteractive {
     void Draw();
     int yesnowords[2];
     tDialogYesNo();
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue) NFS4_FEDIALOG_STRIP;
+    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
+    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue) NFS4_FEDIALOG_STRIP;
 #ifdef NFS4_FEDIALOG_MEMCARD_CONFIRM_SURFACE
     /* ORIGINAL-NAME-UNRESOLVED: retail fememcard Confirm__Fii records a receiver-free inline pair with param `yes`
        (REG $20) at its yes-word setup. Only the TU defining this surface macro sees it (no out-of-line copy). */
@@ -141,18 +148,18 @@ struct tDialogYesNo : public tDialogInteractive {
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 127 "recon/frontend/common/fedialog.h"
-inline tDialogYesNo *tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue, short player) {
+inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue, short player) {
     yesnowords[0] = yesWord;
     yesnowords[1] = noWord;
     fDefault = defaultValue;
     specificPlayer = player;
-    return this;
+    return NFS4_FEDIALOG_SETCHOICES_RET;
 }
-inline tDialogYesNo *tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue) {
+inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue) {
     yesnowords[0] = yesWord;
     yesnowords[1] = noWord;
     fDefault = defaultValue;
-    return this;
+    return NFS4_FEDIALOG_SETCHOICES_RET;
 }
 struct tDialogYesNoMem : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */

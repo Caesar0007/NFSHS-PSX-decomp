@@ -1685,7 +1685,7 @@ void MenuExtended_LoadGame(tMenuCommand &)
   if (menuDefs->itemLoadGame.GetFlags() & 1) {
     return;
   }
-  tDialogYesNo AreYouSure; Dialog_SetText(AreYouSure.SetChoices(0x321, 0x322, 0), TextSys_Word(0x2c0));
+  tDialogYesNo AreYouSure; AreYouSure.SetChoices(0x321, 0x322, 0); Dialog_SetText(&AreYouSure, TextSys_Word(0x2c0));
 
 
   if (AreYouSure.Run() != 0) {

@@ -2164,7 +2164,7 @@ void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef nor
 void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
 
 
-{
+{ BWorldSm_Pos *devLocal_BWorldSm_Pos; /* DEVICE (exact-only): record-less unused local; retail requests BWorldSm_Pos inside this function (locals-before-params law, GSDATA_state 7h) */
   coorddef fwdVec;
   coorddef upVec;
   coorddef result;
@@ -2501,7 +2501,7 @@ void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
 
 #line 2465 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
-{
+{ BO_tNewtonObj *devLocal_BO_tNewtonObj; /* DEVICE (exact-only): record-less unused local; retail requests BO_tNewtonObj inside this function (locals-before-params law, GSDATA_state 7h) */
   int elevationOfGround; int objAltitude; int groundVel; int relativeClosingVelocity; coorddef normal; coorddef shadowNormal; int timeCount; int elapsedTime; int iTimeCount; int modifiedGravity;
 
 

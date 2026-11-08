@@ -25,7 +25,7 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 
-{ char *str;
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */ char *str;
 
 
 
@@ -961,7 +961,7 @@ void tPMenu::CheckForDisabled()
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 
-{
+{ tPMenu *devLocal_tPMenu; /* DEVICE (exact-only): record-less unused local; retail requests tPMenu inside this function (locals-before-params law, GSDATA_state 7h) */
 
 
   if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {

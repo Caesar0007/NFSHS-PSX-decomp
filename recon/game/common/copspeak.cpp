@@ -74,7 +74,7 @@ void CopSpeak_Debug(void);
 void CopSpeak_RadioStaticInit(void)
 
 
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   for (int i = 0; i < 2; i = i + 1)
   {
     CopSpeak_gStaticHandle[i] = -1;

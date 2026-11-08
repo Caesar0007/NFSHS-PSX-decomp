@@ -433,7 +433,7 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 
 #line 494 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
-{
+{ Trk_NewSimQuad *devLocal_Trk_NewSimQuad; /* DEVICE (exact-only): record-less unused local; retail requests Trk_NewSimQuad inside this function (locals-before-params law, GSDATA_state 7h) */
   int simIndex;
   simIndex = (int)(signed char)slicePos->quad - (u_int)slicePos->simSlice->simquadStartIndex;
 

@@ -353,7 +353,7 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 
 #line 392 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
 
 
 

@@ -53,7 +53,7 @@ void GameSetup_CleanUp(void);
 
 #line 154 "C:/nfs4/GAME/COMMON/GMESETUP.CPP"
 void GameSetup_StartUp(int *FrontEndDataStream)
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
     int i;          /* $a1 -- opcode (reused as the array-store counter) */
     int *h;         /* $s4 -- Input_gHandler base */
     int *s;         /* $s0 -- data-stream walk pointer */

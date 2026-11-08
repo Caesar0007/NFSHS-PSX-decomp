@@ -775,7 +775,7 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
 /* ---- AudioClc_GetClosestCars__Fiii  [@0x80075d04] ---- */
 #line 920 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
-{
+{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail requests Car_tObj inside this function (locals-before-params law, GSDATA_state 7h) */
   int i;
   int j;
   int k;

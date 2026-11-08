@@ -73,7 +73,7 @@ void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orien
 int CalcObjYawAngle(CCOORD16 *pts)
 
 
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   /* DEVICE (exact-only): dx/dz are record-less temps (combine folds each into its arg reg): loads on retail lines 69/70, subtracts + call on 72 */
   int dx = (int)pts[1].x - (int)pts->x;
   int dz = (int)pts[1].z - (int)pts->z;
@@ -667,7 +667,7 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
 
 
-{
+{ Trk_SimObject *devLocal_Trk_SimObject; /* DEVICE (exact-only): record-less unused local; retail requests Trk_SimObject inside this function (locals-before-params law, GSDATA_state 7h) */
   if (objectData->type == 0)
   {
     Trk_SimObject *simObj; BWorldSm_Pos slicePos;
@@ -763,7 +763,7 @@ int Object_FindDefWithThisID(int ID)
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
 
-{
+{ Trk_SimpleInst *devLocal_Trk_SimpleInst; /* DEVICE (exact-only): record-less unused local; retail requests Trk_SimpleInst inside this function (locals-before-params law, GSDATA_state 7h) */
 
 
 

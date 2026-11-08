@@ -55,7 +55,7 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 
-{
+{ tTournamentManager *devLocal_tTournamentManager; /* DEVICE (exact-only): record-less unused local; retail requests tTournamentManager inside this function (locals-before-params law, GSDATA_state 7h) */ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail requests Car_tStats inside this function (locals-before-params law, GSDATA_state 7h) */
 
 
 
@@ -165,7 +165,7 @@ void Nfs2_ResetGame(void)
 static void NFS4_LoadPerps(void)
 
 
-{
+{ tStageInfo *devLocal_tStageInfo; /* DEVICE (exact-only): record-less unused local; retail requests tStageInfo inside this function (locals-before-params law, GSDATA_state 7h) */ tCarManager *devLocal_tCarManager; /* DEVICE (exact-only): record-less unused local; retail requests tCarManager inside this function (locals-before-params law, GSDATA_state 7h) */
   char *buffer;
   char *data;
   char *cars;

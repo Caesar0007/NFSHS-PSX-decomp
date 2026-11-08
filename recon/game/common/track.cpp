@@ -99,7 +99,7 @@ void Track_LoadObjectKillData(void);
 void Track_SetTrackNumber(int tracknum)
 
 
-{
+{ SimpleMem *devLocal_SimpleMem; /* DEVICE (exact-only): record-less unused local; retail requests SimpleMem inside this function (locals-before-params law, GSDATA_state 7h) */
   gtrackNumber = tracknum & 0xf;
 }
 

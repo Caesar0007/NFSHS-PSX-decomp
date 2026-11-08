@@ -22,6 +22,7 @@
 #define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail: tTexture_ShapeInfo/kernpair right after Draw_CarVertex */
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT   /* early tShapeInformation/fescreen sites skipped (retail: forward tScreen copy only) */
 #define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/common/fe_screen_late.h"   /* retail FeMenuOptions: tShapeInformation + tScreen right after Car_tObj */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (tpdef_keys.h is read before this guard exists) */
 #include "femenuoptions_externs.h"
 #endif
 #else

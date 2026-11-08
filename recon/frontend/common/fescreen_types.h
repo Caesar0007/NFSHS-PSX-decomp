@@ -26,6 +26,7 @@ enum tMenuCommandType {
 #include "fe_core_types.h"
 #include "felines_types.h"
 #include "shared/tActiveLine.h"
+#include "fescreen_transition.h"   /* retail FEScreen.obj: tScreen_TransitionType before tShapeInformation */
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"

@@ -4,11 +4,7 @@
 #ifndef NFS4_FRONTEND_COMMON_FESCREEN_H
 #define NFS4_FRONTEND_COMMON_FESCREEN_H
 
-enum tScreen_TransitionType {
-    kScreen_TransitionTypeItem = 0,
-    kScreen_TransitionTypeMenu = 1,
-    kScreen_TransitionTypeScreen = 2
-};
+#include "fescreen_transition.h"   /* tScreen_TransitionType (moved verbatim; FEScreen.obj emits it before tShapeInformation) */
 
 #if defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* FEScreen/PSXFront/ScreenPost: DrawBackground/DrawForeground declarations only (PSXFront/ScreenPost: pre-27b tScreen typedef form = retail 3 without the field-walk tTexture_ShapeInfo) */
 #define NFS4_FESCREEN_HDR_BODY ;

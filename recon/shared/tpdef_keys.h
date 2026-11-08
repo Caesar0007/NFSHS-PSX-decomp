@@ -57,9 +57,12 @@
 #if defined(NFS4_TU_FECARS) || defined(NFS4_TU_FEMEMCARD) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FETOURN) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_GAME_COMMON_NFS3_TYPES_H)
 #define NFS4_TD_tOwnedCarInfo
 #define NFS4_TDN_tOwnedCarInfo
-#else
+#elif defined(NFS4_TSCREENCONGRATS_OWNER)   /* ScreenCongrats: inferred tCarManager bodies excluded -> keeps the typedef pair */
 #define NFS4_TD_tOwnedCarInfo typedef
 #define NFS4_TDN_tOwnedCarInfo tOwnedCarInfo
+#else   /* plain everywhere since the inferred tCarManager bodies (CarCount/CarIndex) supply the 2nd record */
+#define NFS4_TD_tOwnedCarInfo
+#define NFS4_TDN_tOwnedCarInfo
 #endif
 #if (defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENU) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)) && !(defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT) && defined(NFS4_TU_FEMENUDEFS))   /* SCREEN_AFTER_TOURNAMENT in FEMenuDefs: typedef form -- the late definition gets no field-walk re-emission, retail has 2 TPDEFs */
 #define NFS4_TD_tShapeInformation

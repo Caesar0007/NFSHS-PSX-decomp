@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_CARS_INDEX_INT   /* inferred tCarManager body #2 without a tCarInfo parameter (fe_core_cars.h) */
 /* Retail inline-body SLD places this declaration in FEMENUEXTENDED.H; part selection = include scaffolding. */
 #ifndef NFS4_FEMENUEXTENDED_TYPE_PART
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */

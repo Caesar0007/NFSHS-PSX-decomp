@@ -1,7 +1,15 @@
 /* Owner-specific type surface for FEApp.obj. */
-#ifndef NFS4_FRONTEND_COMMON_FEAPP_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_FEAPP_TYPES_H) || defined(NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR)
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR   /* else: the screendisplay_types.h after-color/after-dialogs hook pass (tAppCommand, tFEApplication) */
 #define NFS4_FRONTEND_COMMON_FEAPP_TYPES_H
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "feapp_types.h"   /* retail FEApp: tAppCommand + tFEApplication right after the dialogs */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO "feapp_after_video.h"   /* retail: color.obj graph, AudioMus, SND* after tVideo */
+#define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "fe_track_types.h"   /* retail FEApp: the track graph right after the car iterators */
+#define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo / tCarClassType after tOwnedCarInfo, tCarLineup after tPersonalities */
+#define NFS4_FE_CORE_CARS_CLASSTYPE
+#define NFS4_FE_CORE_CARS_LINEUP
+#define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
 /* FEApp.obj emits tMenuCommand while tMenu is still opaque. */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -17,16 +25,8 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
-
 #include "shared/tMenuCommand.h"
-
-/* FEApp uses player values without retaining the foreign tPlayer enum.  Input
- * keys are real owner records and must be available before dialog methods. */
-/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #include "fe_input_enums.h"
-
-/* ScreenMemcard is the nearest exact owner graph (160 shared named records).
- * Its memory-card/SDK owner records are excluded by this boundary. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #define NFS4_SCREENMEMCARD_FEAPP_METHODS
 #define NFS4_SCREENDISPLAY_FEAPP_METHODS
@@ -40,8 +40,6 @@ enum tMenuCommandType {
 #undef NFS4_SCREENDISPLAY_FEAPP_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
-
-/* Source spellings whose completed enum records are absent from FEApp.obj. */
 #define tMenuTextType int
 #define tMenuTextState int
 #define textType_FramedInfo 3
@@ -50,19 +48,21 @@ enum tMenuCommandType {
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
 #define PinkSlipsNoError 0
-
 #include "shared/DR_AREA.h"
 #include "shared/SNDSYSCAP.h"
 #include "shared/SNDSYSSET.h"
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
-
+#endif
+#ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 enum tAppCommand {
     kApp_Command_StartRace = 0,
     kApp_Command_ReStartRace = 1,
     kApp_Command_StartReplay = 2
 };
+#endif
 
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 struct tScreenTournamentStandings : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
@@ -96,7 +96,7 @@ struct tScreenUserName : public tScreen {
     void DrawVerticalLine(short, short, short);
     void DrawHorizontalLine(short, short, short); inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; } /* ORIGINAL-NAME-UNRESOLVED: retail RunPostGame records this screen pair (this $6, m $5) */
 };
-
+#else
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -136,6 +136,8 @@ struct tFEApplication {
     tAppCommand RunPostGame();
     tAppCommand RunFrontEnd();
 };
+#endif
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 
 /* GameSetup_tData is recorded only in its owners (gmesetup/replay); FEApp keeps it
  * incomplete and stores GameSetup_gData.replayMode (int @0x24) through int*.
@@ -159,4 +161,5 @@ struct FeApp_GlobalMenuDefsCodegenView {
 };
 #define tGlobalMenuDefs FeApp_GlobalMenuDefsCodegenView
 
+#endif
 #endif

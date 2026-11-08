@@ -500,13 +500,13 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 
 
 
-enum tScreenMainState {
-    kScreenMain_Off = 0,
-    kScreenMain_StaticImage = 1,
-    kScreenMain_DynamicImage = 2,
-    kScreenMain_WarningImage = 3,
-    kScreenMain_Credits = 4
-};
+#include "screenmain_state.h"   /* tScreenMainState (moved verbatim; ScreenMain emits it early) */
+
+
+
+
+
+
 
 #include "shared/tVideoTransition.h"
 
@@ -522,13 +522,13 @@ enum tScreenMainState {
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO   /* owner records right after tVideo (FEApp: color.obj graph, AudioMus, SND*) */
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO
+#endif
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 /* Only this offset is used by ScreenDisplay.  The real aggregate owner is
  * reconstructed in FEMenuDefs; keep this compiler-boundary view explicit. */
 struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members reached by offset */
-
-
-
 #endif
 
 struct SndBnk_t;

@@ -61,7 +61,7 @@
 #define NFS4_TD_tOwnedCarInfo typedef
 #define NFS4_TDN_tOwnedCarInfo tOwnedCarInfo
 #endif
-#if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENU) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)
+#if (defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENU) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)) && !defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT)   /* SCREEN_AFTER_TOURNAMENT (FEMenuDefs): typedef form -- the late definition gets no field-walk re-emission, retail has 2 TPDEFs */
 #define NFS4_TD_tShapeInformation
 #define NFS4_TDN_tShapeInformation
 #else

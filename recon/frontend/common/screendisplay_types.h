@@ -13,12 +13,12 @@
 #ifndef NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
 #include "felines_types.h"   /* no-op unless NFS4_FE_CORE_FELINES_LATE (fe core emitted before the core types) */
 #endif
-#ifndef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* else: tActiveLine, tShapeInformation, tScreen consecutive (retail), below */
+#if !defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE) && !defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT)   /* else: tActiveLine, tShapeInformation, tScreen consecutive (retail), below */
 #include "shared/tShapeInformation.h"
 #endif
 #include "fescreen_virtual_types.h"
 struct tMenu; struct tDrawShapeExtended;
-#ifndef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
+#if !defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE) && !defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT)
 #include "fescreen.h"
 #endif
 #ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2   /* owner records between tScreen (fescreen.h) and draw_leaf phase 2 (FEMenuDefs: tActiveLine, pads, linedef) */

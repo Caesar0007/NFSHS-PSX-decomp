@@ -140,4 +140,8 @@ struct tListIteratorTournament : public tListIterator {
     void Increment(tPlayer); void Decrement(tPlayer); bool ValidTournament(char);
 #endif
 };
+#ifdef NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT   /* retail FEMenuDefs: tShapeInformation + the tScreen definition right after tListIteratorTournament (earlier: forward copy only) */
+#include "shared/tShapeInformation.h"
+#include "fescreen.h"
+#endif
 #endif

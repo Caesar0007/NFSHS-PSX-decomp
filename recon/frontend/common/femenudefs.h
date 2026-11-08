@@ -20,6 +20,7 @@
 #define NFS4_CORE_LINEDEF_LATE   /* retail: pads, linedef, SHAPETABLEENTRY after tActiveLine (nfs4_types.h / game_common_min_types.h skip them) */
 #define NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2 "femenudefs_core_late.h"   /* retail: tActiveLine, pads, linedef, SHAPETABLEENTRY right after tScreen */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo/kernpair after the menu items, not with the frontend core */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT   /* retail: tShapeInformation + tScreen definition after tListIteratorTournament */
 #include "../../game/common/draw_leaf_types.h"
 #include "femenudefs_types.h"
 #include "../../game/common/color_types.h"

@@ -60,6 +60,9 @@ enum tCarClassType {
 /* Add only the one car-manager member used by this owner. */
 #define NFS4_FE_CORE_FECHEATS_METHODS
 #define NFS4_FE_TRACK_NO_PLAYER
+#ifdef NFS4_FECHEATS_OWNER   /* enter the fe_core graph here, so fe_core_cars.h's owner hook expands the track records after tCarManager */
+#include "fe_core_types.h"
+#endif
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
 #undef NFS4_FE_CORE_FECHEATS_METHODS
@@ -120,7 +123,7 @@ typedef struct tTournamentManager {
 typedef tRecordBuffer tSaveRecords[187];
 #endif
 
-#ifndef NFS4_FECHEATS_NO_CHEAT_RECORDS
+#if !defined(NFS4_FECHEATS_NO_CHEAT_RECORDS) && !defined(NFS4_FECHEATS_TCHEAT_IN_CPP)
 struct tCheat {
     u_char name[8];
     tCheatCode cheat;

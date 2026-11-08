@@ -5,7 +5,7 @@
  *   + static cheatList[10]/bonusList[3] (tCheat) code tables, byte-exact from retail binary.
  */
 #include "fecheats.h"
-
+struct tCheat { u_char name[8]; tCheatCode cheat; };   /* see NFS4_FECHEATS_TCHEAT_IN_CPP (fecheats.h) */
 
 static tCheat cheatList[10] = {   /* @0x80051628, byte-exact from retail binary */
     {{0x59,0x68,0x06,0x06,0x60,0x7e,0x7f,0x00}, 11},

@@ -6,8 +6,8 @@
 
 /* ---- Texture.obj-OWNED globals (.bss; zero in NFS4.EXE) -- DEFINED here (self-contained;
    storage=EXT in SYM = external linkage, owned by THIS TU, not extern-from-elsewhere) ---- */
-Draw_tPixMap    *gMenuPixmap[8];         /* @0x80120fd0 */
-Draw_tPixMap     gMenuPixmapAlloc[8];    /* @0x80120ff0 */
+/* gMenuPixmap / gMenuPixmapAlloc: defined before Texture_InitMenuTexture (INV-A3: retail type-record position) */
+
 int              Texture_CarColor;       /* @0x8013db08 */
 Texture_pal8bit *Texture_palCopy;        /* @0x8013db0c */
 int              Texture_palNum;         /* @0x8013db10 */
@@ -723,7 +723,7 @@ void Texture_CloneUVPmx(Draw_tPixMap *pmx,int mode,Draw_tPixMap *rpmx)
     *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u2;
     *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u0;
   } return; }
-
+/* INFERRED bodies: retail Texture.obj TPDEF run has 3 more Draw_tPixMap requests in the tail (gap TEXTURE.CPP 708-725), no code; never called */ inline void Texture_CopyPmx(Draw_tPixMap *src, Draw_tPixMap *dst) { *dst = *src; } inline int Texture_PmxIsValid(Draw_tPixMap *pmx) { return pmx != 0; }
 /* ---- Texture_InitTrackTexture__Fv  [TEXTURE.CPP:726-738] SLD-VERIFIED ---- */
 #line 723 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitTrackTexture(void)
@@ -789,7 +789,7 @@ void Texture_InitMenuClut(void)
       }
     }
   } }
-
+Draw_tPixMap    *gMenuPixmap[8];         /* @0x80120fd0 */ Draw_tPixMap     gMenuPixmapAlloc[8];    /* @0x80120ff0 (the only .bss pair; relative order kept) */
 /* ---- Texture_InitMenuTexture__Fv  [TEXTURE.CPP:792-795] SLD-VERIFIED ---- */
 #line 789 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitMenuTexture(void)

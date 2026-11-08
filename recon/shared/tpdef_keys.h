@@ -75,4 +75,10 @@
 #define NFS4_TD_tUserNameMenuItem typedef
 #define NFS4_TDN_tUserNameMenuItem tUserNameMenuItem
 #endif
+#if defined(NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTOURNSELECT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H)   /* screen owners (their first header): tMenu forward/definition order (FRONTORD3) */
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#ifndef NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* ScreenAudio spells its own menu items (no screendisplay_menuitems.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
+#endif
+#endif
 #endif

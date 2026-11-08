@@ -34,11 +34,11 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 #endif
+#ifdef NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail screen objects: tMenuCommand (tMenu* -> SLINK forward copy of tMenu) right after tMenuCommandType */
+#include "shared/tMenuCommand.h"
+#endif
 
 #include "felist_classes.h"
-
-
-
 
 
 

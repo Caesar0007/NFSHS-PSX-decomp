@@ -1,3 +1,5 @@
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 /* screendisplay_own_keys.h -- ScreenDisplay.obj-only type-order keys (screendisplay_keys.h is shared with ScreenMain/
  * ScreenController).  Retail: Draw_CarVertex, tTexture_ShapeInfo, tActiveLine, tShapeInformation, tScreenDisplay, kernpair. */
 #define NFS4_FE_CORE_FELINES_LATE

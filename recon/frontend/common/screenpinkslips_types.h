@@ -1,3 +1,5 @@
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_TYPES_H   /* Owner-specific type surface for ScreenPinkSlips.obj. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */

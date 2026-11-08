@@ -36,4 +36,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
+#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu (and its tScreen* forward reference) right after tMenuItemGoToMenuButton */
+#include "fe_core_tmenu.h"
+#endif
 #endif

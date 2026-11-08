@@ -1809,7 +1809,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
 
 
       streamData.numOpponents = NumRacers() + -1;
-      carLineup = tournamentManager.fCarLineup; for (i = 0; i < numOpponents + 1; i = i + 1) {
+      carLineup = tournamentManager.GetCarLineup(); for (i = 0; i < numOpponents + 1; i = i + 1) {
 
         streamData.carLineup[i].personality = carLineup[i].personality;
         streamData.carLineup[i].position = carLineup[i].position;

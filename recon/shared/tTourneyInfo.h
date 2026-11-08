@@ -3,7 +3,11 @@
 #ifndef NFS4_SHARED_TTOURNEYINFO_H
 #define NFS4_SHARED_TTOURNEYINFO_H
 
+#if defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H) || defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) || (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE)) || defined(NFS4_TSCREENCONGRATS_OWNER)   /* first tTourneyInfo body merges with the field block here: the typedef form supplies that record */
 typedef struct tTourneyInfo {
+#else
+struct tTourneyInfo {   /* retail: plain struct (one TPDEF at the definition; field block + 2 CurrentTourney bodies add the rest) */
+#endif
     char fTournamentID;
     u_char fNumTracks, fTrackOffset, fOpponentCarClass, fTraffic, fKnockout;
     u_char fNumCars, fAwardCar, fAwardCarModel, fAwardCarUpgrades;
@@ -16,5 +20,9 @@ typedef struct tTourneyInfo {
     u_char fPersonalities[5], fOpponentCar[5], fOpponentUpgrades[5];
     u_char fActivatedTrackClass, fActivatedCheat, fNumLaps;
     u_char fReserved[14];
+#if defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H) || defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) || (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE)) || defined(NFS4_TSCREENCONGRATS_OWNER)
 } tTourneyInfo;
+#else
+};
+#endif
 #endif

@@ -10,5 +10,13 @@
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_CORE_PADS_FIRST   /* retail type order (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo right after tOwnedCarInfo */
+#define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
+#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "fe3d_leaf.h"   /* retail: FE3d records right after tActiveLine/tShapeInformation */
+#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
+#include "felines_types.h"   /* retail Front: pads, MATRIX core, draw leaf, tTexture_ShapeInfo, kernpair, then the frontend core */
 #include "front_types.h"
 #include "front_externs.h"

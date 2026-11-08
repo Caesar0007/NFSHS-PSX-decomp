@@ -1,9 +1,10 @@
 /* Owner-specific type surface for Front.obj. */
-#ifndef NFS4_FRONTEND_COMMON_FRONT_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_FRONT_TYPES_H) || defined(NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR)
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR   /* else: the screendisplay_types.h after-color hook pass (Force_tGlobal, tRecordBuffer, tScreenControllerConfig) */
 #define NFS4_FRONTEND_COMMON_FRONT_TYPES_H
-
-/* Front.obj retains the FEMenuDefs shared graph, but not FEMenuDefs' three
- * owner records or its pointer-only screen views. */
+/* Front.obj retains the FEMenuDefs shared graph, but not FEMenuDefs' three owner records or its pointer-only screen views. */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "front_types.h"   /* retail Front: Force_tGlobal + tScreenControllerConfig + tRecordBuffer after the color graph */
+#define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "front_processing_type.h"   /* retail: tFront_ProcessingType right after tfrontEnd */
 #define NFS4_FRONT_SURFACE
 #define NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
 #define NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
@@ -18,15 +19,8 @@
 #undef NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
 #undef NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
 #undef NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
-
-enum tFront_ProcessingType {
-    kFront_InitialLoad = 0,
-    kFront_QuitToGameSetup = 1,
-    kFront_QuitToPostGame = 2
-};
-
+#include "front_processing_type.h"
 #define kApp_Command_StartRace 0
-
 enum crimeType {
     CRIME_NONE = 0,
     CRIME_SPEEDER = 1,
@@ -34,9 +28,15 @@ enum crimeType {
     CRIME_BUMPCOP = 3,
     CRIME_SMASHCOP = 4
 };
-
 #include "shared/copLevel_t.h"
 #include "shared/copGame_t.h"
+#endif
+#ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
+#include "shared/Force_tGlobal.h"
+#include "shared/tRecordBuffer.h"   /* retail: right after tScreenControllerConfig (2 pairs off; the struct keeps its lines) */
+
+
+
 
 struct tScreenControllerConfig : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
@@ -66,9 +66,9 @@ struct tScreenControllerConfig : public tScreen {
 
     tScreenControllerConfig();
 };
-
+#endif
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "screenmain.h"
-
 struct tScreenCarSelectDuel : public tScreenCarSelect {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
@@ -261,5 +261,5 @@ struct tCreditManager {
 };
 
 #undef NFS4_FRONT_SURFACE
-
+#endif
 #endif

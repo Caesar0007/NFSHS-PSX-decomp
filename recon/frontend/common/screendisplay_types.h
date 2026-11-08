@@ -46,6 +46,9 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN   /* retail front: car graph right after tScreen, before tActiveLine */
 #include "screendisplay_carblock.h"
 #endif
+#ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE   /* owner records between the car tail (CARS_AFTER_SCREEN) and tActiveLine (Front: tFront_ProcessingType) */
+#include NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE
+#endif
 #include "shared/tActiveLine.h"
 #ifdef NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE   /* owner records right after tActiveLine (screenpost) */
 #include NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE
@@ -81,9 +84,6 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
-
-
-
 
 
 

@@ -3,14 +3,14 @@
  * unrelated completed tags and typedefs from leaking into its debug graph. */
 #ifndef NFS4_FRONTEND_COMMON_FELINES_TYPES_H
 #define NFS4_FRONTEND_COMMON_FELINES_TYPES_H
-
 #include "../../game/common/draw_leaf_types.h"
 #include "shared/tTexture_ShapeInfo.h"
+#ifdef NFS4_FELINES_DSE_AFTER_TEXSHAPE   /* owner key (PSXFront): retail tDrawShapeExtended right after tTexture_ShapeInfo */
+#include "shared/tDrawShapeExtended.h"
+#endif
 #ifndef NFS4_FELINES_KERNPAIR_LATE   /* else the owner includes felines_kern.h later (retail screenmain group: kernpair after tScreen) */
-
 #include "felines_kern.h"
 #endif
-
 typedef void (*fontblit)();
 typedef int (*getcode)();
 typedef void (*fontblitbegin)();

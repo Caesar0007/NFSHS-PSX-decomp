@@ -64,13 +64,6 @@ enum tMenuCommandType {
 
 
 
-
-
-
-
-
-
-
 typedef struct tMenuItem {
     unsigned int fFlags, fTextDescription;
     short fSelFade;
@@ -88,8 +81,15 @@ typedef struct tMenuItem {
 #endif
     virtual void Draw(int, int, bool);
     virtual void Draw(int, int, int, bool);
+#ifdef NFS4_TU_FEMENU   /* FEMenu (tMenuItem key TU): retail in-class virtual bodies at FEMENU.H:274/275, emitted at the TU end (anchor: FESCR2, coordinator-authorized 2026-11-09) */
+#line 274 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
+    virtual void TransitionOff() { }
+    virtual void TransitionOn() { }
+#line 89 "recon/frontend/common/fe_core_types.h"
+#else
     virtual void TransitionOff();
     virtual void TransitionOn();
+#endif
     virtual bool TransitionIsFinished();
     virtual void UpdateTransition(bool);
 #if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
@@ -130,7 +130,7 @@ typedef struct tMenuItem {
 #if defined(NFS4_FE_CORE_TMENU_ALL_INLINES) && !defined(NFS4_FE_CORE_TMENU_KEY_TU)
     /* INFERRED bodies: retail TPDEF tMenuItem x16 per object (7 inline bodies beyond the 7 spelled above); builtin-only, never called */
     inline unsigned int TextDescription() { return fTextDescription; } inline short SelFade() { return fSelFade; } inline void SetSelFade(short v) { fSelFade = v; }
-    inline int NumFrames() { return fNumFrames; } inline void SetNumFrames(int v) { fNumFrames = v; } inline int ButtonImageIndex() { return fButtonImage; } inline void SetButtonImageIndex(int v) { fButtonImage = v; }
+    inline int NumFrames() { return fNumFrames; } inline void SetNumFrames(int v) { fNumFrames = v; } NFS4_FE_INFERRED_BUTTONIMAGEINDEX inline void SetButtonImageIndex(int v) { fButtonImage = v; }
 #endif
 NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS } tMenuItem;
 NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */

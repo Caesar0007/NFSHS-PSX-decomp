@@ -1327,10 +1327,10 @@ long tMenu::DebounceKeys()
  * refs surfaced by #75 data-materialization. nfs4-f.exe = { jr $ra } (no-op). */
 
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
-void tMenuItem::TransitionOn()  { return; }
+/* body in-class (fe_core_types.h, NFS4_TU_FEMENU; FESCR2) */
 
 #line 274 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
-void tMenuItem::TransitionOff() { return; }
+/* body in-class (fe_core_types.h, NFS4_TU_FEMENU; FESCR2) */
 
 
 

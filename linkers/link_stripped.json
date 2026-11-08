@@ -1463,6 +1463,18 @@
    "function": "__31tMenuItemOptionsLeftRightChoiceUiP13tListIterator",
    "source": "recon/frontend/common/femenuextended_types.h",
    "evidence": "tMenuItemOptionsLeftRightChoice ctor -- retail in-class inline constructor (the screendisplay_types.h spelling; FESCR2 2026-11-09): retail FEMenuExtended.obj records TPDEF tMenuItemOptionsLeftRightChoice x3 at the class (declaration + ctor body), ours 1 without it; declared LINK_STRIPPED in recon/frontend/common/femenuextended_types.h, defined inline right after the class. FEMenuExtended.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenu.cpp.o",
+   "function": "NumFrames__9tMenuItem",
+   "source": "recon/shared/tpdef_keys.h",
+   "evidence": "tMenuItem::NumFrames -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (typedef pair + IsEnabled/NewMenu + in-class TransitionOff/On + 10 inline bodies); declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenu.cpp.o",
+   "function": "SetSelFade__9tMenuItems",
+   "source": "recon/shared/tpdef_keys.h",
+   "evidence": "tMenuItem::SetSelFade -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (typedef pair + IsEnabled/NewMenu + in-class TransitionOff/On + 10 inline bodies); declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   }
  ]
 }

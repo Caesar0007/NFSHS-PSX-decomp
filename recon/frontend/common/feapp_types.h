@@ -134,7 +134,7 @@ struct tFEApplication {
     void RunDemoVideo();
     tAppCommand MainLoop(tMenu *);
     tAppCommand RunPostGame();
-    tAppCommand RunFrontEnd();
+    tAppCommand RunFrontEnd(); NFS4_FEAPP_INF4
 };
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR

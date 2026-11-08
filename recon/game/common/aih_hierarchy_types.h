@@ -257,8 +257,8 @@ static inline Car_tObj *AIHigh_GetCarObj(AIHigh_Base *high) { return high->carOb
 /* Shared field-query definitions. Keep them out of class: selected-stock
  * debug emission differs for in-class bodies. The literal original accessor
  * spellings/header arrangement are not uniquely supplied by retail SYM. */
-inline copLevel_t *AICop_PerpChaseInfo::GetChaseLevel() { return chaseLevel_; }
-inline bool AICop_PerpChaseInfo::BlockadeDone() { return blockadeDone_ != 0; }
-inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
+
+
+
 
 #endif

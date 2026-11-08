@@ -438,13 +438,13 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
 
 
-inline void AICop_BasicPerpInfo::SetCopsAssigned(copType type, int count) {
-  copsAssigned_[type] = count;
-}
-inline void AICop_BasicPerpInfo::ClearCopsAssigned() {
-  SetCopsAssigned((copType)0, 0);
-  SetCopsAssigned((copType)1, 0);
-}
+
+
+
+
+
+
+
 
 /* ---- ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop [retail AIH_BTCPERP.CPP:304-316; native+SLD exact] ---- */
 /* MATCH: 25/25 instructions, all native records/13 scopes, zero SLD tag

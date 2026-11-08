@@ -49,80 +49,80 @@ extern "C" {
  * the signatures and behavior but does not retain linkage names for inline-
  * only members; the descriptive getter/setter spellings below are therefore
  * sole remaining non-unique part of this recovered interface. */
-inline int AICop_PerpChaseInfo::GetChaseLevelIndex()
-{
-  return chaseLevelIndex_;
-}
 
-inline int AICop_PerpChaseInfo::GetNumLevels()
-{
-  return copGameInfo_->numLevels;
-}
+
+
+
+
+
+
+
+
 
 /* Inferred accessor spellings: the supplied pointer/index fields and retail
  * inline receiver pairs establish these queries, not their original names. */
-inline int AICop_PerpChaseInfo::BestChaseLevelIndex()
-{
-  return bestChaseLevelIndex_;
-}
-
-inline copGame_t *AICop_PerpChaseInfo::GetCopGameInfo()
-{
-  return copGameInfo_;
-}
 
 
 
 
 
 
-inline int AICop_PerpChaseInfo::GetChaseTime()
-{
-  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) /
-             0x10000 * 0x20;
-}
 
-inline int AICop_PerpChaseInfo::IsLastChaseLevel()
-{
-  return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
-}
 
-inline int AICop_PerpChaseInfo::ConfiguredEngagementLapTime()
-{
-  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) / 0x10000;
-}
-inline void AICop_PerpChaseInfo::InitializeChaseTimer(int lapTime)
-{
-  engagementTime_ = lapTime << 0x15;
-  engagementPercentIncreasePerTick_ = 0x10000 / (lapTime << 5);
-  if (GameSetup_gData[1] /* numLaps */ == 2)
-    engagementPercentIncreasePerTick_ =
-      fixedmult(engagementPercentIncreasePerTick_,0x13333);
-  else if (GameSetup_gData[1] /* numLaps */ == 4)
-    engagementPercentIncreasePerTick_ =
-      fixedmult(engagementPercentIncreasePerTick_,0xa8f5);
-}
-inline void AICop_PerpChaseInfo::ResetEngagementTime()
-{
-  InitializeChaseTimer(ConfiguredEngagementLapTime());
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* The shared timer query is defined with its class interface. */
-inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
-{
-  /* Inferred timer boundaries are checked against the supplied receiver tree;
-     no literal original helper spellings or complete SLD seal is claimed. */
-  chaseLevelIndex_ = level;
-  if (bestChaseLevelIndex_ < level)
-    bestChaseLevelIndex_ = level;
-  chaseLevel_ = copGameInfo_->levels + chaseLevelIndex_;
-  ResetEngagementTime();
-  blockadeDone_ = 0;
-}
 
-inline void AICop_PerpChaseInfo::SetBlockadeDone()
-{
-  blockadeDone_ = 1;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* header inline: retail SetupBlockade records its receiver pairs at the caller lines (moved from aih_play.cpp) */
 

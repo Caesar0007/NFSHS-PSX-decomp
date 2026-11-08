@@ -842,61 +842,61 @@ void AIHigh_Player::MaintainAvailableCops()
  * operation restores their homes/owners and all native regions at129/129.
  * ResetForCopGame is an inferred spelling; full SLD/literal text remain open.
  * Receipt: build/nc12/player_level_source_20261016. */
-inline void AICop_PerpChaseInfo::ResetForCopGame(copGame_t *copGameInfo)
-{
-  copGameInfo_ = copGameInfo;
-  chaseLevelIndex_ = 0;
-  engagementTime_ = 0;
-  bestChaseLevelIndex_ = 0;
-  chaseLevel_ = copGameInfo_->levels + chaseLevelIndex_;
-  blockadeDone_ = 0;
-  copFreeTicks_ = 0;
-  totalEngagementPercent_ = 0;
-  engagementPercentIncreasePerTick_ = 0;
-}
-
-inline void AICop_PerpChaseInfo::SetCopGameInfo(copGame_t *copGameInfo)
-{
-  ResetForCopGame(copGameInfo);
-}
-
-inline AICop_PerpChaseInfo::AICop_PerpChaseInfo()
-{
-  copGame_t*copGameInfo;
-  int lapIndex;
-  int gameIndex;
 
 
 
 
-  /* SYM supplies gameIndex/lapIndex/copGameInfo and their register homes.
-   * The numLaps test must be evaluated BEFORE the commMode branch
-   * and used arithmetically -- retail is branchless there (`xori v0,v0,2; sltu a0,zero,v0`
-   * then `addu idx,4*(0<numAI),thatBit`); folding it into `iVar1 + (numLaps != 2)` AFTER
-   * the if made gcc emit a second branch + a duplicated `sll idx,3`.  Also: derive `levels`
-   * from the copGameInfo POINTER (not `copGame[idx].levels`, which recomputes the address)
-   * and keep that read AT its use in the chaseLevel_ statement -- moving it earlier costs
-   * ~16 diffs. The nested initializer preserves retail's pointer copy without
-   * introducing a new caller object; literal original helper names are unknown. */
-  lapIndex = (u_int)(GameSetup_gData[1] /* numLaps */ != 2);
 
-  if (GameSetup_gData[3] /* commMode */ == 1) {
 
-    gameIndex = 2;
 
-  }
 
-  else {
 
-    gameIndex = (u_int)(0 < Cars_gNumAIRaceCars) << 2;
 
-  }
 
-  copGameInfo = copGame + (gameIndex + lapIndex);
 
-  SetCopGameInfo(copGameInfo);
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- __13AIHigh_PlayerP8Car_tObj [retail AIH_PLAY.CPP:750-762;
  * 129/129 byte PASS, supplied declarations/regions exact; full SLD open] ---- */
@@ -933,27 +933,27 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
    are inferred spellings. Split decrement stores preserve the actual retail
    store/reload; a shared conditional decrement was5dif/103 instead of104.
    Original literal interface spelling and full SLD remain unsealed. */
-inline void AICop_PerpChaseInfo::AdvanceEngagement(int ticks, int movingBackwards,
-                                                int totalCopsEngaged)
-{
-  if (0 < totalCopsEngaged) {
-    copFreeTicks_ = 0;
-    if (-2 < engagementTime_ / 0x10000) {
-      if (movingBackwards) {
-        engagementTime_ -= ticks << 0xf;
-      }
-      else {
-        engagementTime_ -= ticks << 0x10;
-      }
-      if (RemainingEngagementTime() < ConfiguredEngagementLapTime() * 0x20 - 0x80) {
-        totalEngagementPercent_ += engagementPercentIncreasePerTick_ * ticks;
-      }
-    }
-  }
-  else {
-    copFreeTicks_ += ticks;
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* HandleCops__13AIHigh_Player @0x80062AC4: covered native SYM/SLD contract.
  * All104 word/file tags,20 regions and9 supplied local tuples agree.

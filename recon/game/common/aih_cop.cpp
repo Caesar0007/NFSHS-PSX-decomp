@@ -1177,7 +1177,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
     Car_tObj *thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
     AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
-    if (PerpChase_CopFreeTicks(&thisPlayer->perpChaseInfo_) > 800 && __builtin_abs(thisPlayerObj->currentSpeed) > 0x140000)
+    if (PerpChase_CopFreeTicks(&thisPlayer->perpChaseInfo_.copFreeTicks_) > 800 && __builtin_abs(thisPlayerObj->currentSpeed) > 0x140000)
 
       needy = thisPlayerObj->carIndex;
 
@@ -1205,7 +1205,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 
 /* The shared timer query is defined with its class interface. */
-inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
+
 
 /* ---- CheckForWipeOut__10AIHigh_Cop [retail AIH_COP.CPP:845-885;
  * 94/94 byte PASS, BYTE+SYM+SLD exact] ---- */
@@ -1303,7 +1303,7 @@ int AIHigh_Cop::CheckForNewTarget()
     int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
     AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
     int needs = thisPlayer->basicPerpInfo_.GetCrime() != 0 ?
-        PerpChase_ChaseLevel(&thisPlayer->perpChaseInfo_)->copChasers[this->type_] : 0;
+        PerpChase_ChaseLevel(&thisPlayer->perpChaseInfo_.chaseLevel_)->copChasers[this->type_] : 0;
     int got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
     if (this->perpTarget_ != (AIHigh_Player *)0x0 && this->perpTarget_ == thisPlayer)
       got = got - 1;
@@ -1346,7 +1346,7 @@ int AIHigh_Cop::CheckForNewTarget()
   if (newTarget != (AIHigh_Player *)0x0 && newTarget != old)
   {
     this->AssignToPlayer(newTarget);
-    this->aggressionLevel_ = PerpChase_ChaseLevel(&newTarget->perpChaseInfo_)->copAggression[this->type_];
+    this->aggressionLevel_ = PerpChase_ChaseLevel(&newTarget->perpChaseInfo_.chaseLevel_)->copAggression[this->type_];
 
 
 
@@ -1502,7 +1502,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
     if ((testCar->carFlags & 1U) != 0)
     { int dir;
       AIHigh_Player *thisPlayer;
-      int needs; int got; copLevel_t *pLevel; int thisSlice; int startSlice; int endSlice; int fRandomChance; thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex]; fRandomChance = thisPlayer->NewTriggerProb(); pLevel = thisPlayer->perpChaseInfo_.GetChaseLevel();
+      int needs; int got; copLevel_t *pLevel; int thisSlice; int startSlice; int endSlice; int fRandomChance; thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex]; fRandomChance = thisPlayer->NewTriggerProb(); pLevel = PerpChase_ChaseLevel(&thisPlayer->perpChaseInfo_.chaseLevel_);
       got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
 
 

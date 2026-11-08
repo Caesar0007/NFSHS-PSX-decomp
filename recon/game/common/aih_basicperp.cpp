@@ -463,17 +463,17 @@ void AIHigh_BasicPerp::Clear()
 
 
 
-inline void AICop_BasicPerpInfo::SetCopsAssigned(copType type, int count) {
-  copsAssigned_[type] = count;
-}
-inline void AICop_BasicPerpInfo::ClearCopsAssigned() {
-  SetCopsAssigned((copType)0, 0);
-  SetCopsAssigned((copType)1, 0);
-}
-inline AICop_BasicPerpInfo::AICop_BasicPerpInfo() {
-  ClearCopsAssigned();
-  crime_ = CRIME_NONE;
-}
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- __16AIHigh_BasicPerpP8Car_tObj [retail AIH_BASICPERP.CPP:419-421;
  * 18/18 byte PASS, native+SLD exact] ---- */

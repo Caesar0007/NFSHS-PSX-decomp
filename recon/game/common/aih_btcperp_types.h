@@ -1,4 +1,4 @@
-/* aih_btcperp.obj's exact owner delta over the shared AI hierarchy. */
+#define NFS4_AICOP_GS_ROWS /* aih_btcperp.obj's exact owner delta over the shared AI hierarchy; key: GameSetup_gData row view (aicop_info_types.h) */
 #if !defined(NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */

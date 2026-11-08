@@ -4890,7 +4890,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 #line 2345 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 {
-  short light; Trk_SimObject *simObjs; Group *instGroup; int doFrustumClip; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; matrixtdef matrix;
+  short light; Draw_DCache *sd; Trk_SimObject *simObjs; Group *instGroup; int doFrustumClip; Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; matrixtdef matrix; tQuat *quat; Trk_CollideBoomInst *collideInst;   /* DEVICE (exact-only), INFERRED: retail draww.obj TPDEF run requests Draw_DCache / tQuat / Trk_CollideBoomInst here with no records (unused locals) */
   simObjs = gObjInfo->simObjs;
   instGroup = gObjInfo->objInstanceBuf; objInstance = (Trk_SimpleInst *)instGroup->GetData();
   doFrustumClip = gObjInfo->doFrustumClip;

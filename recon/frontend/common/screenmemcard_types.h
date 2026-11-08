@@ -33,13 +33,17 @@
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
+#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
 #include "mcrd_productloc.h"   /* moved verbatim (ScreenMemcard emits it inside its owner_early block) */
+#endif
 
 
 
 
 
+#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
 #include "mcrd_managertask.h"
+#endif
 
 
 
@@ -49,7 +53,9 @@
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
+#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
 #include "shared/DIRENTRY.h"
+#endif
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
@@ -63,9 +69,11 @@
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-#include "shared/tRecordBuffer.h"
+#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
+#include "mcrd_recordbuffer.h"
+#endif
 
-typedef tRecordBuffer tSaveRecords[187];
+
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 typedef char tMemIcon[15][3][192];
@@ -75,31 +83,26 @@ typedef char tMemIcon[15][3][192];
 #include "shared/tSaveTrackInfo.h"
 #include "shared/tSaveTournament.h"
 #endif
-
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && !defined(NFS4_FE3D_TYPES_DONE)
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
-
 #include "shared/FE3d_zUV.h"
 #include "shared/FE3d_zFacet.h"
 #include "shared/FE3d_zObj.h"
 #endif
-
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 #include "shared/CARDINFO_def.h"
 #include "shared/MCRDFILEHEADER_def.h"
 #include "shared/MCRDFILEINFO_def.h"
 #endif
-
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 #include "shared/MCRDFILE_def.h"
 #endif
-
 #ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 typedef CARDINFO_def CARDINFO;
 typedef MCRDFILEHEADER_def MCRDFILEHEADER;
@@ -109,17 +112,14 @@ typedef MCRDFILEINFO_def MCRDFILEINFO;
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 typedef MCRDFILE_def MCRDFILE;
 #endif
-
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE)
 #include "shared/tDrawShapeExtended.h"
 #endif
-
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_SCREENPOST_SURFACE)
 #include "fedialog.h"
-
 #include "fedialog.h"
 #include "fedialog.h"
 #endif

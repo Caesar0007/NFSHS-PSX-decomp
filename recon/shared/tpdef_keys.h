@@ -64,7 +64,7 @@
 #define NFS4_TD_tOwnedCarInfo
 #define NFS4_TDN_tOwnedCarInfo
 #endif
-#if defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* PSXFront/ScreenPost: no tScreen in-class bodies -> typedef form gives retail's 2 TPDEFs */
+#if defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* PSXFront/ScreenPost: no tScreen in-class bodies -> typedef form gives retail's 2 TPDEFs */
 #define NFS4_TD_tShapeInformation typedef
 #define NFS4_TDN_tShapeInformation tShapeInformation
 #else
@@ -104,7 +104,7 @@
 #ifdef NFS4_TU_FECHEATS
 #define NFS4_FEDIALOG_NO_INFERRED_WT
 #endif
-#if defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs (FEScreen too, FESCR); PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
+#if defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs (FEScreen too, FESCR); PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
 #define NFS4_TD_tScreen typedef
 #define NFS4_TDN_tScreen tScreen
 #else

@@ -643,6 +643,24 @@
    "evidence": "INFERRED free function (user ruling 2026-11-08: inferred bodies; STRIPPED COPIES allowed): retail copspeak.obj records one Car_tObj TPDEF between CopSpeak_StartUp and CopSpeak_Request with no retail function to own it; retail COPSPEAK.CPP has an unattributed 975-1027 line gap (Play ends 974, Skip starts 1028). Signature (Car_tObj*) from that record; name inferred; nothing references it; .text.strip, removed by the final link. Receipt: build/tmp/v/GSDATA_state.md GSDATA3 ROUND 2."
   },
   {
+   "object": "build/recon/frontend/psx/psxfront.cpp.o",
+   "function": "PSXFront_InferredCarShapeOp__FP8Car_tObjP8shapetbl",
+   "source": "recon/frontend/psx/psxfront.cpp",
+   "evidence": "INFERRED free function (user ruling 2026-11-08: inferred bodies; STRIPPED COPIES allowed): retail psxfront.obj records an orphan 'Car_tObj shapetbl' TPDEF run after the global records and before DoTitleScreen (whose only typed local is shapetbl tempShp2); no retail function owns it; retail PSXFRONT.CPP gap 98-141 (Quick_DD ends 98, PSXFront_AllocateDrawMemory starts 141). Signature (Car_tObj*, shapetbl*) from that run; name inferred; nothing references it; .text.strip, removed by the final link. Receipt: build/tmp/v/GSDATA_state.md SPEECHX."
+  },
+  {
+   "object": "build/recon/frontend/psx/psxfront.cpp.o",
+   "function": "PSXFront_InferredShapeOp__FP8shapetbl",
+   "source": "recon/frontend/psx/psxfront.cpp",
+   "evidence": "INFERRED free function (user ruling 2026-11-08: inferred bodies; STRIPPED COPIES allowed): retail psxfront.obj records one shapetbl TPDEF after ScaleShapeExtended and before FontUpsideDownBlit that no retail function owns (LoadAllHelpShapes records no typed local); retail PSXFRONT.CPP gap 1260-1338. Signature (shapetbl*) from that record; name inferred; nothing references it; .text.strip, removed by the final link. Receipt: build/tmp/v/GSDATA_state.md SPEECHX."
+  },
+  {
+   "object": "build/recon/game/psx/hud.cpp.o",
+   "function": "Hud_InferredCarOp__FP8Car_tObj",
+   "source": "recon/game/psx/hud.cpp",
+   "evidence": "INFERRED free function (user ruling 2026-11-08: inferred bodies; STRIPPED COPIES allowed): retail hud.obj records one Car_tObj TPDEF (followed by the Car_tObj field walk incl. BO_tNewtonObj) after the HudPmx_tShape run and before Hud_BuildCdPlayer, owned by no retail function; retail HUD.CPP gap 795-800 (uppercase ends 795, Hud_Kill starts 800). Signature (Car_tObj*) from that record; name inferred; nothing references it; .text.strip, removed by the final link. Receipt: build/tmp/v/GSDATA_state.md SPEECHX."
+  },
+  {
    "object": "build/recon/game/common/pausemenu.cpp.o",
    "function": "CurrentItemText__6tPMenu",
    "source": "recon/game/common/mpause_types.h",

@@ -225,12 +225,12 @@ struct tMissionManager {
 #include "shared/Skidmark_Chunk.h"
 #include "shared/tActiveLine.h"
 
-
-
-
-
 #define tPlayer int
 #define tInputKeyType int
+#include "shared/tShapeInformation.h"
+struct tMenuCommand;
+struct tMenu;
+#include "frontend/common/fescreen.h"
 #include "frontend/common/fedialog.h"
 #undef tPlayer
 #undef tInputKeyType
@@ -316,8 +316,8 @@ enum tPersonalities {
 struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 #elif defined(NFS4_NFS3_LI_DONE) && !defined(NFS4_NFS3_SCR_DONE)   /* hook 2 (tPlayer/tInputKeyType are int inside the surface) */
 #define NFS4_NFS3_SCR_DONE
-#include "shared/tShapeInformation.h"
-struct tMenuCommand;
-struct tMenu;
-#include "frontend/common/fescreen.h"
+
+
+
+
 #endif

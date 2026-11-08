@@ -6,7 +6,7 @@
 
 #include "fescreen_transition.h"   /* tScreen_TransitionType (moved verbatim; FEScreen.obj emits it before tShapeInformation) */
 
-#if defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* PSXFront/ScreenPost: DrawBackground/DrawForeground declarations only (FEScreen: in-class bodies, FESCR; PSXFront/ScreenPost: pre-27b tScreen typedef form = retail 3 without the field-walk tTexture_ShapeInfo) */
+#if defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* PSXFront/ScreenPost: DrawBackground/DrawForeground declarations only (FEScreen: in-class bodies, FESCR; PSXFront/ScreenPost: pre-27b tScreen typedef form = retail 3 without the field-walk tTexture_ShapeInfo) */
 #define NFS4_FESCREEN_HDR_BODY ;
 #else
 #define NFS4_FESCREEN_HDR_BODY { }   /* every other object: retail in-class inline virtuals at FESCREEN.H:96/97 */

@@ -152,7 +152,7 @@ struct Speech {
         /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
     };
     struct MobileSpeaker; struct DispatchSpeaker;   /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
-#if !defined(NFS4_SPEECH_AI_VIEW)   /* AI objects (retail aih_*.obj) record no MobileSpeaker/DispatchSpeaker class: both are only forward-declared there */
+#if !defined(NFS4_SPEECH_AI_VIEW) && !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)   /* AI objects (retail aih_*.obj) and cars/copspeak/nfs3.obj record no MobileSpeaker/DispatchSpeaker class: both are only forward-declared there */
     struct DispatchSpeaker : public Speaker {
         /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
            (MobileSpeaker's user constructor adds a body block after that pair) */
@@ -251,7 +251,7 @@ struct Speech {
     static inline CarBank *DispatchCarBank(int carIndex) { return &fgSpeech->fCarBank.Dispatch[carIndex]; }
     /* SubmitRequest: retail shows a variable-free inline pair where the dispatch status is reset, and a second
        one right after the bank offset is taken that emits no instructions; both names are inferred */
-#if !defined(NFS4_SPEECH_AI_VIEW)
+#if !defined(NFS4_SPEECH_AI_VIEW) && !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)
     static inline void ResetStatus() { fgSpeech->fDispatch->fStatusSub = 0; fgSpeech->fDispatch->fStatusCount = 0x200; }
 #endif
     static inline void Idle() {}

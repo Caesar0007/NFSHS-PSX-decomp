@@ -27,8 +27,19 @@ struct Car_tObj;
 
 struct Speech {
     /* the nested classes: retail manglings are Q26Speech7Speaker, Q26Speech13MobileSpeaker, ... */
-    struct CarBankName;
-
+    struct CarBankName {
+        char *fFull, *fMake, *fModel;
+        inline bool Full(char *name) {
+            return fFull != 0 && strncmp(name, fFull, strlen(fFull)) == 0;
+        }
+        inline bool Make(char *name) {
+            return fMake != 0 && strncmp(name, fMake, strlen(fMake)) == 0;
+        }
+        inline bool Model(char *name) {
+            return fModel != 0 && strncmp(name, fModel, strlen(fModel)) == 0;
+        }
+        void SetCar(int carIndex);
+    };
     typedef struct CarBank {
         int fFull, fMake, fModel;
         CarBank() : fFull(-1), fMake(-1), fModel(-1) {}
@@ -63,6 +74,9 @@ struct Speech {
         inline int Mobile(int unit) { return fMobile[unit]; }
     } CallSignBank;
 
+    struct { CarBank Mobile[9], Dispatch[9]; } fCarBank;
+    struct { LocationBank Mobile[16], Dispatch[16]; } fLocationBank;
+    struct { CallSignBank Mobile, Dispatch; } fCallSignBank;
     struct Speaker {
         SPCHNFSType_POSITION fPosition;
         SPCHNFSType_DISTANCE fDistance;
@@ -137,21 +151,6 @@ struct Speech {
            bridges preserve ordinary source-level virtual call sites without
            inventing receiver/vtable temporaries in their callers. */
     };
-
-    struct CarBankName {
-        char *fFull, *fMake, *fModel;
-        inline bool Full(char *name) {
-            return fFull != 0 && strncmp(name, fFull, strlen(fFull)) == 0;
-        }
-        inline bool Make(char *name) {
-            return fMake != 0 && strncmp(name, fMake, strlen(fMake)) == 0;
-        }
-        inline bool Model(char *name) {
-            return fModel != 0 && strncmp(name, fModel, strlen(fModel)) == 0;
-        }
-        void SetCar(int carIndex);
-    };
-
     /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
     struct DispatchSpeaker : public Speaker {
         /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
@@ -227,10 +226,6 @@ struct Speech {
         void Status();
         void Engage(Car_tObj *perp);
     };
-
-    struct { CarBank Mobile[9], Dispatch[9]; } fCarBank;
-    struct { LocationBank Mobile[16], Dispatch[16]; } fLocationBank;
-    struct { CallSignBank Mobile, Dispatch; } fCallSignBank;
     int fLocationCount;
     bool fFileOpen;
     int fFileHandle;
@@ -312,6 +307,11 @@ struct Speech {
     Speech();
     ~Speech();
 };
+
+
+
+
+
 
 
 

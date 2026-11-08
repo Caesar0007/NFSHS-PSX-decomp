@@ -187,7 +187,7 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU   /* owner records between the car/track block and the tMenuNFS4 family */
 #include NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU
 #endif
-struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
+NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 #ifdef NFS4_FEMENUDEFS_SURFACE
@@ -200,7 +200,7 @@ struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     void UpdateTransition(bool);
     void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
 #endif
-};
+} NFS4_TDN_tMenuItemGoToMenuNFS4Button;
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
@@ -263,13 +263,13 @@ struct tMenuNFS4 : public tMenu {
 #endif
 };
 
-struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
+NFS4_TD_tMenuNFS4TwoPlayer struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuNFS4TwoPlayer(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
     ~tMenuNFS4TwoPlayer();
     virtual void DrawItem(int);
 #endif
-};
+} NFS4_TDN_tMenuNFS4TwoPlayer;
 struct tMenuNFS4Bottom : public tMenuNFS4 {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuNFS4Bottom(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
@@ -277,7 +277,7 @@ struct tMenuNFS4Bottom : public tMenuNFS4 {
     void Draw();
 #endif
 };
-struct tMenuBlank : public tMenuNFS4 {
+NFS4_TD_tMenuBlank struct tMenuBlank : public tMenuNFS4 {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuBlank(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short);
     ~tMenuBlank();
@@ -290,7 +290,7 @@ struct tMenuBlank : public tMenuNFS4 {
     bool TransitionIsFinished();
     void UpdateTransition();
 #endif
-};
+} NFS4_TDN_tMenuBlank;
 
 struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;
@@ -309,7 +309,7 @@ struct tMenuOptions : public tMenuNFS4 {
 #define NFS4_FEMENUOPTIONS_TYPE_PART 1
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-struct tOptionsMenu : public tMenu {
+NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
     signed char fTransitionDirection;
     short fPrevItem;
@@ -335,7 +335,7 @@ struct tOptionsMenu : public tMenu {
     void UpdateTransition(); void Draw(); void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 
-};
+} NFS4_TDN_tOptionsMenu;
 inline int tOptionsMenu::GetScreenFade() { return fScreenFade; }
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;

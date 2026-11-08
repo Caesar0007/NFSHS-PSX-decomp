@@ -1,10 +1,10 @@
 /* Owner-specific type surface for FEMenuExtended.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
 #define NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
+#define NFS4_TU_FEMENUEXTENDED   /* owner identity (shared/tpdef_keys.h) */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FEMenuExtended: frontend core before the MATRIX core */
 #include "fe_player_types.h"
 #include "fe_input_enums.h"
-
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0,
@@ -54,7 +54,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 
 #include "shared/tDrawShapeExtended.h"
 
-struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
+NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 
@@ -69,7 +69,7 @@ struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
 #line 46 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
     void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
 #line 70 "recon/frontend/common/femenuextended_types.h"
-};
+} NFS4_TDN_tMenuItemGoToMenuNFS4Button;
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
@@ -119,12 +119,12 @@ struct tMenuNFS4 : public tMenu {
     void Draw();
 };
 
-struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
+NFS4_TD_tMenuNFS4TwoPlayer struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
     tMenuNFS4TwoPlayer(unsigned int, tScreen *, tMenu *, tMenu *,
                        void (*)(tMenuCommand &), short, tMenuItem *, ...);
     ~tMenuNFS4TwoPlayer();
     virtual void DrawItem(int);
-};
+} NFS4_TDN_tMenuNFS4TwoPlayer;
 
 struct tMenuNFS4Bottom : public tMenuNFS4 {
     tMenuNFS4Bottom(unsigned int, tScreen *, tMenu *, tMenu *,
@@ -133,7 +133,7 @@ struct tMenuNFS4Bottom : public tMenuNFS4 {
     void Draw();
 };
 
-struct tMenuBlank : public tMenuNFS4 {
+NFS4_TD_tMenuBlank struct tMenuBlank : public tMenuNFS4 {
     tMenuBlank(unsigned int, tScreen *, tMenu *, tMenu *,
                void (*)(tMenuCommand &), short);
     ~tMenuBlank();
@@ -145,7 +145,7 @@ struct tMenuBlank : public tMenuNFS4 {
     void TransitionOn();
     bool TransitionIsFinished();
     void UpdateTransition();
-};
+} NFS4_TDN_tMenuBlank;
 
 struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;

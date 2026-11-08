@@ -3,6 +3,7 @@
  * only the records present in their own SYM object graph. */
 #ifndef NFS4_FRONTEND_COMMON_FE_CORE_TYPES_H
 #define NFS4_FRONTEND_COMMON_FE_CORE_TYPES_H
+#include "shared/tpdef_keys.h"   /* typedef-form keys (owner-selected) */
 #ifndef NFS4_FE_CORE_FELINES_LATE   /* owner surfaces whose retail frontend core precedes the MATRIX core */
 #include "felines_types.h"
 #ifdef NFS4_FE_CORE_GS_EARLY   /* retail: GameSetup before tMenuCommandType (feinput femenu fetools ...) */
@@ -147,7 +148,6 @@ struct tMenuItemInteractive : public tMenuItem {
 #ifndef NFS4_FE_CORE_CARS_LATE   /* ScreenDisplay graph: car tail after the screen records */
 #include "fe_core_cars.h"
 #endif
-
 
 
 

@@ -2,9 +2,10 @@
    tools/psyq_pipe/dedup_types.py; every former copy now includes this file at the same place). */
 #ifndef NFS4_SHARED_TTIERINFO_H
 #define NFS4_SHARED_TTIERINFO_H
+#include "shared/tpdef_keys.h"
 
-struct tTierInfo {
+NFS4_TD_tTierInfo struct tTierInfo {
     u_char fNumTournaments, fDescriptionID, fTournOffset, fPad;
     u_char fReserved[8];
-};
+} NFS4_TDN_tTierInfo;
 #endif

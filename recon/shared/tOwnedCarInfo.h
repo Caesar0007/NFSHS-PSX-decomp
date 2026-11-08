@@ -2,9 +2,10 @@
    tools/psyq_pipe/dedup_types.py; every former copy now includes this file at the same place). */
 #ifndef NFS4_SHARED_TOWNEDCARINFO_H
 #define NFS4_SHARED_TOWNEDCARINFO_H
+#include "shared/tpdef_keys.h"
 
-struct tOwnedCarInfo {
+NFS4_TD_tOwnedCarInfo struct tOwnedCarInfo {
     signed char fCarID;
     u_char fUpgrades, fCarColor, fPad;
-};
+} NFS4_TDN_tOwnedCarInfo;
 #endif

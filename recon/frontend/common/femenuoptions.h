@@ -11,7 +11,7 @@
 #else
 #if NFS4_FEMENUOPTIONS_TYPE_PART == 1
 #line 13
-struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
+NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
@@ -24,7 +24,7 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     void MyLeftRightDraw(int, int);
 #endif
 #line 46 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
-};
+} NFS4_TDN_tMenuItemLeftRightFade;
 #line 26 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 2
 #line 27
@@ -89,7 +89,7 @@ struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
 #line 75 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 6
 #line 76
-struct tUserNameMenuItem : public tMenuItem {
+NFS4_TD_tUserNameMenuItem struct tUserNameMenuItem : public tMenuItem {
     char *fData;
     short fMaxStringLength, fCurrentColumn, fCurrentRow;
     char fRowList[10][9];
@@ -124,7 +124,7 @@ struct tUserNameMenuItem : public tMenuItem {
     void UpdateTransition(bool);
 #endif
 #line 375 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
-};
+} NFS4_TDN_tUserNameMenuItem;
 #line 108 "recon/frontend/common/femenuoptions.h"
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 7
 #line 109

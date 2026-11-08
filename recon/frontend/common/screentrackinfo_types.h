@@ -118,10 +118,10 @@ struct tVideoWall {
 };
 #include "screentrackinfo.h"
 #endif
-struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
+NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-};
+} NFS4_TDN_tMenuItemGoToMenuNFS4Button;
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 };
@@ -143,12 +143,12 @@ struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;
     short fPlayer;
 };
-struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
+NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
-};
-struct tOptionsMenu : public tMenu {
+} NFS4_TDN_tMenuItemLeftRightFade;
+NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
     signed char fTransitionDirection;
     short fPrevItem;
@@ -158,7 +158,7 @@ struct tOptionsMenu : public tMenu {
     int GetScreenFade() { return fScreenFade; }
     /* Inferred inline selector, following tPMenu's CurrentItem spelling. */
     short CurrentItem() { return (short)fCurrentItem; }
-};
+} NFS4_TDN_tOptionsMenu;
 
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;
@@ -204,13 +204,13 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
     bool fActive;
 };
 
-struct tUserNameMenuItem : public tMenuItem {
+NFS4_TD_tUserNameMenuItem struct tUserNameMenuItem : public tMenuItem {
     char *fData;
     short fMaxStringLength, fCurrentColumn, fCurrentRow;
     char fRowList[10][9];
     short fPlayer, fFadeVal, fFadeDir;
     bool fInTransition;
-};
+} NFS4_TDN_tUserNameMenuItem;
 
 struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     short fFadeVal, fFadeDir;

@@ -1359,7 +1359,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {   /* xori;beqz */
       FEApp->Redraw();
-    } int count; count = 0; FEApp->Redraw(); { tDialogNoInputMessage WarningDialog; WarningDialog.SetString(player + 0x276);
+    } int count; count = 0; FEApp->Redraw(); { tDialogNoInputMessage WarningDialog; WarningDialog.string = TextSys_Word(player + 0x276);
 
 
 

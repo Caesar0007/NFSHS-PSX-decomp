@@ -207,7 +207,7 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 #line 256 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_PlaceCarAtLocation(Car_tObj *carObj,int slice,int desiredLatPos,int direction,int currentSpeed,
                int rotation1024)
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail ailife.obj type record #247 (TPDEF coorddef) between Car_tObj and Car_tObj, inside AILife_PlaceCarAtLocation__FP8Car_tObjiiiii's record run (locals-before-params, GSDATA_state 7h) */
 
   carObj->desiredLatPos = desiredLatPos;
   carObj->direction = direction;

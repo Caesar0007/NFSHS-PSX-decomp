@@ -19,7 +19,7 @@ extern bool NewBestLap;
 bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
 
 
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
 
   short bBestLapFlag;
   short bCheckLapRecords;

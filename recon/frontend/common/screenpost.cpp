@@ -25,7 +25,7 @@
 #line 45 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
-{
+{ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail requests Car_tStats inside this function (locals-before-params law, GSDATA_state 7h) */
 
   char string1 [50];
   char string2 [50];

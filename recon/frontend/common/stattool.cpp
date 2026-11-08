@@ -23,7 +23,7 @@ char secChar[6] = { '.',':','.','.','.','.' };   /* centisecond seps */
 void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 
 
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
    * function's own constants (the dead tag string most objects carry); the constant-false
    * call keeps the string and adds no code. */

@@ -278,7 +278,7 @@ void CleanupSpinningCarsMenu(void)
 void DoTitleScreen(void)
 
 
-{
+{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTexture_ShapeInfo inside this function (locals-before-params law, GSDATA_state 7h) */
 
   shapetbl *tempShp2;
   char fileName [48];

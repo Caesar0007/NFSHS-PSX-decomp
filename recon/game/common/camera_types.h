@@ -69,22 +69,6 @@ enum forceFocus_t {
 
 
 
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_; /* accessors as in aidatarecord_types.h (retail 9 TPDEFs per includer) */ inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; } inline char *Name() { return name_; } inline char *DataBuffer() { return dataBuffer_; } inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; } inline int BufferSize() { return bSize_; } inline int NumElements() { return numElements_; } inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; void Setup(); };   /* real non-inline virtual override (aidatarecord_types.h): g++ 2.8 dfs_debug_mark then skips it in the Car_tObj field walk, as retail */
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 #include "shared/POLY_GT4.h"
 
@@ -155,6 +139,22 @@ struct camera_flags {
 };
 
 #include "shared/Camera_tCamSlot.h"
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0,
+    RECORD_M = 1,
+    TEST_M = 2
+};
+
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_; /* accessors as in aidatarecord_types.h (retail 9 TPDEFs per includer) */ inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; } inline char *Name() { return name_; } inline char *DataBuffer() { return dataBuffer_; } inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; } inline int BufferSize() { return bSize_; } inline int NumElements() { return numElements_; } inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; void Setup(); };   /* real non-inline virtual override (aidatarecord_types.h): g++ 2.8 dfs_debug_mark then skips it in the Car_tObj field walk, as retail */
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 
 

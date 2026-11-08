@@ -1,7 +1,7 @@
 /* game/common/mathnfs.cpp -- RECONSTRUCTED (NFS4 PSX fixed-point/vector math library; C++ TU)
  *   10 free fns: Math_DistXZ/Dist3D/BetterDist/ResolveRotatedVector/VectorLength[2]/
  *   NormalizeVector/NormalizeShortVector/QDNormalizeVector/fasttransmult. Full SYM-locals applied. */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (INV-A3) NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef is an inferred body (below) */
 #include "mathnfs_types.h"
 #include "mathnfs_externs.h"
 
@@ -101,7 +101,7 @@ void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)
   *newx = fixedmult(dc,x) - fixedmult(ds,y);
   *newy = fixedmult(ds,x) + fixedmult(dc,y); return;
 }
-
+/* INFERRED body: retail mathnfs.obj TPDEF run has one matrixtdef request between Math_Dist3D and Math_VectorLength, no code; never called */ inline void Math_RotateVector(matrixtdef *m) { }
 /* ---- Math_VectorLength__FP8coorddef  [MATHNFS.CPP:132-199] SLD-VERIFIED ---- */
 #line 129 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_VectorLength(coorddef *v)
@@ -374,7 +374,7 @@ void Math_QDNormalizeVector(coorddef *v)
   v->z = (v->z / 256) * (inverse / 256);
 }
 
-
+/* INFERRED bodies: retail mathnfs.obj TPDEF run has four more matrixtdef requests before Math_fasttransmult, no code; never called */ inline void Math_transmult(matrixtdef *m1, matrixtdef *m2, matrixtdef *mr) { } inline void Math_MatIdentity(matrixtdef *m) { }
 /* ---- Math_fasttransmult__FP10matrixtdefN20  [MATHNFS.CPP:533-584] SLD-VERIFIED ---- */
 #line 530 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)

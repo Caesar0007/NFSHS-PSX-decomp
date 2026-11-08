@@ -693,5 +693,5 @@ void Draw_InitLibRender(void)
 
   InitGeom();
 }
-
+/* INFERRED body: retail Draw.obj TPDEF run has one more Draw_tView request after Draw_DrawDirectScreen (shapetbl) with no record; never called */ inline Draw_tView *Draw_GetView(int view) { return &Draw_gView[view]; }
 /* end of draw.cpp */

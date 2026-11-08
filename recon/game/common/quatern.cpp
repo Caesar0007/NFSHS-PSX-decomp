@@ -39,7 +39,7 @@ void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int wei
 
   Quatern_VecInterpolate(cp0,cp1,weight,cp); return;
 }
-
+/* INFERRED bodies: retail quatern.obj TPDEF run has 7 tQuat requests between Quatern_Interpolate (ends 75) and Quatern_QuatToMat (158), no code; never called */ inline void Quatern_Copy(tQuat *src, tQuat *dst) { *dst = *src; } inline void Quatern_Multiply(tQuat *a, tQuat *b, tQuat *r) { } inline void Quatern_Conjugate(tQuat *q) { q->x = -q->x; q->y = -q->y; q->z = -q->z; } inline void Quatern_Identity(tQuat *q) { q->x = 0; q->y = 0; q->z = 0; q->w = 0x1000; }
 /* ---- Quatern_QuatToMat__FP5tQuatP10matrixtdef  [QUATERN.CPP:158-189] ----
  * SYM: x/y/z are the doubled components in v0/t3/t1. Spelling each as a
  * self-add preserves all 68 instructions and retains the retail REG rows;

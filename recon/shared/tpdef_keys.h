@@ -83,4 +83,9 @@
 #define NFS4_FE_CORE_FELINES_AT_LEAF
 #define NFS4_FE_CORE_AT_LEAF_HDR "../../game/common/draw_leaf_types.h"
 #endif
+#if defined(NFS4_TU_FEAPP) || defined(_FE_SCREENS_SCREENCONGRATS_H_) || (defined(_FE_SCREENS_FEMENUOPTIONS_H_) && !defined(_FE_SCREENS_SCREENCONTROLLER_H_)) || defined(NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)   /* tMenu definition after the menu items only (their tMenu forward copy is already retail-placed) */
+#ifndef NFS4_FE_CORE_TMENU_AFTER_ITEMS
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton */
+#endif
+#endif
 #endif

@@ -6,6 +6,8 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FECredits: frontend core + menu items before the MATRIX core */
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car tail after the credits/TV/video records */
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton */
 #include "fecredits_types.h"
 #include "../../game/common/color_types.h"
 #include "fecredits_externs.h"

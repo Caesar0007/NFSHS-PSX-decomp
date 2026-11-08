@@ -16,6 +16,9 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
+#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu right after this owner's tMenuItemGoToMenuButton */
+#include "fe_core_tmenu.h"
+#endif
 
 #include "../../game/common/draw_leaf_types.h"
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail FECredits: tTexture_ShapeInfo, tActiveLine, tShapeInformation, (tScreen), kernpair */

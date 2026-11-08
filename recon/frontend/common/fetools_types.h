@@ -24,6 +24,9 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
+#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu right after this owner's tMenuItemGoToMenuButton */
+#include "fe_core_tmenu.h"
+#endif
 
 #include "shared/tActiveLine.h"   /* retail FETools: tActiveLine right before tMenuItemNFS4LeftRightChoice */
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {

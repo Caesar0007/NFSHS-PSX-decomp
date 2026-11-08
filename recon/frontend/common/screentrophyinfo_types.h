@@ -10,6 +10,8 @@
 #define NFS4_FE_TRACK_NO_PLAYER
 #define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: kernpair right after tScreenTrophyInfo */
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton */
 #include "fe_core_types.h"
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -18,6 +20,9 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
+#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu right after this owner's tMenuItemGoToMenuButton */
+#include "fe_core_tmenu.h"
+#endif
 #include "felines_types.h"
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"

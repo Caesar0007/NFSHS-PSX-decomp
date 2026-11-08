@@ -59,8 +59,8 @@ int          trk0[9][2] = { 410, 530, 800, 850, 800, 850, 800, 850, 800, 850, 80
 int          trk4[10][2] = { 300, 440, 300, 440, 300, 440, 300, 440, 300, 440, 705, 910, 705, 910, 705, 910, 705, 910, 705, 910 };   /* @0x8011f5d8 */
 Draw_SubdivStruct gDiv;   /* @0x8011f628 (.data; CPE-loaded zero) */
 int          animation_timer[12];   /* @0x8011f718 (.data; CPE-loaded zero) */
-ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748 (.data; CPE-loaded zero) */
-CCOORD16     gVertex3d[160];   /* @0x8011f760 (.data; CPE-loaded zero) */
+
+
 int          stackSpeedUpEnbabledFlag = 0;   /* @0x8013d81c (.sdata; CPE-loaded zero) */
 /* SYM (rule-8, nfs4-f-v3.txt:192375): `96 Def2 class STAT type ARY CHAR size 8
    dims 1 8 name goffsets` @0x8013d820, and the symbol-table entry (:3390) is
@@ -68,10 +68,10 @@ int          stackSpeedUpEnbabledFlag = 0;   /* @0x8013d81c (.sdata; CPE-loaded 
    not a linked global.  Only draww.cpp references it (grep-confirmed), so the
    `static` is both SYM-true and safe. */
 static signed char  goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 -- MATCH: oracle `lb` (signed byte) at the goffsets[] lookup site; -1 must sign-extend, not zero-extend */
-u_long       gWSavePtr;   /* @0x8013d830 (.sdata; CPE-loaded zero) */
-int          gSD_gt4counter;   /* @0x8013d834 (.sdata; CPE-loaded zero) */
-int          gSD_gt3counter;   /* @0x8013d838 (.sdata; CPE-loaded zero) */
-DRender_tView *gVi;   /* @0x8013d83c (.sdata; CPE-loaded zero) */
+
+
+
+
 
 /* SYM-STORAGE-PROOF (P440): the former DrawW_/DrawWTrough_ "lost-symbol"
    block was declaration-only link-harness BSS.  None of its 19 Ghidra names
@@ -424,6 +424,15 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
      `lw v0;nop;sw v0` (single-reg reuse) emits per copy. */
 
 
+/* (TRIGX) uninitialized globals defined here, after DrawW_AddSubdividPrimGT4 (moved from the file top, order kept; end-of-file
+   .data/.sdata output unchanged): retail draww.obj records CCOORD16 inside that function's Draw_tGiveShelbyMoreCache field walk,
+   so gVertex3d/gVi were not yet defined there. */
+ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748 (.data; CPE-loaded zero) */
+CCOORD16     gVertex3d[160];   /* @0x8011f760 (.data; CPE-loaded zero) */
+u_long       gWSavePtr;   /* @0x8013d830 (.sdata; CPE-loaded zero) */
+int          gSD_gt4counter;   /* @0x8013d834 (.sdata; CPE-loaded zero) */
+int          gSD_gt3counter;   /* @0x8013d838 (.sdata; CPE-loaded zero) */
+DRender_tView *gVi;   /* @0x8013d83c (.sdata; CPE-loaded zero) */
 #line 314 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,
                Draw_tGiveShelbyMoreCache *sd)

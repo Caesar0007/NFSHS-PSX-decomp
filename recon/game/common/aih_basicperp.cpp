@@ -40,7 +40,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail aih_basicperp.obj type record #133 (TPDEF coorddef) between SHAPE and LIBCOORD, inside CheckForCrimes__16AIHigh_BasicPerp's record run (locals-before-params, GSDATA_state 7h) */ crimeType crime = basicPerpInfo_.GetCrime(); crimeType originalCrime = crime;
+{ crimeType crime = basicPerpInfo_.GetCrime(); crimeType originalCrime = crime;
 
 
   int legal = AISpeeds_GetLegalSpeed(carObj_->N.simRoadInfo.slice);

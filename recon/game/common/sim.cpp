@@ -61,7 +61,7 @@ void Sim_MainGameLoop(void);
 void Sim_StartUp(void)
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail sim.obj type record #124 (TPDEF coorddef) between SHAPE and LIBCOORD, inside Sim_StartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */
+{
   simVar.restartGame = 1;
   simVar.endSimGame = 0;
   simVar.pauseSim = 0;

@@ -63,7 +63,7 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail aih_btcperp.obj type record #143 (TPDEF coorddef) between SHAPE and LIBCOORD, inside ReleaseCops__15AIHigh_BTC_Perp's record run (locals-before-params, GSDATA_state 7h) */
+{
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];

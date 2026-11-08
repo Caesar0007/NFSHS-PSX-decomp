@@ -1,7 +1,7 @@
 /* game/common/aicop.cpp -- RECONSTRUCTED (NFS4 AI action/reaction scripting; 8 free AIScript_* fns).
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
  *   NOT original source; SYM-faithful, recompilable C++. */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (TRIGX) NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef TPDEF is the trigger_t field walk of the inferred shared/trigger_t.h bodies */
 #include "aicop_types.h"
 #include "aicop_externs.h"
 

@@ -73,7 +73,7 @@ void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orien
 int CalcObjYawAngle(CCOORD16 *pts)
 
 
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail object.obj type record #142 (TPDEF coorddef) between SHAPE and LIBCOORD, inside CalcObjYawAngle__FP8CCOORD16's record run (locals-before-params, GSDATA_state 7h) */
+{
   /* DEVICE (exact-only): dx/dz are record-less temps (combine folds each into its arg reg): loads on retail lines 69/70, subtracts + call on 72 */
   int dx = (int)pts[1].x - (int)pts->x;
   int dz = (int)pts[1].z - (int)pts->z;

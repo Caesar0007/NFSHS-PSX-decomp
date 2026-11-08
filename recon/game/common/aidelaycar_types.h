@@ -20,7 +20,7 @@ typedef struct AIDelayCar {
 
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
-    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */
+    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ void GetPosition(coorddef *p) { *p = position_; } /* INFERRED body: retail aidelaycar/aih_* .obj TPDEF run AIDelayCar coorddef AIDelayCar; never called */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */ int GetLaneIndex() { return laneIndex_; } /* INFERRED body: retail AIDelayCar x4 after it; never called */
 } AIDelayCar;
 
 #endif

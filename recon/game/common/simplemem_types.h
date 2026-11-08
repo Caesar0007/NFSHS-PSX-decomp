@@ -33,6 +33,9 @@ typedef struct SimpleMem {
     /* Inline in the original allocator class: Track_DeInit's `delete
        Track_mem` expands to this exact heap cleanup before object deletion. */
     ~SimpleMem() { purgememadr(heap); freeMem = (void *)0x0; }
+#ifndef NFS4_GAME_COMMON_TRACK_TYPES_H   /* retail track.obj: 7 SimpleMem TPDEFs (one body fewer) */
+    int FreeMemSize() { return freeMemSize; } /* INFERRED body: retail simplemem/chunk/group.obj head run SimpleMem x6 (ours x5 without it); never called */
+#endif
 } SimpleMem;
 
 #endif

@@ -40,7 +40,7 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-} AnimScript;
+} AnimScript; inline void AnimScript_FreeInst(Trk_AnimateInst **inst) { delete [] inst; } /* INFERRED body: retail cars.obj TPDEF run AnimScript AnimScript Trk_AnimateInst (the AnimScript dtor delete [] inst, without the receiver); never called */
 
 #include "shared/SceneElem.h"
 

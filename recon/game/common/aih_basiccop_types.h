@@ -33,7 +33,7 @@
 typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-} AnimScript;
+} AnimScript; inline void AnimScript_FreeInst(Trk_AnimateInst **inst) { delete [] inst; } /* INFERRED body: retail aih_basiccop.obj TPDEF run AnimScript AnimScript Trk_AnimateInst (the AnimScript dtor delete [] inst, without the receiver); never called */
 #include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;
@@ -43,7 +43,7 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} } ObjectFinishedMultiAnim;
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail aih_basiccop.obj TPDEF/param run evidence (Multi x4, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef), as ai_types.h; static (no this record), never called */ static void InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef); } ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;

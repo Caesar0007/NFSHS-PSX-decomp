@@ -27,7 +27,7 @@ struct tMenu;
 #define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
-/* color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */
+#include "../../link_stripped.h"   /* LINK_STRIPPED ctor copies below (FESCR2).  color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */
 #define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h NFS4_PRIM_*) */
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -85,8 +85,10 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
     void Draw(int, int, bool);
+    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) LINK_STRIPPED;   /* retail in-class ctor (screendisplay_types.h); FEMenuExtended = key TU -> standalone copy in .text.strip (FESCR2) */
 #line 99 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+inline tMenuItemOptionsLeftRightChoice::tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) {}   /* retail FEMenuExtended.obj: TPDEF x3 at the class (FESCR2) */
 #line 87 "recon/frontend/common/femenuextended_types.h"
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
@@ -94,8 +96,10 @@ struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
 
     void TransitionOn();
     void Draw(int, int, bool);
+    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) LINK_STRIPPED;   /* retail in-class ctor (screendisplay_types.h); FEMenuExtended = key TU -> standalone copy in .text.strip (FESCR2) */
 #line 110 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+inline tMenuItemOptionsTwoItemChoice::tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { fOnOffFade = 0x80; }   /* retail FEMenuExtended.obj: TPDEF x3 at the class (FESCR2) */
 #line 94 "recon/frontend/common/femenuextended_types.h"
 
 struct tMenuNFS4 : public tMenu {
@@ -189,7 +193,7 @@ struct tFEApplication {
     bool gotName[2], needName[2];
     int speechToPlay[2];
 
-    tPlayer Player() { return (tPlayer)(unsigned char)fPlayer; }
+    tPlayer Player() { return (tPlayer)(unsigned char)fPlayer; } NFS4_FEAPP_INF6
 };
 
 /* The linked owner retains this public array typedef while attributing the

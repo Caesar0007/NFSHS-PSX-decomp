@@ -26,13 +26,32 @@ struct tMenu;
 #define textType_TrackRecords 11
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
+    ~tMenuItemLeftRightChoice();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(bool);
+#endif
 };
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemLeftRightSlider(unsigned int, tListIterator *);
+    ~tMenuItemLeftRightSlider();
+    long DebounceKeys();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(bool);
+    void SetDimensions(short, short, short, short);
+#endif
 };
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemGoToMenuButton(unsigned int, tMenu *, void (*)(tMenuCommand &));
+    ~tMenuItemGoToMenuButton();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 #ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* ScreenAudio: tMenu right after its own tMenuItemGoToMenuButton (retail) */
 #include "fe_core_tmenu.h"
@@ -121,14 +140,53 @@ struct tVideoWall {
 NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemGoToMenuNFS4Button(unsigned int, tMenu *, void (*)(tMenuCommand &), int, int);
+    ~tMenuItemGoToMenuNFS4Button();
+    void Draw(int, int, bool);
+    void TransitionOn();
+    void TransitionOff();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    void Draw(bool) {}
+#endif
 } NFS4_TDN_tMenuItemGoToMenuNFS4Button;
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemNFS4LeftRightChoice(unsigned int, tListIterator *, int, int);
+    ~tMenuItemNFS4LeftRightChoice();
+    void Draw(int, int, bool);
+    void TransitionOn();
+    void TransitionOff();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
-struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {};
-struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {};
+struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
+        : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
+    void Draw(int, int, bool) {}
+    bool TransitionIsFinished() { return true; }
+#endif
+};
+struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
+        : tMenuItemLeftRightChoice(t, d) {}
+    void Draw(int, int, bool);
+#endif
+};
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
+        : tMenuItemLeftRightChoice(t, d)
+    { fOnOffFade = 0x80; }
+    void TransitionOn();
+    void Draw(int, int, bool);
+#endif
 };
 struct tMenuNFS4 : public tMenu {
     bool fInItemTransition, fInMenuTransition;
@@ -136,9 +194,9 @@ struct tMenuNFS4 : public tMenu {
     signed char fTransitionDirection;
     char fLastItem, fNumItems;
 };
-struct tMenuNFS4TwoPlayer : public tMenuNFS4 {};
+NFS4_TD_tMenuNFS4TwoPlayer struct tMenuNFS4TwoPlayer : public tMenuNFS4 {} NFS4_TDN_tMenuNFS4TwoPlayer;   /* retail C-style typedef form (shared selector; FESCR2) */
 struct tMenuNFS4Bottom : public tMenuNFS4 {};
-struct tMenuBlank : public tMenuNFS4 {};
+NFS4_TD_tMenuBlank struct tMenuBlank : public tMenuNFS4 {} NFS4_TDN_tMenuBlank;   /* retail C-style typedef form (shared selector; FESCR2) */
 struct tMenuOptions : public tMenuNFS4 {
     u_long fMenuEnterTicks;
     short fPlayer;
@@ -147,6 +205,14 @@ NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemL
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemLeftRightFade(unsigned int, tListIterator *);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    void MyLeftRightDraw(int, int);
+#endif
 } NFS4_TDN_tMenuItemLeftRightFade;
 NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
@@ -162,7 +228,20 @@ NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
 
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
+    ~tInsideBoxMenu();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
+                   void (*OnButtonPress)(tMenuCommand &), short title);   /* defined right after the class (screendisplay_types.h spelling) */
+    virtual void Draw(short, short, short, short, short);
+#endif
 };
+#ifdef NFS4_FE_MENUITEM_INLINES
+inline tInsideBoxMenu::tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
+                                      void (*OnButtonPress)(tMenuCommand &), short title)
+    : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
+#endif
 
 struct tMenuItemSlidingMenu : public tMenuItem {
     tInsideBoxMenu *currMenu, *nextMenu;
@@ -170,18 +249,54 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     bool fInTransition, fTransitioningOut, fClosing;
     short fDiffX, fDiffY;
     bool fFillback; void SetMenu(bool, tInsideBoxMenu *);
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
+    ~tMenuItemSlidingMenu();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    long DebounceKeys();
+    void Draw(bool);
+    virtual void UpdatefOpenHeight(bool);
+    void Draw(int, int, bool);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     bool fActive;
     /* ORIGINAL-NAME-UNRESOLVED: inferred field accessor for the retail activation pair. */
     bool IsActive() { return fActive; }
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f)
+        : tMenuItemSlidingMenu(a, b, c, d, e, f) {
+    }
+    virtual void UpdatefOpenHeight(bool);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
-struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {};
+struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d)
+        : tMenuItemLeftRightFade(t, d) {}
+    void Draw(int, int, bool);
+#endif
+};
 
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
     short fOnFade;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d)
+        : tMenuItemLeftRightFade(t, d) {}
+    void TransitionOn();
+    void Draw(int, int, bool);
+#endif
 };
 
 struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
@@ -190,14 +305,43 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
     short fAudioArt;
     int flareextra;
     int Percentage();
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemLeftRightAudioSlider(unsigned int, tListIterator *, int);
+    ~tMenuItemLeftRightAudioSlider();
+    void Draw(int, int, bool);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
 
 struct tInsideBoxSongMenu : public tInsideBoxMenu {
     short fOnOffFade[5], fSelFade[5];
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tInsideBoxSongMenu(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
+    ~tInsideBoxSongMenu();
+    virtual void Draw(short, short, short, short, short);
+    virtual void DrawOneSong(short, short, short, short, short, short);
+    long DebounceKeys();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
-struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {};
-struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {};
+struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d)
+        : tMenuItemLeftRightFade(t, d) {}
+    void Draw(int, int, bool);
+#endif
+};
+struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
+    ~tInsideBoxLeftRightSlider();
+    void Draw(int, int, int, bool);
+#endif
+};
 
 struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
     short fType;
@@ -216,12 +360,41 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     signed short fEnableVal;
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
+        : tMenuItemGoToMenuButton(t, m, f) {}
+    short EnableValue() { return fEnableVal; }   /* INFERRED body: retail TPDEF tMenuItemGoToMenuButtonFade x5 per object (FESCR) */
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
 
-struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {};
-struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {};
+struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
+        : tMenuItemGoToMenuButtonFade(t, m, f) {
+    }
+    void Draw(bool);
+#endif
+};
+struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand &), int ff, int nf)
+        : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}
+    void Draw(bool) {}
+    void Draw(int, int, bool) {}
+    bool TransitionIsFinished() { return true; }
+#endif
+};
 
 struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
+#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
+    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d)
+        : tInsideBoxLeftRightSlider(t, d) {}
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 #ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail ScreenAudio: tracks + tournaments after the menu family (same text as above) */

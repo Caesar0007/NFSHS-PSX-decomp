@@ -3,7 +3,7 @@
  * wrap the definitions (line-neutral).  Owner identity = first-header guards / NFS4_TU_* markers. */
 #ifndef NFS4_SHARED_TPDEF_KEYS_H
 #define NFS4_SHARED_TPDEF_KEYS_H
-#if !defined(NFS4_FE_NO_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)   /* (ScreenAudio/ScreenTrackInfo: own minimal class copies, screentrackinfo_types.h) FESCR: retail FEMENUOPTIONS.H/FEMENUEXTENDED.H menu-item family = full declarations + in-class bodies in every includer; FeMenuOptions.obj (their key TU) opts out */
+#if !defined(NFS4_FE_NO_MENUITEM_INLINES)   /* (ScreenAudio/ScreenTrackInfo: their own class copies in screentrackinfo_types.h carry the same blocks, FESCR2) FESCR: retail FEMENUOPTIONS.H/FEMENUEXTENDED.H menu-item family = full declarations + in-class bodies in every includer; FeMenuOptions.obj (their key TU) opts out */
 #define NFS4_FE_MENUITEM_INLINES
 #endif
 #if 1   /* plain everywhere: the inferred tTournamentManager bodies apply in every frontend TU now (trophy TUs incl., INV-B I5) */   /* plain: the tTournamentManager inferred bodies (CurrentTierInfo/CompetitorAt) supply the 2nd record; trophy owners (bodies excluded) keep the typedef pair */
@@ -118,5 +118,24 @@
 #define NFS4_FESCREEN_INFERRED_DECLS     inline int TransitionTicks() LINK_STRIPPED; inline bool IsTransitionOff() LINK_STRIPPED;     inline short ScreenFadeVal() LINK_STRIPPED; inline void SetScreenFadeVal(short fadeVal) LINK_STRIPPED;     inline int InternalScreenFadeVal() LINK_STRIPPED; inline void SetInternalScreenFadeVal(int fadeVal) LINK_STRIPPED;
 #else
 #define NFS4_FESCREEN_INFERRED_DECLS
+#endif
+#ifdef NFS4_TU_FEMENU   /* FEMenu (tMenu/tMenuItem key TU): the retail inline-member sets (same spellings as NFS4_FE_CORE_TMENU_ALL_INLINES in fe_core_types.h/fe_core_tmenu.h), declared LINK_STRIPPED and defined right after each class (incl. the existing IsEnabled/NewMenu, moved from femenu_externs.h) -> TPDEF runs at the classes as retail; standalone copies in .text.strip.  tMenuItem: 8 of the 13 (retail class run 16 also holds the in-class virtual TransitionOff/On bodies at FEMENU.H:274/275, still out-of-class in femenu.cpp under tool-owned #line anchors -> 4 trailing records; 8 keeps the object total = retail 35) (FESCR2) */
+#define NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS inline unsigned int GetFlags() LINK_STRIPPED; inline void SetFlags(unsigned int flags) LINK_STRIPPED; inline void SetTextDescription(unsigned int text) LINK_STRIPPED; inline void Disable() LINK_STRIPPED; inline void Enable() LINK_STRIPPED; inline unsigned int LeftRightFlag() LINK_STRIPPED; inline unsigned int TextDescription() LINK_STRIPPED; inline short SelFade() LINK_STRIPPED;
+#define NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS inline bool tMenuItem::IsEnabled() { return ((fFlags ^ 1) & 1) != 0; } inline tMenu *tMenuItem::NewMenu() { return fNewMenu; } inline unsigned int tMenuItem::GetFlags() { return fFlags; } inline void tMenuItem::SetFlags(unsigned int flags) { fFlags = flags; } inline void tMenuItem::SetTextDescription(unsigned int text) { fTextDescription = text; } inline void tMenuItem::Disable() { fFlags |= 1; } inline void tMenuItem::Enable() { fFlags &= ~1; } inline unsigned int tMenuItem::LeftRightFlag() { return fFlags & 0x400; } inline unsigned int tMenuItem::TextDescription() { return fTextDescription; } inline short tMenuItem::SelFade() { return fSelFade; }
+#define NFS4_FEMENU_TMENU_STRIPPED_DECLS inline short CurrentItem() LINK_STRIPPED; inline void SetChildMenu(tMenu *child) LINK_STRIPPED; inline void SetVerticalHelp(short help) LINK_STRIPPED; inline bool HasFlag(unsigned int flag) LINK_STRIPPED; inline tMenuItem *Item(int n) LINK_STRIPPED; inline bool CanContinue() LINK_STRIPPED; inline bool HasOptionsMenu() LINK_STRIPPED; inline unsigned int ExitsWithBack() LINK_STRIPPED; inline tScreen *GetScreen() LINK_STRIPPED; inline unsigned int GetMusic() LINK_STRIPPED; inline tMenuItem *CurrentMenuItem() LINK_STRIPPED; inline short TitleText() LINK_STRIPPED; inline bool NeverAnyEnabled() LINK_STRIPPED;
+#define NFS4_FEMENU_TMENU_STRIPPED_DEFS inline short tMenu::CurrentItem() { return fCurrentItem; } inline void tMenu::SetChildMenu(tMenu *child) { fChildMenu = child; } inline void tMenu::SetVerticalHelp(short help) { VertHelp = help; } inline bool tMenu::HasFlag(unsigned int flag) { return (fFlags & flag) != 0; } inline tMenuItem *tMenu::Item(int n) { return fItemList[n]; } inline bool tMenu::CanContinue() { return fNextMenu != (tMenu *)0x0 || (fFlags & 0x400) != 0 || fOnButtonPress != 0x0; } inline bool tMenu::HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; } inline unsigned int tMenu::ExitsWithBack() { return fFlags & 0x100; } inline tScreen *tMenu::GetScreen() { return fScreen; } inline unsigned int tMenu::GetMusic() { return fFlags & 0xf000; } inline tMenuItem *tMenu::CurrentMenuItem() { return fItemList[fCurrentItem]; } inline short tMenu::TitleText() { return fTitle; } inline bool tMenu::NeverAnyEnabled() { return fNeverAnyEnabled; }
+#else
+#define NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS
+#define NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS
+#define NFS4_FEMENU_TMENU_STRIPPED_DECLS
+#define NFS4_FEMENU_TMENU_STRIPPED_DEFS
+#endif
+#define NFS4_FEAPP_INF3 inline short YOffset() { return fYOffset; } inline int InputPlayer() { return fInputPlayer; } inline unsigned int CurrentMusic() { return fCurrentMusic; }   /* INFERRED bodies: retail TPDEF tFEApplication x9 at the class in every non-owner object (ours 3 without them); builtin-only, never called (FESCR2) */
+#define NFS4_FEAPP_INF6 NFS4_FEAPP_INF3 inline void SetYOffset(short y) { fYOffset = y; } inline void SetInputPlayer(char p) { fInputPlayer = p; } inline void SetCurrentMusic(unsigned int m) { fCurrentMusic = m; }
+#define NFS4_FEAPP_INF5 NFS4_FEAPP_INF3 inline void SetYOffset(short y) { fYOffset = y; } inline void SetInputPlayer(char p) { fInputPlayer = p; }
+#if defined(_FE_SCREENS_SCREENCARSELECT_H_)   /* ScreenCarSelect: fedialog_types.h copy + its GetPlayer surface already give 6 */
+#define NFS4_FEAPP_INF_FEDIALOG NFS4_FEAPP_INF3
+#else
+#define NFS4_FEAPP_INF_FEDIALOG NFS4_FEAPP_INF6
 #endif
 #endif

@@ -53,7 +53,7 @@ struct tFEApplication {
     int speechToPlay[2];
 
     int BackDepth(int player) { return backDepth[player]; }
-    tMenu *CurrentMenu(int player) { return fCurrentMenu[player]; }
+    tMenu *CurrentMenu(int player) { return fCurrentMenu[player]; } NFS4_FEAPP_INF5
 };
 #else
 struct tCreditManager {

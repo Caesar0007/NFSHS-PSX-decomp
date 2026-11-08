@@ -83,6 +83,6 @@ typedef struct tMenu {
     /* INFERRED bodies: retail TPDEF tMenu x16 per object (2 inline bodies beyond the 12 spelled); builtin-only, never called */
     inline short TitleText() { return fTitle; } inline bool NeverAnyEnabled() { return fNeverAnyEnabled; }
 #endif
-} tMenu;
-
+NFS4_FEMENU_TMENU_STRIPPED_DECLS } tMenu;
+NFS4_FEMENU_TMENU_STRIPPED_DEFS
 #endif

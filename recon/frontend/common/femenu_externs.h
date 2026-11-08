@@ -41,9 +41,9 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * IsEnabled reuses the existing inferred member spelling. The interface-only
  * definition avoids a non-retail standalone getter in this key-function TU. */
 /* (no #pragma: user ruling 2026-11-07) */
-inline bool tMenuItem::IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
+/* IsEnabled: defined right after the class (NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS, shared/tpdef_keys.h; FESCR2) */
 /* ORIGINAL-NAME-UNRESOLVED: fNewMenu getter; retail GoToMenuButton::ProcessInput records its tMenuItem `this`
  * pairs at the test (904) and the nextMenu store (916). Interface-only like IsEnabled (no standalone copy). */
-inline tMenu *tMenuItem::NewMenu() { return fNewMenu; }
+/* NewMenu: defined right after the class (NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS, shared/tpdef_keys.h; FESCR2) */
 
 #endif

@@ -64,6 +64,7 @@ struct tListIteratorDoubleIndexed : public tListIterator {
     char *fIndex1;
     int index1multiplier;
     char *fIndex2;
+    tListIteratorDoubleIndexed(short *selection, char *valPtr, char *index1, int multiplier, char *index2) LINK_STRIPPED;   /* INFERRED (FESCR2): see femenu.cpp */
     ~tListIteratorDoubleIndexed();
     char Value(tPlayer);
     short TextValue(tPlayer);
@@ -72,6 +73,7 @@ struct tListIteratorDoubleIndexed : public tListIterator {
 };
 
 struct tListIteratorMultiPlayer : public tListIterator {
+    tListIteratorMultiPlayer(short *selection, char *valPtr) LINK_STRIPPED;   /* INFERRED (FESCR2): see femenu.cpp */
     ~tListIteratorMultiPlayer();
     char Value(tPlayer);
     short TextValue(tPlayer);

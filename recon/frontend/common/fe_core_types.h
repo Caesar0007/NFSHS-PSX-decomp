@@ -132,8 +132,8 @@ typedef struct tMenuItem {
     inline unsigned int TextDescription() { return fTextDescription; } inline short SelFade() { return fSelFade; } inline void SetSelFade(short v) { fSelFade = v; }
     inline int NumFrames() { return fNumFrames; } inline void SetNumFrames(int v) { fNumFrames = v; } inline int ButtonImageIndex() { return fButtonImage; } inline void SetButtonImageIndex(int v) { fButtonImage = v; }
 #endif
-} tMenuItem;
-/* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
+NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS } tMenuItem;
+NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }
 typedef tMenuItem *tItemList[16];
 

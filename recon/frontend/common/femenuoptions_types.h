@@ -74,7 +74,7 @@ struct tFEApplication {
     bool gotName[2], needName[2];
     int speechToPlay[2];
 
-    tScreen *CurrentScreen(int player) { return fCurrentScreen[player]; }
+    tScreen *CurrentScreen(int player) { return fCurrentScreen[player]; } NFS4_FEAPP_INF6
 #ifdef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
     /* same spelling as feapp_types.h: retail tUserNameMenuItem::ProcessInput records its this (REG $2) pair at the 0x100 test */
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }

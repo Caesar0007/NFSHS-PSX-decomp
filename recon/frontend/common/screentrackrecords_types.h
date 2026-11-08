@@ -3,7 +3,7 @@
 #define NFS4_FRONTEND_COMMON_SCREENTRACKRECORDS_TYPES_H   /* Owner-specific type surface for ScreenTrackRecords.obj. */
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screentrackrecords_after_track.h"   /* retail: iterators, tMenuTextState, FLARE_PIECE_DEF after tTrackManager */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
@@ -45,12 +45,12 @@ typedef SVECTOR FE3d_zNormal;
 #elif !defined(NFS4_SCREENTRACKRECORDS_OWNER_DONE)   /* second pass (screendisplay owner hook) */
 #define NFS4_SCREENTRACKRECORDS_OWNER_DONE
 /* These foreign enum tags are absent from this owner graph. */
-enum tMenuTextState {
-    textState_Unselected = 0,
-    textState_Selected = 1,
-    textState_Hilighted = 2,
-    textState_NumStates = 3
-};
+/* tMenuTextState: emitted after tListIteratorTrack (screentrackrecords_after_track.h, retail order) */
+
+
+
+
+
 #define tMenuTextType int
 #define textType_TrackRecords 11
 #include "shared/FLARE_PIECE_DEF.h"

@@ -33,21 +33,17 @@
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
+#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_FEDIALOG_ORDER)   /* owner places these itself (screencarselect; FEDialog: after DIRENTRY) */
 #include "mcrd_productloc.h"   /* moved verbatim (ScreenMemcard emits it inside its owner_early block) */
 #endif
-
-
-
-
-
-#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL)   /* owner places it itself (screencarselect) */
-#include "mcrd_managertask.h"
+#ifdef NFS4_SCREENMEMCARD_FEDIALOG_ORDER   /* retail FEDialog: tRecordBuffer after the screen graph, before TCB */
+#include "mcrd_recordbuffer.h"
 #endif
 
 
-
-
+#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_FEDIALOG_ORDER)   /* owner places it itself (screencarselect) */
+#include "mcrd_managertask.h"
+#endif
 
 
 
@@ -55,6 +51,10 @@
 #include "shared/EXEC.h"
 #ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
 #include "shared/DIRENTRY.h"
+#endif
+#ifdef NFS4_SCREENMEMCARD_FEDIALOG_ORDER   /* retail FEDialog: PRODUCTLOC, MANAGERTASK right after DIRENTRY */
+#include "mcrd_productloc.h"
+#include "mcrd_managertask.h"
 #endif
 #endif
 

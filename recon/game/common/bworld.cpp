@@ -29,8 +29,8 @@ int          gBWSlice;   /* @0x8013c7a4  (bss(zero)) */
 int          BWorld_gChunkCount;   /* @0x8013c7a8  (bss(zero)) */
 int          gSpikeBeltWidth;   /* @0x8013c7ac  (bss(zero)) */
 int          gSpikeBeltColourTableIndex;   /* @0x8013c7b0  (bss(zero)) */
-Car_tObj     *BW_gCopCarObj;   /* @0x8013c7b4  (bss(zero)) */
-DRender_tView *gVi2;   /* @0x8013c7b8  (bss(zero)) */
+
+
 
 
 /* ---- intra-TU forward declarations ---- */
@@ -204,7 +204,7 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 
         if (pad < 0)
         {
-          coorddef *pt1 = (coorddef *)&objInstance[j];
+          coorddef *pt1 = (coorddef *)&objInstance[j]; coorddef *devLocal_glare; /* DEVICE (exact-only): record-less unused local; retail bworld.obj BWorld_BuildGlareEffects run has 3 coorddef TPDEFs (dir, pt1 + one) */
           Flare_Halo2(Vi, -1, (short)type,
                       (coorddef *)&objInstance[i], pt1, (Draw_FlareCache *)sd);
         }
@@ -230,7 +230,7 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
  * the existing for-owned i is retained. A separate counter block changes the
  * scope tree even when bytes agree. Literal original text remains unproven. */
 /* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */
-
+Car_tObj     *BW_gCopCarObj;   /* @0x8013c7b4  (bss(zero)) (TRIGX2) defined here, moved from the file top: retail bworld.obj emits the Car_tObj walk after BWorld_BuildGlareEffects' record run */
 
 #line 323 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_InitSpikeBelt(void)
@@ -353,7 +353,7 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 
 #line 392 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
-{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail bworld.obj type record #331 (TPDEF coorddef) between coorddef and matrixtdef, inside SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache's record run (locals-before-params, GSDATA_state 7h) */
+{ /* (TRIGX2) the record-less coorddef DEVICE moved into the campos block below (retail TPDEF coorddef right after campos) */
 
 
 
@@ -486,7 +486,7 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
         }
 
         if ((((theCar->N).active != '\0') && ((theCar->AIFlags & 2U) != 0)) && (((theCar->render).damageParts & 4U) == 0))
-        { coorddef *campos = &(Vi->cview).translation; int dx; int dz; int diff;
+        { coorddef *campos = &(Vi->cview).translation; int dx; int dz; int diff; coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail bworld.obj SetupBuildMatrices run `matrixtdef Car_tObj coorddef coorddef matrixtdef` (campos + this) */
 
 
 
@@ -848,7 +848,7 @@ bool BWorld_IsSliceInBuildList(int slice)
  * All193 word tags, block/end coordinates and supplied locals now match;
  * literal original macro/comment text is not uniquely proved by that seal. */
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
-
+DRender_tView *gVi2;   /* @0x8013c7b8  (bss(zero)) (TRIGX2) defined here, moved from the file top: retail `coorddef x3 DRender_tView DRender_tView Draw_DCache Chunk DRender_tView` */
 
 #line 905 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)

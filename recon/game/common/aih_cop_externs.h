@@ -60,7 +60,7 @@ static inline int AI_Rand(void)
 
 /* HighExecute's trigger dispatch switches on this one-parameter inline (see aih_traf.cpp): its post-inline
    line note tags the dispatch with the switch's closing line, and its record sits after the case bodies. */
-static inline int TriggerType(trigger_t *trigger) { return trigger->any.type; }
+static inline int TriggerType(int *type) { return *type; } /* int view of trigger_t.any.type: retail aih_cop.obj has no trigger_t TPDEF here (run `CarBank coorddef AIHigh_BasicCop`) and HighExecute records no inlined formal */
 static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
 static inline int PerpChase_CopFreeTicks(int *copFreeTicks) { return *copFreeTicks; } /* int view: retail records no 22nd AICop_PerpChaseInfo here */

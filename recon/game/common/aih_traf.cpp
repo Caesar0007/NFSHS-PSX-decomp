@@ -160,8 +160,8 @@ AIHigh_Traffic::CopCheck(int *blockade)
 /* UNRESOLVED RECONSTRUCTION: retail records trigger one level shallower and
    no high parameter. This wrapper still has both mismatches; value-pointer,
    reference/member and statement-expression trials do not resolve them.
-   The car read must remain late and the operation must remain type5-guarded. */
-static inline int TriggerType(trigger_t *trigger) { return trigger->any.type; }
+   The car read must remain late and the operation must remain type5-guarded.
+   (TRIGX2) TriggerType itself now lives in shared/trigger_t.h, keyed for this TU (retail trigger_t record run). */
 
 
 
@@ -181,7 +181,7 @@ void AIHigh_Traffic::HighExecute()
 
   switch ((stateType_t)stateType_)
   {
-    trigger_t *pNewTrigger;
+
   case STATE_NONE: {
         coorddef trafficOffset = { 0, 0x640000, 0 };
         if ((carObj_->carFlags & 0x400U) != 0)
@@ -198,7 +198,7 @@ void AIHigh_Traffic::HighExecute()
         Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
         return;
       }
-  case STATE_PURGATORY:
+  case STATE_PURGATORY: trigger_t *pNewTrigger; /* after the STATE_NONE block: retail TPDEF run `coorddef trigger_t BWorldSm_Pos` */
 
 
       if (accidentData_ != (SceneElem *)0x0)

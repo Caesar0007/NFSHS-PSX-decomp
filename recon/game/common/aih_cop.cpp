@@ -630,7 +630,7 @@ void AIHigh_Cop::HighExecute()
           newTrigger.roadblock.slice = oldSlice;
 
         }
-        triggerManagerCops->DescribeTrigger(&newTrigger); switch (TriggerType(&newTrigger))
+        triggerManagerCops->DescribeTrigger(&newTrigger); switch (TriggerType(&newTrigger.any.type))
         {
         case 0: case 2: break;
         case 3:

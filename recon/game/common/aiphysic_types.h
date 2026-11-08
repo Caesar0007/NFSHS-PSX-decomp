@@ -33,25 +33,6 @@
 
 
 
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_; /* accessors as in aidatarecord_types.h (retail 9 TPDEFs per includer) */ inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; } inline char *Name() { return name_; } inline char *DataBuffer() { return dataBuffer_; } inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; } inline int BufferSize() { return bSize_; } inline int NumElements() { return numElements_; } inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t {
-    int scale_;
-    int Get(int i); void Setup();   /* real non-inline virtual override: skipped by the Car_tObj field walk (retail) */
-};
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
@@ -107,6 +88,25 @@ enum eRampType {
     kRampType_Interpolate = 0,
     kRampType_NoInterpolate = 1
 };
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0,
+    RECORD_M = 1,
+    TEST_M = 2
+};
+
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_; /* accessors as in aidatarecord_types.h (retail 9 TPDEFs per includer) */ inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; } inline char *Name() { return name_; } inline char *DataBuffer() { return dataBuffer_; } inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; } inline int BufferSize() { return bSize_; } inline int NumElements() { return numElements_; } inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+struct AIDataRecord_AccTable_t : public AIDataRecord_t {
+    int scale_;
+    int Get(int i); void Setup();   /* real non-inline virtual override: skipped by the Car_tObj field walk (retail) */
+};
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
 
 

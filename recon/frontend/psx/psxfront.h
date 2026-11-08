@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #define NFS4_PSXFRONT_SCREEN_LATE   /* retail PSXFront: tShapeInformation right after Car_tObj (FRONTORD3 late-tScreen lever) */
 #define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/psx/psxfront_screen_late.h"

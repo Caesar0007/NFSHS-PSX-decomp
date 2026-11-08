@@ -1,3 +1,5 @@
+#define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 /* Owner-specific type surface for ScreenTrophyRoom.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H

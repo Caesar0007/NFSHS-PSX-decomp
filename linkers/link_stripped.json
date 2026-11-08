@@ -793,6 +793,24 @@
    "evidence": "AIHigh_BTC_HumanCop::SetRequestedDesiredSpeed (owner-only header: LINK_STRIPPED prototype) (0x8 B), inline in recon/game/common/aih_btccop_types.h. AIH_BTCCop.obj is now compiled with retail's PsyQ 4.4 CC1PLPSX (2.8.1-sn) without -fno-implement-inlines -- the compiler that makes the BTC cop classes's synthesized destructors global as in the retail SYM (SYMLANE L4 / LANE2 M1) -- and, owning the class key function, emits this standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (P6 Route C 2026-11-07: slink removed exactly the 29 newly tagged copies, retail-kept 0, NFS4.EXE and FRONT.BIN byte-identical to the retail disc files; receipt build/tmp/v/P6_state.md); absent from the retail MAP."
   },
   {
+   "object": "build/recon/game/common/aih_btccop.cpp.o",
+   "function": "HasCatchTime__19AIHigh_BTC_HumanCop",
+   "source": "recon/game/common/aih_btccop_types.h",
+   "evidence": "AIHigh_BTC_HumanCop::HasCatchTime (owner-only header: LINK_STRIPPED prototype), inline in recon/game/common/aih_btccop_types.h (INV-C set 23b, user unblock 2026-11-08 \"STRIPPED COPIES\"): retail AIH_BTCCop.obj records 49 TPDEF AIHigh_BTC_HumanCop = plain struct + 10 accessor bodies; owning the class key function, the object emits this standalone copy; nothing references it; SLINK /strip removes it; absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/game/common/aih_btccop.cpp.o",
+   "function": "SetNeedPerp__19AIHigh_BTC_HumanCopi",
+   "source": "recon/game/common/aih_btccop_types.h",
+   "evidence": "AIHigh_BTC_HumanCop::SetNeedPerp (owner-only header: LINK_STRIPPED prototype), inline in recon/game/common/aih_btccop_types.h (INV-C set 23b, user unblock 2026-11-08 \"STRIPPED COPIES\"): retail AIH_BTCCop.obj records 49 TPDEF AIHigh_BTC_HumanCop = plain struct + 10 accessor bodies; owning the class key function, the object emits this standalone copy; nothing references it; SLINK /strip removes it; absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/game/common/aih_btccop.cpp.o",
+   "function": "NeedsPerp__19AIHigh_BTC_HumanCop",
+   "source": "recon/game/common/aih_btccop_types.h",
+   "evidence": "AIHigh_BTC_HumanCop::NeedsPerp (owner-only header: LINK_STRIPPED prototype), inline in recon/game/common/aih_btccop_types.h (INV-C set 23b, user unblock 2026-11-08 \"STRIPPED COPIES\"): retail AIH_BTCCop.obj records 49 TPDEF AIHigh_BTC_HumanCop = plain struct + 10 accessor bodies; owning the class key function, the object emits this standalone copy; nothing references it; SLINK /strip removes it; absent from the retail MAP."
+  },
+  {
    "object": "build/recon/game/common/aidatarecord.cpp.o",
    "function": "BufferSize__14AIDataRecord_t",
    "source": "recon/game/common/aidatarecord_types.h",

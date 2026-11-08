@@ -277,7 +277,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
 };
 #line 347 "recon/game/common/aih_btccop_types.h"
 inline AIHigh_BTC_Perp *AIHigh_BTC_Cop::PerpTarget() { return perpTarget_; }
-typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
+struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct + 10 accessors (49 TPDEFs in AIH_BTCCOP.obj) */
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
     static int lastInputRequestTick_;
     enum {
@@ -310,9 +310,9 @@ typedef struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     /* accessors (retail HumanCop pairs); their standalone copies were removed by SLINK /strip (P6 Route C 2026-11-07) */
     inline int CurrentStage() LINK_STRIPPED; inline int InitialDirection() LINK_STRIPPED; inline int InitialMovement() LINK_STRIPPED;
     inline void SetRequestedDesiredSpeed(int speed) LINK_STRIPPED; inline int RequestedDesiredSpeed() LINK_STRIPPED;
-    inline void SetInitialDirection(int initialDirection) LINK_STRIPPED; inline void SetInitialMovement(int initialMovement) LINK_STRIPPED;
+    inline void SetInitialDirection(int initialDirection) LINK_STRIPPED; inline void SetInitialMovement(int initialMovement) LINK_STRIPPED; inline bool HasCatchTime() LINK_STRIPPED; inline void SetNeedPerp(int needPerp) LINK_STRIPPED; inline int NeedsPerp() LINK_STRIPPED;
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-} AIHigh_BTC_HumanCop;
+};
 #line 387 "recon/game/common/aih_btccop_types.h"
 inline int AIHigh_BTC_HumanCop::CurrentStage() { return currentStage_; }
 inline int AIHigh_BTC_HumanCop::InitialDirection() { return initialDirection_; }
@@ -320,7 +320,7 @@ inline int AIHigh_BTC_HumanCop::InitialMovement() { return initialMovement_; }
 inline void AIHigh_BTC_HumanCop::SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
 inline int AIHigh_BTC_HumanCop::RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
 inline void AIHigh_BTC_HumanCop::SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
-inline void AIHigh_BTC_HumanCop::SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
+inline void AIHigh_BTC_HumanCop::SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; } inline bool AIHigh_BTC_HumanCop::HasCatchTime() { return timeLeft_ > 5; } inline void AIHigh_BTC_HumanCop::SetNeedPerp(int needPerp) { needPerp_ = needPerp; } inline int AIHigh_BTC_HumanCop::NeedsPerp() { return copIndex_ == 0 ? needPerp_ : 0; }
 struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     Wingman_Role currentRole_, newRole_;
     AIHigh_BTC_HumanCop *newHumanBoss_;

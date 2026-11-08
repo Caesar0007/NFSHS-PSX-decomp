@@ -535,7 +535,7 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 
 #line 536 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
-{
+{ Car_tObj *devLocal_Car_tObj; /* DEVICE (exact-only): record-less unused local; retail requests Car_tObj inside this function (locals-before-params law, GSDATA_state 7h) */
   int temp;
   coorddef right;
   int futureSlice;

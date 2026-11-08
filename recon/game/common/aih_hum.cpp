@@ -22,7 +22,7 @@ void AIHigh_Human::HighExecute()
 
 
 
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
 
 
 

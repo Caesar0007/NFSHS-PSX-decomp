@@ -58,7 +58,7 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
 
-{ int copLoop; copLevel_t*pLevel; int nCopsNeeded[2]; int ready[2]; int assigned[2]; int split; pLevel = this->perpChaseInfo_.GetChaseLevel();
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */ blockade_t *devLocal_blockade_t; /* DEVICE (exact-only): record-less unused local; retail requests blockade_t inside this function (locals-before-params law, GSDATA_state 7h) */ int copLoop; copLevel_t*pLevel; int nCopsNeeded[2]; int ready[2]; int assigned[2]; int split; pLevel = this->perpChaseInfo_.GetChaseLevel();
 
 
 

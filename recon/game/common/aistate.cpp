@@ -41,7 +41,7 @@ static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss
  * relative SLD differences, with exact block/function-end line records. */
 
 #line 25 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
-void AIState_StartUp(void) {
+void AIState_StartUp(void) { coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   AIState_Purgatory::StartUp(); }
 
 

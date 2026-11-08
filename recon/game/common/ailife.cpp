@@ -572,7 +572,7 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
 
 #line 626 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_IsCoordInThisLiveArea(coorddef *tPos,Car_tObj *racer)
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   /* SYM @0x80068658 block: REG xD($v1)/zD($a2)/dist($v1, reuses xD's reg) -- 3 named
    * locals, not 2 generic iVar temps (w18-a7). */
   int xD;
@@ -617,7 +617,7 @@ Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 
 #line 672 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   int xD;
   int zD;
   int dist;

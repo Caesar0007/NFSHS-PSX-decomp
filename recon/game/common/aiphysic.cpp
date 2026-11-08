@@ -1984,7 +1984,7 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 
 #line 2072 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_HitWallCheck(Car_tObj *carObj)
-{
+{ BO_tNewtonObj *devLocal_BO_tNewtonObj; /* DEVICE (exact-only): record-less unused local; retail requests BO_tNewtonObj inside this function (locals-before-params law, GSDATA_state 7h) */
     int onRoad;
 
 

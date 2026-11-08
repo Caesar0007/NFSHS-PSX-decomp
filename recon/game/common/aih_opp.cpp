@@ -430,7 +430,7 @@ extern AIHigh_Base *highLevelAIObjs[];  /* H24: @0x8010CD38 (not in this TU's ex
 
 #line 37 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 void AIHigh_Opponent::CheckForWipeOut()
-{ int perTickProb; int randVal; int oppLevel; int oppFines; oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */ int perTickProb; int randVal; int oppLevel; int oppFines; oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();
 
 
 

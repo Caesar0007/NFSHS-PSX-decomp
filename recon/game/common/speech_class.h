@@ -2,10 +2,10 @@
  * constructs it or names its static members. Needs u_long, u_char and an (incomplete) Car_tObj. */
 #ifndef NFS4_GAME_COMMON_SPEECH_CLASS_H
 #define NFS4_GAME_COMMON_SPEECH_CLASS_H
-
-/* PsyQ4.3 STRINGS.H: declare these before the inline name comparisons.
- * Late/implicit declarations are not a portable C++ interface. */
-extern "C" int strlen(char *);
+#ifndef NFS4_SPEECH_STRIP   /* speech.obj (speech_types.h) defines it LINK_STRIPPED: its standalone copies of the inline Speaker/MobileSpeaker/DispatchSpeaker members go to .text.strip */
+#define NFS4_SPEECH_STRIP
+#endif
+extern "C" int strlen(char *);   /* PsyQ4.3 STRINGS.H: declare these before the inline name comparisons (late/implicit declarations are not a portable C++ interface) */
 extern "C" int strncmp(char *, char *, int);
 struct Car_tObj;
 #include "shared/SPCHNFSType_POSITION.h"
@@ -91,58 +91,58 @@ struct Speech {
         int fCar, fLocation, fFrom, fTo, fWing;
         bool fHavePerp;
         Speaker *fSub;
-        Speaker() { fSub = 0; }   /* inline: retail stores the Speaker table, zeroes fSub, then stores the derived table */
-        Speaker *Sub() { return fSub; }   /* inline accessor: proven by DispatchSpeaker::Status' Engage(Perp()) evaluation order */
+        Speaker() NFS4_SPEECH_STRIP;   /* inline: retail stores the Speaker table, zeroes fSub, then stores the derived table */
+        inline Speaker *Sub() NFS4_SPEECH_STRIP;   /* inline accessor: proven by DispatchSpeaker::Status' Engage(Perp()) evaluation order */
 #include "speech_speaker_virtuals.inc"
         void SetCar(Car_tObj *car);
         void FindLocation(Car_tObj *car);
         int CalcMph(Car_tObj *perp);
         void Promote();
-        inline void ClearCar() {
-            fCar = 0;
-            fColour.flags = 0;
-        }
-        inline void SetColour(int Colour) { fColour.flags = Colour; }
-        inline void SetBlockade(int Blockade) { fBlockade.flags = Blockade; }
+        inline void ClearCar() NFS4_SPEECH_STRIP;
+
+
+
+        inline void SetColour(int Colour) NFS4_SPEECH_STRIP;
+        inline void SetBlockade(int Blockade) NFS4_SPEECH_STRIP;
         /* inline setters: retail's SYM shows one zero-length `this` pair per field reset (e.g. Purge's five at +1a0) */
-        inline void SetArrest(int Arrest) { fArrest.flags = Arrest; }
-        inline void SetUpdate(int Update) { fUpdate.flags = Update; }
-        inline void SetSub(Speaker *Sub) { fSub = Sub; }
-        inline void SetTo(int to) { fTo = to; }
-        inline int To() { return fTo; }
-        inline int From() { return fFrom; }
-        inline void SetFrom(int from) { fFrom = from; }
-        inline void SetConfirm(int confirm) { fConfirm.flags = confirm; }
-        inline void SetPerpName(int name) { fPerpName.flags = name; }
-        inline void SetHavePerp(bool have) { fHavePerp = have; }
-        inline void SetReverse(int reverse) { fReverse.flags = reverse; }
-        inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
-        inline void SetPosition(int position) { fPosition.flags = position; }
-        inline void SetDistance(int distance) { fDistance.flags = distance; }
-        inline void SetLocation(LocationBank *location) { fLocation = location->BankId(); }
-        inline SPCHNFSType_POSITION *Position() { return &fPosition; }
-        inline SPCHNFSType_PERP_NAME *PerpName() { return &fPerpName; }
-        inline void SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; }
-        inline SPCHNFSType_AMBULANCE *Ambulance() { return &fAmbulance; }
-        inline SPCHNFSType_ARREST *Arrest() { return &fArrest; }
-        inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() { return &fSpikeSide; }
-        inline void SetSpikeSide(int side) { fSpikeSide.flags = side; }
-        inline int BlockadeFlags() { return fBlockade.flags; }
-        inline void SetWing(int wing) { fWing = wing; }
-        inline int Wing() { return fWing; }
-        inline int ArrestFlags() { return fArrest.flags; }
-        inline int UpdateFlags() { return fUpdate.flags; }
-        inline SPCHNFSType_PURS_UPDT *Update() { return &fUpdate; }
-        inline bool HavePerp() { return fHavePerp; }
-        inline int Car() { return fCar; }
-        inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() { return &fBlockade; }
-        inline SPCHNFSType_CONFIRM *Confirm() { return &fConfirm; }
-        inline bool HasDifferentSub(Speaker *Wing) {
-            return fSub != 0 && Wing != fSub;
-        }
-        inline int Location() { return fLocation; }
-        inline SPCHNFSType_DISTANCE *Distance() { return &fDistance; }
-        inline SPCHNFSType_COLOUR *Colour() { return &fColour; }
+        inline void SetArrest(int Arrest) NFS4_SPEECH_STRIP;
+        inline void SetUpdate(int Update) NFS4_SPEECH_STRIP;
+        inline void SetSub(Speaker *Sub) NFS4_SPEECH_STRIP;
+        inline void SetTo(int to) NFS4_SPEECH_STRIP;
+        inline int To() NFS4_SPEECH_STRIP;
+        inline int From() NFS4_SPEECH_STRIP;
+        inline void SetFrom(int from) NFS4_SPEECH_STRIP;
+        inline void SetConfirm(int confirm) NFS4_SPEECH_STRIP;
+        inline void SetPerpName(int name) NFS4_SPEECH_STRIP;
+        inline void SetHavePerp(bool have) NFS4_SPEECH_STRIP;
+        inline void SetReverse(int reverse) NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_REVINTRO *Reverse() NFS4_SPEECH_STRIP;
+        inline void SetPosition(int position) NFS4_SPEECH_STRIP;
+        inline void SetDistance(int distance) NFS4_SPEECH_STRIP;
+        inline void SetLocation(LocationBank *location) NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_POSITION *Position() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_PERP_NAME *PerpName() NFS4_SPEECH_STRIP;
+        inline void SetAmbulance(int ambulance) NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_AMBULANCE *Ambulance() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_ARREST *Arrest() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() NFS4_SPEECH_STRIP;
+        inline void SetSpikeSide(int side) NFS4_SPEECH_STRIP;
+        inline int BlockadeFlags() NFS4_SPEECH_STRIP;
+        inline void SetWing(int wing) NFS4_SPEECH_STRIP;
+        inline int Wing() NFS4_SPEECH_STRIP;
+        inline int ArrestFlags() NFS4_SPEECH_STRIP;
+        inline int UpdateFlags() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_PURS_UPDT *Update() NFS4_SPEECH_STRIP;
+        inline bool HavePerp() NFS4_SPEECH_STRIP;
+        inline int Car() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_CONFIRM *Confirm() NFS4_SPEECH_STRIP;
+        inline bool HasDifferentSub(Speaker *Wing) NFS4_SPEECH_STRIP;
+
+
+        inline int Location() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_DISTANCE *Distance() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_COLOUR *Colour() NFS4_SPEECH_STRIP;
 #if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* INFERRED bodies: retail cars/copspeak/nfs3.obj Speaker TPDEF run = 13 more unused in-class inline bodies (4 Car_tObj*, 1 LocationBank*, 1 CallSignBank*, 1 LocationBank*+CarBank*, 6 no class param; INVA speaker evidence); speech.obj (owner) excluded */
 #if !defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)   /* retail aih_cop.obj records none of the four Car_tObj-param bodies (per-TU exclusion) */
         inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { }
@@ -156,7 +156,7 @@ struct Speech {
     struct DispatchSpeaker : public Speaker {
         /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
            (MobileSpeaker's user constructor adds a body block after that pair) */
-        inline void ClearSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
+        inline void ClearSpeaker() NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
         int fStatusCount;
         Speaker *fStatusSub;
         int fUpdateCount;
@@ -181,24 +181,24 @@ struct Speech {
         void Report(Car_tObj *perp);
     };
     struct MobileSpeaker : public Speaker {
-        MobileSpeaker() { fCarObj = 0; }   /* inline ctor: retail's Speech::Speech() shows it expanded in place */
+        MobileSpeaker() NFS4_SPEECH_STRIP;   /* inline ctor: retail's Speech::Speech() shows it expanded in place */
         SPCHNFSType_VOICE fVoice;
         SPCHNFSType_vs_KMH_MPH fSpeedType;
         int fSpeed, fUnit;
         Car_tObj *fCarObj, *fPerp;
-        inline void SetPerp(Car_tObj *car);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
+        inline void SetPerp(Car_tObj *car) NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
         /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
-        inline void MakeSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
-        inline void DelayStatus(int delay);   /* Catch: `this` pair around Speech::SetDelayedStatus (defined in speech.cpp) */
-        inline SPCHNFSType_VOICE *Voice();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
-        inline void SetVoice(int Voice);   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
-        inline void SetSpeedType(int type);   /* defined in speech.cpp (retail SPEECH.CPP inline) */
-        inline int Speed() { return fSpeed; }
-        inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }
-        inline void ClearCarObj();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
-        inline bool IsCar(Car_tObj *carObj);   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */   /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
-        inline bool IsFree();   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
+        inline void MakeSpeaker() NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
+        inline void DelayStatus(int delay) NFS4_SPEECH_STRIP;   /* Catch: `this` pair around Speech::SetDelayedStatus (defined in speech.cpp) */
+        inline SPCHNFSType_VOICE *Voice() NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline) */
+        inline void SetVoice(int Voice) NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
+        inline void SetSpeedType(int type) NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline) */
+        inline int Speed() NFS4_SPEECH_STRIP;
+        inline SPCHNFSType_vs_KMH_MPH *SpeedType() NFS4_SPEECH_STRIP;
+        inline void ClearCarObj() NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail SPEECH.CPP inline) */
+        inline bool IsCar(Car_tObj *carObj) NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */   /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
+        inline bool IsFree() NFS4_SPEECH_STRIP;   /* defined in speech.cpp (retail same-file inline: its nests record line 1) */
         Car_tObj *Perp();
         int Unit();
         CallSignBank *CallSign();
@@ -312,11 +312,11 @@ inline void Speech::Speaker::InferredBankCarOp(CarBank *carBank, LocationBank *l
 #elif !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* AI view: the sixth this-only body stands in for it (retail AI objects: Car_tObj exact without the pair) */
 inline void Speech::Speaker::InferredOp6() { }
 #endif
-
-
-
-
-
+inline Speech::Speaker::Speaker() { fSub = 0; } inline Speech::Speaker *Speech::Speaker::Sub() { return fSub; } inline void Speech::Speaker::ClearCar() { fCar = 0; fColour.flags = 0; } inline void Speech::Speaker::SetColour(int Colour) { fColour.flags = Colour; } inline void Speech::Speaker::SetBlockade(int Blockade) { fBlockade.flags = Blockade; } inline void Speech::Speaker::SetArrest(int Arrest) { fArrest.flags = Arrest; } inline void Speech::Speaker::SetUpdate(int Update) { fUpdate.flags = Update; } inline void Speech::Speaker::SetSub(Speaker *Sub) { fSub = Sub; } inline void Speech::Speaker::SetTo(int to) { fTo = to; } inline int Speech::Speaker::To() { return fTo; } inline int Speech::Speaker::From() { return fFrom; } inline void Speech::Speaker::SetFrom(int from) { fFrom = from; } inline void Speech::Speaker::SetConfirm(int confirm) { fConfirm.flags = confirm; } inline void Speech::Speaker::SetPerpName(int name) { fPerpName.flags = name; } inline void Speech::Speaker::SetHavePerp(bool have) { fHavePerp = have; } inline void Speech::Speaker::SetReverse(int reverse) { fReverse.flags = reverse; } inline SPCHNFSType_REVINTRO *Speech::Speaker::Reverse() { return &fReverse; } inline void Speech::Speaker::SetPosition(int position) { fPosition.flags = position; } inline void Speech::Speaker::SetDistance(int distance) { fDistance.flags = distance; } inline void Speech::Speaker::SetLocation(LocationBank *location) { fLocation = location->BankId(); } inline SPCHNFSType_POSITION *Speech::Speaker::Position() { return &fPosition; }   /* Speaker's inline members, defined out of the class so speech.obj can tag its standalone copies (NFS4_SPEECH_STRIP) */
+inline SPCHNFSType_PERP_NAME *Speech::Speaker::PerpName() { return &fPerpName; } inline void Speech::Speaker::SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; } inline SPCHNFSType_AMBULANCE *Speech::Speaker::Ambulance() { return &fAmbulance; } inline SPCHNFSType_ARREST *Speech::Speaker::Arrest() { return &fArrest; } inline SPCHNFSType_SPIKE_BELT_SIDE *Speech::Speaker::SpikeSide() { return &fSpikeSide; } inline void Speech::Speaker::SetSpikeSide(int side) { fSpikeSide.flags = side; } inline int Speech::Speaker::BlockadeFlags() { return fBlockade.flags; } inline void Speech::Speaker::SetWing(int wing) { fWing = wing; } inline int Speech::Speaker::Wing() { return fWing; } inline int Speech::Speaker::ArrestFlags() { return fArrest.flags; } inline int Speech::Speaker::UpdateFlags() { return fUpdate.flags; } inline SPCHNFSType_PURS_UPDT *Speech::Speaker::Update() { return &fUpdate; } inline bool Speech::Speaker::HavePerp() { return fHavePerp; } inline int Speech::Speaker::Car() { return fCar; } inline SPCHNFSType_vs_RDBLK_SSTRP *Speech::Speaker::BlockadeSlot() { return &fBlockade; } inline SPCHNFSType_CONFIRM *Speech::Speaker::Confirm() { return &fConfirm; } inline bool Speech::Speaker::HasDifferentSub(Speaker *Wing) { return fSub != 0 && Wing != fSub; } inline int Speech::Speaker::Location() { return fLocation; } inline SPCHNFSType_DISTANCE *Speech::Speaker::Distance() { return &fDistance; } inline SPCHNFSType_COLOUR *Speech::Speaker::Colour() { return &fColour; }
+#if !defined(NFS4_SPEECH_AI_VIEW) && !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)
+inline Speech::MobileSpeaker::MobileSpeaker() { fCarObj = 0; } inline int Speech::MobileSpeaker::Speed() { return fSpeed; } inline SPCHNFSType_vs_KMH_MPH *Speech::MobileSpeaker::SpeedType() { return &fSpeedType; }
+#endif
 /* the speech object's creation (NFS3.CPP): a header inline -- retail records its variable-free scopes at the
    caller's line in Nfs2_GameModuleStartUp (a same-.cpp inline clamps them to line 1) */
 static inline void Speech_Create(void)

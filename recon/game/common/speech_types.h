@@ -19,6 +19,8 @@
 #undef NFS4_AUDIOCLC_OMIT_FORCE_FOCUS
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
+#include "../../link_stripped.h"
+#define NFS4_SPEECH_STRIP LINK_STRIPPED   /* speech.obj emits standalone copies of the inline Speaker/MobileSpeaker/DispatchSpeaker members; retail's link removed them (STRIPPED COPIES ruling 2026-11-08) */
 #include "speech_class.h"
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/kernpair.h"

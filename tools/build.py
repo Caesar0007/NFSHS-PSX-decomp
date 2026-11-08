@@ -500,7 +500,7 @@ PER_TU_FLAGS = {
     "recon/game/common/aispeech.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aitriger.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aitune.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
-    "recon/game/common/speech.cpp":         {"g_value": "8", "no_implement_inlines": True},   # FEVIRT-NII-PROBE: Speaker::SetColour (inline member) has no out-of-line copy in retail;  # w67-a8: retail -G8; small car/file literals -> .sdata (were .rodata at -G0)
+    "recon/game/common/speech.cpp":         {"g_value": "8"},   # SPEECHX2 2026-11-08: implement-inlines (retail in-class virtual defaults/overrides emitted at the end); the standalone inline copies are LINK_STRIPPED (speech_class.h NFS4_SPEECH_STRIP, linkers/link_stripped.json);  # w67-a8: retail -G8; small car/file literals -> .sdata (were .rodata at -G0)
     # w67-a8: gprobe8-proven retail -G8 (gate pass rises + small const -> .sdata,
     # no PASS regression) -- were wrongly at the lane default -G0.
     "recon/game/common/track.cpp":          {"g_value": "8"},  # pass 12->23

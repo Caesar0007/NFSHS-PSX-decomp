@@ -18,6 +18,170 @@ extern "C" {
  * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; } inline void Speech::MobileSpeaker::SetSpeedType(int type) { fSpeedType.flags = type; } inline void Speech::MobileSpeaker::ClearCarObj() { fCarObj = 0; }
 inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline void Speech::MobileSpeaker::SetPerp(Car_tObj *car) { fPerp = car; } inline bool Speech::MobileSpeaker::IsCar(Car_tObj *carObj) { return carObj == fCarObj; } inline bool Speech::MobileSpeaker::IsFree() { return fCarObj == 0; } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } inline void Speech::MobileSpeaker::SetVoice(int Voice) { fVoice.flags = Voice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
+/* SPEECHX2 2026-11-08: the virtual defaults (retail SPEECH.H 262-372, in-class in Speaker) and the MobileSpeaker/
+ * DispatchSpeaker accessor overrides (retail SPEECH.CPP 54-147, in-class in their classes) are INLINE: one `this` record
+ * each (an out-of-line definition records two), emitted at the end of the object in REVERSE definition order (= retail
+ * address order: Mobile Perp..IsSuper, Dispatch CallSign..StatusCount, Speaker CallSign..Status).  Their anchors moved
+ * here with them (targets unchanged); the last one restores the main file name SPEECH.CPP. */
+/* ---- Status__Q26Speech7Speaker [retail SPEECH.H:264; source owner unresolved] ---- */
+#line 262 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline void Speech::Speaker::Status()
+
+{}
+/* ---- Unit__Q26Speech7Speaker [retail SPEECH.H:323; source owner unresolved] ---- */
+#line 321 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline int Speech::Speaker::Unit()
+
+{ return 0; }
+/* ---- KnownPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:328; source owner unresolved] ---- */
+#line 326 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline bool Speech::Speaker::KnownPerp(Car_tObj *car)
+
+{ return false; }
+/* ---- ClearPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:329; source owner unresolved] ---- */
+#line 327 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline void Speech::Speaker::ClearPerp(Car_tObj *car)
+
+{}
+/* ---- IsSuper__Q26Speech7Speaker [retail SPEECH.H:331; source owner unresolved] ---- */
+#line 329 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline bool Speech::Speaker::IsSuper()
+
+{ return false; }
+/* ---- StatusCount__Q26Speech7Speaker [retail SPEECH.H:332; source owner unresolved] ---- */
+#line 330 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline int Speech::Speaker::StatusCount()
+
+{ return 0; }
+/* ---- StatusSub__Q26Speech7Speaker [retail SPEECH.H:333; source owner unresolved] ---- */
+#line 331 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline Speech::Speaker *Speech::Speaker::StatusSub()
+
+{ return (Speaker *)0x0; }
+/* ---- PurgeStatusSub__Q26Speech7Speaker [retail SPEECH.H:334; source owner unresolved] ---- */
+#line 332 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline void Speech::Speaker::PurgeStatusSub()
+
+{}
+/* ---- DistToPerp__Q26Speech7Speaker [retail SPEECH.H:335; source owner unresolved] ---- */
+#line 333 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline int Speech::Speaker::DistToPerp()
+
+{ return 0x3e80000; }
+/* ---- CarObj__Q26Speech7Speaker [retail SPEECH.H:336; source owner unresolved] ---- */
+#line 334 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline Car_tObj *Speech::Speaker::CarObj()
+
+{ return (Car_tObj *)0x0; }
+/* ---- ReActivate__Q26Speech7Speaker [retail SPEECH.H:337; source owner unresolved] ---- */
+#line 335 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline void Speech::Speaker::ReActivate()
+
+{}
+/* ---- Perp__Q26Speech7Speaker [retail SPEECH.H:338; source owner unresolved] ---- */
+#line 336 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline Car_tObj *Speech::Speaker::Perp()
+
+{ return (Car_tObj *)0x0; }
+/* ---- GetCarBank__Q26Speech7Speakeri [retail SPEECH.H:362-363; source owner unresolved] ---- */
+#line 360 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline Speech::CarBank *Speech::Speaker::GetCarBank(int carIndex)
+
+{
+  return (CarBank *)0x0;
+}
+/* ---- FindClosestLocationTo__Q26Speech7Speakeri [retail SPEECH.H:366-367; source owner unresolved] ---- */
+#line 364 "C:/nfs4/GAME/COMMON/SPEECH.H"
+inline Speech::LocationBank *Speech::Speaker::FindClosestLocationTo(int slice)
+
+{
+  return (LocationBank *)0x0;
+}
+/* ---- CallSign__Q26Speech7Speaker [retail SPEECH.H:371-372; signature line precedes the anchor] ---- */
+inline Speech::CallSignBank *Speech::Speaker::CallSign()
+#line 370 "C:/nfs4/GAME/COMMON/SPEECH.H"
+{
+  return (CallSignBank *)0;
+}
+/* ---- StatusCount__Q26Speech15DispatchSpeaker  [SPEECH.CPP:56-57] SLD-VERIFIED ---- */
+#line 54 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline int Speech::DispatchSpeaker::StatusCount()
+
+{ return this->fStatusCount; }
+/* ---- StatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:57-58] SLD-VERIFIED ---- */
+#line 55 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::Speaker *Speech::DispatchSpeaker::StatusSub()
+
+{ return this->fStatusSub; }
+/* ---- PurgeStatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:58-66] SLD-FLAG:NONMONO ---- */
+#line 56 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline void Speech::DispatchSpeaker::PurgeStatusSub()
+
+{ this->fStatusSub = (Speaker *)0x0; return; }
+/* ---- GetCarBank__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:65-70] SLD-FLAG:NONMONO ---- */
+#line 63 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::CarBank *Speech::DispatchSpeaker::GetCarBank(int carIndex)
+
+{
+  return Speech::DispatchCarBank(carIndex);
+}
+/* ---- FindClosestLocationTo__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:69-74] SLD-FLAG:NONMONO ---- */
+#line 67 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::LocationBank *Speech::DispatchSpeaker::FindClosestLocationTo(int slice)
+
+{
+  return Speech::fgSpeech->ClosestDispatchLocation(slice);
+}
+/* ---- CallSign__Q26Speech15DispatchSpeaker  [SPEECH.CPP:73-74] SLD-VERIFIED ---- */
+#line 71 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::CallSignBank *Speech::DispatchSpeaker::CallSign()
+
+{
+  return Speech::fgSpeech->DispatchCallSign();
+}
+/* ---- IsSuper__Q26Speech13MobileSpeaker  [SPEECH.CPP:106-106] SLD-VERIFIED ---- */
+#line 104 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline bool Speech::MobileSpeaker::IsSuper()
+
+{ return (u_int)this->fCarObj->carFlags >> 6 & 1; }
+/* ---- CarObj__Q26Speech13MobileSpeaker  [SPEECH.CPP:114-114] SLD-VERIFIED ---- */
+#line 112 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Car_tObj *Speech::MobileSpeaker::CarObj()
+
+{ return this->fCarObj; }
+/* ---- GetCarBank__Q26Speech13MobileSpeakeri  [SPEECH.CPP:122-127] SLD-FLAG:NONMONO ---- */
+#line 120 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::CarBank *Speech::MobileSpeaker::GetCarBank(int carIndex)
+
+{
+  return Speech::MobileCarBank(carIndex);
+}
+/* ---- FindClosestLocationTo__Q26Speech13MobileSpeakeri  [SPEECH.CPP:126-131] SLD-FLAG:NONMONO ---- */
+#line 124 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::LocationBank *Speech::MobileSpeaker::FindClosestLocationTo(int slice)
+
+{
+  return Speech::fgSpeech->ClosestMobileLocation(slice);
+}
+/* ---- CallSign__Q26Speech13MobileSpeaker  [SPEECH.CPP:130-135] SLD-FLAG:NONMONO ---- */
+#line 128 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Speech::CallSignBank *Speech::MobileSpeaker::CallSign()
+
+{
+  return Speech::fgSpeech->MobileCallSign();
+}
+/* ---- Unit__Q26Speech13MobileSpeaker  [SPEECH.CPP:134-135] SLD-VERIFIED ---- */
+#line 132 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline int Speech::MobileSpeaker::Unit()
+
+{
+  return this->fUnit;
+}
+/* ---- Perp__Q26Speech13MobileSpeaker  [SPEECH.CPP:147-147] SLD-VERIFIED ---- */
+#line 145 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
+inline Car_tObj *Speech::MobileSpeaker::Perp()
+
+{ return this->fPerp; }
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
  * demangled source names while binding the compiler-emitted ABI labels.
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
@@ -2777,204 +2941,6 @@ void Speech::MobileSpeaker::ReportBlockade()
                           this->Location(),this->Distance());
     SPCH_PlaySpeech(); } return; }
 
-/* ---- Perp__Q26Speech13MobileSpeaker  [SPEECH.CPP:147-147] SLD-VERIFIED ---- */
-#line 145 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Car_tObj *Speech::MobileSpeaker::Perp()
-
-{ return this->fPerp; }
-
-/* ---- Unit__Q26Speech13MobileSpeaker  [SPEECH.CPP:134-135] SLD-VERIFIED ---- */
-#line 132 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-int Speech::MobileSpeaker::Unit()
-
-{
-  return this->fUnit;
-}
-
-/* ---- CallSign__Q26Speech13MobileSpeaker  [SPEECH.CPP:130-135] SLD-FLAG:NONMONO ---- */
-#line 128 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::CallSignBank *Speech::MobileSpeaker::CallSign()
-
-{
-  return Speech::fgSpeech->MobileCallSign();
-}
-
-/* ---- FindClosestLocationTo__Q26Speech13MobileSpeakeri  [SPEECH.CPP:126-131] SLD-FLAG:NONMONO ---- */
-#line 124 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::LocationBank *Speech::MobileSpeaker::FindClosestLocationTo(int slice)
-
-{
-  return Speech::fgSpeech->ClosestMobileLocation(slice);
-}
-
-/* ---- GetCarBank__Q26Speech13MobileSpeakeri  [SPEECH.CPP:122-127] SLD-FLAG:NONMONO ---- */
-#line 120 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::CarBank *Speech::MobileSpeaker::GetCarBank(int carIndex)
-
-{
-  return Speech::MobileCarBank(carIndex);
-}
-
-/* ---- CarObj__Q26Speech13MobileSpeaker  [SPEECH.CPP:114-114] SLD-VERIFIED ---- */
-#line 112 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Car_tObj *Speech::MobileSpeaker::CarObj()
-
-{ return this->fCarObj; }
-
-/* ---- IsSuper__Q26Speech13MobileSpeaker  [SPEECH.CPP:106-106] SLD-VERIFIED ---- */
-#line 104 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-bool Speech::MobileSpeaker::IsSuper()
-
-{ return (u_int)this->fCarObj->carFlags >> 6 & 1; }
-
-
-
-/* ---- CallSign__Q26Speech15DispatchSpeaker  [SPEECH.CPP:73-74] SLD-VERIFIED ---- */
-#line 71 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::CallSignBank *Speech::DispatchSpeaker::CallSign()
-
-{
-  return Speech::fgSpeech->DispatchCallSign();
-}
-
-/* ---- FindClosestLocationTo__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:69-74] SLD-FLAG:NONMONO ---- */
-#line 67 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::LocationBank *Speech::DispatchSpeaker::FindClosestLocationTo(int slice)
-
-{
-  return Speech::fgSpeech->ClosestDispatchLocation(slice);
-}
-
-/* ---- GetCarBank__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:65-70] SLD-FLAG:NONMONO ---- */
-#line 63 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::CarBank *Speech::DispatchSpeaker::GetCarBank(int carIndex)
-
-{
-  return Speech::DispatchCarBank(carIndex);
-}
-
-/* ---- PurgeStatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:58-66] SLD-FLAG:NONMONO ---- */
-#line 56 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-void Speech::DispatchSpeaker::PurgeStatusSub()
-
-{ this->fStatusSub = (Speaker *)0x0; return; }
-
-/* ---- StatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:57-58] SLD-VERIFIED ---- */
-#line 55 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-Speech::Speaker *Speech::DispatchSpeaker::StatusSub()
-
-{ return this->fStatusSub; }
-
-/* ---- StatusCount__Q26Speech15DispatchSpeaker  [SPEECH.CPP:56-57] SLD-VERIFIED ---- */
-#line 54 "C:/nfs4/GAME/COMMON/SPEECH.CPP"
-int Speech::DispatchSpeaker::StatusCount()
-
-{ return this->fStatusCount; }
-
-/* SOURCE-OWNER-UNRESOLVED: retail attributes these defaults to SPEECH.H,
- * not this CPP. Their reversed definition list is a byte-matched reconstruction,
- * not accepted original-source order. Header declaration order and emitted
- * reverse order support in-class defaults, but the measured source/flag
- * combination suppresses all15 such bodies under -fno-implement-inlines.
- * Disabling default inlining does not restore them; enabling implementation
- * instead emits209 functions versus155 (54 unsupported copies). No flag
- * change or extra body is retained. The actual inline/interface visibility
- * mechanism still needs recovery; this is not a source floor. Do not reverse
- * physical header definitions merely to satisfy a filename-only diagnostic.
- * Controls/backups: build/nc12/speech_default_virtuals_20261018. */
-Speech::CallSignBank *Speech::Speaker::CallSign()   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
-#line 370 "C:/nfs4/GAME/COMMON/SPEECH.H"
-{
-  return (CallSignBank *)0;
-}
-
-/* ---- FindClosestLocationTo__Q26Speech7Speakeri [retail SPEECH.H:366-367; source owner unresolved] ---- */
-#line 364 "C:/nfs4/GAME/COMMON/SPEECH.H"
-Speech::LocationBank *Speech::Speaker::FindClosestLocationTo(int slice)
-
-{
-  return (LocationBank *)0x0;
-}
-
-/* ---- GetCarBank__Q26Speech7Speakeri [retail SPEECH.H:362-363; source owner unresolved] ---- */
-#line 360 "C:/nfs4/GAME/COMMON/SPEECH.H"
-Speech::CarBank *Speech::Speaker::GetCarBank(int carIndex)
-
-{
-  return (CarBank *)0x0;
-}
-
-/* ---- Perp__Q26Speech7Speaker [retail SPEECH.H:338; source owner unresolved] ---- */
-#line 336 "C:/nfs4/GAME/COMMON/SPEECH.H"
-Car_tObj *Speech::Speaker::Perp()
-
-{ return (Car_tObj *)0x0; }
-
-/* ---- ReActivate__Q26Speech7Speaker [retail SPEECH.H:337; source owner unresolved] ---- */
-#line 335 "C:/nfs4/GAME/COMMON/SPEECH.H"
-void Speech::Speaker::ReActivate()
-
-{}
-
-/* ---- CarObj__Q26Speech7Speaker [retail SPEECH.H:336; source owner unresolved] ---- */
-#line 334 "C:/nfs4/GAME/COMMON/SPEECH.H"
-Car_tObj *Speech::Speaker::CarObj()
-
-{ return (Car_tObj *)0x0; }
-
-/* ---- DistToPerp__Q26Speech7Speaker [retail SPEECH.H:335; source owner unresolved] ---- */
-#line 333 "C:/nfs4/GAME/COMMON/SPEECH.H"
-int Speech::Speaker::DistToPerp()
-
-{ return 0x3e80000; }
-
-/* ---- PurgeStatusSub__Q26Speech7Speaker [retail SPEECH.H:334; source owner unresolved] ---- */
-#line 332 "C:/nfs4/GAME/COMMON/SPEECH.H"
-void Speech::Speaker::PurgeStatusSub()
-
-{}
-
-/* ---- StatusSub__Q26Speech7Speaker [retail SPEECH.H:333; source owner unresolved] ---- */
-#line 331 "C:/nfs4/GAME/COMMON/SPEECH.H"
-Speech::Speaker *Speech::Speaker::StatusSub()
-
-{ return (Speaker *)0x0; }
-
-/* ---- StatusCount__Q26Speech7Speaker [retail SPEECH.H:332; source owner unresolved] ---- */
-#line 330 "C:/nfs4/GAME/COMMON/SPEECH.H"
-int Speech::Speaker::StatusCount()
-
-{ return 0; }
-
-/* ---- IsSuper__Q26Speech7Speaker [retail SPEECH.H:331; source owner unresolved] ---- */
-#line 329 "C:/nfs4/GAME/COMMON/SPEECH.H"
-bool Speech::Speaker::IsSuper()
-
-{ return false; }
-
-/* ---- ClearPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:329; source owner unresolved] ---- */
-#line 327 "C:/nfs4/GAME/COMMON/SPEECH.H"
-void Speech::Speaker::ClearPerp(Car_tObj *car)
-
-{}
-
-/* ---- KnownPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:328; source owner unresolved] ---- */
-#line 326 "C:/nfs4/GAME/COMMON/SPEECH.H"
-bool Speech::Speaker::KnownPerp(Car_tObj *car)
-
-{ return false; }
-
-/* ---- Unit__Q26Speech7Speaker [retail SPEECH.H:323; source owner unresolved] ---- */
-#line 321 "C:/nfs4/GAME/COMMON/SPEECH.H"
-int Speech::Speaker::Unit()
-
-{ return 0; }
-
-/* ---- Status__Q26Speech7Speaker [retail SPEECH.H:264; source owner unresolved] ---- */
-#line 262 "C:/nfs4/GAME/COMMON/SPEECH.H"
-void Speech::Speaker::Status()
-
-{}
 
 /* ---- #75 data-materialization: 3 Speech vtables (nested Speech::<Leaf>, flat <Leaf>_<Method> pfns). ---- */
 /* Compiler-emitted empty type-name/literal slot between strings and vtables. */

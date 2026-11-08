@@ -15,14 +15,14 @@
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs after tActiveLine, before the color graph */
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* retail ScreenTracks records no tDrawShapeExtended */
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right after tActiveLine (menu items before it) */
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-
 #define textState_Unselected 0
 #define textType_TrackRecords 11
-
 #include "shared/POLY_FT4.h"
-
 typedef enum VIDEOSTATE {
     VIDEOSTATE_IDLE = 0,
     VIDEOSTATE_SPOOLING = 1,

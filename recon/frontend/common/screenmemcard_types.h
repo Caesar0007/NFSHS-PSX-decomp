@@ -1,7 +1,7 @@
 /* Owner-specific type surface for ScreenMemcard.obj. */
-#ifndef NFS4_FRONTEND_COMMON_SCREENMEMCARD_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_SCREENMEMCARD_TYPES_H) || defined(NFS4_SCREENMEMCARD_IN_CLASS_PASS)   /* 2nd entry: the tScreenMemcard class pass (screenmemcard_owner_early.h) */
 #define NFS4_FRONTEND_COMMON_SCREENMEMCARD_TYPES_H
-
+#ifndef NFS4_SCREENMEMCARD_IN_CLASS_PASS
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner retains the complete color physics graph and the shared */
 #include "../../game/common/color_types.h"   /* ScreenDisplay frontend graph, but not ScreenDisplay's owner class/view. */
 #endif
@@ -33,19 +33,19 @@
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-typedef enum PRODUCTLOC {
-    N_AMERICA = 0,
-    JAPAN = 1,
-    EUROPE = 2
-} PRODUCTLOC;
+#include "mcrd_productloc.h"   /* moved verbatim (ScreenMemcard emits it inside its owner_early block) */
 
-typedef enum MANAGERTASK {
-    NONE = 0,
-    LOAD_CARD = 1,
-    WRITE_FILE = 2,
-    LOAD_FILE = 3,
-    DELETE_FILE = 4
-} MANAGERTASK;
+
+
+
+
+#include "mcrd_managertask.h"
+
+
+
+
+
+
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -123,9 +123,9 @@ typedef MCRDFILE_def MCRDFILE;
 #include "fedialog.h"
 #include "fedialog.h"
 #endif
-
+#endif
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && (defined(NFS4_SCREENMEMCARD_IN_CLASS_PASS) || !defined(NFS4_SCREENMEMCARD_CLASS_DONE))
 struct tScreenMemcard : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
@@ -150,7 +150,7 @@ struct tScreenMemcard : public tScreen {
     int fScreenFadeReadyTick;
     short player;
     bool fGetNewIcons;
-
+#define NFS4_SCREENMEMCARD_CLASS_DONE
     void DrawIcon(shapetbl *, int, int, int, int, short);
     void LoadIcon(int);
     void DrawVerticalLine(short, short, short, short);
@@ -164,7 +164,7 @@ struct tScreenMemcard : public tScreen {
 };
 #line 164 "recon/frontend/common/screenmemcard_types.h"
 #endif
-
+#ifndef NFS4_SCREENMEMCARD_IN_CLASS_PASS
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 /* These completed foreign tags are absent from ScreenMemcard.obj.  The owner
@@ -188,4 +188,5 @@ struct ScreenMemcard_PrimTagCodegenCarrier {
 #define tMemcardPrimTag ScreenMemcard_PrimTagCodegenCarrier
 #endif
 
+#endif
 #endif

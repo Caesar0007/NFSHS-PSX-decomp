@@ -22,6 +22,9 @@
 #endif
 #else
 #if NFS4_FEMENUOPTIONS_TYPE_PART == 1
+#ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_OPTIONS   /* owner records between tMenuOptions and the options family (FEDialog: car graph) */
+#include NFS4_SCREENDISPLAY_HOOK_BEFORE_OPTIONS
+#endif
 #line 13
 NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;

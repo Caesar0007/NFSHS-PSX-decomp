@@ -1,5 +1,6 @@
-#ifndef NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H) || defined(NFS4_FEDIALOG_IN_FEAPP_HOOK)   /* 2nd entry: the tFEApplication hook pass (fedialog_feapp_hook.h) */
 #define NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H   /* Owner-specific type surface for FEDialog.obj. */
+#ifndef NFS4_FEDIALOG_IN_FEAPP_HOOK
 #if !defined(NFS4_FEMENUDEFS_SURFACE) && !defined(NFS4_SCREENDISPLAY_DIALOGS_EARLY)   /* FEDialog.obj (first header); not FEMenuDefs.obj (retail: car graph before dialogs there) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* no tDrawShapeExtended in this graph */
@@ -10,7 +11,13 @@
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#include "fedialog_keys.h"   /* core/car keys + the options hook (retail FEDialog order) */
+#include "felines_types.h"
 #endif
+
+
+
+
 #include "fe_input_enums.h"
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -41,13 +48,6 @@ struct tMenuCommand;
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-
-
-
-#endif
-
-
-#ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 #include "fedialog.h"
 #ifdef NFS4_FEDIALOG_DIRECT
 #line 161 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
@@ -57,8 +57,8 @@ static inline void _fedialog_dtor_msg(tDialogMessageString *p) { p->~tDialogMess
 #line 53 "recon/frontend/common/fedialog_types.h"
 #endif
 #endif
-
-#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
+#endif
+#if !defined(NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE) && (defined(NFS4_FEDIALOG_IN_FEAPP_HOOK) || !defined(NFS4_FEDIALOG_FEAPP_DONE))
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -87,7 +87,9 @@ struct tFEApplication {
 #endif
     void Redraw();
 };
+#define NFS4_FEDIALOG_FEAPP_DONE
 #endif
+#ifndef NFS4_FEDIALOG_IN_FEAPP_HOOK
 
 struct tGlobalMenuDefs;
 struct tDrawShapeExtended;
@@ -99,4 +101,5 @@ struct charactertbl;
 #define textType_PopUpTitle 9
 #define textState_Selected 1
 
+#endif
 #endif

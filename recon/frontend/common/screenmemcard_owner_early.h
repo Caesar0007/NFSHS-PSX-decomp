@@ -9,10 +9,15 @@
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
+#include "mcrd_productloc.h"
 #include "shared/CARDINFO_def.h"
 #include "shared/MCRDFILE_def.h"
+#include "mcrd_managertask.h"
 #include "shared/MCRDFILEHEADER_def.h"
 #include "shared/MCRDFILEINFO_def.h"
+#define NFS4_SCREENMEMCARD_IN_CLASS_PASS   /* retail: tScreenMemcard right after MCRDFILEINFO_def, before kernpair */
+#include "screenmemcard_types.h"
+#undef NFS4_SCREENMEMCARD_IN_CLASS_PASS
 #include "shared/kernpair.h"
 #include "shared/tDrawShapeExtended.h"
 #endif

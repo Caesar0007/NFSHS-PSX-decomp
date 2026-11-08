@@ -1,6 +1,6 @@
 /* frontend/screens/screendisplay.cpp  --  RECONSTRUCTED  (display-options screen; C++ TU)
- *   3 MEMBER fns of tScreenDisplay : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
- */
+ *   3 MEMBER fns of tScreenDisplay : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra. */
+#include "screendisplay_own_keys.h"   /* ScreenDisplay.obj-only type-order keys */
 #include "screendisplay_types.h"
 #include "screendisplay_externs.h"
 

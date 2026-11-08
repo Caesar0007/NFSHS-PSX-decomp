@@ -8,6 +8,8 @@
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: menu core (tMenuCommandType..tScreen) BEFORE the MATRIX core */
 #define NFS4_FE_CORE_CARS_LATE    /* cars after the screen records, then tracks, then color */
 #define NFS4_FE_TRACK_NO_PLAYER
+#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
+#define NFS4_FELINES_KERNPAIR_LATE   /* retail: kernpair right after tScreenTrophyInfo */
 #include "fe_core_types.h"
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -22,6 +24,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 struct tMenu;
 #include "fescreen.h"
 #include "screentrophyinfo.h"
+#include "felines_kern.h"
 #include "shared/tDrawShapeExtended.h"
 #include "fe_core_cars.h"
 /* ScreenTrophyInfo retains the tournament/track layouts, but not the foreign tPlayer method surface carried by FETracks. */

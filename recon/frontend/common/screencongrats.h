@@ -15,10 +15,15 @@
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* track part right after the color graph */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
+#define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, kernpair after Draw_CarVertex */
+#define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
+#define NFS4_FELINES_KERNPAIR_LATE
+#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
 #ifndef _FE_SCREENS_SCREENCONGRATS_H_
 #define _FE_SCREENS_SCREENCONGRATS_H_   /* frontend/common/screencongrats.h - reconstructed decls for ScreenCongrats.obj (C++ TU) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#include "felines_types.h"   /* retail ScreenCongrats: the MATRIX core first (fe_core_types.h does the same) */
+#include "../../game/common/draw_leaf_types.h"   /* retail ScreenCongrats: the MATRIX core first; tTexture_ShapeInfo/kernpair after the draw leaf */
 #include "screencongrats_types.h"
 #include "screencongrats_externs.h"
 

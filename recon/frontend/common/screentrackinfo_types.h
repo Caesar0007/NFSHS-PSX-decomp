@@ -3,18 +3,15 @@
 #define NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 #include "fe_input_enums.h"
-
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0, kMenu_Command_GoToMenu = 1, kMenu_Command_GoToMenuOneWay = 2, kMenu_Command_GoToMenuTwoPlayer = 3,
     kMenu_Command_BackupMenu = 4, kMenu_Command_StartRace = 5, kMenu_Command_Start2PlayerRace = 6,
     kMenu_Command_ReStartRace = 7, kMenu_Command_StartReplay = 8, kMenu_Command_ClearRecords = 9
 };
-
 struct tMenu;
 #include "shared/tMenuCommand.h"
 #endif
-
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenTrackInfo: frontend core + menu items before the MATRIX core */
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track/tournament records after tShapeInformation/tActiveLine */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
@@ -38,39 +35,42 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* ScreenAudio: draw_leaf phase 2 (PCOORD16 .. Draw_*) after the menu core */
+#define NFS4_FELINES_KERNPAIR_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, then kernpair */
 #include "felines_types.h"
+#include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-#include "shared/tActiveLine.h"
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* ScreenAudio keeps TV after the tournament records */
+#include "felines_kern.h"
 enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };   /* retail: TV after kernpair, before the cars */
 #include "shared/tTVConfig.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"   /* retail: tListIteratorTrack right after tTrackManager */
 #else   /* ScreenAudio: retail AudioMus + tScreenAudio right after tShapeInformation/tActiveLine */
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"
 #include "screenaudio.h"
+#include "felines_kern.h"   /* retail ScreenAudio: kernpair right after tScreenAudio */
 #endif
-
-
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"   /* retail: tListIteratorCar/Color right after tCarManager */
 #include "fe_core_cars.h"
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* ScreenAudio: track/tournament records after its menu family (below) */
 #define NFS4_FE_TRACK_NO_PLAYER   /* track/tournament records without an extra player surface */
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
 #endif
-struct tCarManager;
-struct tListIteratorCar : public tListIterator {
-    int fCarListFilter;
-    tCarManager *fCarManager;
-    tCarNameLength fNameLength;
-};
 
-struct tListIteratorCarColor : public tListIterator {
-    char *fPlayer, *fPlayerCar;
-    int fIndexSize;
-    tCarManager *fCarManager;
-};
+
+
+
+
+
+
+
+
+
+
+
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 typedef struct tTournamentManager {
     char fNumTiers;
@@ -101,9 +101,9 @@ typedef struct tTournamentManager {
         return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
     }
 } tTournamentManager;
-struct tListIteratorTrack : public tListIteratorIndexed {
-    tTrackManager *fTrackManager;
-};
+
+
+
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;
 };

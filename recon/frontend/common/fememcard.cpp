@@ -571,7 +571,7 @@ bool SaveGame(short player)
       } }
   }
   tDialogNoInputMessage WarningDialog;
-  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; WarningDialog.string = TextSys_Word(player + 0x276);
+  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; WarningDialog.SetString(player + 0x276);
 
   WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; ((tDialogBase *)&WarningDialog)->Display();
   while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
@@ -791,7 +791,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 
   if ((WithDialogs != 0) || (PinkSlips != 0))
-  { WarningDialog.string = TextSys_Word(player + 0x276);
+  { WarningDialog.SetString(player + 0x276);
 
 
     if (PinkSlips == 0)
@@ -1359,7 +1359,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {   /* xori;beqz */
       FEApp->Redraw();
-    } int count; count = 0; FEApp->Redraw(); { tDialogNoInputMessage WarningDialog; WarningDialog.string = TextSys_Word(player + 0x276);
+    } int count; count = 0; FEApp->Redraw(); { tDialogNoInputMessage WarningDialog; WarningDialog.SetString(player + 0x276);
 
 
 

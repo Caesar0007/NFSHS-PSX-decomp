@@ -1,3 +1,4 @@
+#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets (TPDEF x16 per frontend object; FESCR) */
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H   /* Owner-specific type surface for ScreenTracks.obj. */
 #define NFS4_SCREENTRACKS_OWNER   /* screentracks.h: this object owns tScreenTrackSelect (inline copies LINK_STRIPPED) */

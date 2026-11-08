@@ -190,7 +190,7 @@ struct tMenu; struct tDrawShapeExtended;
 NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemGoToMenuNFS4Button(unsigned int, tMenu *, void (*)(tMenuCommand &), int, int);
     ~tMenuItemGoToMenuNFS4Button();
     void Draw(int, int, bool);
@@ -204,7 +204,7 @@ NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public 
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemNFS4LeftRightChoice(unsigned int, tListIterator *, int, int);
     ~tMenuItemNFS4LeftRightChoice();
     void Draw(int, int, bool);
@@ -219,7 +219,7 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 #include "femenuextended.h"
 #undef NFS4_FEMENUEXTENDED_TYPE_PART
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d) {}
     void Draw(int, int, bool);
@@ -228,7 +228,7 @@ struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d)
     { fOnOffFade = 0x80; }
@@ -339,7 +339,7 @@ NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
 inline int tOptionsMenu::GetScreenFade() { return fScreenFade; }
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                    void (*)(tMenuCommand &), short, tMenuItem *, ...);
     /* non-variadic form for derived classes (tInsideBoxSongMenu): retail's SongMenu ctor calls the tMenu ctor directly and stores only its own table, i.e. this one is inline */
@@ -352,7 +352,7 @@ struct tInsideBoxMenu : public tMenu {
     virtual void Draw(short, short, short, short, short);
 #endif
 };
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || (defined(NFS4_FE_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H))   /* FESCR: inline ctor body in every includer (ScreenPost: its tScreen* parameter would field-walk the declarations-only tScreen) */
 inline tInsideBoxMenu::tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
                                       void (*OnButtonPress)(tMenuCommand &), short title)
     : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
@@ -363,7 +363,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     bool fInTransition, fTransitioningOut, fClosing;
     short fDiffX, fDiffY;
     bool fFillback; void SetMenu(bool, tInsideBoxMenu *);
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
     ~tMenuItemSlidingMenu();
     void TransitionOff();
@@ -396,7 +396,7 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
     bool fInTransition;
     short fAudioArt;
     int flareextra;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemLeftRightAudioSlider(unsigned int, tListIterator *, int);
     ~tMenuItemLeftRightAudioSlider();
     void Draw(int, int, bool);
@@ -410,7 +410,7 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
 
 struct tInsideBoxSongMenu : public tInsideBoxMenu {
     short fOnOffFade[5], fSelFade[5];
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tInsideBoxSongMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                        void (*)(tMenuCommand &), short, tMenuItem *, ...);
     ~tInsideBoxSongMenu();
@@ -425,7 +425,7 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
 struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
     ~tInsideBoxLeftRightSlider();
     void Draw(int, int, int, bool);
@@ -435,7 +435,7 @@ struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
 struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
     short fType;
     bool fActive;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tInsideBoxTwoWaySlider(unsigned int, tListIterator *, int);
     ~tInsideBoxTwoWaySlider();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);

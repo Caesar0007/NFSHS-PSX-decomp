@@ -3,6 +3,9 @@
  * wrap the definitions (line-neutral).  Owner identity = first-header guards / NFS4_TU_* markers. */
 #ifndef NFS4_SHARED_TPDEF_KEYS_H
 #define NFS4_SHARED_TPDEF_KEYS_H
+#if !defined(NFS4_FE_NO_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)   /* (ScreenAudio/ScreenTrackInfo: own minimal class copies, screentrackinfo_types.h) FESCR: retail FEMENUOPTIONS.H/FEMENUEXTENDED.H menu-item family = full declarations + in-class bodies in every includer; FeMenuOptions.obj (their key TU) opts out */
+#define NFS4_FE_MENUITEM_INLINES
+#endif
 #if 1   /* plain everywhere: the inferred tTournamentManager bodies apply in every frontend TU now (trophy TUs incl., INV-B I5) */   /* plain: the tTournamentManager inferred bodies (CurrentTierInfo/CompetitorAt) supply the 2nd record; trophy owners (bodies excluded) keep the typedef pair */
 #define NFS4_TD_tCompetitor
 #define NFS4_TDN_tCompetitor
@@ -31,14 +34,14 @@
 #define NFS4_TD_tMenuBlank typedef
 #define NFS4_TDN_tMenuBlank tMenuBlank
 #endif
-#if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H)
+#if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FE_MENUITEM_INLINES)   /* FE_MENUITEM_INLINES: the in-class Draw(bool) body supplies the 2nd record (FESCR) */
 #define NFS4_TD_tMenuItemGoToMenuNFS4Button
 #define NFS4_TDN_tMenuItemGoToMenuNFS4Button
 #else
 #define NFS4_TD_tMenuItemGoToMenuNFS4Button typedef
 #define NFS4_TDN_tMenuItemGoToMenuNFS4Button tMenuItemGoToMenuNFS4Button
 #endif
-#if defined(NFS4_TU_FEMENUDEFS) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_TU_FRONT) || defined(NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H)
+#if defined(NFS4_TU_FEMENUDEFS) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_TU_FRONT) || defined(NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H) || defined(NFS4_FE_MENUITEM_INLINES)   /* FE_MENUITEM_INLINES: a derived ctor body supplies the 2nd record (FESCR) */
 #define NFS4_TD_tMenuItemLeftRightFade
 #define NFS4_TDN_tMenuItemLeftRightFade
 #else

@@ -8,7 +8,7 @@
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemLeftRightChoice(unsigned int, tListIterator *);
     ~tMenuItemLeftRightChoice();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
@@ -18,7 +18,7 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemLeftRightSlider(unsigned int, tListIterator *);
     ~tMenuItemLeftRightSlider();
     long DebounceKeys();
@@ -29,7 +29,7 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
 };
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemGoToMenuButton(unsigned int, tMenu *,
                             void (*)(tMenuCommand &));
     ~tMenuItemGoToMenuButton();

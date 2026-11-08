@@ -35,7 +35,7 @@ NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemL
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     tMenuItemLeftRightFade(unsigned int, tListIterator *);
     void TransitionOff();
     void TransitionOn();
@@ -50,12 +50,13 @@ NFS4_TD_tMenuItemLeftRightFade struct tMenuItemLeftRightFade : public tMenuItemL
 #line 27
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     bool fActive;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f)
         : tMenuItemSlidingMenu(a, b, c, d, e, f) {
     }
+    bool IsActive() { return fActive; }   /* INFERRED body: retail TPDEF tMenuItemSlidingActivated x4 (x5 FEMenuDefs) per object (FESCR); never called */
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     virtual void UpdatefOpenHeight(bool);
     void TransitionOff();
     void TransitionOn();
@@ -69,11 +70,11 @@ struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 3
 #line 44
 struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightFade(t, d) {}
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void Draw(int, int, bool);
 #endif
 #line 206 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
@@ -83,11 +84,11 @@ struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
 #line 54
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
     short fOnFade;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightFade(t, d) {}
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void TransitionOn();
     void Draw(int, int, bool);
 #endif
@@ -97,11 +98,11 @@ struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 5
 #line 66
 struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightFade(t, d) {}
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void Draw(int, int, bool);
 #endif
 #line 290 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
@@ -152,11 +153,12 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     signed short fEnableVal;
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
         : tMenuItemGoToMenuButton(t, m, f) {}
+    short EnableValue() { return fEnableVal; }   /* INFERRED body: retail TPDEF tMenuItemGoToMenuButtonFade x5 per object (FESCR); never called */
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void TransitionOff();
     void TransitionOn();
     bool TransitionIsFinished();
@@ -168,12 +170,12 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 8
 #line 125
 struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
         : tMenuItemGoToMenuButtonFade(t, m, f) {
     }
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void Draw(bool);
 #endif
 #line 407 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
@@ -182,11 +184,11 @@ struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
 #elif NFS4_FEMENUOPTIONS_TYPE_PART == 9
 #line 136
 struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d)
         : tInsideBoxLeftRightSlider(t, d) {}
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 #line 428 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
@@ -198,7 +200,7 @@ struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
  * destructor. Keep the definition in that real owner, not a type-surface
  * header. The part selector only preserves the existing declaration order. */
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m,
                                      void (*f)(tMenuCommand &), int ff, int nf)
         : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}

@@ -15,13 +15,15 @@ struct tListIteratorCar : public tListIterator {
     void Decrement(tPlayer)
         __asm__("Decrement__16tListIteratorCar7tPlayer");
 #endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || (defined(NFS4_FE_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENCONGRATS_TYPES_H))   /* retail: full declarations + in-class bodies in every includer (FESCR; ScreenCongrats: its tCarManager is not walked yet -> keep) */
     tListIteratorCar(char *, tCarManager *);
     ~tListIteratorCar();
     char Value(tPlayer);
     void AdjustPosition(tPlayer, short);
     bool ValidCar(tPlayer, char);
     inline void SetFilter(int filter) { fCarListFilter = filter; }
+    inline bool IsFilter(int filter) { return fCarListFilter == filter; }   /* INFERRED body: retail TPDEF tListIteratorCar x4 per object (FESCR); never called */
+    inline int CarListFilter() { return fCarListFilter; }   /* INFERRED body (FESCR); never called */
 #endif
 };
 

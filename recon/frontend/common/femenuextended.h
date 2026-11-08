@@ -7,7 +7,7 @@
 #include "femenuextended_externs.h"
 #elif NFS4_FEMENUEXTENDED_TYPE_PART == 1
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
-#ifdef NFS4_FEMENUDEFS_SURFACE
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
         : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
 #line 80 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"

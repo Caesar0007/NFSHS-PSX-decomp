@@ -138,7 +138,7 @@ static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags 
 typedef tMenuItem *tItemList[16];
 
 struct tMenuItemInteractive : public tMenuItem {
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
+#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_MENUITEM_INLINES)   /* FESCR: declared virtual dtor keeps derived bodies from re-walking it */
     tMenuItemInteractive(unsigned int);
     ~tMenuItemInteractive();
 #endif

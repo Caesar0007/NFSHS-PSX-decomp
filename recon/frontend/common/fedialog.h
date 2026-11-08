@@ -41,6 +41,9 @@ struct tDialogBase : public tScreen {
 #define NFS4_FEDIALOG_SETCHOICES_T void   /* callers: retail records ONE tDialogYesNo per SetChoices body (`this` only) */
 #define NFS4_FEDIALOG_SETCHOICES_RET
 #endif
+#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_BASE)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
+    inline short GetOffsetX() { return OffsetX; } inline short GetOffsetY() { return OffsetY; }
+#endif
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
@@ -56,6 +59,9 @@ struct tDialogHelp : public tDialogBase {
     void AddItem(short, short); inline void SetVariant(int);
     inline void CalculateDimensionsVirtual() NFS4_FEDIALOG_STRIP;
     tDialogHelp();
+#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_HELP)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
+    inline short Variant() { return variant; } inline short NumItems() { return numItems; } inline short HelpControllers() { return helpcontrollers; } inline short LeftText() { return lefttext; }
+#endif
 #line 174 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 51 "recon/frontend/common/fedialog.h"
@@ -85,6 +91,9 @@ struct tDialogMessageString : public tDialogBase {
        tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
     inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
 #endif
+#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_MS)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
+    inline char *GetString() { return string; } inline bool IsCentered() { return Centerit; }
+#endif
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 76 "recon/frontend/common/fedialog.h"
@@ -94,6 +103,9 @@ inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
 #endif
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
     tDialogMessageStringWithTimeout();
+#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_WT)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
+    inline long TimeoutTicks() { return timeOutTicks; }
+#endif
 #line 215 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 80 "recon/frontend/common/fedialog.h"

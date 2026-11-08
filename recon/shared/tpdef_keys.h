@@ -88,4 +88,17 @@
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton */
 #endif
 #endif
+/* fedialog.h INFERRED-body opt-outs: owners whose own dialog member set already gives retail's TPDEF count (FRONTORD3 set 15) */
+#if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMEMCARD) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_)
+#define NFS4_FEDIALOG_NO_INFERRED_BASE
+#endif
+#if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FECHEATS) || defined(NFS4_TU_FEMEMCARD) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || (defined(_FE_SCREENS_SCREENCONTROLLER_H_) && !defined(_FE_SCREENS_FEMENUOPTIONS_H_))
+#define NFS4_FEDIALOG_NO_INFERRED_MS
+#endif
+#ifdef NFS4_TU_FEAPP
+#define NFS4_FEDIALOG_NO_INFERRED_HELP
+#endif
+#ifdef NFS4_TU_FECHEATS
+#define NFS4_FEDIALOG_NO_INFERRED_WT
+#endif
 #endif

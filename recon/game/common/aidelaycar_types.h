@@ -11,7 +11,7 @@
 
 typedef int CarLogic_tObservations[1][3];
 
-struct AIDelayCar {
+typedef struct AIDelayCar {
     int delayFactor_;
     Car_tObj *basisCar_, *targetCar_;
     int deltaMeters_, slice_;
@@ -20,7 +20,7 @@ struct AIDelayCar {
 
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
-    void Update();
-};
+    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */
+} AIDelayCar;
 
 #endif

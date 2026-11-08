@@ -45,7 +45,7 @@ enum {
 #include "shared/trigger_trafficPath_t.h"
 #include "shared/trigger_t.h"
 
-struct AIDelayCar {
+typedef struct AIDelayCar {
     int delayFactor_;
     Car_tObj *basisCar_, *targetCar_;
     int deltaMeters_, slice_;
@@ -53,8 +53,8 @@ struct AIDelayCar {
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
-    void Update();
-};
+    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */
+} AIDelayCar;
 
 #include "aistate.h"
 #include "shared/SceneElem.h"

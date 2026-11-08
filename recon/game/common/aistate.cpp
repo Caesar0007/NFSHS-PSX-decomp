@@ -384,7 +384,7 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
    no caller capture. The existing road-position member replaces a wrapper. */
 static inline void AIState_SetLateralDistance(int &destination, int distance) { destination = distance; }
 static inline int DelayCarSpeed(AIDelayCar *d) { return d->currentSpeed_; }
-inline int AIDelayCar::GetRoadPosition() { return roadPosition_; }
+
 static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
 
 /* 2026-10-30: joint real getter/store ownership fixes the old pair mismatch.
@@ -738,7 +738,7 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
  * Historical measurements below are not original-source/object exemptions. */
 
 /* Inferred accessor spelling: the surviving inline records do not name it. */
-inline int AIDelayCar::GetCurrentSpeed() { return currentSpeed_; }
+
 
 
 #line 461 "C:/nfs4/GAME/COMMON/AISTATE.CPP"

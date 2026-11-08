@@ -185,7 +185,7 @@ short * tTournamentManager::GetTrackList(short tier,short tournament)
 void tTournamentManager::GetTrackToRace(tTrackInfo &track)
 
 
-{
+{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTourneyInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   blockmove(this->fDefinition->fTracks +
              (this->CurrentTourney()->fTrackOffset + this->fCurrentTrack),&track,sizeof(tTrackInfo));
   track.fDirection = this->fDirection[this->fCurrentTrack];
@@ -874,7 +874,7 @@ void tTournamentManager::LoadTournament(tSaveTournament &load)
 
 #line 802 "C:/nfs4/FRONTEND/COMMON/FETOURN.CPP"
 short tTournamentManager::GetNumCompetitors()
-{
+{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTourneyInfo inside this function (locals-before-params law, GSDATA_state 7h) */
 
   return this->CurrentTourney()->fNumCars;
 }

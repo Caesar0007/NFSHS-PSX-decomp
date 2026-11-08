@@ -277,7 +277,7 @@ void tScreenTrophyRoom::Cleanup()
 void tScreenTrophyRoom::DrawBackground()
 
 
-{
+{ tTourneyInfo *devLocal_tTourneyInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTourneyInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   tDrawShapeExtended drawFlags3;
   int fModNumber; int TROPHY_LEFTOFFSET; tDrawShapeExtended drawFlags; short i; short x; short y; int texttoshow; drawFlags3.tint[0] = 0xcec844;
   DrawShapeExtended((FE_Ticks() >> 4) % 10 + 0x1c, 0x410,0x10,0x10,0,0,&drawFlags3);

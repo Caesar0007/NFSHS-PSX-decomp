@@ -181,7 +181,7 @@ tScreenPinkSlips *screenPinkSlips = 0;                 /* @0x80051E64 */
 void tScreenPinkSlips::Initialize()
 
 
-{
+{ tScreenPinkSlips *devLocal_tScreenPinkSlips; /* DEVICE (exact-only): record-less unused local; retail requests tScreenPinkSlips inside this function (locals-before-params law, GSDATA_state 7h) */
   RECT r;
   char moviename [80];
   tTrackInformation trackInfo;

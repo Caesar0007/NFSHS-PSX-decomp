@@ -891,7 +891,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 
-{
+{ tScreenCarSelect *devLocal_tScreenCarSelect; /* DEVICE (exact-only): record-less unused local; retail requests tScreenCarSelect inside this function (locals-before-params law, GSDATA_state 7h) */
   switch(this->fState)
   {
   case 0: case 5:

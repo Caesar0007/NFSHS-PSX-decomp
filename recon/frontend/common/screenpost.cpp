@@ -531,7 +531,7 @@ void tScreenTournamentStandings::DrawBackground()
 #line 318 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenPinkSlipStandings::DrawBackground()
 
-{
+{ tTexture_ShapeInfo *devLocal_tTexture_ShapeInfo; /* DEVICE (exact-only): record-less unused local; retail requests tTexture_ShapeInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   int fade;
   char sBuildOutput [50]; int i; tMenuTextState state; tMenuTextType type; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; fade = (int)this->fScreenFadeVal;
 

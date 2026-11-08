@@ -2,15 +2,15 @@
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR   /* else: the screendisplay_types.h after-color hook pass (Force_tGlobal + tScreenControllerConfig only) */
 #define _FE_SCREENS_SCREENCONTROLLER_H_   /* Canonical SCREENCONTROLLER.H type surface recovered from retail SYM. Actual definitions live here; foreign codegen views below remain unsealed. No compiler source-location directives or new declarations are introduced. */
 #ifndef _FE_SCREENS_FEMENUOPTIONS_H_   /* ScreenController.obj only (FeMenuOptions reuses this graph) */
-#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
-#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph after the dialogs, before the car/track graph */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
-#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
-#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
-#define NFS4_COLOR_HOOK_AFTER_CAR "shared/Force_tGlobal.h"   /* retail ScreenController: Force_tGlobal right after Car_tObj (color_types.h) */
-#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "fe3d_leaf.h"   /* retail: FE3d records right after tActiveLine/tShapeInformation */
-#define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "screencontroller.h"   /* retail: Force_tGlobal + tScreenControllerConfig after color.obj graph, before the cars */
+#include "screencontroller_keys.h"
+
+
+
+
+
+
+
+
 #endif
 #include "fe_player_types.h"   /* ScreenController retains tInputKeyType but not the foreign tPlayer enum. FeMenuOptions reuses this graph and retains both input enums. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #define uchar unsigned char

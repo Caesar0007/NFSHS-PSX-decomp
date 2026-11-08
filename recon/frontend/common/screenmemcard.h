@@ -9,6 +9,9 @@
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "screenmemcard_owner_early.h"   /* retail: owner records right after tActiveLine */
+#define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail: core + draw leaf, then tTexture_ShapeInfo (screendisplay_types.h) */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */
+#define NFS4_FELINES_KERNPAIR_LATE   /* kernpair chained from screenmemcard_owner_early.h (after tScreenMemcard) */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: car graph early, track/tournament graph after the menu family (screendisplay_carblock.h) */
 #ifndef _FE_SCREENS_SCREENMEMCARD_H_
 #define _FE_SCREENS_SCREENMEMCARD_H_   /* frontend/common/screenmemcard.h - reconstructed decls for ScreenMemcard.obj (C++ TU) */

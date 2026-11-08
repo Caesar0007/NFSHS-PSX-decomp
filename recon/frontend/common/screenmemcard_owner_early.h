@@ -18,6 +18,7 @@
 #define NFS4_SCREENMEMCARD_IN_CLASS_PASS   /* retail: tScreenMemcard right after MCRDFILEINFO_def, before kernpair */
 #include "screenmemcard_types.h"
 #undef NFS4_SCREENMEMCARD_IN_CLASS_PASS
+#include "felines_kern.h"   /* retail: kernpair/KERN right after tScreenMemcard (NFS4_FELINES_KERNPAIR_LATE) */
 #include "shared/kernpair.h"
 #include "shared/tDrawShapeExtended.h"
 #endif

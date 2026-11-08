@@ -6,9 +6,10 @@
 
 #include "../../game/common/draw_leaf_types.h"
 #include "shared/tTexture_ShapeInfo.h"
-#include "shared/kernpair.h"
+#ifndef NFS4_FELINES_KERNPAIR_LATE   /* else the owner includes felines_kern.h later (retail screenmain group: kernpair after tScreen) */
 
-typedef struct kernpair KERN;
+#include "felines_kern.h"
+#endif
 
 typedef void (*fontblit)();
 typedef int (*getcode)();

@@ -6,43 +6,23 @@
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "fe_core_types.h"
 #ifndef NFS4_SCREENDISPLAY_IN_MENUS_PASS
-struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
-    tListIterator *fData;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightChoice();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-#endif
-};
-struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
-    tListIterator *fData;
-    short fX, fY, fWidth, fHeight;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tMenuItemLeftRightSlider(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightSlider();
-    long DebounceKeys();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-    void SetDimensions(short, short, short, short);
-#endif
-};
-struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(void *);
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tMenuItemGoToMenuButton(unsigned int, tMenu *,
-                            void (*)(tMenuCommand &));
-    ~tMenuItemGoToMenuButton();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
-};
+#include "screendisplay_menuitems.h"   /* tMenuItemLeftRightChoice / Slider / GoToMenuButton (an owner may include it earlier: retail right after tMenuItemInteractive) */
+#ifndef NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
 #include "felines_types.h"   /* no-op unless NFS4_FE_CORE_FELINES_LATE (fe core emitted before the core types) */
+#endif
+#ifndef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* else: tActiveLine, tShapeInformation, tScreen consecutive (retail), below */
 #include "shared/tShapeInformation.h"
+#endif
 #include "fescreen_virtual_types.h"
 struct tMenu; struct tDrawShapeExtended;
+#ifndef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
 #include "fescreen.h"
+#endif
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
 #include "../../game/common/draw_leaf_types.h"
+#ifdef NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail screenmain group: core + draw leaf, then tTexture_ShapeInfo (felines_types.h) */
+#include "felines_types.h"   /* no-op unless NFS4_FE_CORE_FELINES_LATE (fe core emitted before the core types) */
+#endif
 #ifdef NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN   /* retail front: car graph right after tScreen, before tActiveLine */
 #include "screendisplay_carblock.h"
 #endif
@@ -50,6 +30,10 @@ struct tMenu; struct tDrawShapeExtended;
 #include NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE
 #endif
 #include "shared/tActiveLine.h"
+#ifdef NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
+#include "shared/tShapeInformation.h"
+#include "fescreen.h"
+#endif
 #ifdef NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE   /* owner records right after tActiveLine (screenpost) */
 #include NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE
 #endif
@@ -84,6 +68,22 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

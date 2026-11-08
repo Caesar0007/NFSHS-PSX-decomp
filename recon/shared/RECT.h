@@ -6,11 +6,11 @@
 #ifndef NFS4_SHARED_RECT_H
 #define NFS4_SHARED_RECT_H
 
-struct RECT {
+typedef struct {
     short x, y, w, h;
-};
-#ifndef __cplusplus
-typedef struct RECT RECT;
-#endif
+} RECT;
+
+
+
 
 #endif

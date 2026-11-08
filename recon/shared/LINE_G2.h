@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_LINE_G2_H
 #define NFS4_SHARED_LINE_G2_H
 
-struct LINE_G2 {
+typedef struct {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char r1,g1,b1,p1;
     short x1,y1;
-};
+} LINE_G2;
 #endif

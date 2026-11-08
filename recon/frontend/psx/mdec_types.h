@@ -4,15 +4,15 @@
 
 #include "nfs4_types.h"
 
-struct MDECSTRUCT {
+typedef struct {
     int    id, width, height, bpp;
     struct RECT framerect, striprect;
     int    striprectsize;
     u_long *stripbuf, *vlcbuf;
-};
-#ifndef __cplusplus
-typedef struct MDECSTRUCT MDECSTRUCT;
-#endif
+} MDECSTRUCT;
+
+
+
 
 typedef u_short DECDCTTAB[34816];
 

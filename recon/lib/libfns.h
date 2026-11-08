@@ -14,7 +14,7 @@
 #ifndef _LIB_LIBFNS_H_
 #define _LIB_LIBFNS_H_
 
-struct SNDSTREAMSTATUS;
+#include "../shared/SNDSTREAMSTATUS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SNDREQUESTSTATUS;
 struct SNDPLAYOPTS;
 struct SndGlobalServerStateView;
@@ -109,7 +109,7 @@ int SNDSTRM_requeststatus(unsigned int reqTag, struct SNDREQUESTSTATUS *status);
 void SNDSTRM_setgreedylevel(...);   /* (int handle, int level) */
 void SNDSTRM_setgreedystate(...);   /* (int handle, int state) */
 void SNDSTRM_setpriority(...);   /* (int handle, int prio, int n) */
-int SNDSTRM_status(int tag, struct SNDSTREAMSTATUS *status);   /* (int handle, SNDSTREAMSTATUS *status) */
+int SNDSTRM_status(int tag, SNDSTREAMSTATUS *status);   /* (int handle, SNDSTREAMSTATUS *status) */
 int SNDSTRM_vol(...);   /* (int handle, int vol) */
 int SNDSYS_getopts(...);   /* (void * outOpts) */
 int SNDSYS_init(void *membase, int memsize);   /* (void *membase, int memsize) */

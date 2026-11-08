@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_CDLLOC_H
 #define NFS4_SHARED_CDLLOC_H
 
-struct CdlLOC {
+typedef struct {
     u_char minute, second, sector, track;
-};
+} CdlLOC;
 #endif

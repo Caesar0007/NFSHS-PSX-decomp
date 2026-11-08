@@ -3,12 +3,12 @@
 #ifndef NFS4_SHARED_SPRT_H
 #define NFS4_SHARED_SPRT_H
 
-struct SPRT {
+typedef struct {
     u_long tag;
     u_char r0, g0, b0, code;
     short x0, y0;
     u_char u0, v0;
     u_short clut;
     short w, h;
-};
+} SPRT;
 #endif

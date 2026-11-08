@@ -31,7 +31,7 @@ int initmdec(int width,int height,int bpp,int memtype)
 
 
 {
-  struct MDECSTRUCT *mdec;
+  MDECSTRUCT *mdec;
   int vlcsize;
 
 
@@ -42,7 +42,7 @@ int initmdec(int width,int height,int bpp,int memtype)
 
 
 
-  mdec = (struct MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
+  mdec = (MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
   blockclear(mdec,0x2c);
   mdec->id = 0x4345444d;   /* 'MDEC' */
 
@@ -94,7 +94,7 @@ void restoremdec(int handle)
 
 
 {
-  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)handle;
+  MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
 
 
 
@@ -149,7 +149,7 @@ void mdec(int handle,char *src,int x,int y)
 {
   /* mode is selected directly at the DecDCTin call; SYM records no local. */
   int timeout;
-  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)handle;
+  MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
 
 
 
@@ -226,7 +226,7 @@ void MDECCompleteHandler(void)
 
 
 {
-  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)gMDECinfo.hDecode;
+  MDECSTRUCT *mdec = (MDECSTRUCT *)gMDECinfo.hDecode;
 
   LoadImage
             (&mdec->striprect,mdec->stripbuf);

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_SNDSTREAMSTATUS_H
 #define NFS4_SHARED_SNDSTREAMSTATUS_H
 
-struct SNDSTREAMSTATUS { int outstandingrequests, currentrequest, timebuffered; };
+typedef struct { int outstandingrequests, currentrequest, timebuffered; } SNDSTREAMSTATUS;
 #endif

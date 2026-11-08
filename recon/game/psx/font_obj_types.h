@@ -33,18 +33,18 @@ typedef struct charactertbl charactertbl;
 
 
 
-typedef struct MATRIX MATRIX;
-typedef struct VECTOR VECTOR;
-typedef struct SVECTOR SVECTOR;
-typedef struct CVECTOR CVECTOR;
-typedef struct DVECTOR DVECTOR;
-typedef struct RVECTOR RVECTOR;
-typedef struct CRVECTOR3 CRVECTOR3;
-typedef struct CRVECTOR4 CRVECTOR4;
-typedef struct RECT RECT;
-typedef struct DR_ENV DR_ENV;
-typedef struct DRAWENV DRAWENV;
-typedef struct DISPENV DISPENV;
+/* MATRIX: typedef-name already declared (anonymous PsyQ form) */
+/* VECTOR: typedef-name already declared (anonymous PsyQ form) */
+/* SVECTOR: typedef-name already declared (anonymous PsyQ form) */
+/* CVECTOR: typedef-name already declared (anonymous PsyQ form) */
+/* DVECTOR: typedef-name already declared (anonymous PsyQ form) */
+/* RVECTOR: typedef-name already declared (anonymous PsyQ form) */
+/* CRVECTOR3: typedef-name already declared (anonymous PsyQ form) */
+/* CRVECTOR4: typedef-name already declared (anonymous PsyQ form) */
+/* RECT: typedef-name already declared (anonymous PsyQ form) */
+/* DR_ENV: typedef-name already declared (anonymous PsyQ form) */
+/* DRAWENV: typedef-name already declared (anonymous PsyQ form) */
+/* DISPENV: typedef-name already declared (anonymous PsyQ form) */
 
 #include "shared/SPRT.h"
 
@@ -54,13 +54,13 @@ typedef struct DISPENV DISPENV;
 
 
 
-typedef struct SPRT SPRT;
+/* SPRT: typedef-name already declared (anonymous PsyQ form) */
 
 #include "shared/DR_MODE.h"
 
 
 
-typedef struct DR_MODE DR_MODE;
+/* DR_MODE: typedef-name already declared (anonymous PsyQ form) */
 typedef struct shapetbl shapetbl;
 
 #include "shared/coorddef.h"

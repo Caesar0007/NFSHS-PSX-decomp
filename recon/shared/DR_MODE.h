@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_DR_MODE_H
 #define NFS4_SHARED_DR_MODE_H
 
-struct DR_MODE {
+typedef struct {
     u_long tag;
     u_long code[2];
-};
-#ifndef __cplusplus
-typedef struct DR_MODE DR_MODE;
-#endif
+} DR_MODE;
+
+
+
 #endif

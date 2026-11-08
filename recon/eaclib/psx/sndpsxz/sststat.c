@@ -9,7 +9,7 @@
 #include "sststat.h"
 
 /* SNDSTRM_status : fill the 3-int status block `status` for stream `tag`. */
-int SNDSTRM_status(int tag, struct SNDSTREAMSTATUS *status)
+int SNDSTRM_status(int tag, SNDSTREAMSTATUS *status)
 {
     SndStream *sp;
     unsigned int frames, outstanding;

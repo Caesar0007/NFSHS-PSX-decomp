@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_FEI_TLIST_H
 #define NFS4_SHARED_FEI_TLIST_H
 
-struct FEI_tList { int v; int *p; };
+typedef struct { int v; int *p; } FEI_tList;
 #endif

@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_DR_AREA_H
 #define NFS4_SHARED_DR_AREA_H
 
-struct DR_AREA {
+typedef struct {
     u_long tag;
     u_long code[2];
-};
+} DR_AREA;
 #endif

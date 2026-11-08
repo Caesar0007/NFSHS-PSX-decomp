@@ -25,7 +25,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 {
   /* decl order = SYM Def-record order (vid, playopts, handle, fname) */
-  struct VIDEOSTRUCT *vid;
+  VIDEOSTRUCT *vid;
   SNDPLAYOPTS playopts;
   int handle;
   char fname [60];
@@ -37,7 +37,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   handle = asyncloadfileat(fname,(int)CF_DVLC);
   while (getasyncreadstatus(handle) == 0) { systemtask(0);
   }
-  vid = (struct VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
+  vid = (VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
   blockclear(vid,0x40);
   vid->id = 0x57444956;   /* 'VIDW' */
 
@@ -177,9 +177,9 @@ enum VIDEOSTATE VIDEO_state(int handle)
 
 
 {
-  struct VIDEOSTRUCT *vid;
+  VIDEOSTRUCT *vid;
   SNDREQUESTSTATUS srs;
-  vid = (struct VIDEOSTRUCT *)handle;
+  vid = (VIDEOSTRUCT *)handle;
   if (vid->id != 0x57444956   /* 'VIDW' */) {
     return (enum VIDEOSTATE)0;
   }
@@ -235,7 +235,7 @@ enum VIDEOSTATE VIDEO_state(int handle)
 #line 256 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 int VIDEO_updateframexy(int handle,int x,int y)
 {
-  struct VIDEOSTRUCT *vid; struct STREAMCHUNKHDR *chunk; SNDREQUESTSTATUS audiostatus; int currenttime; int dropped; vid = (struct VIDEOSTRUCT *)handle;
+  VIDEOSTRUCT *vid; struct STREAMCHUNKHDR *chunk; SNDREQUESTSTATUS audiostatus; int currenttime; int dropped; vid = (VIDEOSTRUCT *)handle;
 
 
 
@@ -319,7 +319,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
 
 /* ---- videoupdatetime  (video.cpp:369, code lines 369-371) ---- */
 #line 365 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
-void videoupdatetime(struct VIDEOSTRUCT *vid)
+void videoupdatetime(VIDEOSTRUCT *vid)
 
 
 {
@@ -333,7 +333,7 @@ void videoupdatetime(struct VIDEOSTRUCT *vid)
 /* ---- videodecode  (video.cpp:375, code lines 375-423) ---- */
 
 #line 374 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
-int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
+int videodecode(VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
 {
   int timeout;
 

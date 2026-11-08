@@ -35,23 +35,23 @@ struct DIRENTRY {
     u_char system[4];
 };
 
-typedef struct VECTOR {
+typedef struct {
     long vx, vy, vz, pad;
 } VECTOR;
 
-typedef struct SVECTOR {
+typedef struct {
     short vx, vy, vz, pad;
 } SVECTOR;
 
-typedef struct CVECTOR {
+typedef struct {
     u_char r, g, b, cd;
 } CVECTOR;
 
-typedef struct DVECTOR {
+typedef struct {
     short vx, vy;
 } DVECTOR;
 
-typedef struct RVECTOR {
+typedef struct {
     SVECTOR v;
     u_char uv[2];
     u_short pad;
@@ -60,28 +60,28 @@ typedef struct RVECTOR {
     u_long sz;
 } RVECTOR;
 
-typedef struct CRVECTOR3 {
+typedef struct {
     RVECTOR r01, r12, r20;
     RVECTOR *r0, *r1, *r2;
     u_long *rtn;
 } CRVECTOR3;
 
-typedef struct CRVECTOR4 {
+typedef struct {
     RVECTOR r01, r02, r31, r32, rc;
     RVECTOR *r0, *r1, *r2, *r3;
     u_long *rtn;
 } CRVECTOR4;
 
-typedef struct RECT {
+typedef struct {
     short x, y, w, h;
 } RECT;
 
-typedef struct DR_ENV {
+typedef struct {
     u_long tag;
     u_long code[15];
 } DR_ENV;
 
-typedef struct DRAWENV {
+typedef struct {
     RECT clip;
     short ofs[2];
     RECT tw;
@@ -90,7 +90,7 @@ typedef struct DRAWENV {
     DR_ENV dr_env;
 } DRAWENV;
 
-typedef struct DISPENV {
+typedef struct {
     RECT disp, screen;
     u_char isinter, isrgb24, pad0, pad1;
 } DISPENV;

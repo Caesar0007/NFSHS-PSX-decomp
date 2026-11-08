@@ -2,8 +2,8 @@
 #ifndef NFS4_SHARED_DR_OFFSET_H
 #define NFS4_SHARED_DR_OFFSET_H
 
-struct DR_OFFSET {
+typedef struct {
     u_long tag;
     u_long code[2];
-};
+} DR_OFFSET;
 #endif

@@ -10,7 +10,7 @@ void       VIDEO_startplayback(int handle);
 void       VIDEO_abortplayback(int handle);
 enum VIDEOSTATE VIDEO_state(int handle);
 int        VIDEO_updateframexy(int handle, int x, int y);
-void       videoupdatetime(struct VIDEOSTRUCT *vid);
-int        videodecode(struct VIDEOSTRUCT *vid, struct STREAMCHUNKHDR *chunk, int x, int y);
+void       videoupdatetime(VIDEOSTRUCT *vid);
+int        videodecode(VIDEOSTRUCT *vid, struct STREAMCHUNKHDR *chunk, int x, int y);
 
 #endif /* _FRONTEND_PSX_VIDEO_H_ */

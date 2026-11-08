@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_POLY_G4_H
 #define NFS4_SHARED_POLY_G4_H
 
-struct POLY_G4 {
+typedef struct {
     u_long tag;
     u_char r0, g0, b0, code;
     short x0, y0;
@@ -13,5 +13,5 @@ struct POLY_G4 {
     short x2, y2;
     u_char r3, g3, b3, pad3;
     short x3, y3;
-};
+} POLY_G4;
 #endif

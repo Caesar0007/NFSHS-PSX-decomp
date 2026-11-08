@@ -69,112 +69,112 @@ typedef u_short gid_t;
 #ifdef NFS4_CORE_FULL
 #include "shared/MATRIX.h"
 #endif
-struct VECTOR {
+typedef struct {
     long vx, vy, vz, pad;
-};
-#ifndef __cplusplus
-typedef struct VECTOR VECTOR;
-#endif
+} VECTOR;
 
-struct SVECTOR {
+
+
+
+typedef struct {
     short vx, vy, vz, pad;
-};
-#ifndef __cplusplus
-typedef struct SVECTOR SVECTOR;
-#endif
+} SVECTOR;
 
-struct CVECTOR {
+
+
+
+typedef struct {
     unsigned char r, g, b, cd;
-};
-#ifndef __cplusplus
-typedef struct CVECTOR CVECTOR;
-#endif
+} CVECTOR;
 
-struct DVECTOR {
+
+
+
+typedef struct {
     short vx, vy;
-};
-#ifndef __cplusplus
-typedef struct DVECTOR DVECTOR;
-#endif
+} DVECTOR;
 
-struct RVECTOR {
+
+
+
+typedef struct {
     SVECTOR v;
     unsigned char  uv[2];
     unsigned short pad;
     CVECTOR c;
     DVECTOR sxy;
     unsigned long  sz;
-};
-#ifndef __cplusplus
-typedef struct RVECTOR RVECTOR;
-#endif
+} RVECTOR;
 
-struct CRVECTOR3 {
+
+
+
+typedef struct {
     RVECTOR r01, r12, r20;
     RVECTOR *r0, *r1, *r2;
     unsigned long  *rtn;
-};
-#ifndef __cplusplus
-typedef struct CRVECTOR3 CRVECTOR3;
-#endif
+} CRVECTOR3;
 
-struct CRVECTOR4 {
+
+
+
+typedef struct {
     RVECTOR r01, r02, r31, r32, rc;
     RVECTOR *r0, *r1, *r2, *r3;
     unsigned long  *rtn;
-};
-#ifndef __cplusplus
-typedef struct CRVECTOR4 CRVECTOR4;
-#endif
+} CRVECTOR4;
+
+
+
 
 #include "shared/RECT.h"
 
-struct DR_ENV {
+typedef struct {
     unsigned long tag;
     unsigned long code[15];
-};
-#ifndef __cplusplus
-typedef struct DR_ENV DR_ENV;
-#endif
+} DR_ENV;
+
+
+
 
 /* NFS4_PSYQ_DDV_TYPES: the graphics-primitive subset seen by Ddvfont.obj (retail SYM block: VECTOR..DR_ENV and
  * SYS/TYPES only -- no DRAWENV/DISPENV/shapetbl, no CD stream, no wchar_t/VOIDFN/file/thread typedefs). */
 #ifndef NFS4_PSYQ_DDV_TYPES
-struct DRAWENV {
+typedef struct {
     RECT    clip;
     short   ofs[2];
     RECT    tw;
     unsigned short tpage;
     unsigned char  dtd, dfe, isbg, r0, g0, b0;
     DR_ENV  dr_env;
-};
-#ifndef __cplusplus
-typedef struct DRAWENV DRAWENV;
-#endif
+} DRAWENV;
 
-struct DISPENV {
+
+
+
+typedef struct {
     RECT   disp, screen;
     unsigned char isinter, isrgb24, pad0, pad1;
-};
-#ifndef __cplusplus
-typedef struct DISPENV DISPENV;
-#endif
+} DISPENV;
+
+
+
 #ifdef NFS4_CORE_FULL
 /* retail: the owner's libgpu.h primitives right after DISPENV, in libgpu.h order (NFS4_PRIM_* from the owner's first header) */
 #ifdef NFS4_PRIM_POLY_F3
-struct POLY_F3 {
+typedef struct {
     u_long tag; u_char r0,g0,b0,code; short x0,y0,x1,y1,x2,y2;
-};
+} POLY_F3;
 #endif
 #ifdef NFS4_PRIM_POLY_F4
 #include "shared/POLY_F4.h"
 #endif
 #ifdef NFS4_PRIM_POLY_FT3
-struct POLY_FT3 {
+typedef struct {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
     short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
     u_short pad1;
-};
+} POLY_FT3;
 #endif
 #ifdef NFS4_PRIM_POLY_FT4
 #include "shared/POLY_FT4.h"
@@ -186,12 +186,12 @@ struct POLY_FT3 {
 #include "shared/POLY_G4.h"
 #endif
 #ifdef NFS4_PRIM_POLY_GT3
-struct POLY_GT3 {
+typedef struct {
     u_long tag;
     u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
     u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
-};
+} POLY_GT3;
 #endif
 #ifdef NFS4_CORE_POLY_GT4   /* headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every object that records it */
 #include "shared/POLY_GT4.h"
@@ -203,17 +203,17 @@ struct POLY_GT3 {
 #include "shared/SPRT.h"
 #endif
 #ifdef NFS4_PRIM_TILE_1
-struct TILE_1 { u_long tag; u_char r0,g0,b0,code; short x0,y0; };
+typedef struct { u_long tag; u_char r0,g0,b0,code; short x0,y0; } TILE_1;
 #endif
 #include "shared/DR_MODE.h"
 #ifdef NFS4_CORE_HOOK_AFTER_DRMODE   /* owner types right after DR_MODE (drawdbg.obj: TCB/EXEC/DIRENTRY) */
 #include NFS4_CORE_HOOK_AFTER_DRMODE
 #endif
 #ifdef NFS4_PRIM_DR_TWIN
-struct DR_TWIN { u_long tag, code[2]; };
+typedef struct { u_long tag, code[2]; } DR_TWIN;
 #endif
 #ifdef NFS4_PRIM_DR_STP
-struct DR_STP { u_long tag; u_long code[2]; };
+typedef struct { u_long tag; u_long code[2]; } DR_STP;
 #endif
 #ifdef NFS4_PRIM_DR_AREA
 #include "shared/DR_AREA.h"

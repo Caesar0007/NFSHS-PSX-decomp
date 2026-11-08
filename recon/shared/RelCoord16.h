@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_RELCOORD16_H
 #define NFS4_SHARED_RELCOORD16_H
 
-struct RelCoord16 { short x, z; };
+typedef struct { short x, z; } RelCoord16;
 #endif

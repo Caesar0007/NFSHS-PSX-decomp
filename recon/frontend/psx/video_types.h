@@ -10,8 +10,8 @@ struct windowtbl {
     u_char bpp, type, ram, unused;
     int    minx, miny, maxx, maxy;
     struct shapetbl *shape;
-    struct DISPENV dispenv;
-    struct DRAWENV drawenv;
+    DISPENV dispenv;
+    DRAWENV drawenv;
 };
 typedef struct windowtbl WINDOW;
 
@@ -62,7 +62,7 @@ enum VIDEOSTATE {
     VIDEOSTATE_PLAYING = 3
 };
 
-struct VIDEOSTRUCT {
+typedef struct {
     int    id, bufferwidth, bufferheight;
     char   *streambuffer;
     int    mdechandle;
@@ -72,7 +72,7 @@ struct VIDEOSTRUCT {
     long   streamrequestid;
     int    reftime, displaytime, displaytimefrac, displaytimeincr;
     int    framewidth, frameheight, droppedframes;
-};
+} VIDEOSTRUCT;
 
 typedef long STREAMHANDLE;
 typedef long STREAMREQUESTID;

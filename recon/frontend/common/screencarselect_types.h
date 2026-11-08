@@ -57,13 +57,13 @@ struct tDrawShapeExtended;
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-enum tCarStatType {
-    cst_Acceleration = 0,
-    cst_Brake = 1,
-    cst_Speed = 2,
-    cst_Handling = 3,
-    cst_Overall = 4
-};
+#include "screencarselect_carstat.h"   /* enum tCarStatType (own guarded header: NFS4_FE_CORE_CARS_HOOK_BEFORE_MANAGER places it for the owner) */
+
+
+
+
+
+
 #endif
 
 struct tVideoWall {

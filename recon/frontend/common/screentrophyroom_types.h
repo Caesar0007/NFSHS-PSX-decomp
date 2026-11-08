@@ -2,6 +2,7 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: the full tMenu/tMenuItem inline-member sets (TPDEF x16 in every frontend object) */
+#define NFS4_FELINES_KERNPAIR_LATE   /* kernpair emitted by screentrophyroom.h after tScreenTrophyRoom */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_CORE_CCOORD16   /* retail: MATRIX core, PCOORD16..pads, input enums, tMenuCommand*, FE menu core, Draw_* */

@@ -46,7 +46,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     ~tMenuItemGoToMenuButton();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
-
+#include "shared/tActiveLine.h"   /* retail FEMenuExtended: tActiveLine right after the item classes (FRONTORD3) */
 
 #include "felines_types.h"
 #include "../../game/psx/psyq_prim_macros.h"

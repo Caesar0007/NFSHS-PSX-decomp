@@ -30,6 +30,7 @@ struct tScreenTrophyRoom : public tScreen {
     ~tScreenTrophyRoom();
     void LoadTrophy();
 };
-
-
+#ifdef NFS4_FELINES_KERNPAIR_LATE   /* retail ScreenTrophyRoom: kernpair right after tScreenTrophyRoom (FRONTORD3 key) */
+#include "felines_kern.h"
+#endif
 #endif

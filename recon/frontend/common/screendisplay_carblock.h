@@ -53,15 +53,14 @@ struct tCarManager;
 #undef NFS4_FE_TRACK_NO_PLAYER
 #endif
 
-struct tTournamentManager {
+typedef struct tTournamentManager {
     char fNumTiers;
     int fTier, fTournament, fCurrentTrack;
     int fNumRacers;
     long fMoney;
     tTournamentDefinition *fDefinition;
     short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65];
-    short fTrackList[17];
+    short fTournamentList[65]; short fTrackList[17];
     char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
     tCompetitor fCompetitors[6];
     tCarLineup fCarLineup[6];
@@ -69,6 +68,7 @@ struct tTournamentManager {
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
     tAwardInformation fAwards;
+#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
 #ifdef NFS4_TSCREENCONGRATS_OWNER
     /* Real nonvirtual methods/signatures from the FETourn SYM and owner. */
     short PlayerRanking(short);
@@ -120,7 +120,7 @@ struct tTournamentManager {
 #elif defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
     tTournamentDefinition *Definition() { return fDefinition; } /* Existing inferred accessor; no layout/virtual slot. */
 #endif
-};
+} tTournamentManager;
 
 #ifndef NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* else via NFS4_FE_TRACK_HOOK_AFTER_MANAGER */
 #define NFS4_SCREENDISPLAY_ITERS_TRACK

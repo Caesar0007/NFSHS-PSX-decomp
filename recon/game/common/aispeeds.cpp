@@ -2,8 +2,8 @@
  *   SYM-v3 locals and retail assembly are the reconstruction authorities.
  *   NOT original source; SYM-faithful, recompilable C++.
  *   Function anchors restore supplied identities/headers; internal SLD is
- *   still independently checked and is not implied by an anchor.
- */
+ *   still independently checked and is not implied by an anchor. */
+#define NFS4_TU_AISPEEDS   /* owner key: AISpeeds_tLeaderBoard keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "aispeeds_types.h"
 #include "aispeeds_externs.h"
 

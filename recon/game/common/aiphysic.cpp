@@ -1,8 +1,8 @@
 /* game/common/aiphysic.cpp -- RECONSTRUCTED (AI physics subsystem).
  *   AIPhysic_* — AI car physics: gear/speed tables, collision, control, road position.
  *   Reconstruction in progress (started 2026-06-20). NOT original source; SYM-faithful,
- *   recompilable C++. Verified per-function vs asm/nonmatchings/main/*.s.
- */
+ *   recompilable C++. Verified per-function vs asm/nonmatchings/main/*.s. */
+#define NFS4_TU_AIPHYSIC   /* owner key: AIPhysic_Config_t keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "aiphysic_types.h"
 #include "aiphysic_externs.h"
 

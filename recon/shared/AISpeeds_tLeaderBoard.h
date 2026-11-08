@@ -6,4 +6,7 @@
 struct AISpeeds_tLeaderBoard {
     Car_tObj *leadRacer, *leadHumanRacer, *leadAIRacer, *lastAIRacer;
 };
+#ifdef NFS4_TU_AISPEEDS   /* owner object: retail records the C-style `typedef struct AISpeeds_tLeaderBoard {..} AISpeeds_tLeaderBoard;` form (TPDEF twice) */
+typedef struct AISpeeds_tLeaderBoard AISpeeds_tLeaderBoard;
+#endif
 #endif

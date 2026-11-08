@@ -1,7 +1,7 @@
 /* game/common/replay.cpp -- RECONSTRUCTED NFS4 PSX replay record/playback C++ TU.
  *   replay.obj: sixteen functions, from Replay_Compress through Replay_ReplayFindClosestCamera.
- *   Typed data ownership is verified separately from remaining local/source/SLD restoration.
- */
+ *   Typed data ownership is verified separately from remaining local/source/SLD restoration. */
+#define NFS4_TU_REPLAY   /* owner key: tReplayCameraModes keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "replay_types.h"
 #include "replay_externs.h"
 

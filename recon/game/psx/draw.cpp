@@ -1,8 +1,8 @@
 /* game/psx/draw.cpp -- RECONSTRUCTED (NFS4 PSX base render-management; C++ TU)
  *   25 fns: view/OT setup (Draw_SetView/InitViews/InitViewOT[InGame]/DeInitViews), primitive-buffer
  *   alloc/clear, frame render start/stop (Start/StopRenderingView, Start/StopFrameRender), draw
- *   environment, render-engine init. GTE-free (0 cop2 stubs). Full SYM-locals applied.
- */
+ *   environment, render-engine init. GTE-free (0 cop2 stubs). Full SYM-locals applied. */
+#define NFS4_TU_DRAW   /* owner key: dflip keep retail's C-style typedef form (2nd TPDEF at the definition) */
 /* PER-TU FLAG RECEIPTS (w39-a3, 2026-08-01, all four PER_TU keys now wired):
  * draw.cpp is 21/22 PASS at baseline.  no_split_addresses breaks 8 PASSing fns,
  * no_schedule_insns breaks 7, no_schedule_insns2 breaks 11; no_strength_reduce is

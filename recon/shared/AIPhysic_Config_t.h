@@ -8,4 +8,7 @@ struct AIPhysic_Config_t {
     int skid_value;
     AIPhysic_ModelConfig_t ICModel, OOCModel;
 };
+#ifdef NFS4_TU_AIPHYSIC   /* owner object: retail records the C-style `typedef struct AIPhysic_Config_t {..} AIPhysic_Config_t;` form (TPDEF twice) */
+typedef struct AIPhysic_Config_t AIPhysic_Config_t;
+#endif
 #endif

@@ -6,4 +6,7 @@
 struct DrawC_tEnvMap {
     short slice, tex, extra;
 };
+#ifdef NFS4_TU_DRAWC   /* owner object: retail records the C-style `typedef struct DrawC_tEnvMap {..} DrawC_tEnvMap;` form (TPDEF twice) */
+typedef struct DrawC_tEnvMap DrawC_tEnvMap;
+#endif
 #endif

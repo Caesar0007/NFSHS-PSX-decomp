@@ -4,4 +4,7 @@
 #define NFS4_SHARED_DFLIP_H
 
 struct dflip { DISPENV disp; char *server; };
+#ifdef NFS4_TU_DRAW   /* owner object: retail records the C-style `typedef struct dflip {..} dflip;` form (TPDEF twice) */
+typedef struct dflip dflip;
+#endif
 #endif

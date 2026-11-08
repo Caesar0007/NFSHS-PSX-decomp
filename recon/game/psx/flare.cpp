@@ -1,8 +1,8 @@
 /* game/psx/flare.cpp -- RECONSTRUCTED (NFS4 PSX in-race HUD; C++ TU)
  *   62 fns: sprite/poly builders, tachometer, number rasterizer, mini-map + radar,
  *   CD player, wingman interface, render views (hud/tac/map/stats), 3-2-1-GO, BTC/busted.
- *   Reconstructed with full SYM-locals applied (audited).
- */
+ *   Reconstructed with full SYM-locals applied (audited). */
+#define NFS4_TU_FLARE   /* owner key: FLARE_DEF keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "flare_types.h"
 #include "flare_externs.h"
 #include "psyq_prim_macros.h"

@@ -1,8 +1,8 @@
 /* game/common/AITUNE.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
  *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
- */
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++. */
+#define NFS4_TU_AITUNE   /* owner key: copTuning_t, accelscale_t, AITune_tTrackInfo, AITune_BTC_t keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "aitune_types.h"
 #include "aitune_externs.h"
 

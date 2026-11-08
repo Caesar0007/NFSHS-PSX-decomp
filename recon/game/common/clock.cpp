@@ -1,7 +1,7 @@
 /* game/common/clock.cpp -- RECONSTRUCTED (NFS4 game clock: 128Hz EAC timer chain + master IRQ handler).
  *   3 fns: MasterInterruptHandler / SystemStartUp / SystemCleanUp. SYM-v3 locals; owns 4 globals.
- *   Verified vs disasm-v2.txt (addtimer/deltimer 1-arg = &Clock_MasterInterruptHandler). Self-contained.
- */
+ *   Verified vs disasm-v2.txt (addtimer/deltimer 1-arg = &Clock_MasterInterruptHandler). Self-contained. */
+#define NFS4_TU_CLOCK   /* owner key: Clock_tGameClock keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "clock_types.h"
 #include "clock_externs.h"
 

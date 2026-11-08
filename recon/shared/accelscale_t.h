@@ -6,4 +6,7 @@
 struct accelscale_t {
     int scale;
 };
+#ifdef NFS4_TU_AITUNE   /* owner object: retail records the C-style `typedef struct accelscale_t {..} accelscale_t;` form (TPDEF twice) */
+typedef struct accelscale_t accelscale_t;
+#endif
 #endif

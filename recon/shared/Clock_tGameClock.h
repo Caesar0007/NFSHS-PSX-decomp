@@ -6,4 +6,7 @@
 struct Clock_tGameClock {
     int time128Hz, time64Hz, time32Hz;
 };
+#ifdef NFS4_TU_CLOCK   /* owner object: retail records the C-style `typedef struct Clock_tGameClock {..} Clock_tGameClock;` form (TPDEF twice) */
+typedef struct Clock_tGameClock Clock_tGameClock;
+#endif
 #endif

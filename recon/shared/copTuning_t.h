@@ -7,4 +7,7 @@ struct copTuning_t {
     int regularCopAccMultiplier, superCopAccMultiplier;
     int regularCopTopSpeedCap, superCopTopSpeedCap;
 };
+#ifdef NFS4_TU_AITUNE   /* owner object: retail records the C-style `typedef struct copTuning_t {..} copTuning_t;` form (TPDEF twice) */
+typedef struct copTuning_t copTuning_t;
+#endif
 #endif

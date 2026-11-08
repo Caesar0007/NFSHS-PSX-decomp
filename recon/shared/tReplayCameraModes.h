@@ -6,4 +6,7 @@
 struct tReplayCameraModes {
     int defaultCamera, timeCounter, cameraMode, cutToNextCamera;
 };
+#ifdef NFS4_TU_REPLAY   /* owner object: retail records the C-style `typedef struct tReplayCameraModes {..} tReplayCameraModes;` form (TPDEF twice) */
+typedef struct tReplayCameraModes tReplayCameraModes;
+#endif
 #endif

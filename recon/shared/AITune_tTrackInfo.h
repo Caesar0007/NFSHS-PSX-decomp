@@ -6,4 +6,7 @@
 struct AITune_tTrackInfo {
     int oneWay, driveSide, roughLapTimeSeconds;
 };
+#ifdef NFS4_TU_AITUNE   /* owner object: retail records the C-style `typedef struct AITune_tTrackInfo {..} AITune_tTrackInfo;` form (TPDEF twice) */
+typedef struct AITune_tTrackInfo AITune_tTrackInfo;
+#endif
 #endif

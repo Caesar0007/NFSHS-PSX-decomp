@@ -7,4 +7,7 @@ struct AITune_BTC_t {
     int glueMult, speedMult, weightMult, baseChaseTime;
     int wingmanTime, blockaderTime, spikeBeltTime;
 };
+#ifdef NFS4_TU_AITUNE   /* owner object: retail records the C-style `typedef struct AITune_BTC_t {..} AITune_BTC_t;` form (TPDEF twice) */
+typedef struct AITune_BTC_t AITune_BTC_t;
+#endif
 #endif

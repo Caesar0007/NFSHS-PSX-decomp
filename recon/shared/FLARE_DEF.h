@@ -10,4 +10,7 @@ struct FLARE_DEF {
     FLARE_PIECE_DEF *piece;
     char isDrawn[2];
 };
+#ifdef NFS4_TU_FLARE   /* owner object: retail records the C-style `typedef struct FLARE_DEF {..} FLARE_DEF;` form (TPDEF twice) */
+typedef struct FLARE_DEF FLARE_DEF;
+#endif
 #endif

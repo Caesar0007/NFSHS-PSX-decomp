@@ -1,8 +1,8 @@
 /* game/psx/drawc.cpp -- RECONSTRUCTED (NFS4 PSX world-geometry draw; C++ TU)
  *   35 fns: subdivision facets, world matrix/translation setup, night colour calc, DrawW_DrawQuad,
  *   object/chunk facet builders, object transforms, skidmarks, lines/spike-belt, anim timers, depth cue.
- *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied.
- */
+ *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied. */
+#define NFS4_TU_DRAWC   /* owner key: DrawC_tEnvMap keep retail's C-style typedef form (2nd TPDEF at the definition) */
 /* PER-TU FLAG RECEIPTS (w39-a3, 2026-08-01; compile_cpp now honours all four keys,
  * commit cb24f4ab -- every earlier "flag didn't help" note on this TU measured a NO-OP).
  * Whole-TU gate, baseline -> flag, for the 11 sub-100% fns:

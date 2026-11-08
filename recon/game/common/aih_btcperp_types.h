@@ -14,7 +14,7 @@ enum forceFocus_t {
 };
 
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-static inline void _btc_perp_dtor_ref(AIHigh_BTC_Perp *p) { p->~AIHigh_BTC_Perp(); }
+static inline void _btc_perp_dtor_ref(void *p) { ((AIHigh_BTC_Perp *)p)->~AIHigh_BTC_Perp(); }   /* DEVICE (exact-only): keeps the synthesized dtor's line-276 note; void* param so it adds no BTC_Perp TPDEF */
 #line 19 "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp_types.h"
 
 #include "shared/Trk_ObjectDef.h"

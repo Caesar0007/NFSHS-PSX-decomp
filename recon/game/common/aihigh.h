@@ -163,8 +163,8 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
 #line 414 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BasicCop;
 
-typedef struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* C-style typedef form: retail records TPDEF AIHigh_BTC_Cop twice in every includer */
-    AIHigh_BTC_Perp *perpTarget_;
+struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* retail window "BTC_Cop BTC_Perp BTC_Cop" = plain def + the owner's PerpTarget body (aih_btccop_types.h) */
+    AIHigh_BTC_Perp *perpTarget_; inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
     int chaseIndex_;
     enum {
         FREEZE_NONE = 0,
@@ -183,7 +183,7 @@ typedef struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* C-style typedef fo
     virtual void FreezeAndEndChase();
     void HudOff();
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-} AIHigh_BTC_Cop;
+};
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct + 10 in-class accessors = 11 TPDEFs per includer */
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;

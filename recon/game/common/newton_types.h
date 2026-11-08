@@ -24,47 +24,47 @@
 
 
 
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP   /* aih_btccop_types.h declares these at their retail places */
+
+
+
+
+
+
+
+
+#ifndef NFS4_NEWTON_AS_AI_BTCCOP   /* retail newton.obj order after Car_tObj (aih_btccop_types.h declares these at its own places) */
+typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
+#include "shared/copLevel_t.h"
+#include "shared/copGame_t.h"
 #include "shared/crimeType.h"
+#include "shared/AIPhysic_ModelConfig_t.h"
+#include "shared/BW_tContext.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/Skidmark_Segment.h"
+#include "shared/Skidmark_Chunk.h"
 #endif
-
-
-
-
-
 #include "shared/Sched_tSchedule.h"
-
-
-
-
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
 #include "shared/Sim_tSimGlobalVar.h"
-
-
-
-
 #include "shared/AICop_spikeBelt_t.h"
 
 
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP
-typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; } AIPhysic_BrakeInfo;
-#include "shared/AIPhysic_ModelConfig_t.h"
-#endif
 
 
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP
-#include "shared/BW_tContext.h"
-#endif
 
 
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP
-#include "shared/copLevel_t.h"
-#endif
 
 
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP
-#include "shared/copGame_t.h"
-#endif
+
+
+
+
+
+
+
+
 #include "shared/POLY_GT4.h"
 
 
@@ -81,13 +81,13 @@ typedef struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; 
 
 
 #include "shared/Track_tMaterial.h"
-#ifndef NFS4_NEWTON_AS_AI_BTCCOP
-#include "shared/Skidmark_Segment.h"
-#include "shared/Skidmark_Chunk.h"
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#endif
+
+
+
+
+
+
+
 
 
 

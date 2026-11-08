@@ -147,11 +147,11 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
     int copIndex_;
     blockade_t blockade_;
     AIHigh_tDriveAwayMode driveAway_;
-#ifdef NFS4_AIH_BASICPERP_INLINE_SCOPE
-    inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; }
-#else
-    void SetDriveAway(AIHigh_tDriveAwayMode mode);
-#endif
+    inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; }   /* retail: inline in every TU (no out-of-line SetDriveAway__15AIHigh_BasicCop in the SYM; 4th BasicCop body) */
+
+
+
+
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);

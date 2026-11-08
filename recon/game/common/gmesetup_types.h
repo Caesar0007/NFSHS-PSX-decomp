@@ -51,7 +51,7 @@
 
 
 
-typedef enum tMenuCommandType {
+enum tMenuCommandType {
     kMenu_Command_None = 0,
     kMenu_Command_GoToMenu = 1,
     kMenu_Command_GoToMenuOneWay = 2,
@@ -62,7 +62,7 @@ typedef enum tMenuCommandType {
     kMenu_Command_ReStartRace = 7,
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
-} tMenuCommandType;
+};
 
 struct tMenuCommand;
 struct tMenu;
@@ -101,7 +101,7 @@ struct tScreen;
 
 
 
-typedef enum tCarModels {
+enum tCarModels {
     cm_MercedesSLK = 0, cm_BMWZ3 = 1, cm_HoldenHSVT = 2,
     cm_FordFalcon = 3, cm_ChevyCamaro = 4, cm_TransAm = 5,
     cm_AstonMartinDB7 = 6, cm_JaguarXKR = 7, cm_BMWM5 = 8,
@@ -121,7 +121,7 @@ typedef enum tCarModels {
     cm_FordF150 = 44, cm_Barracuda = 45, cm_TaxiCab = 46,
     cm_TourBus = 47, cm_LoggingTruck = 48, cm_TransitBus = 49,
     cm_NumCarModels = 50
-} tCarModels;
+};
 
 
 
@@ -147,7 +147,7 @@ typedef enum tCarModels {
 
 
 #include "shared/tOwnedCarInfo.h"
-typedef enum tCarNameLength { cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2 } tCarNameLength;
+enum tCarNameLength { cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2 };
 
 
 
@@ -160,13 +160,13 @@ typedef struct tCarManager {
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
 } tCarManager;
-typedef enum tPersonalities {
+enum tPersonalities {
     kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
     kPersonalityZippy = 2, kPersonalityJetBoy = 3,
     kPersonalityMenace = 4, kPersonalityCop1 = 5,
     kPersonalityCop2 = 6, kPersonalityCop3 = 7,
     kPersonalityTraffic = 8, kPersonalityNUM = 9
-} tPersonalities;
+};
 
 #include "shared/tfrontEnd.h"
 

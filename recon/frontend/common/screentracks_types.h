@@ -14,10 +14,11 @@
 #define NFS4_CORE_HOOK_AFTER_CD "shared/core_snd_after_cd.h"   /* retail: SND records right after the CD stream (nfs4_types.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs after tActiveLine, before the color graph */
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* retail ScreenTracks records no tDrawShapeExtended */
-#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right after tActiveLine (menu items before it) */
+#define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right before tActiveLine (menu items before it) */
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 #define textState_Unselected 0
@@ -29,7 +30,6 @@ typedef enum VIDEOSTATE {
     VIDEOSTATE_READY = 2,
     VIDEOSTATE_PLAYING = 3
 } VIDEOSTATE;
-
 struct tVideoWall {
     tTVConfig *fTVs;
     short fFirstTVShape, fNumTVs;

@@ -64,12 +64,12 @@
 #define NFS4_TD_tOwnedCarInfo
 #define NFS4_TDN_tOwnedCarInfo
 #endif
-#if (defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENU) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FEMENUEXTENDED) || defined(_FE_SCREENS_FEMENUOPTIONS_H_) || defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_TU_FRONT) || defined(_FE_SCREENS_SCREENCARSELECT_H_) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)) && !(defined(NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT) && defined(NFS4_TU_FEMENUDEFS))   /* SCREEN_AFTER_TOURNAMENT in FEMenuDefs: typedef form -- the late definition gets no field-walk re-emission, retail has 2 TPDEFs */
-#define NFS4_TD_tShapeInformation
-#define NFS4_TDN_tShapeInformation
-#else
+#if defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* PSXFront/ScreenPost: no tScreen in-class bodies -> typedef form gives retail's 2 TPDEFs */
 #define NFS4_TD_tShapeInformation typedef
 #define NFS4_TDN_tShapeInformation tShapeInformation
+#else
+#define NFS4_TD_tShapeInformation   /* plain everywhere: retail's 2nd TPDEF comes from tScreen's in-class inline bodies (fescreen.h, FRONTORD set 27b) */
+#define NFS4_TDN_tShapeInformation
 #endif
 #if defined(NFS4_TU_FEAPP) || defined(NFS4_TU_FEMENUDEFS) || defined(NFS4_TU_FRONT)
 #define NFS4_TD_tUserNameMenuItem
@@ -103,5 +103,12 @@
 #endif
 #ifdef NFS4_TU_FECHEATS
 #define NFS4_FEDIALOG_NO_INFERRED_WT
+#endif
+#if defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs; FEScreen/PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
+#define NFS4_TD_tScreen typedef
+#define NFS4_TDN_tScreen tScreen
+#else
+#define NFS4_TD_tScreen
+#define NFS4_TDN_tScreen
 #endif
 #endif

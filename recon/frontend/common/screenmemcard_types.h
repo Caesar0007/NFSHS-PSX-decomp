@@ -41,7 +41,7 @@
 
 
 
-#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
+#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL)   /* owner places it itself (screencarselect) */
 #include "mcrd_managertask.h"
 #endif
 
@@ -69,7 +69,7 @@
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
+#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_RECBUF_EXTERNAL)   /* owner places it itself (screencarselect) */
 #include "mcrd_recordbuffer.h"
 #endif
 

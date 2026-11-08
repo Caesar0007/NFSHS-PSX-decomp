@@ -7,7 +7,7 @@
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
 #define NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU "screenpinkslips_early.h"   /* mission, TV, tScreenPinkSlips, dialogs */
-#define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right before tActiveLine (menu items before it) */
+#define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "screenpinkslips_before_activeline.h"   /* retail: car tail right before tActiveLine (menu items before it) */
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"

@@ -188,7 +188,7 @@ static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 
 /* ORIGINAL-NAME-UNRESOLVED: the same inferred money getter used by the
  * congratulations/postgame callers; retail supplies its receiver-free pair. */
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+/* (Tournament_Money removed: tTournamentManager::GetMoney() in-class body, INV-B I3) */
 
 /* ORIGINAL-NAME-UNRESOLVED: inferred selector spelling. Retail emits an
  * empty inline pair at each of these menu-selection reads. */

@@ -101,7 +101,7 @@ extern tScreenTrophyRoom *screenTrophyRoom;
    (ARRAY, vtables_t*.cpp), corrupting the vptr-init cast to `(void*)X_vtable`. */
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800114C8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
+/* (Tournament_CurrentTrack removed: tTournamentManager::CurrentTrack() in-class body, INV-B I3) */
 
 static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
 

@@ -2125,7 +2125,7 @@ void MenuExtended_GoToGarage(tMenuCommand &command)
   menuDefs->iteratorGarageCar.tListIteratorCar::Decrement(kPlayerBoth);
   menuDefs->iteratorGarageCar.Increment(kPlayerBoth);
   command.type = kMenu_Command_GoToMenu;
-  if (Tournament_CurrentTrack(tournamentManager) == 0) {
+  if (tournamentManager.CurrentTrack() == 0) {
     command.nextMenu = (tMenu *)&menuDefs->menuCarGarage;
   } else { command.nextMenu = (tMenu *)&menuDefs->menuPostCarGarage;
   } screenCarSelect->SetState(1);

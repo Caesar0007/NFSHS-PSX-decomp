@@ -55,7 +55,7 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 
-{ tTournamentManager *devLocal_tTournamentManager; /* DEVICE (exact-only): record-less unused local; retail nfs3.obj type record #474 (TPDEF tTournamentManager) between tCompetitor and tTournamentManager, inside Nfs2_SystemNLibStartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail nfs3.obj type record #452 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside Nfs2_SystemNLibStartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail nfs3.obj type record #251 (TPDEF Car_tStats) between AISpeechInfo_t and Car_tStats, inside Nfs2_SystemNLibStartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail nfs3.obj type record #452 (TPDEF tCarInfo) between tCarModels and tOwnedCarInfo, inside Nfs2_SystemNLibStartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */ Car_tStats *devLocal_Car_tStats; /* DEVICE (exact-only): record-less unused local; retail nfs3.obj type record #251 (TPDEF Car_tStats) between AISpeechInfo_t and Car_tStats, inside Nfs2_SystemNLibStartUp__Fv's record run (locals-before-params, GSDATA_state 7h) */
 
 
 

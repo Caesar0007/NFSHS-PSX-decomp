@@ -306,7 +306,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     FETextRender_MenuTextPositionedJustify(text,temp.x + (temp.w >> 1),
                              temp.y + 3,1,textState_Selected,textType_FramedInfo) ;
     DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
-              Tournament_Money(tournamentManager),0xbebe,0x232323);
+              tournamentManager.GetMoney(),0xbebe,0x232323);
     FETextRender_MenuTextPositionedJustify(0x7b,temp.x + (temp.w >> 1),
                             temp.y + 0xd,1,textState_Selected,textType_FramedInfo);
     DrawShape_NFS4Rectangle(temp);   /* W58-A1: RECT& decl */

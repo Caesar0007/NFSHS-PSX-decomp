@@ -887,7 +887,7 @@ void tScreenTournamentTrophy::CalculatePrizes()
   this->fCarPlayer = 0;
 
 
-  this->TotalCash = Tournament_Money(tournamentManager);
+  this->TotalCash = tournamentManager.GetMoney();
   if (tInfo.fCompletedGarageFull != 0) {
     this->TotalCash -= tInfo.fCompletedBonusMoney;
   }
@@ -991,7 +991,7 @@ void tScreenTournamentCongrats::CalculatePrizes()
   this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
 
-  this->TotalCash = Tournament_Money(tournamentManager);
+  this->TotalCash = tournamentManager.GetMoney();
 
 
   this->CashAwarded = tInfo.fCompletedGarageFull != 0 ? tInfo.fCompletedBonusMoney : -1;

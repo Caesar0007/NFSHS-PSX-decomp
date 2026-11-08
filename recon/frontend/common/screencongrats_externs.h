@@ -82,7 +82,7 @@ static inline long CongratsTicks(void) { return ticks; }
 
 /* ORIGINAL-NAME-UNRESOLVED: this inferred money getter and tm parameter
    reproduce the retail receiver-free read pair; their spelling is not recorded. */
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+/* (Tournament_Money removed: tTournamentManager::GetMoney() in-class body, INV-B I3) */
 
 static inline void ReplaceLoserLicense(int player)
 {

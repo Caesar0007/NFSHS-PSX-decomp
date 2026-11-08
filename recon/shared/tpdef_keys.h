@@ -104,11 +104,16 @@
 #ifdef NFS4_TU_FECHEATS
 #define NFS4_FEDIALOG_NO_INFERRED_WT
 #endif
-#if defined(NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H) || defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs; FEScreen/PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
+#if defined(NFS4_FRONTEND_PSX_PSXFRONT_TYPES_H) || defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H)   /* tScreen: plain struct + 2 in-class inline bodies = retail 3 TPDEFs (FEScreen too, FESCR); PSXFront/ScreenPost keep the typedef form (FRONTORD set 27b/16) */
 #define NFS4_TD_tScreen typedef
 #define NFS4_TDN_tScreen tScreen
 #else
 #define NFS4_TD_tScreen
 #define NFS4_TDN_tScreen
+#endif
+#ifdef NFS4_FRONTEND_COMMON_FESCREEN_TYPES_H   /* FEScreen (key TU): 6 INFERRED inline tScreen members (fescreen.cpp bodies; LINK_STRIPPED copies) */
+#define NFS4_FESCREEN_INFERRED_DECLS     inline int TransitionTicks() LINK_STRIPPED; inline bool IsTransitionOff() LINK_STRIPPED;     inline short ScreenFadeVal() LINK_STRIPPED; inline void SetScreenFadeVal(short fadeVal) LINK_STRIPPED;     inline int InternalScreenFadeVal() LINK_STRIPPED; inline void SetInternalScreenFadeVal(int fadeVal) LINK_STRIPPED;
+#else
+#define NFS4_FESCREEN_INFERRED_DECLS
 #endif
 #endif

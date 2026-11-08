@@ -863,6 +863,42 @@
    "function": "SetPosition__11tDialogBasess7tPlayer",
    "source": "recon/frontend/common/fedialog.h",
    "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (FRONT26 set AB2); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "TransitionTicks__7tScreen",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::TransitionTicks -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "IsTransitionOff__7tScreen",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::IsTransitionOff -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "ScreenFadeVal__7tScreen",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::ScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "SetScreenFadeVal__7tScreens",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::SetScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "InternalScreenFadeVal__7tScreen",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::InternalScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/fescreen.cpp.o",
+   "function": "SetInternalScreenFadeVal__7tScreeni",
+   "source": "recon/frontend/common/fescreen.cpp",
+   "evidence": "tScreen::SetInternalScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   }
  ]
 }

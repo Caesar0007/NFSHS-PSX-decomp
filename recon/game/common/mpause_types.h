@@ -130,6 +130,9 @@ struct tPMenuItem {
     unsigned int TextDescription() LINK_STRIPPED; /* inferred getter: retail nests this item receiver in the menu getter */
     void SetTextDescription(unsigned int) LINK_STRIPPED; /* sibling tMenuItem uses this setter spelling */
 };
+#if defined(NFS4_TU_MPAUSE)   /* owner object: retail records the C-style `typedef struct tPMenuItem {..} tPMenuItem;` form (TPDEF twice) */
+typedef struct tPMenuItem tPMenuItem;
+#endif
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);
     ~tPMenuItemNonInteractiveText();
@@ -181,12 +184,10 @@ typedef struct tPMenuItemCommandButton : public tPMenuItemInteractive {
     ~tPMenuItemCommandButton();
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
 } tPMenuItemCommandButton;
-
 typedef tPMenuItem *tPItemList[16];
 #ifndef NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL
 typedef int Input_tDeviceCall();
 #endif
-
 struct tPMenu {
     int fCurrentItem;
     bool fHighlight;
@@ -209,6 +210,9 @@ struct tPMenu {
     int NumEnabledItems();
     int ItemEnabledNum(int);
 };
+#if defined(NFS4_TU_PAUSEMENU)   /* owner object: retail records the C-style `typedef struct tPMenu {..} tPMenu;` form (TPDEF twice) */
+typedef struct tPMenu tPMenu;
+#endif
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 #ifdef NFS4_MPAUSE_SND_LATE   /* retail mpause.obj: kernpair, AudioMus, SND* right before tPauseMenuDefs */
 #include "shared/kernpair.h"
@@ -245,11 +249,7 @@ typedef int (*getcode)();
 typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
-
-/* The inline receiver pairs at NumEnabledItems' two count reads establish
-   a getter on tPMenu. Its spelling is inferred; the interface definition
-   retains the debug scopes without an extra standalone body. */
-/* (no #pragma: user ruling 2026-11-07) */
+/* The inline receiver pairs at NumEnabledItems' two count reads establish a getter on tPMenu. Its spelling is inferred; the interface definition retains the debug scopes without an extra standalone body.  (no #pragma: user ruling 2026-11-07) */
 inline int tPMenu::NumItems() { return fNumItems; }
 inline int tPMenu::CurrentItem() { return fCurrentItem; }
 inline void tPMenu::SetHighlight(bool highlight) { fHighlight = highlight; }

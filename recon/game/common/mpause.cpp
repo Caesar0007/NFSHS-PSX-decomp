@@ -1,7 +1,7 @@
 /* game/common/mpause.cpp -- RECONSTRUCTED (NFS4 PSX mini/in-race pause menu; C++ TU)
  *   10 fns: class tPauseMenuDefs ctor/dtor + 8 free MPause_* (music/
- *   controller/logic/render/init/start/end/kill). GTE-free. Full SYM-locals applied.
- */
+ *   controller/logic/render/init/start/end/kill). GTE-free. Full SYM-locals applied. */
+#define NFS4_TU_MPAUSE   /* owner key: tPMenuItem keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "mpause_types.h"
 #include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"

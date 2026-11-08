@@ -5,7 +5,7 @@
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenMain: frontend core before the MATRIX core (fe_core_types.h) */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "screenmain_types.h"   /* retail ScreenMain: TV .. tScreenMain, tFEApplication right after the dialogs */
-#define NFS4_PRIM_POLY_G4   /* retail: POLY_G4 right after DISPENV (nfs4_types.h) */
+#include "screenmain_keys.h"   /* ScreenMain core/screen keys (per-TU unit) */
 /* ScreenMain retains tInputKeyType but not the foreign tPlayer tag. */
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "fe_input_enums.h"

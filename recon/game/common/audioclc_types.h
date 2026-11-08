@@ -55,7 +55,7 @@
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES   /* retail audioclc.obj: forceFocus_t right after the SND structs */
-enum forceFocus_t { FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2 };
+enum forceFocus_t { FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2 }; inline void AudioClc_InferredAnimInstOp(Trk_AnimateInst *animInst) { } /* INFERRED body: retail audioclc.obj records a 3rd Trk_AnimateInst TPDEF right after forceFocus_t; non-member, never called */
 #define NFS4_FORCE_FOCUS_DONE
 #endif
 #endif

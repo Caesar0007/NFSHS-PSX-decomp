@@ -405,7 +405,7 @@ typedef struct AIDataRecord_t {
     virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
     virtual void Setup();
 } AIDataRecord_t;
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; }; inline void AIDataRecord_InferredCoordOp(coorddef *position) { } /* INFERRED body: retail aih_btccop.obj records coorddef between AIDataRecord_AccTable_t and AIDataRecord_CurveSpeedTable_t (aidatarecord.obj/ai.obj: coorddef after the record-family definitions too); non-member, never called */
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #include "shared/TCB.h"
 #include "shared/EXEC.h"

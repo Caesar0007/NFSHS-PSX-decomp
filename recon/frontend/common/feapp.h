@@ -9,8 +9,8 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h); color.obj graph: feapp_after_video.h */
+#include "feapp_keys.h"   /* core/leaf/felines order keys (retail FEApp) */
 #include "../../game/common/draw_leaf_types.h"
 #include "feapp_types.h"
-#include "feapp_externs.h"
-/* same spelling as front_externs.h: retail RunPostGame records a record-less inline pair at its dummyCars read (996) */
+#include "feapp_externs.h"   /* same spelling as front_externs.h: retail RunPostGame records a record-less inline pair at its dummyCars read (996) */
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }

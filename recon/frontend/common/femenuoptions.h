@@ -18,6 +18,9 @@
 #define NFS4_SCREENDISPLAY_AUDIOMUS_AFTER_VIDEO   /* retail: AudioMus song records right after tVideo */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_MENUITEMS "shared/tActiveLine.h"   /* retail: tActiveLine right after the menu items, before the core */
+#define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail: tTexture_ShapeInfo/kernpair right after Draw_CarVertex */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* tShapeInformation + tScreen after the leaf/felines (needs tTexture_ShapeInfo) */
 #include "femenuoptions_externs.h"
 #endif
 #else

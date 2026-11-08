@@ -1,5 +1,5 @@
 /* femenudefs_tail.h -- moved from femenudefs_types.h (FEMenuDefs/Front owner surface): FE3d, Force_tGlobal, AudioMus,
- * MCRDFILE, tScreenMemcard, tScreenUserName, mission (front retail order).  FEMenuDefs includes it right after the
+ * MCRDFILE, tScreenMemcard, tScreenUserName (front retail order; mission records: femenudefs_mission.h).  FEMenuDefs includes it right after the
  * tournament standings (NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS); femenudefs_types.h includes it in place (no-op then). */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUDEFS_TAIL_H
 #define NFS4_FRONTEND_COMMON_FEMENUDEFS_TAIL_H
@@ -70,8 +70,4 @@ struct tScreenUserName : public tScreen {
 #endif
     inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
 };
-#include "shared/tMissionTierInfo.h"
-#include "shared/tMissionInfo.h"
-#include "shared/tStageInfo.h"
-#include "shared/tAcademyDefinition.h"
 #endif

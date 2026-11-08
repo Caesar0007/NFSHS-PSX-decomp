@@ -17,6 +17,9 @@
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO "front_after_video.h"   /* retail: tScreenMain + memory-card records right after tVideo */
+#define NFS4_SCREENCARSELECT_TAIL_HOOK_AFTER_COLOR "front_before_standings.h"   /* retail: Duel, PinkSlipsCarSelect, TournSelect before the standings */
+#define NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS "front_after_standings.h"   /* retail: PinkSlipStandings .. tScreenUserName before the congrats enums */
 #include "felines_types.h"   /* retail Front: pads, MATRIX core, draw leaf, tTexture_ShapeInfo, kernpair, then the frontend core */
 #include "front_types.h"
 #include "front_externs.h"

@@ -21,15 +21,6 @@
 #undef NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
 #include "front_processing_type.h"
 #define kApp_Command_StartRace 0
-enum crimeType {
-    CRIME_NONE = 0,
-    CRIME_SPEEDER = 1,
-    CRIME_WRONGSIDE = 2,
-    CRIME_BUMPCOP = 3,
-    CRIME_SMASHCOP = 4
-};
-#include "shared/copLevel_t.h"
-#include "shared/copGame_t.h"
 #endif
 #ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "shared/Force_tGlobal.h"
@@ -69,53 +60,12 @@ struct tScreenControllerConfig : public tScreen {
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "screenmain.h"
-struct tScreenCarSelectDuel : public tScreenCarSelect {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void DrawVideoWall(short);
-    void InitializeVideoWall();
-    void UpdateVideoWall(tCarInfo &);
-    void AllocateAsyncBuffer();
-    void FreeAsyncBuffer();
-    short fPreviousOpponent;
-    bool fOpponentTVsInitialized;
-    tShapeInformation fOpponentShapes;
+#include "front_cs_screens.h"   /* tScreenCarSelectDuel, tScreenPinkSlipsCarSelect (moved verbatim) */
 
-    /* implicit ctor (retail declares none: no body block in SYM) */
-    void DrawOpponentVideoWall(short);   /* declared on every surface: see fevirt_tscreen7.py */
-};
-
-struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    bool GetCar(tCarInfo &);
-    void SetDialog();
-    int waitfordialog;
-    CARDINFO_def *pCI;
-    int fStartCheckTick;
-    bool fCardFailed, fExitingScreen;
-
-    /* implicit ctor (retail declares none: no body block in SYM) */
-};
 
 #include "screentournselect.h"
 
-struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
-    /* overrides (retail vtable), declared on every owner surface */
-    void DrawBackground();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-};
+#include "front_standings_screen.h"   /* tScreenPinkSlipStandings (moved verbatim) */
 
 #include "screentrophyroom.h"
 
@@ -154,11 +104,61 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
 
 #include "screentrackrecords.h"
 
+#include "femenudefs_mission.h"   /* retail Front: mission records right after tScreenTrackRecords */
 #include "screentracks.h"
 
 #include "screentrackinfo.h"
 
 #include "screenpinkslips.h"
+#include "shared/copLevel_t.h"
+#include "shared/copGame_t.h"
+enum crimeType {
+    CRIME_NONE = 0,
+    CRIME_SPEEDER = 1,
+    CRIME_WRONGSIDE = 2,
+    CRIME_BUMPCOP = 3,
+    CRIME_SMASHCOP = 4
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct tAllScreens {
     tScreenMain screenMain;

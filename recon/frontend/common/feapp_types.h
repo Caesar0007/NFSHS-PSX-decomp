@@ -10,6 +10,7 @@
 #define NFS4_FE_CORE_CARS_CLASSTYPE
 #define NFS4_FE_CORE_CARS_LINEUP
 #define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
+#include "fe_input_enums.h"   /* retail FEApp: tInputKeyType before tMenuCommandType */
 /* FEApp.obj emits tMenuCommand while tMenu is still opaque. */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -26,7 +27,6 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 #include "shared/tMenuCommand.h"
-#include "fe_input_enums.h"
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #define NFS4_SCREENMEMCARD_FEAPP_METHODS
 #define NFS4_SCREENDISPLAY_FEAPP_METHODS

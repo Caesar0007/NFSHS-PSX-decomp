@@ -15,6 +15,7 @@ extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
 extern Car_tObj *Cars_gTotalSortedList[];
 extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aih_cop.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
+inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; }   /* aistate.h:184 body, here after simGlobal (retail HighExecute inlines it) */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern copTuning_t copTuningInfo[];
 extern volatile int        generic128HzClock; extern int stackSpeedUpEnbabledFlag;

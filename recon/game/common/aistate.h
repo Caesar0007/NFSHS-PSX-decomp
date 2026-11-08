@@ -82,7 +82,7 @@ struct AIState_Chase : public AIState_Base {
     void CheckForBarriersAndTargetAroundThem();
     int FindBarrierEndSlice();
     int BarrierTicks32();       /* inline, defined in the AI-high type headers (no copy in aistate.obj) */
-    int InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance);   /* inline, likewise */
+    int InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance);   /* inline, likewise */ void SetNitrousTicks(int nitrousTicks); void SetSlowDownEndTime(int slowDownEndTime); int MurderMode();   /* inferred inline accessors (retail AIH_Cop.obj HighExecute this records) */
 };
 
 struct AIState_Offroad : public AIState_Base {
@@ -182,6 +182,17 @@ inline void AIState_Offroad::MarkLetGo() { letGo_ = 1; }
 #ifdef NFS4_GAME_COMMON_AISTATE_TYPES_H
 extern Sim_tSimGlobalVar simGlobal;
 inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; }
+#endif
+
+#ifdef NFS4_AISTATE_CHASE_COP_INLINES   /* retail AIH_Cop.obj HighExecute: six inlined AIState_Chase members (this REG records, SLD 266..343) */
+inline int AIState_Chase::BarrierTicks32() { return barrierTicks32_; }
+inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance) {
+    return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&
+           __builtin_abs(longMetersBetween_) < minLongMetersDistance;
+}
+inline void AIState_Chase::SetNitrousTicks(int nitrousTicks) { nitrousTicks_ = nitrousTicks; }
+inline void AIState_Chase::SetSlowDownEndTime(int slowDownEndTime) { slowDownEndTime_ = slowDownEndTime; }
+inline int AIState_Chase::MurderMode() { return murderMode_; }
 #endif
 
 #endif

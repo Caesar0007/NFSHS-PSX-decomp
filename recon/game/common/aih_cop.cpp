@@ -1,10 +1,10 @@
 /* game/common/aih_cop.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
- *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
- *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
+ *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/ RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
  *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
  *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */
+#define NFS4_AISTATE_CHASE_COP_INLINES   /* aistate.h: AIState_Chase inline accessors (retail HighExecute inlined this records) */
 #include "../../lib/nfs4_new.h"
 #include "aih_cop_types.h"
 #include "aih_cop_externs.h"
@@ -758,7 +758,7 @@ void AIHigh_Cop::HighExecute()
 
 
 
-    if (0xa0 < chaseState->barrierTicks32_) {
+    if (0xa0 < chaseState->BarrierTicks32()) {
       int endSlice;
       endSlice = (chaseState)->FindBarrierEndSlice();
 
@@ -777,7 +777,7 @@ void AIHigh_Cop::HighExecute()
       }
     }
 
-    this->requestSpikeBeltAtSlice_ = -1; { int needy; needy = 0; if (simGlobal.gameTicks >= chaseState->slowDownEndTime_) {
+    this->requestSpikeBeltAtSlice_ = -1; { int needy; needy = 0; if (!chaseState->IsSlowingDown()) {
 
 
         needy = this->CheckForNeedyPlayers() != -1; } if (needy) {
@@ -812,7 +812,7 @@ void AIHigh_Cop::HighExecute()
 
 
 
-      retarget = 0; if (this->GetCheckChasePosition(&newPos) != 0) { retarget = chaseState->murderMode_ == 0; } if (retarget) {
+      retarget = 0; if (this->GetCheckChasePosition(&newPos) != 0) { retarget = chaseState->MurderMode() == 0; } if (retarget) {
 
         (chaseState)->SetTarget((this->perpTarget_)->carObj_,&newPos);
       }
@@ -829,7 +829,7 @@ void AIHigh_Cop::HighExecute()
         (chaseState)->SetMurderMode(1,AIHigh_Cop_AggressionData[this->aggressionLevel_].murderTicks);
       }
     }
-    { int cutOff; cutOff = 0; if (((AIHigh_BasicCop *)this)->ShouldIPerformCutOffBlock(0x4000, (this->perpTarget_)->carObj_) != 0) { cutOff = chaseState->murderMode_ == 0; } if (cutOff) {
+    { int cutOff; cutOff = 0; if (((AIHigh_BasicCop *)this)->ShouldIPerformCutOffBlock(0x4000, (this->perpTarget_)->carObj_) != 0) { cutOff = chaseState->MurderMode() == 0; } if (cutOff) {
         coorddef zero;
         memset((u_char *)&zero,'\0',0xc);
         (chaseState)->SetTarget((this->perpTarget_)->carObj_,&zero);

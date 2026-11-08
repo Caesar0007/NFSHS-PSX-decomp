@@ -143,10 +143,6 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
     blockade_t blockade_;
     AIHigh_tDriveAwayMode driveAway_;
     inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; }   /* retail: inline in every TU (no out-of-line SetDriveAway__15AIHigh_BasicCop in the SYM; 4th BasicCop body) */
-
-
-
-
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
@@ -162,7 +158,6 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART
 #endif
-
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* retail window "BTC_Cop BTC_Perp BTC_Cop" = plain def + the owner's PerpTarget body (aih_btccop_types.h) */
     AIHigh_BTC_Perp *perpTarget_; inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
     int chaseIndex_;
@@ -223,6 +218,11 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct +
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+#ifdef NFS4_AIHIGH_TRAFFIC_AFTER_HUMANCOP   /* retail AIHIGH.H: Traffic (584) right after BTC_HumanCop (527): object.obj */
+#define NFS4_AIHIGH_TYPE_PART 2
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
+#endif
 #elif defined(NFS4_AIHIGH_TYPE_PART)
 /* Reconstruction-only part routing preserves the existing owner type sets.  This is not a claim of the original preprocessor/include dependency graph. */
 #if defined(NFS4_AIH_COP_OWNER) || defined(NFS4_AIH_TRAF_OWNER)   /* AIH_Cop.obj / AIH_Traf.obj emit standalone copies of the inline members below; SLINK /strip removed them (P6 Route C 2026-11-07) */

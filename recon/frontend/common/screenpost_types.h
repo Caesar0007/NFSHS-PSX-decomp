@@ -1,6 +1,9 @@
 /* Owner-specific type surface for ScreenPost.obj. */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_CORE_CCOORD16   /* retail: MATRIX core first, then the frontend core, then PCOORD16..Draw_* */
@@ -31,11 +34,8 @@ enum tMenuCommandType {
 #include "screentournselect_types.h"
 #undef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #undef NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
-
-
 /* The linked SYM keeps the public array typedef but attributes the completed
  * element body elsewhere.  CC1PL requires the exact 20-byte body to form it. */
 #include "shared/tRecordBuffer.h"
-
 typedef tRecordBuffer tSaveRecords[187];
 #endif

@@ -11,7 +11,10 @@
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #define NFS4_FE_COLOR_LATE
-#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screentrophyroom_types.h"   /* retail: color graph + AudioMus after tCarManager */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"   /* iterators, then (chain) color + AudioMus */
+#define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "screentrophyroom_types.h"
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define tTrophySize int
 #define ts_Small 0
 #define ts_Medium 1

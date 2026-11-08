@@ -119,6 +119,9 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     void NotifyHumanCopsOfArrestHud();
     void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
     AIHigh_BTC_HumanCop *CheckForActivation();
+#if !defined(NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H) && !defined(NFS4_AIHIGH_OWNER)   /* INFERRED body: retail AI objects record one more AIHigh_BTC_Perp TPDEF (a `this`-only inline body); off in aih_btcperp (owner, inline copies emitted there) and aihigh (count already = retail) */
+    inline void InferredOp() { }
+#endif
 #line 267 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 

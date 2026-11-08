@@ -3,7 +3,7 @@
  *   AIDataRecord_t base (real inheritance, real C++ virtuals since 2026-09-19).
  *   21 explicit definitions +5 generated dtors; SYM attributes CarTracking::Get and those dtors to AIDATARECORD.H.
  *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt. */
-#define NFS4_EAC_MATRIXTDEF_CXX_ALIAS   /* census: keeps the EA C++ matrixtdef alias record (retail has a 2nd matrixtdef TPDEF here) */
+/* (NFS4_EAC_MATRIXTDEF_CXX_ALIAS dropped: the 2nd matrixtdef TPDEF is the Car_tObj field walk of the inferred AIDataRecord_InferredCarOp body) */
 #include "aidatarecord_types.h"
 #include "aidatarecord_externs.h"
 
@@ -128,7 +128,7 @@ void AIDataRecord_t::StartUp2(void)
       recordCollection[recordLoop]->Setup();
     } } return;
 }
-
+static inline void AIDataRecord_InferredCarOp(AIDataRecord_t *record, Car_tObj *car) { }   /* INFERRED body: retail aidatarecord.obj records Car_tObj (+walk) and AIDataRecord_t between StartUp2 and CleanUp1; non-member so the key-function TU emits no out-of-line copy */
 /* ---- CleanUp1__14AIDataRecord_t COVERED-SLD-PASS ---- */
 
 #line 151 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"

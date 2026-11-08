@@ -230,7 +230,7 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     void NotifyCopsOfFalseArrest();
     void NotifyHumanCopsOfArrestHud();
     void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
-    AIHigh_BTC_HumanCop *CheckForActivation();
+    AIHigh_BTC_HumanCop *CheckForActivation(); inline void InferredOp() { }   /* INFERRED body: retail aih_btccop.obj one more AIHigh_BTC_Perp TPDEF (this-only) */
 };
 #include "shared/blockadeMode_t.h"
 #include "shared/blockade_t.h"

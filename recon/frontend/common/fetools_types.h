@@ -3,6 +3,7 @@
 #define NFS4_FRONTEND_COMMON_FETOOLS_TYPES_H
 
 /* Fecntl.obj's complete 88-record graph is a strict subset. */
+#define NFS4_FECNTL_MENUS_LATE   /* retail FETools: tOldMenu/tItemButton at the end of the graph */
 #define NFS4_FECNTL_NO_RECORD_CARRIER
 #include "fecntl_types.h"
 #undef NFS4_FECNTL_NO_RECORD_CARRIER
@@ -24,6 +25,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
 
+#include "shared/tActiveLine.h"   /* retail FETools: tActiveLine right before tMenuItemNFS4LeftRightChoice */
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
 };
@@ -45,4 +47,5 @@ struct tMenu;
 #ifdef NFS4_FE_CORE_CARS_LATE
 #include "fe_core_cars.h"
 #endif
+#include "fecntl_menus.h"   /* retail: tOldMenu, tItemButton last */
 #endif

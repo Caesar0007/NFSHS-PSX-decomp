@@ -18,12 +18,14 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 };
 
 #include "../../game/common/draw_leaf_types.h"
+#define NFS4_FELINES_KERNPAIR_LATE   /* retail FECredits: tTexture_ShapeInfo, tActiveLine, tShapeInformation, (tScreen), kernpair */
 #include "felines_types.h"
+#include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-#include "shared/tActiveLine.h"
+#include "felines_kern.h"
 #include "shared/tDrawShapeExtended.h"
 #include "fedialog.h"
 #include "shared/tCredit.h"

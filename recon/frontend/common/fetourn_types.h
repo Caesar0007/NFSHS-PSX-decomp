@@ -1,13 +1,13 @@
 /* Owner-specific type surface for FETourn.obj. */
 #ifndef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H
 #define NFS4_FRONTEND_COMMON_FETOURN_TYPES_H
-
+#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail FETourn: tCarClassType right after tOwnedCarInfo */
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph. */
 #include "../../game/common/color_types.h"
 #endif
-/* Preserve the shared manager layout before declaring FETourn's real class
- * with the owner-specific method surface below. */
-/* (INV-B E1: fe_core_cars.h skips its tCarManager copy for this owner; no alias view) */
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities */
+#define NFS4_FE_CORE_CARS_HOOK_MANAGER "fetourn_carmanager.h"   /* FETourn spells its own tCarManager (moved verbatim), at the retail place */
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "fetourn_trophysize.h"   /* retail: tTrophySize right after tTrackManager */
 #include "fe_core_types.h"
 /* FETourn's real tCarManager follows below */
 
@@ -30,11 +30,11 @@
 #define Tourn_TRN_EntriesStart 0x7
 #define cheat_FinishedTournament 25
 
-enum tTrophySize {
-    ts_Small = 0,
-    ts_Medium = 1,
-    ts_Large = 2
-};
+
+
+
+
+
 
 #include "shared/tSaveTournament.h"
 /* The linked FETourn SYM retains this public array typedef while attributing
@@ -44,25 +44,25 @@ enum tTrophySize {
 
 typedef tRecordBuffer tSaveRecords[187];
 
-typedef struct tCarManager {
-    u_long fNumCars;
-    tCarInfo *fCars;
-    tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
-    u_char fAvailableCars[48], fViewableCars[48];
-    u_char fPinkSlipsAvailableCars[2][48];
-    u_char fPinkSlipsViewableCars[2][48];
-    short fCarTextList[49];
 
-    tCarInfo *GetCarFromID(short carID);
-    long PurchaseCar(short carModel, short color, short playerNum);
-    long PurchaseUpgrade(short garageNumber, short upgradeFlags, short playerNum);
-    void SetClassAvailable(tCarClassType carClass, bool avail);
-    void SetCarAvailable(tCarModels carModel, bool avail);
-    void SetCarViewable(tCarModels carModel, bool view);
-    void GetStockCar(short carNumber, tCarInfo &carInfo);
-    void GetGarageCar(short garageNumber, tCarInfo &carInfo, short playerNum);
-    short GetNumOwnedCars(short playerNum);
-} tCarManager;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef struct tTournamentManager {
     char fNumTiers;

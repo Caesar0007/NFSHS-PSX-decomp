@@ -25,6 +25,8 @@ enum tMenuCommandType {
 #define NFS4_FE_CORE_CARS_LATE   /* retail FEMenu.obj: car tail last (fe_core_cars.h below) */
 #define NFS4_FE_CORE_FEMENU_METHODS inline bool IsEnabled() LINK_STRIPPED; inline tMenu *NewMenu() LINK_STRIPPED; /* owner-only interface declarations */
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
+#define NFS4_FE_CORE_FELINES_LATE   /* retail FEMenu: tTexture_ShapeInfo/kernpair after tScreen, not with the frontend core */
+#define NFS4_FELINES_KERNPAIR_LATE
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 
@@ -63,11 +65,12 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 #undef NFS4_FE_CORE_FEMENU_METHODS
 
 /* retail FEMenu.obj order: tMenu, then tScreen and the dialog family (tMenu::fScreen sees tScreen incomplete) */
+#include "felines_types.h"   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, (tScreen), kernpair */
+#include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
-
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-#include "shared/tActiveLine.h"
+#include "felines_kern.h"
 #include "fedialog.h"
 
 struct tFEApplication;

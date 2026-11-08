@@ -5,9 +5,9 @@
 #include "../../game/common/color_types.h"
 #endif
 #include "fe_core_types.h"
-
+#ifndef NFS4_FECNTL_MENUS_LATE   /* else the owner includes fecntl_menus.h later (FETools: after the car tail) */
 #include "fecntl_menus.h"
-
+#endif
 
 
 

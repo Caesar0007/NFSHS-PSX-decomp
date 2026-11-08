@@ -33,8 +33,8 @@
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/Sched_tSchedule.h"
-
-
+#define NFS4_AIDEBUG_AI_GRAPH_ONLY   /* aih_hierarchy_types.h (included below for the AI class graph): skip BrakeInfo/ModelConfig */
+typedef int CarLogic_tObservations[1][3];   /* formerly via aidelaycar_types.h; retail aidebug.obj records it */
 
 
 
@@ -54,7 +54,7 @@
 #include "shared/trigger_pathPosition_t.h"
 #include "shared/trigger_trafficPath_t.h"
 #include "shared/trigger_t.h"
-#include "aidelaycar_types.h"
+#include "aih_hierarchy_types.h"   /* retail aidebug.obj records the AI class graph (AIDelayCar, AIState_Base/Normal/NonActive, AIHigh_Base..BTC_Cop): the real hierarchy header, not only aidelaycar_types.h */
 #include "shared/cruiseMode_t.h"
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"

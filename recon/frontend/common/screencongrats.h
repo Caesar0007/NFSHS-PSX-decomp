@@ -1,3 +1,13 @@
+#define NFS4_SCREENDISPLAY_MENUS_LATE   /* retail: memcard + car-select records before the tMenuNFS4 family .. tVideo */
+#define NFS4_SCREENDISPLAY_HOOK_AFTER_CARCOLOR "screencongrats_types.h"   /* retail: TV + congrats classes + tRecordBuffer after the color graph, before the tracks */
+#define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
+#define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo, tCarClassType right after tOwnedCarInfo */
+#define NFS4_FE_CORE_CARS_CLASSTYPE
+#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities */
+#define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
+#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* list iterators right after their managers (set 18 route) */
+#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
+#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail: color.obj graph right after the car graph */
@@ -8,6 +18,7 @@
 #ifndef _FE_SCREENS_SCREENCONGRATS_H_
 #define _FE_SCREENS_SCREENCONGRATS_H_   /* frontend/common/screencongrats.h - reconstructed decls for ScreenCongrats.obj (C++ TU) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#include "felines_types.h"   /* retail ScreenCongrats: the MATRIX core first (fe_core_types.h does the same) */
 #include "screencongrats_types.h"
 #include "screencongrats_externs.h"
 

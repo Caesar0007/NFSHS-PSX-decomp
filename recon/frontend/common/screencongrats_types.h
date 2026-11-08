@@ -1,10 +1,9 @@
 /* Owner-specific type surface for ScreenCongrats.obj. */
-#ifndef NFS4_FRONTEND_COMMON_SCREENCONGRATS_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_SCREENCONGRATS_TYPES_H) || defined(NFS4_SCREENDISPLAY_IN_HOOK_AFTER_CARCOLOR)
+#ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_CARCOLOR   /* else: the screendisplay_types.h after-car-color hook pass (TV, congrats classes, tRecordBuffer) */
 #define NFS4_FRONTEND_COMMON_SCREENCONGRATS_TYPES_H
-
-/* The retail tMenuCommand record captures tMenu as an opaque pointer even
- * though the same owner later emits tMenu's complete body.  Declaring this
- * source-visible command before the shared menu graph reproduces that order. */
+/* The retail tMenuCommand record captures tMenu as an opaque pointer even though the same owner later emits tMenu's complete body.  Declaring this source-visible command before the shared menu graph reproduces that order. */
+#include "fe_input_enums.h"   /* retail: tPlayer, tInputKeyType before tMenuCommandType */
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
@@ -19,13 +18,14 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
-
 #include "shared/tMenuCommand.h"
-
 #define NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 #include "screencarselect_types.h"
 #undef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-
+#endif
+#ifndef NFS4_SCREENCONGRATS_CLASSES_DONE
+#include "shared/tTVState.h"   /* retail ScreenCongrats: TV right before the congrats classes */
+#include "shared/tTVConfig.h"
 enum tTrophyClass {
     kTrophyGold = 0,
     kTrophySilver = 1,
@@ -157,6 +157,11 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
 #line 141 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
 };
 #line 148 "recon/frontend/common/screencongrats_types.h"
+#endif
+#ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_CARCOLOR
+#include "shared/tRecordBuffer.h"   /* retail: tRecordBuffer right after the congrats classes */
+#endif
+#define NFS4_SCREENCONGRATS_CLASSES_DONE
 #endif
 
 #endif

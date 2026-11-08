@@ -1,11 +1,11 @@
-#ifndef NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H
+#if !defined(NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H) || defined(NFS4_SCREENDISPLAY_IN_MENUS_PASS)   /* the second entry = the MENUS_LATE pass (lines from the menu family on) */
 #define NFS4_FRONTEND_COMMON_SCREENDISPLAY_TYPES_H   /* Owner-specific type surface for ScreenDisplay.obj. */
 #if !defined(NFS4_TYPES_H) && !defined(_FE_SCREENS_FEMENUOPTIONS_H_) && !defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE) && !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) && !(defined(NFS4_FRONTEND_COMMON_FEDIALOG_TYPES_H) && !defined(NFS4_SCREENDISPLAY_CARS_AFTER_SCREEN))   /* owners reaching this graph before the platform core (screendisplay, screenusername, screencongrats, screencontroller, front, screenmain); measured worse elsewhere */
 #include "screendisplay_keys.h"
 #endif
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "fe_core_types.h"
-#undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
+#ifndef NFS4_SCREENDISPLAY_IN_MENUS_PASS
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
@@ -72,6 +72,11 @@ struct tMenu; struct tDrawShapeExtended;
 #endif
 #ifdef NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail (screencongrats): color.obj graph right after the car graph */
 #include "../../game/common/color_types.h"
+#endif
+#ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_CARCOLOR   /* owner records between the color graph (COLOR_AFTER_CARS) and the track part (ScreenCongrats) */
+#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_CARCOLOR
+#include NFS4_SCREENDISPLAY_HOOK_AFTER_CARCOLOR
+#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_CARCOLOR
 #endif
 #ifdef NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* with TRACKS_AFTER_MENUS: the carblock track part right here */
 #include "screendisplay_carblock.h"
@@ -175,14 +180,9 @@ struct tMenu; struct tDrawShapeExtended;
 
 
 
-
-
-
-
-
-
-
-
+#endif
+#undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
+#if !defined(NFS4_SCREENDISPLAY_MENUS_LATE) || defined(NFS4_SCREENDISPLAY_IN_MENUS_PASS)   /* MENUS_LATE (ScreenCongrats): this part only in the pass from screencarselect_tail.h */
 
 #ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU   /* owner records between the car/track block and the tMenuNFS4 family */
 #include NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU
@@ -533,5 +533,5 @@ struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members r
 
 struct SndBnk_t;
 struct SPEECHINFO;
-
+#endif
 #endif

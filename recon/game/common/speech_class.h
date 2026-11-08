@@ -145,11 +145,11 @@ struct Speech {
         inline int Location() { return fLocation; }
         inline SPCHNFSType_DISTANCE *Distance() { return &fDistance; }
         inline SPCHNFSType_COLOUR *Colour() { return &fColour; }
-
-        /* The retail class declared these operations virtual.  The reconstructed
-           layout keeps the recovered PsyQ vtable explicit, so these zero-local
-           bridges preserve ordinary source-level virtual call sites without
-           inventing receiver/vtable temporaries in their callers. */
+#if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* INFERRED bodies: retail cars/copspeak/nfs3.obj Speaker TPDEF run = 13 more unused in-class inline bodies (4 Car_tObj*, 1 LocationBank*, 1 CallSignBank*, 1 LocationBank*+CarBank*, 6 no class param; INVA speaker evidence); speech.obj (owner) excluded */
+        inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { } inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } inline void InferredOp6() { }
+#endif
+        /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local
+           bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
     };
     /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
     struct DispatchSpeaker : public Speaker {

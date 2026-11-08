@@ -1028,12 +1028,6 @@
   },
   {
    "object": "build/recon/game/common/speech.cpp.o",
-   "function": "ClearCar__Q26Speech7Speaker",
-   "source": "recon/game/common/speech_class.h",
-   "evidence": "SPEECHX2 2026-11-08: inline member of a Speech nested class whose vtable speech.obj owns; with implement-inlines restored (retail in-class virtual defaults/overrides emitted at the end of the object) speech.obj also emits this unreferenced standalone copy into .text.strip (declared NFS4_SPEECH_STRIP = LINK_STRIPPED in the speech TU only, recon/game/common/speech_class.h); absent from the retail MAP; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES)."
-  },
-  {
-   "object": "build/recon/game/common/speech.cpp.o",
    "function": "ClearSpeaker__Q26Speech15DispatchSpeaker",
    "source": "recon/game/common/speech.cpp",
    "evidence": "SPEECHX2 2026-11-08: inline member of a Speech nested class whose vtable speech.obj owns; with implement-inlines restored (retail in-class virtual defaults/overrides emitted at the end of the object) speech.obj also emits this unreferenced standalone copy into .text.strip (declared NFS4_SPEECH_STRIP = LINK_STRIPPED in the speech TU only, recon/game/common/speech_class.h); absent from the retail MAP; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES)."
@@ -1065,12 +1059,6 @@
   {
    "object": "build/recon/game/common/speech.cpp.o",
    "function": "From__Q26Speech7Speaker",
-   "source": "recon/game/common/speech_class.h",
-   "evidence": "SPEECHX2 2026-11-08: inline member of a Speech nested class whose vtable speech.obj owns; with implement-inlines restored (retail in-class virtual defaults/overrides emitted at the end of the object) speech.obj also emits this unreferenced standalone copy into .text.strip (declared NFS4_SPEECH_STRIP = LINK_STRIPPED in the speech TU only, recon/game/common/speech_class.h); absent from the retail MAP; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES)."
-  },
-  {
-   "object": "build/recon/game/common/speech.cpp.o",
-   "function": "HasDifferentSub__Q26Speech7SpeakerPQ26Speech7Speaker",
    "source": "recon/game/common/speech_class.h",
    "evidence": "SPEECHX2 2026-11-08: inline member of a Speech nested class whose vtable speech.obj owns; with implement-inlines restored (retail in-class virtual defaults/overrides emitted at the end of the object) speech.obj also emits this unreferenced standalone copy into .text.strip (declared NFS4_SPEECH_STRIP = LINK_STRIPPED in the speech TU only, recon/game/common/speech_class.h); absent from the retail MAP; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES)."
   },

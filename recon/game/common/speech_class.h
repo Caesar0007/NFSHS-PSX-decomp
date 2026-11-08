@@ -44,7 +44,7 @@ struct Speech {
         bool Check(char *name, int id, CarBankName *bankname);
         /* getters: Speaker::SetCar reads them through GetCarBank()'s temporary (variable-free pairs) */
         inline int Full() { return fFull; }
-        inline int Model() { return fModel; }
+        inline int Model() { return fModel; } inline int Make() { return fMake; }   /* INFERRED body: retail speech.obj CarBank TPDEF run x5 (ours x4 without it) */
     } CarBank;
 
     typedef struct LocationBank {
@@ -57,7 +57,7 @@ struct Speech {
             fEndSlice = end;
             fName = name;
         }
-        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */
+        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */ inline int StartSlice() { return fStartSlice; } inline int EndSlice() { return fEndSlice; }   /* INFERRED bodies: retail speech.obj LocationBank TPDEF run x6 (ours x4 without them) */
         int Distance(int slice);
     } LocationBank;
 
@@ -69,7 +69,7 @@ struct Speech {
         inline int Dispatch() { return fDispatch; }
         inline int AllUnits() { return fAllUnits; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
-        inline int Mobile(int unit) { return fMobile[unit]; }
+        inline int Mobile(int unit) { return fMobile[unit]; } inline int *MobileBanks() { return fMobile; }   /* INFERRED body: retail speech.obj CallSignBank TPDEF run x7 (ours x6 without it) */
     } CallSignBank;
 
     struct { CarBank Mobile[9], Dispatch[9]; } fCarBank;
@@ -98,7 +98,7 @@ struct Speech {
         void FindLocation(Car_tObj *car);
         int CalcMph(Car_tObj *perp);
         void Promote();
-        inline void ClearCar() NFS4_SPEECH_STRIP;
+
 
 
 
@@ -137,18 +137,18 @@ struct Speech {
         inline int Car() NFS4_SPEECH_STRIP;
         inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() NFS4_SPEECH_STRIP;
         inline SPCHNFSType_CONFIRM *Confirm() NFS4_SPEECH_STRIP;
-        inline bool HasDifferentSub(Speaker *Wing) NFS4_SPEECH_STRIP;
+
 
 
         inline int Location() NFS4_SPEECH_STRIP;
         inline SPCHNFSType_DISTANCE *Distance() NFS4_SPEECH_STRIP;
         inline SPCHNFSType_COLOUR *Colour() NFS4_SPEECH_STRIP;
-#if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* INFERRED bodies: retail cars/copspeak/nfs3.obj Speaker TPDEF run = 13 more unused in-class inline bodies (4 Car_tObj*, 1 LocationBank*, 1 CallSignBank*, 1 LocationBank*+CarBank*, 6 no class param; INVA speaker evidence); speech.obj (owner) excluded */
-#if !defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)   /* retail aih_cop.obj records none of the four Car_tObj-param bodies (per-TU exclusion) */
-        inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { }
-#endif
-        inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } void InferredOp6(); void InferredBankCarOp(CarBank *carBank, LocationBank *location, CallSignBank *callSign, Car_tObj *car, Car_tObj *target);   /* inline, defined below the class (non-AI view only) */
-#endif
+
+
+
+
+
+
         /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
     };
     struct MobileSpeaker; struct DispatchSpeaker;   /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
@@ -243,7 +243,7 @@ struct Speech {
         return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
     }
     inline int FileHandle() { return fFileHandle; }
-    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; }
+    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; } inline Car_tObj *SpeakerCar();   /* INFERRED body (defined below the class): retail speech.obj run "Speech Car_tObj | Car_tObj Speech" = setter + getter */
     static inline int MultiplePerps() { return fgSpeech->fMultiplePerps; }
     /* car-bank lookup: retail's GetCarBank bodies are one inline-call pair with no variables (static inline;
        the index is a register argument, so no parameter row) */
@@ -307,13 +307,13 @@ struct Speech {
     Speech();
     ~Speech();
 };
-#if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H) && !defined(NFS4_SPEECH_AI_VIEW)   /* INFERRED body: retail cars/copspeak/nfs3.obj run "Speaker CarBank LocationBank CallSignBank Car_tObj Car_tObj" before the bank bodies (AI objects keep their current exact Car_tObj count) */
-inline void Speech::Speaker::InferredBankCarOp(CarBank *carBank, LocationBank *location, CallSignBank *callSign, Car_tObj *car, Car_tObj *target) { }
-#elif !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* AI view: the sixth this-only body stands in for it (retail AI objects: Car_tObj exact without the pair) */
-inline void Speech::Speaker::InferredOp6() { }
+#if defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)   /* cars/copspeak/nfs3: the 15 Speaker virtual defaults out of the class (retail Car_tObj count; in-class costs one) + the SpeakerCar getter */
+inline Car_tObj *Speech::SpeakerCar() { return fSpeakerCar; } inline void Speech::Speaker::Status() {} inline int Speech::Speaker::Unit() { return 0; } inline bool Speech::Speaker::KnownPerp(Car_tObj *car) { return false; } inline void Speech::Speaker::ClearPerp(Car_tObj *car) {} inline bool Speech::Speaker::IsSuper() { return false; } inline int Speech::Speaker::StatusCount() { return 0; } inline Speech::Speaker *Speech::Speaker::StatusSub() { return (Speaker *)0x0; } inline void Speech::Speaker::PurgeStatusSub() {} inline int Speech::Speaker::DistToPerp() { return 0x3e80000; } inline Car_tObj *Speech::Speaker::CarObj() { return (Car_tObj *)0x0; } inline void Speech::Speaker::ReActivate() {} inline Car_tObj *Speech::Speaker::Perp() { return (Car_tObj *)0x0; } inline Speech::CarBank *Speech::Speaker::GetCarBank(int carIndex) { return (CarBank *)0x0; } inline Speech::LocationBank *Speech::Speaker::FindClosestLocationTo(int slice) { return (LocationBank *)0x0; } inline Speech::CallSignBank *Speech::Speaker::CallSign() { return (CallSignBank *)0; }
+#elif !defined(NFS4_SPEECH_AI_VIEW)   /* speech.obj; AI objects (retail aih_*.obj) record no SpeakerCar getter body: their Car_tObj counts are exact without it */
+inline Car_tObj *Speech::SpeakerCar() { return fSpeakerCar; }
 #endif
-inline Speech::Speaker::Speaker() { fSub = 0; } inline Speech::Speaker *Speech::Speaker::Sub() { return fSub; } inline void Speech::Speaker::ClearCar() { fCar = 0; fColour.flags = 0; } inline void Speech::Speaker::SetColour(int Colour) { fColour.flags = Colour; } inline void Speech::Speaker::SetBlockade(int Blockade) { fBlockade.flags = Blockade; } inline void Speech::Speaker::SetArrest(int Arrest) { fArrest.flags = Arrest; } inline void Speech::Speaker::SetUpdate(int Update) { fUpdate.flags = Update; } inline void Speech::Speaker::SetSub(Speaker *Sub) { fSub = Sub; } inline void Speech::Speaker::SetTo(int to) { fTo = to; } inline int Speech::Speaker::To() { return fTo; } inline int Speech::Speaker::From() { return fFrom; } inline void Speech::Speaker::SetFrom(int from) { fFrom = from; } inline void Speech::Speaker::SetConfirm(int confirm) { fConfirm.flags = confirm; } inline void Speech::Speaker::SetPerpName(int name) { fPerpName.flags = name; } inline void Speech::Speaker::SetHavePerp(bool have) { fHavePerp = have; } inline void Speech::Speaker::SetReverse(int reverse) { fReverse.flags = reverse; } inline SPCHNFSType_REVINTRO *Speech::Speaker::Reverse() { return &fReverse; } inline void Speech::Speaker::SetPosition(int position) { fPosition.flags = position; } inline void Speech::Speaker::SetDistance(int distance) { fDistance.flags = distance; } inline void Speech::Speaker::SetLocation(LocationBank *location) { fLocation = location->BankId(); } inline SPCHNFSType_POSITION *Speech::Speaker::Position() { return &fPosition; }   /* Speaker's inline members, defined out of the class so speech.obj can tag its standalone copies (NFS4_SPEECH_STRIP) */
-inline SPCHNFSType_PERP_NAME *Speech::Speaker::PerpName() { return &fPerpName; } inline void Speech::Speaker::SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; } inline SPCHNFSType_AMBULANCE *Speech::Speaker::Ambulance() { return &fAmbulance; } inline SPCHNFSType_ARREST *Speech::Speaker::Arrest() { return &fArrest; } inline SPCHNFSType_SPIKE_BELT_SIDE *Speech::Speaker::SpikeSide() { return &fSpikeSide; } inline void Speech::Speaker::SetSpikeSide(int side) { fSpikeSide.flags = side; } inline int Speech::Speaker::BlockadeFlags() { return fBlockade.flags; } inline void Speech::Speaker::SetWing(int wing) { fWing = wing; } inline int Speech::Speaker::Wing() { return fWing; } inline int Speech::Speaker::ArrestFlags() { return fArrest.flags; } inline int Speech::Speaker::UpdateFlags() { return fUpdate.flags; } inline SPCHNFSType_PURS_UPDT *Speech::Speaker::Update() { return &fUpdate; } inline bool Speech::Speaker::HavePerp() { return fHavePerp; } inline int Speech::Speaker::Car() { return fCar; } inline SPCHNFSType_vs_RDBLK_SSTRP *Speech::Speaker::BlockadeSlot() { return &fBlockade; } inline SPCHNFSType_CONFIRM *Speech::Speaker::Confirm() { return &fConfirm; } inline bool Speech::Speaker::HasDifferentSub(Speaker *Wing) { return fSub != 0 && Wing != fSub; } inline int Speech::Speaker::Location() { return fLocation; } inline SPCHNFSType_DISTANCE *Speech::Speaker::Distance() { return &fDistance; } inline SPCHNFSType_COLOUR *Speech::Speaker::Colour() { return &fColour; }
+inline Speech::Speaker::Speaker() { fSub = 0; } inline Speech::Speaker *Speech::Speaker::Sub() { return fSub; } inline void Speech::Speaker::SetColour(int Colour) { fColour.flags = Colour; } inline void Speech::Speaker::SetBlockade(int Blockade) { fBlockade.flags = Blockade; } inline void Speech::Speaker::SetArrest(int Arrest) { fArrest.flags = Arrest; } inline void Speech::Speaker::SetUpdate(int Update) { fUpdate.flags = Update; } inline void Speech::Speaker::SetSub(Speaker *Sub) { fSub = Sub; } inline void Speech::Speaker::SetTo(int to) { fTo = to; } inline int Speech::Speaker::To() { return fTo; } inline int Speech::Speaker::From() { return fFrom; } inline void Speech::Speaker::SetFrom(int from) { fFrom = from; } inline void Speech::Speaker::SetConfirm(int confirm) { fConfirm.flags = confirm; } inline void Speech::Speaker::SetPerpName(int name) { fPerpName.flags = name; } inline void Speech::Speaker::SetHavePerp(bool have) { fHavePerp = have; } inline void Speech::Speaker::SetReverse(int reverse) { fReverse.flags = reverse; } inline SPCHNFSType_REVINTRO *Speech::Speaker::Reverse() { return &fReverse; } inline void Speech::Speaker::SetPosition(int position) { fPosition.flags = position; } inline void Speech::Speaker::SetDistance(int distance) { fDistance.flags = distance; } inline void Speech::Speaker::SetLocation(LocationBank *location) { fLocation = location->BankId(); } inline SPCHNFSType_POSITION *Speech::Speaker::Position() { return &fPosition; }   /* Speaker's inline members, defined out of the class so speech.obj can tag its standalone copies (NFS4_SPEECH_STRIP) */
+inline SPCHNFSType_PERP_NAME *Speech::Speaker::PerpName() { return &fPerpName; } inline void Speech::Speaker::SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; } inline SPCHNFSType_AMBULANCE *Speech::Speaker::Ambulance() { return &fAmbulance; } inline SPCHNFSType_ARREST *Speech::Speaker::Arrest() { return &fArrest; } inline SPCHNFSType_SPIKE_BELT_SIDE *Speech::Speaker::SpikeSide() { return &fSpikeSide; } inline void Speech::Speaker::SetSpikeSide(int side) { fSpikeSide.flags = side; } inline int Speech::Speaker::BlockadeFlags() { return fBlockade.flags; } inline void Speech::Speaker::SetWing(int wing) { fWing = wing; } inline int Speech::Speaker::Wing() { return fWing; } inline int Speech::Speaker::ArrestFlags() { return fArrest.flags; } inline int Speech::Speaker::UpdateFlags() { return fUpdate.flags; } inline SPCHNFSType_PURS_UPDT *Speech::Speaker::Update() { return &fUpdate; } inline bool Speech::Speaker::HavePerp() { return fHavePerp; } inline int Speech::Speaker::Car() { return fCar; } inline SPCHNFSType_vs_RDBLK_SSTRP *Speech::Speaker::BlockadeSlot() { return &fBlockade; } inline SPCHNFSType_CONFIRM *Speech::Speaker::Confirm() { return &fConfirm; } inline int Speech::Speaker::Location() { return fLocation; } inline SPCHNFSType_DISTANCE *Speech::Speaker::Distance() { return &fDistance; } inline SPCHNFSType_COLOUR *Speech::Speaker::Colour() { return &fColour; }
 #if !defined(NFS4_SPEECH_AI_VIEW) && !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)
 inline Speech::MobileSpeaker::MobileSpeaker() { fCarObj = 0; } inline int Speech::MobileSpeaker::Speed() { return fSpeed; } inline SPCHNFSType_vs_KMH_MPH *Speech::MobileSpeaker::SpeedType() { return &fSpeedType; }
 #endif

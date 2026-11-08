@@ -25,6 +25,11 @@ struct Car_tObj;
 
 struct Speech {
     /* the nested classes: retail manglings are Q26Speech7Speaker, Q26Speech13MobileSpeaker, ... */
+    inline long BankOffset(long bank) {
+        return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
+    }
+    inline int FileHandle() { return fFileHandle; }
+    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; } inline Car_tObj *SpeakerCar();   /* INFERRED body (defined below the class): retail speech.obj run "Speech Car_tObj | Car_tObj Speech" = setter + getter */
     struct CarBankName {
         char *fFull, *fMake, *fModel;
         inline bool Full(char *name) {
@@ -57,7 +62,7 @@ struct Speech {
             fEndSlice = end;
             fName = name;
         }
-        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */ inline int StartSlice() { return fStartSlice; } inline int EndSlice() { return fEndSlice; }   /* INFERRED bodies: retail speech.obj LocationBank TPDEF run x6 (ours x4 without them) */
+        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */ inline int StartSlice() { return fStartSlice; }   /* INFERRED body: retail speech.obj LocationBank in-class run x6 = ctor, Set, BankId, this one + the Speech field walk */
         int Distance(int slice);
     } LocationBank;
 
@@ -69,7 +74,7 @@ struct Speech {
         inline int Dispatch() { return fDispatch; }
         inline int AllUnits() { return fAllUnits; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
-        inline int Mobile(int unit) { return fMobile[unit]; } inline int *MobileBanks() { return fMobile; }   /* INFERRED body: retail speech.obj CallSignBank TPDEF run x7 (ours x6 without it) */
+        inline int Mobile(int unit) { return fMobile[unit]; }
     } CallSignBank;
 
     struct { CarBank Mobile[9], Dispatch[9]; } fCarBank;
@@ -239,11 +244,6 @@ struct Speech {
     bool CheckLocationBank(LocationBank *locationbank, char *name, int id);
     bool CheckCallSignBank(CallSignBank *bank, char *name, int id);
     bool CheckMultiBank(char *name, int id, CarBankName *bn);
-    inline long BankOffset(long bank) {
-        return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
-    }
-    inline int FileHandle() { return fFileHandle; }
-    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; } inline Car_tObj *SpeakerCar();   /* INFERRED body (defined below the class): retail speech.obj run "Speech Car_tObj | Car_tObj Speech" = setter + getter */
     static inline int MultiplePerps() { return fgSpeech->fMultiplePerps; }
     /* car-bank lookup: retail's GetCarBank bodies are one inline-call pair with no variables (static inline;
        the index is a register argument, so no parameter row) */

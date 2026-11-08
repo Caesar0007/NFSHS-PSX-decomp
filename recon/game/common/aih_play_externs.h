@@ -125,6 +125,6 @@ inline void AICop_PerpChaseInfo::SetBlockadeDone()
 }
 
 /* header inline: retail SetupBlockade records its receiver pairs at the caller lines (moved from aih_play.cpp) */
-inline Car_tObj *AIHigh_Base::GetCarObj() { return carObj_; }
+
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

@@ -2,8 +2,8 @@
 #define NFS4_GAME_COMMON_AIH_BASICPERP_TYPES_H   /* aih_basicperp.obj's exact owner delta over the shared AI hierarchy. */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 
-/* Retail inlines these members here; other key-function TUs must not emit
-   out-of-line copies merely because they include the shared hierarchy. */
+/* Retail inlines these members here; other key-function TUs must not emit out-of-line copies merely because they include the shared hierarchy. */
+#define NFS4_AISTATE_NONE_KEEP   /* key: keep AIState_None bodies (Car_tObj count) */
 #define NFS4_AIH_BASICPERP_INLINE_SCOPE
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #include "aih_hierarchy_types.h"

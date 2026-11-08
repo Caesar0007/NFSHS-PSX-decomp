@@ -1,4 +1,4 @@
-/* aihigh.obj's exact owner delta over the shared AI hierarchy graph. */
+#define NFS4_AIHIGH_OWNER   /* aihigh.obj's exact owner delta over the shared AI hierarchy graph; key: AIState_None bodies (aistate.h), GetCarObj decl-only (aih_hierarchy_types.h) */
 #if !defined(NFS4_GAME_COMMON_AIHIGH_TYPES_H)
 #define NFS4_GAME_COMMON_AIHIGH_TYPES_H
 #define NFS4_AIH_HIERARCHY_WINGMAN "aihigh_types.h"   /* retail aihigh.obj: AIHigh_CopGameType_t right after stateType_t (second pass below) */

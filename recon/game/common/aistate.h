@@ -20,6 +20,11 @@ struct AIState_Base {
     AIState_Base(Car_tObj *carObj);
     void StateExecute();
     virtual void Execute() = 0;
+#if defined(NFS4_AIHIGH_OWNER) || defined(NFS4_AISTATE_NONE_KEEP)   /* owner key: AIState_None's inline bodies (retail: only aihigh.obj records AIState_None; _KEEP = TUs not yet converted, see GSDATA_state.md) */
+#define NFS4_AISTATE_NONE_BODY(b) b
+#else
+#define NFS4_AISTATE_NONE_BODY(b) ;
+#endif
 #line 24 "C:/nfs4/GAME/COMMON/AISTATE.H"
     virtual ~AIState_Base() {}
 #line 25 "C:/nfs4/GAME/COMMON/AISTATE.H"
@@ -28,11 +33,11 @@ struct AIState_Base {
 
 /* Retail places None's inline definitions before Normal and Idle. */
 struct AIState_None : public AIState_Base {
-    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {}
+    AIState_None(Car_tObj *carObj) NFS4_AISTATE_NONE_BODY(: AIState_Base(carObj) {})
 #line 34 "C:/nfs4/GAME/COMMON/AISTATE.H"
-    ~AIState_None() {}
+    ~AIState_None() NFS4_AISTATE_NONE_BODY({})
 #line 35 "C:/nfs4/GAME/COMMON/AISTATE.H"
-    void Execute() {}
+    void Execute() NFS4_AISTATE_NONE_BODY({})
 };
 
 struct AIState_Normal : public AIState_Base {

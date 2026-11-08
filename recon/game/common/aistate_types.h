@@ -4,7 +4,7 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 
-/* Canonical gmesetup.obj aggregate used by this translation unit. */
+#define NFS4_AISTATE_NONE_KEEP   /* key: keep AIState_None bodies (Car_tObj count) */ /* Canonical gmesetup.obj aggregate used by this translation unit. */
 /* GameSetup_tData: not in retail aistate.obj (GameSetup_gData is read through its word view) */
 
 

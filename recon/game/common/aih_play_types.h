@@ -1,4 +1,4 @@
-/* aih_play.obj's exact owner delta over the shared AI hierarchy. */
+#define NFS4_AISTATE_NONE_KEEP   /* aih_play.obj's exact owner delta over the shared AI hierarchy; key: keep AIState_None bodies (Car_tObj count) */
 #if !defined(NFS4_GAME_COMMON_AIH_PLAY_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
 #define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "aih_play_types.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t (second pass below) */

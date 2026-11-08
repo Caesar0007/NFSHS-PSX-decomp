@@ -57,7 +57,8 @@ struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
 struct ObjectAnim {
-    virtual ~ObjectAnim();
+    ObjectAnim() {}
+    virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
 struct ObjectFinishedMultiAnim : public ObjectAnim { };
@@ -78,7 +79,6 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 #undef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #undef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-
 
 
 

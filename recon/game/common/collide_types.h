@@ -54,7 +54,8 @@ struct AnimScript {
 struct DRender_tView;
 struct Draw_DCache;
 struct ObjectAnim {
-    virtual ~ObjectAnim();
+    ObjectAnim() {}
+    virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
 struct DRender_tView;
@@ -68,7 +69,6 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     Trk_CollideBoomInst *objCollideInstance;
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
-
 #include "shared/Object_tSimObjList.h"
 
 #endif

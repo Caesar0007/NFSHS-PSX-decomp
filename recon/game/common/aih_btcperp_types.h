@@ -93,7 +93,8 @@ struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
 struct ObjectAnim {
-    virtual ~ObjectAnim();
+    ObjectAnim() {}
+    virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
 struct ObjectFinishedMultiAnim : public ObjectAnim { };
@@ -102,7 +103,6 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
 };
-
 /* Canonical foreign aggregates used by this translation unit. */
 #include "shared/AITune_BTC_t.h"
 

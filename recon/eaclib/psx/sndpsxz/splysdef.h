@@ -1,8 +1,8 @@
 #ifndef _SNDPSXZ_SPLYSDEF_H_
 #define _SNDPSXZ_SPLYSDEF_H_
 
-struct SNDPLAYOPTS;
+#include "../../../shared/SNDPLAYOPTS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 
-extern int SNDplaysetdef(struct SNDPLAYOPTS *opts);
+extern int SNDplaysetdef(SNDPLAYOPTS *opts);
 
 #endif /* _SNDPSXZ_SPLYSDEF_H_ */

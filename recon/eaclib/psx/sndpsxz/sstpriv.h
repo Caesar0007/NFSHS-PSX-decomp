@@ -7,7 +7,7 @@
 #include "sndattrpriv.h"
 #include "sndfmtpriv.h"
 
-typedef struct SNDPLAYOPTS SNDPLAYOPTS;
+/* SNDPLAYOPTS: typedef-name already declared (anonymous PsyQ form) */
 
 /* SST.OBJ's private type graph is stripped.  The matching NFS3/NFS4-PC
  * streamer preserves these request-field roles; PSX accesses independently

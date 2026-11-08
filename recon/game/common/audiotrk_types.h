@@ -82,7 +82,7 @@ typedef void (*Sched_tFunctionPt)(void *);
 #define NFS4_AUDIOTRK_BWSM_DONE
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"
-struct AudioElem {
+typedef struct {
     coorddef cp;
     u_short nextDelay;
     char patchID, fadeIn;
@@ -90,7 +90,7 @@ struct AudioElem {
     char minDelay, randomDelay, type;
     signed char chan;
     char minRepeat, randomRepeat;
-};
+} AudioElem;
 #define NFS4_AUDIOLIST_ELEMS_INLINE   /* CAudioList::Elems() -- retail's CAudioList `this` pair in AudioTrk_PreLoad */
 #include "shared/CAudioList.h"
 static inline AudioElem *AudioList_Elems(CAudioList *list) { return (AudioElem *)(list + 1); }

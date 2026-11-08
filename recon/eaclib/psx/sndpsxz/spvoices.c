@@ -22,7 +22,7 @@
 
 /* SNDSTRM_create @0x800E9B44 : create a streaming voice with its OWN ring (extHandle/extFlag forced 0).
  *   Returns the stream slot or a negative error. */
-int SNDSTRM_create(struct SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize)
+int SNDSTRM_create(SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize)
 {
     return iSNDstreamcreate(priority, numReq, pktArg, objbuf, memsize, 0, 0);
 }

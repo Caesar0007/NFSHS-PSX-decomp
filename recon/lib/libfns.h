@@ -16,7 +16,7 @@
 
 #include "../shared/SNDSTREAMSTATUS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SNDREQUESTSTATUS;
-struct SNDPLAYOPTS;
+#include "../shared/SNDPLAYOPTS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SndGlobalServerStateView;
 
 extern "C" {
@@ -99,7 +99,7 @@ u_short PAD_state(int);   /* SYM: USHORT PAD_state(int padID) — was a bogus u_
 void PAD_update(...);
 int SND3dpos(...);   /* (u_int tag, u_int x, int y) */
 int SNDSTRM_autovol(...);   /* (int handle, int ticks, int flag) */
-int SNDSTRM_create(struct SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize);   /* -> stream handle; def in eaclib sndpsxz/spvoices.c */
+int SNDSTRM_create(SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize);   /* -> stream handle; def in eaclib sndpsxz/spvoices.c */
 int SNDSTRM_destroy(...);   /* (int handle) */
 int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */

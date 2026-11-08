@@ -1,7 +1,7 @@
 #ifndef _SNDPSXZ_SPKTPLAY_H_
 #define _SNDPSXZ_SPKTPLAY_H_
 
-struct SNDPLAYOPTS;
+#include "../../../shared/SNDPLAYOPTS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SndPatchAttributes;
 struct SNDSAMPLEFORMAT;
 struct PacketPlayerHeader;
@@ -13,7 +13,7 @@ extern int SNDPKTPLAY_create(unsigned char *mem, int memsize, void (*relcb)(unsi
                               void (*notifycb)(int, unsigned int)); /* @0x801028FC */
 extern int SNDPKTPLAY_start(int p, struct SNDSAMPLEFORMAT *rate,
                             struct SndPatchAttributes *hdr,
-                            struct SNDPLAYOPTS *params); /* @0x80102A10 */
+                            SNDPLAYOPTS *params); /* @0x80102A10 */
 extern int SNDPKTPLAY_submit(int p, union SndPacketSubmitFrameView *frame); /* @0x80102CFC */
 extern int SNDPKTPLAY_submitspace(int p); /* @0x80102E70 */
 extern int SNDPKTPLAY_unsafeframesoutstanding(int p); /* @0x80102EC4 */ /* spktplay */

@@ -131,11 +131,11 @@ enum forceFocus_t {
 
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
-struct AudioClc_tSource {
+typedef struct {
     Car_tObj *car;
     int distToCamera, dopplerShift, relVelocity, gameTicks, distSq;
     int frequency, channel, horn, hornOn, hornOff, hornCount, pursuit, yelled;
-};
+} AudioClc_tSource;
 
 struct AudioClc_tPlayer {
     int cameraMode, gameTicks, warnings;

@@ -1,7 +1,7 @@
 #ifndef _SNDPSXZ_SST_H_
 #define _SNDPSXZ_SST_H_
 
-struct SNDPLAYOPTS;
+#include "../../../shared/SNDPLAYOPTS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SndStream;
 struct SndStreamChunkHeaderPrefix;
 
@@ -19,7 +19,7 @@ extern int iSNDstreamisheld(struct SndStream *S); /* @0x800E9318 */
 extern void iSNDstreamhotroddatachunks(void); /* sst */ /* @0x800E9438 */
 extern void iSNDstreamservice(void); /* @0x800E9590 (serve hook) */ /* @0x800E9590 */
 extern int iSNDstreamnumcreated(void); /* @0x800E96F8 */
-extern int iSNDstreamcreate(struct SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize, int extHandle, int extFlag); /* @0x800E9730 */
+extern int iSNDstreamcreate(SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize, int extHandle, int extFlag); /* @0x800E9730 */
 extern int iSNDstreamqueue(unsigned int s, int name, char *filename, int off, int mode); /* @0x800E9970 */
 
 extern struct SndStream *sndss[];

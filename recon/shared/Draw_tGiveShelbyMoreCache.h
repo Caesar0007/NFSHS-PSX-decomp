@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_DRAW_TGIVESHELBYMORECACHE_H
 #define NFS4_SHARED_DRAW_TGIVESHELBYMORECACHE_H
 
-struct Draw_tGiveShelbyMoreCache {
+typedef struct {
     Draw_tCacheHeader head;
     MATRIX matB, matNight, matCop, identMat;
     int otz;
@@ -28,5 +28,5 @@ struct Draw_tGiveShelbyMoreCache {
     u_char code, magiknum;
     Draw_SVertex v0, v1, v2, v3;
     Draw_SubdivStruct div;
-};
+} Draw_tGiveShelbyMoreCache;
 #endif

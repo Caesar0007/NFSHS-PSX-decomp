@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_SCENEELEM_H
 #define NFS4_SHARED_SCENEELEM_H
 
-struct SceneElem {
+typedef struct {
     int type, size, committed, visible;
     coorddef cp;
     int height;
     matrixtdef orient;
     int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
+} SceneElem;
 #endif

@@ -183,10 +183,10 @@ found:
  *   platform.  Returns the voice id, or a negative error.
  *   Args (per the caller, sst): rate points to the locked 4-byte sample-format value, hdr points to the
  *   decoded 0x14-byte `SndPatchAttributes` record, and params points to `SndStream.start_params`
- *   (`struct SNDPLAYOPTS`, size 0x14). Player, rate, attributes, play options and channel use
+ *   (`SNDPLAYOPTS`, size 0x14). Player, rate, attributes, play options and channel use
  *   PacketPlayerHeader, SNDSAMPLEFORMAT, SndPatchAttributes, SNDPLAYOPTS and private SndChannel layouts. */
 int SNDPKTPLAY_start(int p, SNDSAMPLEFORMAT *rate, struct SndPatchAttributes *hdr,
-                     struct SNDPLAYOPTS *params)
+                     SNDPLAYOPTS *params)
 {
     PacketPlayerHeader *ppp;
     int note, allocOut, r;

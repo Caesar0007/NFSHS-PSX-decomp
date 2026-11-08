@@ -10,7 +10,7 @@
 #include "splysdef.h"
 #include "../../../shared/SNDPLAYOPTS.h"
 
-int SNDplaysetdef(struct SNDPLAYOPTS *def)   /* @0x800E6834 : §3.2 non-void — the oracle reserves $v0 for
+int SNDplaysetdef(SNDPLAYOPTS *def)   /* @0x800E6834 : §3.2 non-void — the oracle reserves $v0 for
                                              a return of 0 (addu v0,zero,zero), which pushes the 0x40
                                              constant to $v1; declared void drops both. extern so the
                                              return-type change is unmangled / caller-safe. */
@@ -18,7 +18,7 @@ int SNDplaysetdef(struct SNDPLAYOPTS *def)   /* @0x800E6834 : §3.2 non-void —
     /* The store order matches the retail instruction schedule. `bhandle` is
      * stored through a signed-byte view so the -1 sentinel stays a single -1
      * immediate even though the shared layout spells the field as plain char. */
-    struct SNDPLAYOPTS *d = def;
+    SNDPLAYOPTS *d = def;
     d->patnum = -1;
     *(signed char *)&d->bhandle = -1;
     d->keynum = 0x3C;

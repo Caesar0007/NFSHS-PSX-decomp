@@ -15,7 +15,7 @@
 #include "stagpat.h"
 
 /* SNDplay @0x800E7A30 : play `info` if the audio system is up; -10 if down. */
-int SNDplay(struct SNDPLAYOPTS *info)
+int SNDplay(SNDPLAYOPTS *info)
 {
     if (!((struct SndGlobalServerStateView *)sndgs)->initialized)
         return -10;
@@ -27,7 +27,7 @@ int SNDplay(struct SNDPLAYOPTS *info)
  * the oracle's exact basic-block layout for the in-range test (branch-polarity + which path needs the
  * extra `j`-trampoline); a nested `if (cond) { body }` or an explicit `goto fail;` both left the
  * in-range test's branch inverted (7-diff residual) even though they're semantically identical. */
-int cSNDplay(struct SNDPLAYOPTS *info, int recurse)
+int cSNDplay(SNDPLAYOPTS *info, int recurse)
 {
     int patch;
     struct SndTaggedPatchRecordPrefixView *pp;

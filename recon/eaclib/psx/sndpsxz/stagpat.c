@@ -152,7 +152,7 @@ done:
  *   restores the detune table/scaling path, both PRNG return uses, all four stack arguments, and the
  *   success/failure return contract. MATCH (320/320): modeling the one-word platform-rate storage as
  *   an array element makes gcc split its address materialization around the independent byte load. */
-int iSNDplaytaggedtimbre(unsigned char *timbre, struct SNDPLAYOPTS *tag, struct SndTimbre *vol, struct SndTimbre *header,
+int iSNDplaytaggedtimbre(unsigned char *timbre, SNDPLAYOPTS *tag, struct SndTimbre *vol, struct SndTimbre *header,
                                     int baseNote, int velScale, int pitchOff)
 {
     int b7  = (signed char)tag->pan;
@@ -300,7 +300,7 @@ int iSNDplaytaggedtimbre(unsigned char *timbre, struct SNDPLAYOPTS *tag, struct 
  *     7-arg call: (timbreData, tag, &builtTimbre, &header, note, vel, pitchOff). pitchOff ($s6) is the
  *     CAPTURED randrange() result of the last 0x24 field tag (0 until one is seen); the group key ($fp)
  *     is the CAPTURED iSNDfindfreekey() return.  BYTE-MATCHES the oracle (verify_asm PASS, 216 insns). */
-int iSNDplaytaggedpatch(struct SndTaggedPatchRecordPrefixView *bank, struct SNDPLAYOPTS *tag)
+int iSNDplaytaggedpatch(struct SndTaggedPatchRecordPrefixView *bank, SNDPLAYOPTS *tag)
 {
     union SndTimbreBufferView bt;                /* built timbre    @sp+0x20  */
     union SndTimbreBufferView hdr;               /* override header @sp+0xB8  */

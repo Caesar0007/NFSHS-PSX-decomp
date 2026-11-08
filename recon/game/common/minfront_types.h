@@ -5,11 +5,11 @@
 #define NFS4_PADS_HOOK_AFTER "gamesetup_leaf_types.h"   /* retail minfront.obj: GameSetup records right after PAD_COMMON */
 #include "color_types.h"
 
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 
 typedef int Input_tDeviceCall();
 

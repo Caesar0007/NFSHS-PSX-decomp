@@ -58,11 +58,11 @@ struct Sched_tSchedule;
 
 
 
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 
 #include "shared/Sched_tSchedule.h"
 

@@ -7,11 +7,11 @@
 #include "aih_hierarchy_types.h"
 #include "shared/BW_tContext.h"
 
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 static inline void _btc_perp_dtor_ref(AIHigh_BTC_Perp *p) { p->~AIHigh_BTC_Perp(); }

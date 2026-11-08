@@ -18,9 +18,9 @@
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_HUD_EARLY_DONE)   /* second pass, from color_types.h */
 #define NFS4_HUD_EARLY_DONE
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0, RECORD_M = 1, TEST_M = 2
 };

@@ -341,11 +341,11 @@ struct AIHigh_Traffic : public AIHigh_Base {
     inline void SetForcePurgatory(int force) { forcePurgatory_ = force; }   /* retail pair: this AIHigh_Traffic */
 };
 #include "shared/BW_tContext.h"
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"
 #include "shared/SPCHNFSType_COLOUR.h"

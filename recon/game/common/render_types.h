@@ -43,9 +43,9 @@ typedef void (*adjustchar)();
 
 #elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_RENDER_HOOK_DONE)
 #define NFS4_RENDER_HOOK_DONE
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 #include "shared/BW_tContext.h"
 #include "shared/FLARE_PIECE_DEF.h"
 #endif

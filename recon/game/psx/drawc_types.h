@@ -77,9 +77,9 @@ typedef u_char Night_tCopLightingTable[256][8];
 
 #include "shared/Skidmark_Chunk.h"
 #ifndef NFS4_DRAWC_R3DCAR_FF_EARLY   /* r3dcar.obj: forceFocus_t emitted earlier (r3dcar_types.h, before the frontend block) */
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 #endif
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/FLARE_PIECE_DEF.h"
@@ -120,9 +120,9 @@ typedef enum forceFocus_t {
 #endif
 #elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWC_BO_DONE)   /* second pass, color_types.h AFTER_BO */
 #define NFS4_DRAWC_BO_DONE
-typedef enum forceFocus_t {
+enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-} forceFocus_t;
+};
 #elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_DRAWC_CAR_DONE)   /* AFTER_CAR */
 #define NFS4_DRAWC_CAR_DONE
 #include "shared/FLARE_PIECE_DEF.h"

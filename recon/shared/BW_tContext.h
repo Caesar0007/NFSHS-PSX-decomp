@@ -3,10 +3,10 @@
 #ifndef NFS4_SHARED_BW_TCONTEXT_H
 #define NFS4_SHARED_BW_TCONTEXT_H
 
-struct BW_tContext {
+typedef struct {
     int client;
     BWorldSm_Pos slicePos;
     int currentChunk, chunkFarZClipSq, polyFarZClipSq, lowDetailDistSq;
     int lineFarZClipSq;
-};
+} BW_tContext;
 #endif

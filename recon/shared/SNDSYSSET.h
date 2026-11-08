@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_SNDSYSSET_H
 #define NFS4_SHARED_SNDSYSSET_H
 
-struct SNDSYSSET {
+typedef struct {
     u_short maxbanks, outputrate;
     u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
     char pad;
     u_short emulationsubtype;
     u_short spkrcfg3d[4][4];
-};
+} SNDSYSSET;
 #endif

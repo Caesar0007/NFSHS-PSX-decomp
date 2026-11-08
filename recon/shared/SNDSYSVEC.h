@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_SNDSYSVEC_H
 #define NFS4_SHARED_SNDSYSVEC_H
 
-struct SNDSYSVEC {
+typedef struct {
     int (*issurfacelocked)(void);
-};
+} SNDSYSVEC;
 #endif

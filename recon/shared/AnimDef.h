@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_ANIMDEF_H
 #define NFS4_SHARED_ANIMDEF_H
 
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+typedef struct { int type, numPieces, objDefIndex, baseAnim, animIndex; } AnimDef;
 #endif

@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_OBJECT_TSIMOBJLIST_H
 #define NFS4_SHARED_OBJECT_TSIMOBJLIST_H
 
-struct Object_tSimObjList { int numObjects, chunk, numObjects2, chunk2; };
+typedef struct { int numObjects, chunk, numObjects2, chunk2; } Object_tSimObjList;
 #endif

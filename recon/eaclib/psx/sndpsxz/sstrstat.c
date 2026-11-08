@@ -10,7 +10,7 @@
 #include "smath64.h"
 
 /* SNDSTRM_requeststatus : fill the 4-int request-status block `status` (state, played, remaining, permille). */
-int SNDSTRM_requeststatus(unsigned int reqTag, struct SNDREQUESTSTATUS *status)
+int SNDSTRM_requeststatus(unsigned int reqTag, SNDREQUESTSTATUS *status)
 {
     SndStream *sp;
     SndStreamReq *rp;

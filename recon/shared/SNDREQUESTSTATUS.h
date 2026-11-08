@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_SNDREQUESTSTATUS_H
 #define NFS4_SHARED_SNDREQUESTSTATUS_H
 
-struct SNDREQUESTSTATUS {
+typedef struct {
     int state, currenttime, timetoend, timebuffered;
-};
+} SNDREQUESTSTATUS;
 #endif

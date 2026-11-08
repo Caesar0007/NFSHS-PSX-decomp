@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_CAMERA_TCAMSLOT_H
 #define NFS4_SHARED_CAMERA_TCAMSLOT_H
 
-struct Camera_tCamSlot {
+typedef struct {
     char mode;
     char track : 1;
     char zoom : 2;
@@ -13,5 +13,5 @@ struct Camera_tCamSlot {
     int height, splineOffset;
     COORD16 euler;
     short slice;
-};
+} Camera_tCamSlot;
 #endif

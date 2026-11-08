@@ -15,7 +15,7 @@
 #define _LIB_LIBFNS_H_
 
 #include "../shared/SNDSTREAMSTATUS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
-struct SNDREQUESTSTATUS;
+#include "../shared/SNDREQUESTSTATUS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 #include "../shared/SNDPLAYOPTS.h"   /* anonymous PsyQ-style typedef: no forward declaration possible */
 struct SndGlobalServerStateView;
 
@@ -105,7 +105,7 @@ int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */
 int SNDSTRM_purge(...);   /* (int handle) */
 int SNDSTRM_queuefile(...);   /* (u_int handle,int name,char *filename,long off) -> queue handle; real def eaclib sndpsxz/spvoices.c returns int (w30-a7: was void, mismatched the real definition -- AudioMus_QueueRequestedSong stores its return into requesthandle) */
-int SNDSTRM_requeststatus(unsigned int reqTag, struct SNDREQUESTSTATUS *status);   /* (unsigned int req, SNDREQUESTSTATUS *status) */
+int SNDSTRM_requeststatus(unsigned int reqTag, SNDREQUESTSTATUS *status);   /* (unsigned int req, SNDREQUESTSTATUS *status) */
 void SNDSTRM_setgreedylevel(...);   /* (int handle, int level) */
 void SNDSTRM_setgreedystate(...);   /* (int handle, int state) */
 void SNDSTRM_setpriority(...);   /* (int handle, int prio, int n) */

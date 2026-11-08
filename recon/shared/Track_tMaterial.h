@@ -3,5 +3,5 @@
 #ifndef NFS4_SHARED_TRACK_TMATERIAL_H
 #define NFS4_SHARED_TRACK_TMATERIAL_H
 
-struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
+typedef struct { char flag, mipmap_offset; short pmxIndex; } Track_tMaterial;
 #endif

@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_COPSPEAK_TREQUEST_H
 #define NFS4_SHARED_COPSPEAK_TREQUEST_H
 
-struct CopSpeak_tRequest {
+typedef struct {
     Car_tObj *car;
     int buffer, offset, size, filehandle, ophandle, phrase;
     char player, sfx;
@@ -12,5 +12,5 @@ struct CopSpeak_tRequest {
        an unprovable original keyword/flag choice. Layout stays byte +30. */
     signed char bank;
     char noise;
-};
+} CopSpeak_tRequest;
 #endif

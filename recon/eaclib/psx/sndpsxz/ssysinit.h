@@ -1,7 +1,7 @@
 #ifndef _SNDPSXZ_SSYSINIT_H_
 #define _SNDPSXZ_SSYSINIT_H_
 
-typedef struct SNDSYSCAP {
+typedef struct {
     unsigned short outputratemin;
     unsigned short outputratemax;
     unsigned char outputchannelsmin;
@@ -14,7 +14,7 @@ typedef struct SNDSYSCAP {
 } SNDSYSCAP;
 typedef char SNDSYSCAP_size_check[(sizeof(SNDSYSCAP) == 0x0C) ? 1 : -1];
 
-typedef struct SNDSYSSET {
+typedef struct {
     unsigned short maxbanks;
     unsigned short outputrate;
     unsigned char outputchannels;
@@ -28,11 +28,11 @@ typedef struct SNDSYSSET {
 } SNDSYSSET;
 typedef char SNDSYSSET_size_check[(sizeof(SNDSYSSET) == 0x2C) ? 1 : -1];
 
-typedef struct SNDSYSVEC {
+typedef struct {
     int (*issurfacelocked)(void);
 } SNDSYSVEC;
 
-typedef struct SNDSYSOPTS {
+typedef struct {
     SNDSYSCAP cap;
     SNDSYSSET set;
     SNDSYSVEC vec;

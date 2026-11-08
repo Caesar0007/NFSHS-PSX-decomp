@@ -3,8 +3,8 @@
 #ifndef NFS4_SHARED_INPUT_TRESULTS_H
 #define NFS4_SHARED_INPUT_TRESULTS_H
 
-struct Input_tResults {
+typedef struct {
     char steering;
     u_char gas, brake, flags;
-};
+} Input_tResults;
 #endif

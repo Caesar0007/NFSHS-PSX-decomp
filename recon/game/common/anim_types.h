@@ -64,10 +64,10 @@ struct Group {
 
 
 
-struct Anim_tFrame {
+typedef struct {
     long x, y, z;
     short qx, qy, qz, qw;
-};
+} Anim_tFrame;
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;

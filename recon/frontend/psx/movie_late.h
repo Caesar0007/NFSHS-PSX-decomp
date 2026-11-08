@@ -11,7 +11,7 @@ typedef struct {
     int isdone;
 } DECENV;
 
-typedef struct CDSECTOR {
+typedef struct {
     u_short id, type, secCount, nSectors;
     u_long frameCount, frameSize;
     u_short width, height;

@@ -42,14 +42,14 @@
 typedef struct kernpair kernpair;
 typedef struct kernpair KERN;
 
-typedef struct SNDSYSCAP {
+typedef struct {
     u_short outputratemin, outputratemax;
     u_char outputchannelsmin, outputchannelsmax;
     u_char inputvoicesmax, input3dvoicesmax, eax, voicemanager;
     char pad[2];
 } SNDSYSCAP;
 
-typedef struct SNDSYSSET {
+typedef struct {
     u_short maxbanks, outputrate;
     u_char outputchannels, inputvoices, useeax;
     u_char use3dacceleration, use3dmixing;
@@ -58,7 +58,7 @@ typedef struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 } SNDSYSSET;
 
-typedef struct SNDSYSVEC {
+typedef struct {
     int (*issurfacelocked)(void);
 } SNDSYSVEC;
 

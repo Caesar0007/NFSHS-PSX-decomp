@@ -20,7 +20,7 @@ struct BW_tContextMgr {
     int initialized, count;
     BW_tContext contexts[2];
 };
-struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
+typedef struct { short chunkInd; char geomRez, enableBits; } tBuildEntry;
 
 
 

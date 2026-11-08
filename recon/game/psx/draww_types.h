@@ -85,7 +85,7 @@ struct Chunk {
 #endif
 #include "shared/BW_tContext.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: tBuildEntry right after BW_tContext */
-struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
+typedef struct { short chunkInd; char geomRez, enableBits; } tBuildEntry;
 #endif
 
 
@@ -340,12 +340,12 @@ typedef struct ObjectFinishedSignAnim : public ObjectAnim { NFS4_DRAWW_SIGN_CTOR
 #include "shared/tQuat.h"
 #include "shared/kernpair.h"
 typedef kernpair KERN;
-struct ChunkObjectInfo {
+typedef struct {
     Trk_SimObject *simObjs;
     Group *objInstanceBuf;
     int doFrustumClip, zClipSq, offset;
     short *visList;
-};
+} ChunkObjectInfo;
 typedef void (*fontblit)();
 typedef int (*getcode)();
 typedef void (*fontblitbegin)();

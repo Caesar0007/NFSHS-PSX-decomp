@@ -137,11 +137,11 @@ typedef struct {
     int frequency, channel, horn, hornOn, hornOff, hornCount, pursuit, yelled;
 } AudioClc_tSource;
 
-struct AudioClc_tPlayer {
+typedef struct {
     int cameraMode, gameTicks, warnings;
     coorddef lastview;
     AudioClc_tSource source;
-};
+} AudioClc_tPlayer;
 
 struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
 #endif

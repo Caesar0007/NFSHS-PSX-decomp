@@ -3,11 +3,11 @@
 #ifndef NFS4_SHARED_TRACK_TARTRESOURCE_H
 #define NFS4_SHARED_TRACK_TARTRESOURCE_H
 
-struct Track_tArtresource {
+typedef struct {
     int id;
     char *shapeFile;
     int shapeCount;
     Draw_tPixMap *pPmx;
     int pmxCount, basePmxCount;
-};
+} Track_tArtresource;
 #endif

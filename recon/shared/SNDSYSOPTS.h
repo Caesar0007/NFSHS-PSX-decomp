@@ -3,9 +3,9 @@
 #ifndef NFS4_SHARED_SNDSYSOPTS_H
 #define NFS4_SHARED_SNDSYSOPTS_H
 
-struct SNDSYSOPTS {
+typedef struct {
     SNDSYSCAP cap;
     SNDSYSSET set;
     SNDSYSVEC vec;
-};
+} SNDSYSOPTS;
 #endif

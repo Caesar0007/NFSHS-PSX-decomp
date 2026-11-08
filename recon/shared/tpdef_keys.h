@@ -3,14 +3,14 @@
  * wrap the definitions (line-neutral).  Owner identity = first-header guards / NFS4_TU_* markers. */
 #ifndef NFS4_SHARED_TPDEF_KEYS_H
 #define NFS4_SHARED_TPDEF_KEYS_H
-#if defined(NFS4_TU_FETOURN)
+#if !defined(NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)   /* plain: the tTournamentManager inferred bodies (CurrentTierInfo/CompetitorAt) supply the 2nd record; trophy owners (bodies excluded) keep the typedef pair */
 #define NFS4_TD_tCompetitor
 #define NFS4_TDN_tCompetitor
 #else
 #define NFS4_TD_tCompetitor typedef
 #define NFS4_TDN_tCompetitor tCompetitor
 #endif
-#if defined(NFS4_TU_FETOURN)
+#if !defined(NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_SCREENTROPHYROOM_TYPES_H)   /* plain: the tTournamentManager inferred bodies (CurrentTierInfo/CompetitorAt) supply the 2nd record; trophy owners (bodies excluded) keep the typedef pair */
 #define NFS4_TD_tTierInfo
 #define NFS4_TDN_tTierInfo
 #else

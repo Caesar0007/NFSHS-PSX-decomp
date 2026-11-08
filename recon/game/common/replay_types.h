@@ -14,13 +14,13 @@
 
 
 
-typedef enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-} forceFocus_t;
 
-#include "shared/Camera_tCamSlot.h"
+
+
+
+
+
+
 
 
 
@@ -55,13 +55,13 @@ typedef struct tControllerData {
 } tControllerData;
 
 #include "shared/tReplayInterface.h"
-
-
-
-
 #include "shared/tReplayCameraModes.h"
-
-
+typedef enum forceFocus_t {
+    FOCUS_NORMAL = 0,
+    FOCUS_AI = 1,
+    FOCUS_COPANDAI = 2
+} forceFocus_t;
+#include "shared/Camera_tCamSlot.h"   /* retail replay: forceFocus_t, Camera_tCamSlot right after tReplayCameraModes */
 
 typedef struct tReplayBuffer {
     GameSetup_tData gameSetup;

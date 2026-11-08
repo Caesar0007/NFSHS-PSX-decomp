@@ -22,7 +22,7 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "../common/color_types.h"
 #endif
-#if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES)) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / in place (bworld) */
+#if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_FF_HERE)) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / after FLARE_PIECE_DEF (bworld, below) */
 #define NFS4_DRAWW_EARLY_DONE
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
@@ -121,8 +121,6 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
 
 
-
-
 #include "shared/SceneSortedElem.h"
 #ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail bworld: kernel/skidmark/FLARE_PIECE_DEF right after the Scene types */
 #include "shared/TCB.h"
@@ -131,6 +129,8 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #include "shared/Skidmark_Segment.h"
 #include "shared/Skidmark_Chunk.h"
 #include "shared/FLARE_PIECE_DEF.h"
+#define NFS4_DRAWW_FF_HERE   /* retail bworld: forceFocus_t right after FLARE_PIECE_DEF (second-pass block above) */
+#include "draww_types.h"
 #endif
 #include "shared/AnimDef.h"
 

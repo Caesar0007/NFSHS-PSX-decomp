@@ -22,24 +22,6 @@
 
 
 
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_;
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
-
 typedef struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
     int deceleration_;
@@ -66,6 +48,24 @@ typedef struct AIPhysic_BrakeInfo {
         return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
     }
 } AIPhysic_BrakeInfo;
+
+enum AIDataRecord_RecordMethod_t {
+    NORMAL_M = 0,
+    RECORD_M = 1,
+    TEST_M = 2
+};
+
+typedef struct AIDataRecord_t {
+    int numElements_, bSize_;
+    char name_[64];
+    char *dataBuffer_, *preAllocatedBuffer_;
+    AIDataRecord_RecordMethod_t recordMethod_;
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
+} AIDataRecord_t;
+
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
 #include "shared/AISpeeds_tLeaderBoard.h"
 

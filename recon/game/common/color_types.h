@@ -117,10 +117,10 @@ typedef void (*Sched_tFunctionPt)(void *);
 #ifdef NFS4_COLOR_SCHED_SCHEDULE   /* retail: Sched_tSchedule always right after Sched_tFunctionSchedule */
 #include "shared/Sched_tSchedule.h"
 #endif
-/* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
-#include "shared/Transformer_z.h"
-
-
+#ifdef NFS4_COLOR_HOOK_AFTER_SCHED   /* retail bworld: AnimScript between Sched_tSchedule and Transformer_zUV */
+#include NFS4_COLOR_HOOK_AFTER_SCHED
+#endif
+#include "shared/Transformer_z.h"   /* retail order: Transformer_* after the scheduler types, then GameSetup (most frequent retail position) */
 
 #include "gamesetup_leaf_types.h"
 
@@ -133,13 +133,13 @@ typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
 } Udff_tAccessType;
-/* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */
+#ifdef NFS4_COLOR_OMIT_UDFF_HANDLE   /* retail cars.obj: Udff_tInfo complete, C-style typedef (two TPDEF), right after Udff_tAccessType; Udff_tHandle at the tail (cars_types.h) */
+typedef struct Udff_tInfo { Udff_tAccessType type; int handle; char *memPtr; } Udff_tInfo;   /* = shared/Udff_tInfo.h */
+#else   /* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */
 struct Udff_tInfo;
-#ifndef NFS4_COLOR_OMIT_UDFF_HANDLE
 typedef Udff_tInfo *Udff_tHandle;
 #endif
 #endif
-
 typedef struct AIPerson_t {
     int blockMaxDistance, blockMinDistance, oncomingLookAhead;
     int laneSwerve[4];

@@ -1,5 +1,4 @@
-/* bworld.obj's exact source-visible type surface reconstructed from SYM. */
-#if !defined(NFS4_GAME_COMMON_BWORLD_TYPES_H)   /* first pass */
+#if !defined(NFS4_GAME_COMMON_BWORLD_TYPES_H)   /* first pass; bworld.obj's exact source-visible type surface reconstructed from SYM */
 #define NFS4_GAME_COMMON_BWORLD_TYPES_H
 #define NFS4_COLOR_HOOK_AFTER_BO "bworld_types.h"   /* retail: BW_tContext, BW_tContextMgr, tBuildEntry right after the BO types (second pass below) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
@@ -10,6 +9,7 @@
 #define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */
 /* DrawW.obj supplies the shared graph; its owner-only records are omitted here. */
 #define NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
+#define NFS4_COLOR_HOOK_AFTER_SCHED "shared/AnimScript.h"   /* retail: AnimScript right after Sched_tSchedule (color_types.h) */
 #include "../psx/draww_types.h"
 #undef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 #endif
@@ -21,10 +21,10 @@ struct BW_tContextMgr {
     BW_tContext contexts[2];
 };
 struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
-typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-} AnimScript;
+
+
+
+
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_BWORLD_TAIL_DONE)   /* first pass, after draww_types.h */
 #define NFS4_BWORLD_TAIL_DONE

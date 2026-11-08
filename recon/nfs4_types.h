@@ -241,7 +241,7 @@ typedef struct shapetbl SHAPE;
 #include "shared/coorddef.h"
 typedef struct coorddef LIBCOORD;
 #define NFS4_HAVE_LIBCOORD
-#ifdef NFS4_CORE_FULL
+#if defined(NFS4_CORE_FULL) || defined(NFS4_CORE_MATRIXT)   /* NFS4_CORE_MATRIXT: retail MathNfs/quatern: matrixtdef right after coorddef */
 #include "shared/matrixtdef.h"
 typedef struct matrixtdef MATRIX3DT;
 #define NFS4_HAVE_MATRIX3DT

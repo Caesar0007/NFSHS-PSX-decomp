@@ -157,37 +157,17 @@ enum tCarModels {
     cm_TourBus = 47, cm_LoggingTruck = 48, cm_TransitBus = 49,
     cm_NumCarModels = 50
 };
-#ifndef NFS4_AUDIOCMN_CAR_ORDER   /* nfs3.obj: tCarNameLength after tOwnedCarInfo, tPersonalities after tCarManager (its hooks below) */
-enum tCarNameLength {
-    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
-};
-
-enum tPersonalities {
-    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
-    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
-    kPersonalityMenace = 4, kPersonalityCop1 = 5,
-    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
-    kPersonalityTraffic = 8, kPersonalityNUM = 9
-};
-#endif
 #include "shared/tCarInfo.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/tOwnedCarInfo.h"
 #ifdef NFS4_AUDIOCMN_CAR_ORDER
 #define NFS4_AUDIOCMN_IN_CAR 1
 #include NFS4_AUDIOCMN_CAR_ORDER
 #undef NFS4_AUDIOCMN_IN_CAR
+#else   /* retail (every object): tCarNameLength right after tOwnedCarInfo, tPersonalities right after tCarManager */
+enum tCarNameLength {
+    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
+};
 #endif
-
 typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;
@@ -206,7 +186,27 @@ typedef struct tCarManager {
 #define NFS4_AUDIOCMN_IN_CAR 2
 #include NFS4_AUDIOCMN_CAR_ORDER
 #undef NFS4_AUDIOCMN_IN_CAR
+#else
+enum tPersonalities {
+    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
+    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
+    kPersonalityMenace = 4, kPersonalityCop1 = 5,
+    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
+    kPersonalityTraffic = 8, kPersonalityNUM = 9
+};
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/tfrontEnd.h"
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail audiocmn: CopSpeak_tRequest right after tfrontEnd */

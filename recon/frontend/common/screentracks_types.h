@@ -30,19 +30,19 @@ typedef enum VIDEOSTATE {
     VIDEOSTATE_READY = 2,
     VIDEOSTATE_PLAYING = 3
 } VIDEOSTATE;
-struct tVideoWall {
-    tTVConfig *fTVs;
-    short fFirstTVShape, fNumTVs;
-    tTexture_ShapeInfo *fTVShapes;
-    short *tvOrder;
-    u_long fTVTicks;
-    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY;
-    short fAvailableTextID, fAvailable, fAvailableBright, fValid;
-    short fAvailableX, fAvailableY;
-    tTexture_ShapeInfo *fIconShapes;
-    short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated; inline short GetTransitionDirection() { return fTransitionDirection; } void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void SetAvailableText(short, short, short); void SetAvailableIcon(short, short, short, short, tTexture_ShapeInfo *); void SetAvailable(short); void UpdateTransition(); void Draw(); void TurnOff(); void TurnOffInstant(); void TurnOn();
-};
+#include "screentracks_videowall.h"   /* emitted earlier via screentracks_early.h (retail order) */
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "screentracks.h"
 

@@ -6,3 +6,5 @@
 #include "shared/tAcademyDefinition.h"
 #include "shared/tTVState.h"
 #include "shared/tTVConfig.h"
+#include "screentracks_videowall.h"   /* retail: tVideoWall, tScreenTrackSelect right after tTVConfig */
+#include "screentracks.h"

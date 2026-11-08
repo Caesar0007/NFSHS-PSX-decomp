@@ -147,7 +147,7 @@ struct Speech {
 #if !defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)   /* retail aih_cop.obj records none of the four Car_tObj-param bodies (per-TU exclusion) */
         inline void InferredCarOp1(Car_tObj *car) { } inline void InferredCarOp2(Car_tObj *car) { } inline void InferredCarOp3(Car_tObj *car) { } inline void InferredCarOp4(Car_tObj *car) { }
 #endif
-        inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } inline void InferredOp6() { }
+        inline void InferredLocationOp(LocationBank *location) { } inline void InferredCallSignOp(CallSignBank *callsign) { } inline void InferredLocationCarOp(LocationBank *location, CarBank *car) { } inline void InferredOp1() { } inline void InferredOp2() { } inline void InferredOp3() { } inline void InferredOp4() { } inline void InferredOp5() { } void InferredOp6(); void InferredBankCarOp(CarBank *carBank, LocationBank *location, CallSignBank *callSign, Car_tObj *car, Car_tObj *target);   /* inline, defined below the class (non-AI view only) */
 #endif
         /* The retail class declared these operations virtual.  The reconstructed layout keeps the recovered PsyQ vtable explicit, so these zero-local bridges preserve ordinary source-level virtual call sites without inventing receiver/vtable temporaries in their callers. */
     };
@@ -307,11 +307,11 @@ struct Speech {
     Speech();
     ~Speech();
 };
-
-
-
-
-
+#if !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H) && !defined(NFS4_SPEECH_AI_VIEW)   /* INFERRED body: retail cars/copspeak/nfs3.obj run "Speaker CarBank LocationBank CallSignBank Car_tObj Car_tObj" before the bank bodies (AI objects keep their current exact Car_tObj count) */
+inline void Speech::Speaker::InferredBankCarOp(CarBank *carBank, LocationBank *location, CallSignBank *callSign, Car_tObj *car, Car_tObj *target) { }
+#elif !defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* AI view: the sixth this-only body stands in for it (retail AI objects: Car_tObj exact without the pair) */
+inline void Speech::Speaker::InferredOp6() { }
+#endif
 
 
 

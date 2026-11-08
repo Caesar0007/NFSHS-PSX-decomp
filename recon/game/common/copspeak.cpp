@@ -859,8 +859,8 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
 }
 
 /* ---- CopSpeak_Skip__Fv  [COPSPEAK.CPP:1028-1042] COVERED-SLD-PASS ---- */
-
-
+#include "../../link_stripped.h"
+void CopSpeak_InferredCarOp(Car_tObj *car) LINK_STRIPPED; void CopSpeak_InferredCarOp(Car_tObj *car) { }   /* INFERRED body: retail copspeak.obj Car_tObj record between CopSpeak_StartUp and CopSpeak_Request, COPSPEAK.CPP 975-1027 gap (no retail function: link-stripped); name inferred */
 #line 1027 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Skip(void)
 {

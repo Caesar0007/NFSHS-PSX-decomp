@@ -4,6 +4,7 @@
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIH_TRAF_OWNER   /* aihigh.h: AIHigh_Traffic inline copies LINK_STRIPPED */
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
+#define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
 #include "aih_hierarchy_types.h"
 #include "../../link_stripped.h"
 #define NFS4_AIHIGH_TYPE_PART 1

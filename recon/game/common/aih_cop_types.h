@@ -4,10 +4,11 @@
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
-#include "aih_hierarchy_types.h"
-#include "shared/BW_tContext.h"
+#define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
 #define NFS4_AIH_COP_OWNER   /* aihigh.h: AIHigh_Cop inline copies LINK_STRIPPED */
 #include "../../link_stripped.h"
+#include "aih_hierarchy_types.h"
+#include "shared/BW_tContext.h"
 
 
 

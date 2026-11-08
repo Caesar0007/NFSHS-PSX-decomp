@@ -1,18 +1,18 @@
 /* video.obj-owned records layered on the reduced frontend/PSX platform set. */
 #ifndef NFS4_FRONTEND_PSX_VIDEO_TYPES_H
 #define NFS4_FRONTEND_PSX_VIDEO_TYPES_H
-
+#define NFS4_CORE_HOOK_BEFORE_CD "frontend/psx/video_before_cd.h"   /* retail video.obj: windowtbl before the CD stream */
 #include "nfs4_types.h"
 
-struct windowtbl {
-    long   id;
-    int    x, y, width, height;
-    u_char bpp, type, ram, unused;
-    int    minx, miny, maxx, maxy;
-    struct shapetbl *shape;
-    DISPENV dispenv;
-    DRAWENV drawenv;
-};
+/* struct windowtbl: frontend/psx/video_before_cd.h (included by nfs4_types.h before the CD stream) */
+
+
+
+
+
+
+
+
 typedef struct windowtbl WINDOW;
 
 #include "shared/SNDSYSCAP.h"

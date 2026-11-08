@@ -247,6 +247,9 @@ typedef struct matrixtdef MATRIX3DT;
 #define NFS4_HAVE_MATRIX3DT
 #endif
 #endif
+#ifdef NFS4_CORE_HOOK_BEFORE_CD   /* owner types between SHAPE and the CD stream (retail font.obj: coorddef matrixtdef; video.obj: windowtbl) */
+#include NFS4_CORE_HOOK_BEFORE_CD
+#endif
 
 /* NFS4_EAC_OLD_TYPES: the older EA/PsyQ header revision seen by the FRONTEND\PSX library objects (cache.obj):
  * no CD-stream block, no wchar_t / file / thread typedefs, MEMBLOCK before VOIDFN (retail cache.obj SYM block). */

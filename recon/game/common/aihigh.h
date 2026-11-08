@@ -79,7 +79,28 @@ NFS4_AIHIGH_PLAYER_TD struct AIHigh_Player : public AIHigh_BasicPerp {
     inline int LastPullOverTime() { return lastPullOverTime_; } inline int NewTriggerProb() { return newTriggerProb_; }
     int ExchangeLastTriggerCheckSlice(int newSlice); /* inferred exchange name; supplied inline newSlice/temp records */
 } NFS4_AIHIGH_PLAYER_NAME;
+/* Retail's synthesized Human destructor also identifies AIHIGH.H. */
+struct AIHigh_Human : public AIHigh_Player {
+    AIHigh_Human(Car_tObj *carObj);
+    void HighExecute();
+#line 219 "C:/nfs4/GAME/COMMON/AIHIGH.H"
+};
+
 #include "shared/AIHigh_tAttackMode.h"
+/* Retail's synthesized Opponent destructor identifies AIHIGH.H. Keep the
+   actual class here, shared by its implementation and placement-new caller;
+   no explicit destructor body is added. */
+struct AIHigh_Opponent : public AIHigh_Player {
+    AIHigh_tAttackMode attackMode_;
+    Car_tObj *lastHumanHitter_;
+    int hitCount_, attackTicksLeft_;
+    AIHigh_Opponent(Car_tObj *carObj);
+    void CheckForWipeOut();
+    int DoRearEnder();
+    void HighExecute();
+    int DoProvokedAttack();
+#line 242 "C:/nfs4/GAME/COMMON/AIHIGH.H"
+};
 struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
@@ -110,38 +131,12 @@ struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
 #line 281 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
-/* Retail's synthesized Human destructor also identifies AIHIGH.H. */
-struct AIHigh_Human : public AIHigh_Player {
-    AIHigh_Human(Car_tObj *carObj);
-    void HighExecute();
-#line 219 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
-
-/* Retail's synthesized Opponent destructor identifies AIHIGH.H. Keep the
-   actual class here, shared by its implementation and placement-new caller;
-   no explicit destructor body is added. */
-struct AIHigh_Opponent : public AIHigh_Player {
-    AIHigh_tAttackMode attackMode_;
-    Car_tObj *lastHumanHitter_;
-    int hitCount_, attackTicksLeft_;
-    AIHigh_Opponent(Car_tObj *carObj);
-    void CheckForWipeOut();
-    int DoRearEnder();
-    void HighExecute();
-    int DoProvokedAttack();
-#line 242 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-};
 #ifndef NFS4_AIHIGH_BLOCKADE_HEAD   /* Cop definitions: retail destructor records also identify AIHIGH.H; method bodies and data-type dependencies are unchanged. */
 #define NFS4_AIHIGH_BLOCKADE_HEAD "shared/blockadeMode_t.h"   /* aih_btcperp.obj: its AIHigh_BTC_AIPerp first (aih_btcperp_types.h) */
 #endif
 #include NFS4_AIHIGH_BLOCKADE_HEAD
 #include "shared/blockade_t.h"
 #include "shared/AIHigh_tDriveAwayMode.h"
-
-
-
-
-
 typedef struct AIHigh_BasicCop : public AIHigh_Base {
     copType type_;
     int copIndex_;
@@ -162,6 +157,11 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
     inline copType Type() { return type_; }
 #line 414 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 } AIHigh_BasicCop;
+#ifdef NFS4_AIHIGH_COP_AFTER_BASICCOP   /* retail AIHIGH.H order BasicCop(414) Cop(448) BTC_Cop(471): owners that record AIHigh_Cop */
+#define NFS4_AIHIGH_TYPE_PART 1
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
+#endif
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* retail window "BTC_Cop BTC_Perp BTC_Cop" = plain def + the owner's PerpTarget body (aih_btccop_types.h) */
     AIHigh_BTC_Perp *perpTarget_; inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }

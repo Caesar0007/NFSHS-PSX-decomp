@@ -6,6 +6,7 @@
 #define NFS4_AISTATE_NONE_KEEP   /* key: keep AIState_None bodies (Car_tObj count) */
 #define NFS4_AIH_BASICPERP_INLINE_SCOPE
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
+#define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
 #include "aih_hierarchy_types.h"
 #undef NFS4_AIH_BASICPERP_INLINE_SCOPE
 

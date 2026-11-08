@@ -3,7 +3,7 @@
  * unrelated game declarations into FONT.CPP's full-debug stream. */
 #ifndef NFS4_GAME_PSX_FONT_OBJ_TYPES_H
 #define NFS4_GAME_PSX_FONT_OBJ_TYPES_H
-
+#define NFS4_CORE_HOOK_BEFORE_CD "game/psx/font_before_cd.h"   /* retail font.obj: coorddef, matrixtdef before the CD stream */
 #include "shared/kernpair.h"
 
 

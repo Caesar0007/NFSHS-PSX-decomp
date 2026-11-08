@@ -24,13 +24,13 @@
 
 
 
-typedef enum crimeType {
+enum crimeType {
     CRIME_NONE = 0,
     CRIME_SPEEDER = 1,
     CRIME_WRONGSIDE = 2,
     CRIME_BUMPCOP = 3,
     CRIME_SMASHCOP = 4
-} crimeType;
+};
 
 #include "shared/AICop_spikeBelt_t.h"
 

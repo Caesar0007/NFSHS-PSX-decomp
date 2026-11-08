@@ -6,7 +6,7 @@
 #ifdef NFS4_CRIMETYPE_PLAIN_ENUM   /* aidebug.obj: plain C++ enum; its TPDEF is the field re-emission */
 enum crimeType {
 #else
-typedef enum crimeType {
+enum crimeType {
 #endif
     CRIME_NONE = 0,
     CRIME_SPEEDER = 1,
@@ -16,6 +16,6 @@ typedef enum crimeType {
 #ifdef NFS4_CRIMETYPE_PLAIN_ENUM
 };
 #else
-} crimeType;
+};
 #endif
 #endif

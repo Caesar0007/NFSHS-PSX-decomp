@@ -142,7 +142,7 @@ enum triggerType {
     TRIGGER_TRAFFIC_PATH = 5,
     TRIGGER_NUM_TRIGGER_TYPES = 6
 };
-struct AITrigger_TriggerManager {
+typedef struct AITrigger_TriggerManager {
     int numTriggers_, invNumTriggers_;
     int InvNumTriggers(); /* inferred inverse-count getter, retail records the receiver */
     trigger_t *triggers_[100];
@@ -157,5 +157,5 @@ struct AITrigger_TriggerManager {
     int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
     void DescribeTrigger(trigger_t *trigger);
     void Sort();
-};
+} AITrigger_TriggerManager;
 #endif

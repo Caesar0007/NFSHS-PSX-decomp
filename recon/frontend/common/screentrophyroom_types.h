@@ -62,4 +62,5 @@ enum tMenuCommandType {
 #define NFS4_FE_CORE_FELINES_LATE
 #define NFS4_FE_CORE_CARS_LATE
 #include "fe_core_types.h"
+#include "screendisplay_menuitems.h"   /* retail: the three menu items right after tMenuItemInteractive */
 #endif

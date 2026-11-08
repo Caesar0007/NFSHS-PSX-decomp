@@ -38,11 +38,17 @@ struct tMenuNFS4 : public tMenu {
 };
 #endif
 
+#ifndef NFS4_PSXFRONT_SCREEN_LATE   /* PSXFront: tShapeInformation + tScreen after Car_tObj (psxfront_screen_late.h) */
 #include "shared/tShapeInformation.h"
+#endif
 #include "fescreen_virtual_types.h"
 struct tMenu;
+#ifndef NFS4_PSXFRONT_SCREEN_LATE
 #include "fescreen.h"
+#endif
+#ifndef NFS4_PSXFRONT_SCREEN_LATE
 #include "shared/tActiveLine.h"
+#endif
 #include "shared/tDrawShapeExtended.h"
 #ifdef NFS4_FE_CORE_CARS_LATE
 #include "fe_core_cars.h"

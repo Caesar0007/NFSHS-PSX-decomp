@@ -1,4 +1,6 @@
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
+#define NFS4_PSXFRONT_SCREEN_LATE   /* retail PSXFront: tShapeInformation right after Car_tObj (FRONTORD3 late-tScreen lever) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/psx/psxfront_screen_late.h"
 #define NFS4_FE_LIST_NO_INDEXED   /* retail psxfront object: tListIterator + Range only */
 /* frontend/psx/psxfront.h - reconstructed declarations for PSXFRONT.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_PSXFRONT_H_

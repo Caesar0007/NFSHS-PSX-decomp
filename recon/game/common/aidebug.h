@@ -35,7 +35,7 @@
 #include "shared/Sched_tSchedule.h"
 #define NFS4_AIDEBUG_AI_GRAPH_ONLY   /* aih_hierarchy_types.h (included below for the AI class graph): skip BrakeInfo/ModelConfig */
 typedef int CarLogic_tObservations[1][3];   /* formerly via aidelaycar_types.h; retail aidebug.obj records it */
-
+#include "shared/fontblit_typedefs.h"   /* retail aidebug.obj: fontblit/getcode/fontblitbegin/fontblitend/adjustchar after CarLogic_tObservations */
 
 
 
@@ -63,7 +63,7 @@ typedef int CarLogic_tObservations[1][3];   /* formerly via aidelaycar_types.h; 
 #include "shared/AIHigh_tAttackMode.h"
 #include "shared/blockadeMode_t.h"
 #include "shared/AIHigh_tDriveAwayMode.h"
-#include "shared/kernpair.h"
+#include "frontend/common/felines_kern.h"   /* kernpair + the KERN typedef (retail aidebug.obj records both) */
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"

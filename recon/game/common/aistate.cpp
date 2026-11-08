@@ -1691,7 +1691,7 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 
 
-
+AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj, trigger_pathPosition_t *path) : AIState_Base(carObj) { }   /* INFERRED body: retail aistate.obj run (ctor shape) "RT RT RT Car_tObj trigger_pathPosition_t" between the RovingTraffic ctor and CheckIfCarIsNearbyAndStop; no retail function (link-stripped) */
 /* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [retail AISTATE.CPP:1130-1169; native/byte verified, SLD attribution open] ---- */
 
 #line 1126 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
@@ -2281,17 +2281,17 @@ void AIState_Cruise::Execute()
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
 #line 258 "C:/nfs4/GAME/COMMON/AISTATE.H"
-AIState_Cruise::~AIState_Cruise()
 
 
 
-{
 
 
 
-  return;
 
-}
+
+
+
+
 
 
 
@@ -2304,17 +2304,17 @@ AIState_Cruise::~AIState_Cruise()
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
 #line 234 "C:/nfs4/GAME/COMMON/AISTATE.H"
-AIState_GotoSlice::~AIState_GotoSlice()
 
 
 
-{
 
 
 
-  return;
 
-}
+
+
+
+
 
 
 
@@ -2326,11 +2326,11 @@ AIState_GotoSlice::~AIState_GotoSlice()
 /* ---- TestForRelease__21AIState_RovingTraffic  AIState_RovingTraffic::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 
 #line 206 "C:/nfs4/GAME/COMMON/AISTATE.H"
-int AIState_RovingTraffic::TestForRelease()
 
 
 
-{ return this->pathIndex_ < this->numPathPoints_ ^ 1; }
+
+
 
 
 
@@ -2347,14 +2347,14 @@ int AIState_RovingTraffic::TestForRelease()
    An ordinary member destructor exposes the real source cleanup and lets GCC
    provide its implicit receiver/in-charge handling. */
 #line 200 "C:/nfs4/GAME/COMMON/AISTATE.H"
-AIState_RovingTraffic::~AIState_RovingTraffic()
 
 
 
-{ (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
-      (this->carObj_)->targetPos.z = 0;
-  this->carObj_->targetLatPos = 0;
-  this->carObj_->carFlags &= 0xfffff7ff; return; }
+
+
+
+
+
 
 
 

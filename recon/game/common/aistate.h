@@ -141,7 +141,7 @@ struct AIState_RovingTraffic : public AIState_Base {
     long waitTick_;
     AIState_RovingTraffic(Car_tObj *, trigger_t *);
     ~AIState_RovingTraffic();
-    void CheckIfCarIsNearbyAndStop(Car_tObj *, int &); void InferredPathOp(Car_tObj *carObj, trigger_pathPosition_t *path) LINK_STRIPPED;   /* inferred inline body (aistate.obj only) */
+    void CheckIfCarIsNearbyAndStop(Car_tObj *, int &); AIState_RovingTraffic(Car_tObj *carObj, trigger_pathPosition_t *path) LINK_STRIPPED;   /* inferred second ctor (aistate.cpp), link-stripped */
     void Execute();
     int TestForRelease();
 };
@@ -181,7 +181,7 @@ inline void AIState_Offroad::MarkLetGo() { letGo_ = 1; }
  * name/signature and this reconstruction include boundary are inferred. */
 #ifdef NFS4_GAME_COMMON_AISTATE_TYPES_H
 extern Sim_tSimGlobalVar simGlobal;
-inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; } inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {} inline void AIState_RovingTraffic::InferredPathOp(Car_tObj *carObj, trigger_pathPosition_t *path) { }   /* INFERRED body: retail aistate.obj Idle run "Idle Car_tObj Idle" and RovingTraffic run "RT RT RT Car_tObj trigger_pathPosition_t" (key TU: link-stripped copies) */
+inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; } inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}   /* INFERRED body: retail aistate.obj Idle run "Idle Car_tObj Idle" (key TU: link-stripped copy) */ inline AIState_RovingTraffic::~AIState_RovingTraffic() { (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y = (this->carObj_)->targetPos.z = 0; this->carObj_->targetLatPos = 0; this->carObj_->carFlags &= 0xfffff7ff; return; } inline int AIState_RovingTraffic::TestForRelease() { return this->pathIndex_ < this->numPathPoints_ ^ 1; } inline AIState_GotoSlice::~AIState_GotoSlice() { return; } inline AIState_Cruise::~AIState_Cruise() { return; }   /* retail AISTATE.H 200/206/234/258 inline bodies: NO_SLD deferred copies in the key TU (emitted in reverse definition order) */
 #endif
 
 #if defined(NFS4_AISTATE_CHASE_COP_INLINES) || defined(NFS4_GAME_COMMON_AIH_OPP_TYPES_H) || defined(NFS4_GAME_COMMON_AISTATE_TYPES_H)   /* retail AIH_Cop.obj HighExecute: six inlined AIState_Chase members (this REG records, SLD 266..343); INFERRED body: retail aih_opp.obj / aistate.obj AIState_Chase TPDEF run evidence (7 / 36: class + the six bodies) */

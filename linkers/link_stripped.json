@@ -626,7 +626,7 @@
   },
   {
    "object": "build/recon/game/common/aistate.cpp.o",
-   "function": "InferredPathOp__21AIState_RovingTrafficP8Car_tObjP22trigger_pathPosition_t",
+   "function": "__21AIState_RovingTrafficP8Car_tObjP22trigger_pathPosition_t",
    "source": "recon/game/common/aistate.h",
    "evidence": "INFERRED body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail aistate.obj TPDEF runs (Idle 'Idle Car_tObj Idle', RovingTraffic 'RT RT RT Car_tObj trigger_pathPosition_t', Donuts 'Donuts Donuts Car_tObj Donuts' before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap); no retail function of these names (absent from the retail MAP/SYM). aistate.cpp owns the class key functions, so g++ 2.8 emits the copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
   },

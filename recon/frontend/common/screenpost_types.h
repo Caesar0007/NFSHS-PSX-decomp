@@ -10,6 +10,9 @@
 #define NFS4_DRAW_LEAF_CORE_ONLY
 #include "../../game/common/draw_leaf_types.h"
 #include "fe_player_types.h"
+#define NFS4_FE_INPUT_NO_PLAYER   /* retail ScreenPost: tPlayer, tInputKeyType, then tMenuCommandType */
+#include "fe_input_enums.h"
+#undef NFS4_FE_INPUT_NO_PLAYER
 struct tMenu;
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {

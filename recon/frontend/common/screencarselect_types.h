@@ -64,18 +64,6 @@ enum tCarStatType {
     cst_Handling = 3,
     cst_Overall = 4
 };
-
-enum PinkSlipsCarSelectState {
-    NoCardInserted = 0,
-    CardFailed = 1,
-    CardFailedNotFound = 2,
-    CardFailedUnformatted = 3,
-    NotEnoughCars = 4,
-    TooManyCars = 5,
-    CardLoadedFine = 6,
-    WhoCaresWeBeExiting = 7,
-    CardCurrentlyLoading = 8
-};
 #endif
 
 struct tVideoWall {
@@ -202,6 +190,18 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
 #line 199 "recon/frontend/common/screencarselect_types.h"
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
+enum PinkSlipsCarSelectState {
+    NoCardInserted = 0,
+    CardFailed = 1,
+    CardFailedNotFound = 2,
+    CardFailedUnformatted = 3,
+    NotEnoughCars = 4,
+    TooManyCars = 5,
+    CardLoadedFine = 6,
+    WhoCaresWeBeExiting = 7,
+    CardCurrentlyLoading = 8
+};
+
 struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);

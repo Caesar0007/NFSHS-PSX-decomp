@@ -1747,7 +1747,7 @@ void Collide_ClearCollisionRegistry(void)
     }
   }
 
-  { carLoop = 0; while (carLoop < Cars_gNumCars) { int unused;
+  { carLoop = 0; while (carLoop < Cars_gNumCars) { Car_tObj *carObj; /* DEVICE (exact-only): record-less block local (was `int unused`); retail collide.obj requests Car_tObj (+ its field walk) right after relVec/rightVec, i.e. from a Car_tObj* local of this loop body */
 
 
 

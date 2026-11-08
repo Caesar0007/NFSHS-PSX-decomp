@@ -64,7 +64,7 @@ typedef struct AIDataRecord_t {
     virtual void Setup();
 } AIDataRecord_t;
 
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; void Setup(); };   /* real non-inline virtual override (aidatarecord_types.h): g++ 2.8 dfs_debug_mark then skips it in the Car_tObj field walk, as retail */
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
 #include "shared/AISpeeds_tLeaderBoard.h"

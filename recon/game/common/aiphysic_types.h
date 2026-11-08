@@ -49,7 +49,7 @@ typedef struct AIDataRecord_t {
 } AIDataRecord_t;
 struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
-    int Get(int i);
+    int Get(int i); void Setup();   /* real non-inline virtual override: skipped by the Car_tObj field walk (retail) */
 };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 

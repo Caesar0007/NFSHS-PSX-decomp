@@ -61,7 +61,7 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
 
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+/* (Tournament_Money removed: tTournamentManager::GetMoney() in-class body, INV-B I3) */
 
 /* ORIGINAL-NAME-UNRESOLVED: inferred definition/count field accessors for
    the two receiver-free retail pairs at the opening standings phase. */

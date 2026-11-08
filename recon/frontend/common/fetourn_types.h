@@ -98,7 +98,7 @@ typedef struct tTournamentManager {
     void SaveTournament(tSaveTournament &save);
     void LoadTournament(tSaveTournament &load);
     short GetNumCompetitors();
-    tTourneyInfo *CurrentTourney();
+    /* (CurrentTourney(): in-class body in shared/tTournamentManager_inl.h, INV-B I6) */
     void UpdateCarLineup();
     long GetTrackFinishPrize(short position);
     long GetTournamentFinishPrize(short position);

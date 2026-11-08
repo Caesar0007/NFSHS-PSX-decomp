@@ -533,7 +533,7 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
            retail reuses `v1` for the trailing `lbu 132(v1)` fPosition read; four separate
            `dummyCars[k].` spellings let gcc rematerialize the *160 index chain after the
            if/else join (6 extra insns). */
-  /* SOURCE-REVIEW-UNRESOLVED: comp is unused, but currently emits the fourth
+  /* (INV-B I6: unused `comp` removed -- the class field block now supplies this record.) HISTORY: comp emitted the fourth
      supplied tCompetitor typedef copy. Deleting it, even with a completed
      shared definition, loses a supplied ordered-alias sequence. This does NOT
      prove an original named object: recover the actual late type producer.
@@ -553,7 +553,7 @@ void tTournamentManager::UpdateTrackFinishPoints()
   int i;
   short k;
   Car_tStats *dummyCars;
-  short numCompetitors; int stats; tCompetitor *comp; bool knockout; numCompetitors = this->GetNumCompetitors();
+  short numCompetitors; int stats; bool knockout; numCompetitors = this->GetNumCompetitors();
 
 
 

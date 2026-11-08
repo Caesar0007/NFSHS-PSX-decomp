@@ -5,7 +5,7 @@
  * listed here: the two tTourneyInfo accessors and five builtin-field accessors.  A member is skipped where the
  * struct copy already defines or declares it.  Gap vs retail: the tTierInfo, tCarLineup and tCompetitor bodies and
  * four more builtin-only bodies (no source evidence for their names or bodies). */
-#if !defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)   /* measured: bodies over-emit field types here (FETourn: tCompetitor; trophy*: their non-retail Definition() + field block = tTournamentDefinition x2; Front: its own code already records the extra tTourneyInfo) */
+#if 1   /* every frontend TU incl. FETourn (INV-B I6; retail FETourn.obj opens with the same 16-TPDEF class-body run) */
     /* EVIDENCE: retail ScreenTrophyInfo/ScreenTrophyRoom (DrawBackground x2, GetShapeInfo, Initialize) record an inline-call block
        pair at every fDefinition read; retail's FIRST tTournamentManager body: its this + tTournamentDefinition* records merge into
        the field block (no separate TM+tTournamentDefinition body record, merge law).  Descriptive name (inlined everywhere). */
@@ -13,7 +13,7 @@
 #ifndef NFS4_TSCREENCONGRATS_OWNER   /* retail order: a builtin-only body first (it emits the field block on its own), then the tTourneyInfo bodies */
     int NumRacers() { return fNumRacers; }
 #endif
-#if !defined(NFS4_TSCREENCONGRATS_OWNER) && !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H)
+#if !defined(NFS4_TSCREENCONGRATS_OWNER) && !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)
     tTourneyInfo *CurrentTourney() {
         return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
     }
@@ -26,7 +26,11 @@
 #endif
 #endif
     /* INFERRED body (TM+tTierInfo) (user ruling 2026-11-08): retail frontend objects (e.g. FECars.obj, ScreenCarSelect.obj) record the 16-TPDEF tTournamentManager run TM TM [fields] TM, TM+tTourneyInfo x2, TM+tTierInfo, TM x3, TM+tCarLineup, TM+tCompetitor, TM x5; never called (no code) */
+#ifdef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H   /* FETourn: its out-of-line members already record this type (measured +1) -> builtin-only variant */
+    int CurrentTierInfo() { return fTier; }
+#else
     tTierInfo *CurrentTierInfo() { return &fDefinition->fTiers[fTier]; }
+#endif
 #ifndef NFS4_FEMENUDEFS_SURFACE
     long GetMoney() { return fMoney; }
 #if !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)
@@ -42,7 +46,11 @@
        Inlined everywhere (no VA, no Ghidra function): descriptive name. */
     tCarLineup *GetCarLineup() { return fCarLineup; }
     /* INFERRED body (TM+tCompetitor): see CurrentTierInfo() */
+#ifdef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H   /* FETourn: its out-of-line members already record this type (measured +1) -> builtin-only variant */
+    int CompetitorAt(int i) { return fNumRacers - i; }   /* no tCompetitor member access (measured: fCompetitors[i].fPoints re-requests tCompetitor) */
+#else
     tCompetitor *CompetitorAt(int i) { return &fCompetitors[i]; }
+#endif
 #ifndef NFS4_TSCREENCONGRATS_OWNER
     int PreviousPlacement() { return (signed char)fPrevBestPlacement; }
 #endif

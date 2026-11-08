@@ -88,7 +88,7 @@ void tScreenTournamentStandings::Initialize()
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
-    this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
+    this->moneyFinal = tournamentManager.GetMoney() - tInfo.fTournMoney;
     if (tInfo.fCompletedGarageFull != 0) {
       this->moneyFinal -= tInfo.fCompletedBonusMoney;
     } this->moneyAwarded = tInfo.fMoney;
@@ -105,7 +105,7 @@ void tScreenTournamentStandings::Initialize()
     this->fCountSpeed = (this->moneyDamage >? (this->moneyBonus >? tInfo.fMoney)) / 0x18;
   }
 
-  else { this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
+  else { this->moneyFinal = tournamentManager.GetMoney() - tInfo.fTournMoney;
   }
   this->starttick = FE_Ticks(); return;
 }

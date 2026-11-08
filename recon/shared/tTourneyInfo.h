@@ -3,7 +3,7 @@
 #ifndef NFS4_SHARED_TTOURNEYINFO_H
 #define NFS4_SHARED_TTOURNEYINFO_H
 
-#if defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H) || (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE))   /* first tTourneyInfo body merges with the field block here: the typedef form supplies that record */
+#if (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE))   /* first tTourneyInfo body merges with the field block here: the typedef form supplies that record */
 typedef struct tTourneyInfo {
 #else
 struct tTourneyInfo {   /* retail: plain struct (one TPDEF at the definition; field block + 2 CurrentTourney bodies add the rest) */
@@ -20,7 +20,7 @@ struct tTourneyInfo {   /* retail: plain struct (one TPDEF at the definition; fi
     u_char fPersonalities[5], fOpponentCar[5], fOpponentUpgrades[5];
     u_char fActivatedTrackClass, fActivatedCheat, fNumLaps;
     u_char fReserved[14];
-#if defined(NFS4_FRONTEND_COMMON_FETOURN_TYPES_H) || (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE))
+#if (defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H) && !defined(NFS4_SCREENTRACKINFO_AUDIO_SURFACE))
 } tTourneyInfo;
 #else
 };

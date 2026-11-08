@@ -1,7 +1,7 @@
 /* game/common/nfs3.cpp -- RECONSTRUCTED (game boot / module start-up + main() entry; C TU, 11 fns) */
 #include "nfs3_types.h"
 #include "nfs3_externs.h"
-#include "../../lib/nfile.h"   /* FileMgr @0x8013EA88 == the `gFileDevice` symbol */
+extern int gFileDevice[10];   /* word view of the EA FileMgr @0x8013EA88 (+0x18 oparray, +0x1C handlearray); retail nfs3 records no FileMgr type */
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FF4): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
@@ -1015,7 +1015,7 @@ void NFS3_CheckForFileOperations(void)
 
 
 {
-  for (int *p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p++) {
+  for (int *p = (int *)gFileDevice[6]; p < (int *)gFileDevice[7]; p++) {
 
     if (*p != 0) {
 

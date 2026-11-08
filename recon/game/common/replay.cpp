@@ -345,23 +345,23 @@ tControllerData Replay_RetreivingControllerData(void)
 
 
 {
-  struct PackedBuf32 { char b[32]; };
+  /* 32-byte unpacked channel copy: inline builtin memcpy (no view type) */
   tControllerData controllerdata;
   char packeddata [33];
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr, (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  *(struct PackedBuf32 *)controllerdata.steering = *(struct PackedBuf32 *)Replay_Decompress(packeddata);
+  memcpy(controllerdata.steering,Replay_Decompress(packeddata),32);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  *(struct PackedBuf32 *)controllerdata.gas = *(struct PackedBuf32 *)Replay_Decompress(packeddata);
+  memcpy(controllerdata.gas,Replay_Decompress(packeddata),32);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  *(struct PackedBuf32 *)controllerdata.brake = *(struct PackedBuf32 *)Replay_Decompress(packeddata);
+  memcpy(controllerdata.brake,Replay_Decompress(packeddata),32);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  *(struct PackedBuf32 *)controllerdata.states = *(struct PackedBuf32 *)Replay_Decompress(packeddata);
+  memcpy(controllerdata.states,Replay_Decompress(packeddata),32);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
 
   return controllerdata;

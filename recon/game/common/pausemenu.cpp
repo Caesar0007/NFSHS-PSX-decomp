@@ -476,12 +476,12 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
 
   y = gPause_CurrentY;
   if ((selected != 0) && (GameSetup_gData[56] /* userSetting.language */ == 0))
-  { struct PMenuTag { u_int addr : 24; u_int len : 8; }; POLY_GT4 *prim;
+  { POLY_GT4 *prim;   /* OT link via the PsyQ addPrim macro (P_TAG: cast-only, no SYM record) */
 
-    prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1); Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
+    prim = (POLY_GT4 *)Render_gPacketPtr; addPrim(Render_gPalettePtr, prim); Render_gPacketPtr = (u_char *)(prim + 1); Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
                  textX - textpixels(TextSys_Word((int)text)) - 8, y + 5, 0xbebe);
 
-    prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1);
+    prim = (POLY_GT4 *)Render_gPacketPtr; addPrim(Render_gPalettePtr, prim); Render_gPacketPtr = (u_char *)(prim + 1);
     Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, textX + 4, y + 5, 0xbebe); } }
 
 

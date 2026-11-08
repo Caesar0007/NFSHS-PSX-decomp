@@ -66,7 +66,7 @@ typedef struct shapetbl shapetbl;
 #include "shared/coorddef.h"
 
 
-typedef struct coorddef coorddef;
+/* (no C re-typedef of coorddef: in C++ it records a 2nd TPDEF coorddef; retail font.obj has one) */
 typedef struct coorddef LIBCOORD;
 
 #include "shared/matrixtdef.h"

@@ -20,7 +20,8 @@
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_MENUITEMS "shared/tActiveLine.h"   /* retail: tActiveLine right after the menu items, before the core */
 #define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail: tTexture_ShapeInfo/kernpair right after Draw_CarVertex */
-#define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* tShapeInformation + tScreen after the leaf/felines (needs tTexture_ShapeInfo) */
+#define NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT   /* early tShapeInformation/fescreen sites skipped (retail: forward tScreen copy only) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/common/fe_screen_late.h"   /* retail FeMenuOptions: tShapeInformation + tScreen right after Car_tObj */
 #include "femenuoptions_externs.h"
 #endif
 #else

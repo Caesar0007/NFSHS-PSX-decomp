@@ -200,7 +200,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd);
 
 #line 111 "C:/nfs4/GAME/PSX/DRAWC.CPP"
 void ChangeTPage(u_short *tpage,int nabr)
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
 
   *tpage = *tpage & 0xff9f | (u_short)(nabr << 5);
 }
@@ -3320,7 +3320,7 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
 #line 2645 "C:/nfs4/GAME/PSX/DRAWC.CPP"
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
-{
+{ Draw_CarVertex *devLocal_Draw_CarVertex; /* DEVICE (exact-only): record-less unused local; retail requests Draw_CarVertex inside this function (locals-before-params law, GSDATA_state 7h) */
   int i;
   COORD16 *Nvertice;
   Nvertice = obj->Nvertex;

@@ -363,7 +363,7 @@ void DepthCue_Init(void);
 #line 233 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,Draw_SVertex *v3,
                Draw_tGiveShelbyMoreCache *sd)
-{
+{ Trk_AnimateInst *devLocal_Trk_AnimateInst; /* DEVICE (exact-only): record-less unused local; retail requests Trk_AnimateInst inside this function (locals-before-params law, GSDATA_state 7h) */
 
   ((u_char *)&prim->tag)[3] = 0xc;
   { long a,b,c,d;
@@ -3754,7 +3754,7 @@ void DrawW_DoObjectAnimations(void)
 
 #line 1908 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
-{
+{ Trk_SimObject *devLocal_Trk_SimObject; /* DEVICE (exact-only): record-less unused local; retail requests Trk_SimObject inside this function (locals-before-params law, GSDATA_state 7h) */
   Draw_DCache *sd = (Draw_DCache *)&Render_gPalettePtr;
   Trk_SimpleInst *objInstance;
   Trk_ObjectDef *objDef; int totalCount; Group *group; int groupNumElements; int offset; int doFrustumClip; int zClipSq; short *visList;

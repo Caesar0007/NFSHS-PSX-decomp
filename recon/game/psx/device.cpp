@@ -93,7 +93,7 @@ Input_tDeviceList Device_gDeviceList[5] = {
 int Device_VerifyType(int port)
 
 
-{
+{ tCarInfo *devLocal_tCarInfo; /* DEVICE (exact-only): record-less unused local; retail requests tCarInfo inside this function (locals-before-params law, GSDATA_state 7h) */
   if (gUseFrontend != 0) {
 
     if (gPadinfo.buf[port].nopad != '\0') {

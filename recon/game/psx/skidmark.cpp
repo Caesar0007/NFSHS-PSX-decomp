@@ -183,7 +183,7 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   Skidmark_Chunk *sm;
 
 
@@ -281,7 +281,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
                         CVECTOR *color,int tireWidth,int type,int slice)
 
 
-{
+{ coorddef *devLocal_coorddef; /* DEVICE (exact-only): record-less unused local; retail requests coorddef inside this function (locals-before-params law, GSDATA_state 7h) */
   Skidmark_Chunk *sm;
 
 

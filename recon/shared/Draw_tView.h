@@ -8,4 +8,7 @@ struct Draw_tView {
     DRAWENV drawenv[2];
     u_long *ot[2];
 };
+#ifdef NFS4_TU_DRAW   /* owner object: retail records the C-style `typedef struct Draw_tView {..} Draw_tView;` form (TPDEF twice) */
+typedef struct Draw_tView Draw_tView;
+#endif
 #endif

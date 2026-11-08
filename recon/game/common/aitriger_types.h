@@ -57,7 +57,7 @@ enum triggerType {
 
 
 
-struct AITrigger_TriggerManager {
+typedef struct AITrigger_TriggerManager {   /* C-style form: retail records TPDEF twice at the definition */
     int numTriggers_, invNumTriggers_;
     trigger_t *triggers_[100];
     int checkTime_[100];
@@ -78,7 +78,7 @@ struct AITrigger_TriggerManager {
     int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
     void DescribeTrigger(trigger_t *trigger);
     void Sort();
-};
+} AITrigger_TriggerManager;
 
 typedef int CarLogic_tObservations[1][3];
 

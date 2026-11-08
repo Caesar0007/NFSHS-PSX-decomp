@@ -4,4 +4,7 @@
 #define NFS4_SHARED_DRAW_FLARECACHE_H
 
 struct Draw_FlareCache { Draw_tCacheHeader head; };
+#ifdef NFS4_TU_FLARE   /* owner object: retail records the C-style `typedef struct Draw_FlareCache {..} Draw_FlareCache;` form (TPDEF twice) */
+typedef struct Draw_FlareCache Draw_FlareCache;
+#endif
 #endif

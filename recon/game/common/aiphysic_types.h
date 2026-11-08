@@ -58,7 +58,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"
 }
 
-typedef struct AIPhysic_BrakeInfo {
+struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
     int deceleration_;
 
@@ -86,8 +86,8 @@ typedef struct AIPhysic_BrakeInfo {
             SetBrakeDistance(brakeTableLoop << 0x10, brakeDistanceMeters);
         }
     }
-    inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */
-} AIPhysic_BrakeInfo;
+    inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */ /* + the 2 aispeeds_types.h bodies (retail 7 TPDEFs) */ int GetBrakeDistance(int speed) { int sIndex = speed / 0x10000; if (sIndex < 0) { sIndex = -sIndex; } if (!(sIndex < 0x80)) { sIndex = 0x80; } return (u_int)brakeTable_[sIndex] * 0x20000; } int GetNeededDistance(int futureSpeed,int currentSpeed) { return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed); }
+};
 
 #include "shared/AIPhysic_ModelConfig_t.h"   /* retail aiphysic.obj: ModelConfig, Config before Gear_t */
 #include "shared/AIPhysic_Config_t.h"

@@ -22,9 +22,9 @@
 
 
 
-typedef struct AIPhysic_BrakeInfo {
+struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
-    int deceleration_;
+    int deceleration_; /* + the 3 aiphysic_types.h bodies (retail 7 TPDEFs) */ inline void SetBrakeDistance(int speed, int distance) { int sIndex = speed / 0x10000; if (sIndex < 0) sIndex = -sIndex; if (!(sIndex < 0x80)) sIndex = 0x80; brakeTable_[sIndex] = (u_char)(distance / 0x20000); } AIPhysic_BrakeInfo(int deceleration) { int invDeceleration; deceleration_ = deceleration; invDeceleration = fixeddiv(0x10000, deceleration); for (int brakeTableLoop = 0; brakeTableLoop < 0x80; brakeTableLoop++) { int brakeDistanceMeters = fixedmult(fixedmult(brakeTableLoop << 0x10, invDeceleration), brakeTableLoop << 0x10) / 2; SetBrakeDistance(brakeTableLoop << 0x10, brakeDistanceMeters); } } inline int Deceleration() { return deceleration_; }
 
     /* SYM-INFERRED-INLINE-NAMES: PsyQ preserves the nested this/speed/sIndex
      * and currentSpeed/futureSpeed scopes, but not either unlinked method name.
@@ -47,7 +47,7 @@ typedef struct AIPhysic_BrakeInfo {
     {
         return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
     }
-} AIPhysic_BrakeInfo;
+};
 
 enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,

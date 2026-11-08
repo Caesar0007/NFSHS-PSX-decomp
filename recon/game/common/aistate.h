@@ -49,7 +49,7 @@ struct AIState_Normal : public AIState_Base {
 
 struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
-    AIState_Idle(Car_tObj *carObj);   /* inline, defined in aih_hierarchy_types.h: retail aistate.obj (the key TU, Execute) has NO copy */
+    AIState_Idle(Car_tObj *carObj) LINK_STRIPPED;   /* inline, defined in aih_hierarchy_types.h; aistate.obj (key TU) copy link-stripped (retail MAP has none) */
     AIState_Idle(Car_tObj *carObj, int idleInPlace);   /* inline, likewise (aih_btccop_types.h) */
 #line 58 "C:/nfs4/GAME/COMMON/AISTATE.H"
     ~AIState_Idle() { carObj_->carFlags = carObj_->carFlags & 0xfffffbff; }   /* inline: retail emits it in the deferred batch after ~AIState_NonActive */
@@ -81,8 +81,8 @@ struct AIState_Chase : public AIState_Base {
     void ApproachTargeting(int);
     void CheckForBarriersAndTargetAroundThem();
     int FindBarrierEndSlice();
-    int BarrierTicks32();       /* inline, defined in the AI-high type headers (no copy in aistate.obj) */
-    int InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance);   /* inline, likewise */ void SetNitrousTicks(int nitrousTicks); void SetSlowDownEndTime(int slowDownEndTime); int MurderMode();   /* inferred inline accessors (retail AIH_Cop.obj HighExecute this records) */
+    int BarrierTicks32() LINK_STRIPPED;       /* inline, defined in the AI-high type headers; aistate.obj (key TU) copy link-stripped */
+    int InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance) LINK_STRIPPED;   /* inline, likewise */ void SetNitrousTicks(int nitrousTicks) LINK_STRIPPED; void SetSlowDownEndTime(int slowDownEndTime) LINK_STRIPPED; int MurderMode() LINK_STRIPPED;   /* inferred inline accessors (retail AIH_Cop.obj HighExecute this records) */
 };
 
 struct AIState_Offroad : public AIState_Base {
@@ -141,7 +141,7 @@ struct AIState_RovingTraffic : public AIState_Base {
     long waitTick_;
     AIState_RovingTraffic(Car_tObj *, trigger_t *);
     ~AIState_RovingTraffic();
-    void CheckIfCarIsNearbyAndStop(Car_tObj *, int &);
+    void CheckIfCarIsNearbyAndStop(Car_tObj *, int &); void InferredPathOp(Car_tObj *carObj, trigger_pathPosition_t *path) LINK_STRIPPED;   /* inferred inline body (aistate.obj only) */
     void Execute();
     int TestForRelease();
 };
@@ -149,7 +149,7 @@ struct AIState_RovingTraffic : public AIState_Base {
 struct AIState_Donuts : public AIState_Base {
     int donutLookForward_;
     donutMode_t donutMode_;
-    ~AIState_Donuts();
+    ~AIState_Donuts(); AIState_Donuts(Car_tObj *carObj) LINK_STRIPPED;   /* inferred ctor (aistate.cpp), link-stripped */
     void Execute();
 };
 
@@ -158,7 +158,7 @@ struct AIState_GotoSlice : public AIState_Normal {
     AIState_GotoSlice(Car_tObj *, int, int);
     ~AIState_GotoSlice();
     void Execute();
-    int InTargetSliceRange(int);
+    int InTargetSliceRange(int); int TargetSlice();   /* inferred inline accessor, defined in aih_btccop_types.h only */
 };
 #include "shared/cruiseMode_t.h"
 struct AIState_Cruise : public AIState_Normal {
@@ -181,10 +181,10 @@ inline void AIState_Offroad::MarkLetGo() { letGo_ = 1; }
  * name/signature and this reconstruction include boundary are inferred. */
 #ifdef NFS4_GAME_COMMON_AISTATE_TYPES_H
 extern Sim_tSimGlobalVar simGlobal;
-inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; }
+inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; } inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {} inline void AIState_RovingTraffic::InferredPathOp(Car_tObj *carObj, trigger_pathPosition_t *path) { }   /* INFERRED body: retail aistate.obj Idle run "Idle Car_tObj Idle" and RovingTraffic run "RT RT RT Car_tObj trigger_pathPosition_t" (key TU: link-stripped copies) */
 #endif
 
-#ifdef NFS4_AISTATE_CHASE_COP_INLINES   /* retail AIH_Cop.obj HighExecute: six inlined AIState_Chase members (this REG records, SLD 266..343) */
+#if defined(NFS4_AISTATE_CHASE_COP_INLINES) || defined(NFS4_GAME_COMMON_AIH_OPP_TYPES_H) || defined(NFS4_GAME_COMMON_AISTATE_TYPES_H)   /* retail AIH_Cop.obj HighExecute: six inlined AIState_Chase members (this REG records, SLD 266..343); INFERRED body: retail aih_opp.obj / aistate.obj AIState_Chase TPDEF run evidence (7 / 36: class + the six bodies) */
 inline int AIState_Chase::BarrierTicks32() { return barrierTicks32_; }
 inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance) {
     return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&

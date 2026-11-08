@@ -589,6 +589,54 @@
    "evidence": "Header inline member formerly hidden by `#pragma interface` (removed: user ruling 2026-11-07, no #pragma). This TU owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (Route C run 2026-11-07: NFS4.EXE and FRONT.BIN byte-identical to the retail disc files); absent from the retail MAP."
   },
   {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "MurderMode__13AIState_Chase",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED in-class accessor body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail AIH_Cop.obj HighExecute inlines six AIState_Chase members and retail aistate.obj/aih_opp.obj/aih_btccop.obj record AIState_Chase TPDEF 36/7/7 (class + the six bodies). aistate.cpp owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it; it lands in .text.strip and the final link removes it like IsSlowingDown (absent from the retail MAP). Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "SetSlowDownEndTime__13AIState_Chasei",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED in-class accessor body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail AIH_Cop.obj HighExecute inlines six AIState_Chase members and retail aistate.obj/aih_opp.obj/aih_btccop.obj record AIState_Chase TPDEF 36/7/7 (class + the six bodies). aistate.cpp owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it; it lands in .text.strip and the final link removes it like IsSlowingDown (absent from the retail MAP). Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "SetNitrousTicks__13AIState_Chasei",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED in-class accessor body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail AIH_Cop.obj HighExecute inlines six AIState_Chase members and retail aistate.obj/aih_opp.obj/aih_btccop.obj record AIState_Chase TPDEF 36/7/7 (class + the six bodies). aistate.cpp owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it; it lands in .text.strip and the final link removes it like IsSlowingDown (absent from the retail MAP). Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "InMurderRange__13AIState_Chaseiii",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED in-class accessor body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail AIH_Cop.obj HighExecute inlines six AIState_Chase members and retail aistate.obj/aih_opp.obj/aih_btccop.obj record AIState_Chase TPDEF 36/7/7 (class + the six bodies). aistate.cpp owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it; it lands in .text.strip and the final link removes it like IsSlowingDown (absent from the retail MAP). Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "BarrierTicks32__13AIState_Chase",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED in-class accessor body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail AIH_Cop.obj HighExecute inlines six AIState_Chase members and retail aistate.obj/aih_opp.obj/aih_btccop.obj record AIState_Chase TPDEF 36/7/7 (class + the six bodies). aistate.cpp owns the class key function, so g++ 2.8 emits a standalone copy; nothing references it; it lands in .text.strip and the final link removes it like IsSlowingDown (absent from the retail MAP). Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "__12AIState_IdleP8Car_tObj",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail aistate.obj TPDEF runs (Idle 'Idle Car_tObj Idle', RovingTraffic 'RT RT RT Car_tObj trigger_pathPosition_t', Donuts 'Donuts Donuts Car_tObj Donuts' before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap); no retail function of these names (absent from the retail MAP/SYM). aistate.cpp owns the class key functions, so g++ 2.8 emits the copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "InferredPathOp__21AIState_RovingTrafficP8Car_tObjP22trigger_pathPosition_t",
+   "source": "recon/game/common/aistate.h",
+   "evidence": "INFERRED body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail aistate.obj TPDEF runs (Idle 'Idle Car_tObj Idle', RovingTraffic 'RT RT RT Car_tObj trigger_pathPosition_t', Donuts 'Donuts Donuts Car_tObj Donuts' before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap); no retail function of these names (absent from the retail MAP/SYM). aistate.cpp owns the class key functions, so g++ 2.8 emits the copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aistate.cpp.o",
+   "function": "__14AIState_DonutsP8Car_tObj",
+   "source": "recon/game/common/aistate.cpp",
+   "evidence": "INFERRED body (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail aistate.obj TPDEF runs (Idle 'Idle Car_tObj Idle', RovingTraffic 'RT RT RT Car_tObj trigger_pathPosition_t', Donuts 'Donuts Donuts Car_tObj Donuts' before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap); no retail function of these names (absent from the retail MAP/SYM). aistate.cpp owns the class key functions, so g++ 2.8 emits the copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
    "object": "build/recon/game/common/pausemenu.cpp.o",
    "function": "CurrentItemText__6tPMenu",
    "source": "recon/game/common/mpause_types.h",
@@ -743,6 +791,18 @@
    "function": "SetAccidentData__14AIHigh_TrafficP9SceneElem",
    "source": "recon/game/common/aihigh.h",
    "evidence": "AIHigh_Traffic::SetAccidentData (NFS4_AIHIGH_STRIP, owner NFS4_AIH_TRAF_OWNER) (0x8 B), inline in recon/game/common/aihigh.h. AIH_Traf.obj is now compiled with retail's PsyQ 4.4 CC1PLPSX (2.8.1-sn) without -fno-implement-inlines -- the compiler that makes AIHigh_Traffic's synthesized destructors global as in the retail SYM (SYMLANE L4 / LANE2 M1) -- and, owning the class key function, emits this standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (P6 Route C 2026-11-07: slink removed exactly the 29 newly tagged copies, retail-kept 0, NFS4.EXE and FRONT.BIN byte-identical to the retail disc files; receipt build/tmp/v/P6_state.md); absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/game/common/aih_traf.cpp.o",
+   "function": "SetForcePurgatory__14AIHigh_Traffici",
+   "source": "recon/game/common/aihigh.h",
+   "evidence": "AIHigh_Traffic inline body (NFS4_AIHIGH_STRIP, owner NFS4_AIH_TRAF_OWNER), INFERRED (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail object.obj and aih_traf.obj record the AIHigh_Traffic class + 4 this-only bodies (5 TPDEFs); SetForcePurgatory is aih_btccop_types.h's body, IgnoreCops name inferred. AIH_Traf.obj owns the class key function and emits this standalone copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
+  },
+  {
+   "object": "build/recon/game/common/aih_traf.cpp.o",
+   "function": "IgnoreCops__14AIHigh_Traffic",
+   "source": "recon/game/common/aihigh.h",
+   "evidence": "AIHigh_Traffic inline body (NFS4_AIHIGH_STRIP, owner NFS4_AIH_TRAF_OWNER), INFERRED (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail object.obj and aih_traf.obj record the AIHigh_Traffic class + 4 this-only bodies (5 TPDEFs); SetForcePurgatory is aih_btccop_types.h's body, IgnoreCops name inferred. AIH_Traf.obj owns the class key function and emits this standalone copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
   },
   {
    "object": "build/recon/game/common/aih_btccop.cpp.o",

@@ -1879,7 +1879,7 @@ void AIState_RovingTraffic::Execute()
 
 
 
-
+AIState_Donuts::AIState_Donuts(Car_tObj *carObj) : AIState_Base(carObj) { }   /* INFERRED body: retail aistate.obj "Donuts Donuts Car_tObj" run before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap; no retail function (link-stripped) */
 /* ---- _._14AIState_Donuts  AIState_Donuts::dtor  [AISTATE.CPP:1248-1253] SLD-VERIFIED ---- */
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 

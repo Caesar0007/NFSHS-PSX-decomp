@@ -73,10 +73,10 @@ inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDista
     return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&
            __builtin_abs(longMetersBetween_) < minLongMetersDistance;
 }
-
-
-
-
+inline void AIState_Chase::SetNitrousTicks(int nitrousTicks) { nitrousTicks_ = nitrousTicks; }   /* INFERRED body: retail aih_btccop.obj AIState_Chase TPDEF run evidence (7 = class + six bodies; same accessors as aistate.h) */
+inline void AIState_Chase::SetSlowDownEndTime(int slowDownEndTime) { slowDownEndTime_ = slowDownEndTime; }   /* INFERRED body: likewise */
+inline int AIState_Chase::MurderMode() { return murderMode_; }   /* INFERRED body: likewise */
+inline int AIState_GotoSlice::TargetSlice() { return targetSlice_; }   /* INFERRED body: retail aih_btccop.obj AIState_GotoSlice TPDEF run (class + one this-only body); name inferred */
 
 
 
@@ -198,7 +198,7 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     void Clear();
 };
 
-struct AIHigh_Player : public AIHigh_BasicPerp {
+typedef struct AIHigh_Player : public AIHigh_BasicPerp {   /* C-style typedef form as aihigh.h (retail TPDEF AIHigh_Player twice at the definition) */
     int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
     AICop_PerpChaseInfo perpChaseInfo_;
     AIHigh_Player(Car_tObj *carObj);
@@ -210,8 +210,8 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     void HandleSpeech();
     void MaintainAvailableCops();
     void CleanupBlockaders(int a);
-    void HandlePullOver();
-};
+    void HandlePullOver(); inline copLevel_t *ChaseLevel() { return perpChaseInfo_.chaseLevel_; } inline int LastPullOverTime() { return lastPullOverTime_; } inline int NewTriggerProb() { return newTriggerProb_; }   /* INFERRED body: retail aih_btccop.obj AIHigh_Player TPDEF run (= aihigh.h canonical accessors) */
+} AIHigh_Player;
 #include "shared/AIHigh_tAttackMode.h"
 struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
@@ -230,7 +230,7 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     void NotifyCopsOfFalseArrest();
     void NotifyHumanCopsOfArrestHud();
     void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
-    AIHigh_BTC_HumanCop *CheckForActivation(); inline void InferredOp() { }   /* INFERRED body: retail aih_btccop.obj one more AIHigh_BTC_Perp TPDEF (this-only) */
+    AIHigh_BTC_HumanCop *CheckForActivation(); inline void InferredCarOp(Car_tObj *carObj) { }   /* INFERRED body: retail aih_btccop.obj run "BTC_Perp x3, Car_tObj, BTC_Perp, Car_tObj" (this + Car_tObj* param) */
 };
 #include "shared/blockadeMode_t.h"
 #include "shared/blockade_t.h"
@@ -250,7 +250,7 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
-    int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
+    int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj); inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; } inline blockadeMode_t BlockadeMode() { return blockade_.mode; } inline blockade_t *Blockade() { return &blockade_; } inline copType Type() { return type_; }   /* INFERRED body: retail aih_btccop.obj AIHigh_BasicCop TPDEF run (aihigh.h canonical bodies) */
 } AIHigh_BasicCop;
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
@@ -338,7 +338,7 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
     SceneElem *accidentData_;
-    inline void SetForcePurgatory(int force) { forcePurgatory_ = force; }   /* retail pair: this AIHigh_Traffic */
+    inline void SetForcePurgatory(int force) { forcePurgatory_ = force; }   /* retail pair: this AIHigh_Traffic */ inline int ForcePurgatory() { return forcePurgatory_; }   /* INFERRED body: retail aih_btccop.obj AIHigh_Traffic TPDEF run */
 };
 #include "shared/BW_tContext.h"
 enum forceFocus_t {

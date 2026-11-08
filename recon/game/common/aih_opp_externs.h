@@ -9,7 +9,7 @@
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
 extern int GameSetup_gData[650]; /* word view (2600 bytes): retail aih_opp.obj records no GameSetup_tData (GAME15 / aicop_externs.h precedent) */
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
+extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */ inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; }   /* INFERRED body: retail aih_opp.obj AIState_Chase TPDEF run evidence (aistate.h:184 body, after simGlobal as in aih_cop_externs.h) */
 extern Trk_NewSlice  *BWorldSm_slices;
 extern int                 Cars_gNumCopCars;
 extern int       Cars_gNumHumanRaceCars;

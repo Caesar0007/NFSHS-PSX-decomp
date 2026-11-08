@@ -3,8 +3,8 @@
 #define NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H   /* Owner-specific type surface for ScreenMain.obj. */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenMain: frontend core before the MATRIX core (fe_core_types.h) */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
-/* ScreenMain retains tInputKeyType but not the foreign tPlayer tag. */
-#define NFS4_FE_INPUT_NO_PLAYER
+#define NFS4_PRIM_POLY_G4   /* retail ScreenMain: POLY_G4 right after DISPENV (nfs4_types.h) */
+#define NFS4_FE_INPUT_NO_PLAYER   /* ScreenMain retains tInputKeyType but not the foreign tPlayer tag. */
 #include "fe_input_enums.h"
 #undef NFS4_FE_INPUT_NO_PLAYER
 /* Reuse ScreenDisplay's exact shared frontend graph without its owner class
@@ -32,6 +32,12 @@ typedef long STREAMREQUESTID;
 #include "shared/tDrawShapeExtended.h"
 #include "fedialog.h"
 
+struct tVideoWallConfig {
+    short numVideos, flags;
+    tVideo *videos[4];
+};
+
+#include "screenmain.h"
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -69,12 +75,6 @@ struct tVertex {
     short x, y;
 };
 
-struct tVideoWallConfig {
-    short numVideos, flags;
-    tVideo *videos[4];
-};
-
-#include "screenmain.h"
 
 /* ScreenMain reads three fields from the foreign FEMenuDefs aggregate. */
 struct ScreenMain_GlobalMenuDefsCodegenView {

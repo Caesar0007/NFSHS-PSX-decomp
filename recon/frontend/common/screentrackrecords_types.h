@@ -16,21 +16,23 @@
 #include "fe_core_types.h"
 #undef NFS4_DRAW_LEAF_CORE_ONLY
 #include "../../game/common/draw_leaf_types.h"
-#include "felines_types.h"
+#include "shared/tTexture_ShapeInfo.h"   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, tScreen, FE3d, kernpair */
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
+#include "fescreen_virtual_types.h"
+struct tMenu; struct tDrawShapeExtended;
+#include "fescreen.h"
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 #include "shared/FE3d_zUV.h"
 #include "shared/FE3d_zFacet.h"
 #include "shared/FE3d_zObj.h"
+#include "felines_types.h"   /* kernpair/KERN + font typedefs after FE3d (retail) */
 #define NFS4_FE3D_TYPES_DONE
 #include "shared/tDrawShapeExtended.h"
 #define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: menu family, owner records, tracks, then the car graph */
-
 #define NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS "screentrackrecords_types.h"   /* second pass below */
-
 /* Reuse the exact shared render/frontend graph while excluding input enums,
  * songs, saved-game and memory-card records, and dialogs. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
@@ -38,7 +40,6 @@ typedef SVECTOR FE3d_zNormal;
 #include "screenmemcard_types.h"
 #undef NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
-
 #include "../../game/common/color_types.h"   /* NFS4_FE_COLOR_LATE: color.obj graph after the frontend graph */
 #elif !defined(NFS4_SCREENTRACKRECORDS_OWNER_DONE)   /* second pass (screendisplay owner hook) */
 #define NFS4_SCREENTRACKRECORDS_OWNER_DONE
@@ -51,7 +52,6 @@ typedef enum tMenuTextState {
 } tMenuTextState;
 #define tMenuTextType int
 #define textType_TrackRecords 11
-
 #include "shared/FLARE_PIECE_DEF.h"
 
 

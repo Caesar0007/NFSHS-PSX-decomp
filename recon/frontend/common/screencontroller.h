@@ -6,6 +6,8 @@
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph after the dialogs, before the car/track graph */
 #define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
+#define NFS4_CORE_CCOORD16   /* retail ScreenController: CCOORD16 at its core place (after COORD16) */
+#define NFS4_COLOR_HOOK_AFTER_CAR "shared/Force_tGlobal.h"   /* retail ScreenController: Force_tGlobal right after Car_tObj (color_types.h) */
 #endif
 #include "fe_player_types.h"   /* ScreenController retains tInputKeyType but not the foreign tPlayer enum. FeMenuOptions reuses this graph and retains both input enums. (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #define uchar unsigned char
@@ -13,7 +15,6 @@ struct tMenuCommand;
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "fe_input_enums.h"
 #undef NFS4_FE_INPUT_NO_PLAYER
-
 /* ScreenMemcard supplies the exact shared frontend graph.  Exclude its
  * memory-card, saved-game, and song records while retaining FE3d. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
@@ -25,7 +26,6 @@ struct tMenuCommand;
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_SCREENMEMCARD_CONTROLLER_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
-
 typedef short tArrowLocation[6];
 typedef short tTextLocation[5];
 

@@ -61,6 +61,14 @@ Polymorphic families first (tMenuItem family, tMenu, tListIterator, AIHigh_Base)
 tFEApplication, AnimScript, Object*Anim, AIDataRecord_*. Per-object copies replaced by the single
 reconstructed retail header; differences between objects explained by include graph only.
 
+### Phase 4-B - fake call forms (after the duplicates; found 2026-11-13)
+These exist because a calling file did not see the real class. With single definitions they can become ordinary C++:
+- two opaque views in front_types.h (`tGlobalMenuDefs` char[15128], one char[8]);
+- `*CodegenView` stand-in types in 16 frontend headers (e.g. `#define tScreenMemcard FEMemcard_ScreenMemcardCodegenView`);
+- about ten fake constructor functions in front_externs.h (`tScreenMemcard *tScreenMemcard_ctor(...)`) used instead of `new`;
+- nine asm-label aliases that call a member function as a free function with an explicit object (`GetTrophyName(tTournamentManager *, ...) asm("GetTrophyName__18tTournamentManager...")`, `DisplayHelp`, `GetCarFromSimID`, `FECheat_*` with int for an enum);
+- key-object exceptions (`NFS4_KEY_OBJECT_*`, owner strip switches): the fuller model is declare + LINK_STRIPPED + out-of-class body + a link_stripped.json row for the owner.
+
 ### Phase 5 - gate and comments
 Add the counters above to the gate (must not rise). Fix the stale "manual _vf" file headers.
 

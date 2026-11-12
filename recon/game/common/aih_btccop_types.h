@@ -346,7 +346,7 @@ enum forceFocus_t {
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
 };
-#define NFS4_SPEECH_AI_VIEW   /* speech_class.h: Speech + Speaker + banks, no MobileSpeaker/DispatchSpeaker (retail AI-object view) */
+
 #include "speech_class.h"   /* retail: the full Speech class graph (Speaker + CarBank/LocationBank/CallSignBank with their inline bodies) is recorded in this AI object */
 
 

@@ -44,7 +44,8 @@ aidatarecord.cpp, aihigh.h, aih_basiccop.cpp, aih_btccop_types.h (x2), aih_hiera
 audioclc_types.h, audiotrk_types.h, camera_types.h, copspeak.cpp, speech_speaker_virtuals.inc (x4),
 hud.cpp, psxfront.cpp (x2). Their link_stripped rows go with them.
 
-### Phase 2 - Speech pilot: one SPEECH.H
+### Phase 2 - Speech pilot: one SPEECH.H (DONE except the speech.cpp branch)
+Remaining branch in `speech_speaker_virtuals.inc`: speech.cpp declares the 15 defaults and defines them in the .cpp under SPEECH.H line anchors (line-record mechanism, not a census fit). Finding: a class that only one retail object records was defined in that object's .CPP, not in the shared header - check this first for every per-object class variant.
 `speech_speaker_virtuals.inc` loses its per-object branches (one member list for every includer);
 speech_class.h inferred accessors audited against the evidence rule.
 
@@ -71,6 +72,7 @@ re-baselined (head.json / slink_head.json).
 |---|---|---|---|---|---|---|---|---|
 | 2026-11-12 | 2ac4bd057 | baseline | 17 | 142 | 176 | 94 | 158 | 436 |
 | 2026-11-12 | 8f7a392df | all 17 fake `*Inferred*Op*` sites + their 4 stripped rows removed; bytes 299819/299819, SLINK symtree no regressions | 0 | 125 | 175 | 94 | 154 | 487 |
+| 2026-11-12 | (phase 2) | Speech: one class definition for every includer. `MobileSpeaker`/`DispatchSpeaker` moved to speech-private `speech_speakers.h` (retail defined them in SPEECH.CPP: no other object records them); aih_cop Speaker variant, copspeak out-of-class defaults variant, `NFS4_SPEECH_AI_VIEW` and unused `ResetStatus()` removed | 0 | 124 | 167 | 94 | 154 | 487 |
 
 ## Open mismatches (left unexplained on purpose)
 
@@ -85,7 +87,7 @@ Phase 1 removals. Each is a retail type record our source no longer produces; re
 | aih_basiccop.obj | one more `Car_tObj` in the ctor group | count only |
 | aih_btccop.obj | `Car_tObj` in the BTC_Perp run; `coorddef` after AIDataRecord_AccTable_t | count only |
 | AI objects | one more `AIHigh_BTC_Perp` (this-only body); aihigh.obj one more `AIHigh_Base` | count only |
-| aih_cop.obj | four `Speaker` this-records without `Car_tObj` | to be re-examined in phase 2 (single SPEECH.H) |
+| aih_cop.obj | ours records 5 more `Car_tObj` than retail (aih_basicperp/aih_btcperp/aih_play: 1 more) | single SPEECH.H gives every AI object the same in-class Speaker defaults; retail difference unexplained (count only) |
 | audioclc/audiotrk/camera.obj | one `Trk_AnimateInst` each | count only |
 
 The four "gap" rows are the best candidates for real recovery: check NFS4-PC / NFS3 for a function at that position.

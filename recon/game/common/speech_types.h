@@ -22,6 +22,7 @@
 #include "../../link_stripped.h"
 #define NFS4_SPEECH_STRIP LINK_STRIPPED   /* speech.obj emits standalone copies of the inline Speaker/MobileSpeaker/DispatchSpeaker members; retail's link removed them (STRIPPED COPIES ruling 2026-11-08) */
 #include "speech_class.h"
+#include "speech_speakers.h"
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/kernpair.h"
 typedef kernpair KERN;

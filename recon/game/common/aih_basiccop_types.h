@@ -50,7 +50,7 @@ typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAn
     Trk_CollideBoomInst *objCollideInstance;
 } ObjectFinishedSignAnim;
 #include "shared/FLARE_PIECE_DEF.h"   /* retail aih_basiccop.obj: right after ObjectFinishedSignAnim */
-#define NFS4_SPEECH_AI_VIEW   /* speech_class.h: Speech + Speaker + banks, no MobileSpeaker/DispatchSpeaker (retail AI-object view) */
+
 #include "speech_class.h"   /* retail: the full Speech class graph (Speaker + CarBank/LocationBank/CallSignBank with their inline bodies) is recorded in this AI object */
 
 

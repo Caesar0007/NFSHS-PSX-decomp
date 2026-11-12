@@ -5,8 +5,8 @@
  * The AI surfaces see those bodies here (each records its `this` Speaker plus its class-typed return/param,
  * retail aih_*.obj Speaker run); speech.obj defines them in speech.cpp under their SPEECH.H anchors, cars/copspeak/nfs3
  * out of the class in speech_class.h.
- * Retail aih_cop.obj records none of the four Car_tObj ones (per-TU exclusion, kept from the INFERRED set). */
-#if defined(NFS4_GAME_COMMON_SPEECH_TYPES_H) || defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)   /* defined in speech.cpp / out of the class in speech_class.h */
+ * One member list for every AI includer (header-truth phase 2a); retail aih_cop.obj records four fewer Car_tObj: open mismatch. */
+#if defined(NFS4_GAME_COMMON_SPEECH_TYPES_H)   /* defined in speech.cpp / out of the class in speech_class.h */
     virtual void Report(Car_tObj *cop);
     virtual void Status();
     virtual void Deny();
@@ -55,36 +55,16 @@
     virtual void Bullhorn();
     virtual void Purge();
     virtual int Unit() { return 0; }
-#if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
-    virtual bool KnownPerp(Car_tObj *car);
-
-#else
     virtual bool KnownPerp(Car_tObj *car) { return false; }
-#endif
-#if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
-    virtual void ClearPerp(Car_tObj *car);
-
-#else
     virtual void ClearPerp(Car_tObj *car) {}
-#endif
     virtual bool IsSuper() { return false; }
     virtual int StatusCount() { return 0; }
     virtual Speaker *StatusSub() { return (Speaker *)0x0; }
     virtual void PurgeStatusSub() {}
     virtual int DistToPerp() { return 0x3e80000; }
-#if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
-    virtual Car_tObj *CarObj();
-
-#else
     virtual Car_tObj *CarObj() { return (Car_tObj *)0x0; }
-#endif
     virtual void ReActivate() {}
-#if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
-    virtual Car_tObj *Perp();
-
-#else
     virtual Car_tObj *Perp() { return (Car_tObj *)0x0; }
-#endif
     virtual CarBank *GetCarBank(int carIndex) { return (CarBank *)0x0; }
     virtual LocationBank *FindClosestLocationTo(int slice) { return (LocationBank *)0x0; }
     virtual CallSignBank *CallSign() { return (CallSignBank *)0; }

@@ -232,33 +232,33 @@ enum PinkSlipsCarSelectState {
 
 #endif
 #include "screencarselect_tail.h"   /* color.obj graph after the car-select screens (+ AudioMus for ScreenCarSelect) */
-struct tScreenTournamentStandings : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
-    int starttick;
-    bool gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown;
-    bool fStartCountdownNOW;
-    int fCountSpeed;
-#ifdef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
-    inline void SetDrawMoney() { fDrawMoney = 1; }
-#endif
-#ifdef NFS4_FRONT_SURFACE
-    tScreenTournamentStandings();
-#endif
-};
+#include "cls_tScreenTournamentStandings.h"   /* class tScreenTournamentStandings: no private copy (header-truth 4v) */
 
-struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-#ifdef NFS4_FRONT_SURFACE
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#endif
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "cls_tScreenTournamentStandings3item.h"   /* class tScreenTournamentStandings3item: no private copy (header-truth 4v) */
+
+
+
+
+
+
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 /* Remaining foreign menu view needs owning-SYM source restoration. */

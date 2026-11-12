@@ -81,33 +81,33 @@ typedef long STREAMREQUESTID;
 #endif
 
 #if !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) && !(defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE) && defined(NFS4_SCREENTOURNSELECT_PASS2_DONE))
-struct tScreenTournamentStandings : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
-    int starttick;
-    bool gotmoney, gotbonus, gotbilled, fDrawMoney;
-    bool fCountedDown, fStartCountdownNOW;
-    int fCountSpeed;
-#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
-    tScreenTournamentStandings();
-#endif
-#line 64 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
-};
-#line 100 "screentournselect_types.h"
+#include "cls_tScreenTournamentStandings.h"   /* class tScreenTournamentStandings (one definition) */
 
-struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
-#endif
-#line 72 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
-};
-#line 107 "screentournselect_types.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "cls_tScreenTournamentStandings3item.h"   /* class tScreenTournamentStandings3item (one definition) */
+
+
+
+
+
+
+
 
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #include "cls_tScreenPinkSlipStandings.h"   /* class tScreenPinkSlipStandings (one definition) */

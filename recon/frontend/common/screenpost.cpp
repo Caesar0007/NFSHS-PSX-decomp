@@ -1,6 +1,6 @@
 /* frontend/screens/screenpost.cpp -- RECONSTRUCTED (tournament-standings screens + DrawMoney; C++ TU)
- *   3 classes (tScreenTournamentStandings -> 3item -> PinkSlipStandings) + free DrawMoney; 13 fns.
- */
+ *   3 classes (tScreenTournamentStandings -> 3item -> PinkSlipStandings) + free DrawMoney; 13 fns. */
+#define NFS4_KEY_OBJECT_SCREENPOST   /* this object defines the class's virtuals: in-class inline setters are left out here (cc1plus would emit standalone copies) */
 #include "screenpost.h"
 
 

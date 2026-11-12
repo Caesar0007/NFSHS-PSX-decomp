@@ -23,13 +23,13 @@
 #include "screendisplay_types.h"
 #elif !defined(NFS4_SCREENUSERNAME_OWNER_DONE)   /* second pass (screendisplay owner hook) */
 #define NFS4_SCREENUSERNAME_OWNER_DONE
-struct tScreenUserName : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground(); void Initialize();
-    tOptionsMenu *callingMenu; short fTextFade; bool fInTransition; char fRowList[10][9];
-    void DrawVerticalLine(short, short, short); void DrawHorizontalLine(short, short, short);
-#line 97 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.H"
-};
-#line 32 "recon/frontend/common/screenusername_types.h"
+#include "cls_tScreenUserName.h"   /* class tScreenUserName (one definition) */
+
+
+
+
+
+
+
+
 #endif

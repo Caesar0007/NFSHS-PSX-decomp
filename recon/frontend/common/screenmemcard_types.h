@@ -126,43 +126,43 @@ typedef MCRDFILE_def MCRDFILE;
 #endif
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && (defined(NFS4_SCREENMEMCARD_IN_CLASS_PASS) || !defined(NFS4_SCREENMEMCARD_CLASS_DONE))
-struct tScreenMemcard : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    int theNFS4icon, card;
-    CARDINFO_def *pCI;
-    char fMemTitle[15][32];
-    char goticon[15];
-    u_char numicon[15], numblock[15];
-    MCRDFILE_def fMemFile[15];
-    u_short fMemIconClutId[15];
-    short fFadeIcon[15];
-    bool fReadyToGetNewIcons, fInitedMemCard;
-    char fMemCardMessage[40];
-    int fMemCardMessageTextSys, message;
-    short memcardanimframe, count, cursorPosition;
-    int checkingstart;
-    bool fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons;
-    int fScreenFadeReadyTick;
-    short player;
-    bool fGetNewIcons;
+#include "cls_tScreenMemcard.h"   /* class tScreenMemcard (one definition) */
 #define NFS4_SCREENMEMCARD_CLASS_DONE
-    void DrawIcon(shapetbl *, int, int, int, int, short);
-    void LoadIcon(int);
-    void DrawVerticalLine(short, short, short, short);
-    void DrawHorizontalLine(short, short, short, short);
-    void PlaceIcons(int, int);
-    void DrawMemCardStuff(short);
-    void SetEnablings();
-    tScreenMemcard();
-    void ReleaseIcons();
-#line 99 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.H"
-};
-#line 164 "recon/frontend/common/screenmemcard_types.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 #ifndef NFS4_SCREENMEMCARD_IN_CLASS_PASS
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \

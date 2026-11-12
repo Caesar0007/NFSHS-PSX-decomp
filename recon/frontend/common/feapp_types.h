@@ -63,39 +63,39 @@ enum tMenuCommandType {
 #endif
 
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
-struct tScreenTournamentStandings : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
-    int starttick;
-    bool gotmoney, gotbonus, gotbilled, fDrawMoney;
-    bool fCountedDown, fStartCountdownNOW;
-    int fCountSpeed;
+#include "cls_tScreenTournamentStandings.h"   /* class tScreenTournamentStandings: no private copy (header-truth 4v) */
 
-};
 
-struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-};
 
-struct tScreenUserName : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    tOptionsMenu *callingMenu;
-    short fTextFade;
-    bool fInTransition;
-    char fRowList[10][9];
 
-    void DrawVerticalLine(short, short, short);
-    void DrawHorizontalLine(short, short, short); inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; } /* ORIGINAL-NAME-UNRESOLVED: retail RunPostGame records this screen pair (this $6, m $5) */
-};
+
+
+
+
+
+
+
+
+
+
+#include "cls_tScreenTournamentStandings3item.h"   /* class tScreenTournamentStandings3item: no private copy (header-truth 4v) */
+
+
+
+
+#include "cls_tScreenUserName.h"   /* class tScreenUserName: no private copy (header-truth 4v) */
+
+
+
+
+
+
+
+
+
+
+
+
 #else
 #include "feapp_class.h"   /* class tFEApplication (shared with every includer) */
 

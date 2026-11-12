@@ -1,6 +1,6 @@
 /* frontend/common/screenmemcard.cpp  --  RECONSTRUCTED  (memcard UI screen; C++ TU)
- *   15 MEMBER fns of tScreenMemcard : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
- */
+ *   15 MEMBER fns of tScreenMemcard : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra. */
+#define NFS4_KEY_OBJECT_SCREENMEMCARD   /* this object defines the class's virtuals: in-class inline setters are left out here (cc1plus would emit standalone copies) */
 #include "screenmemcard.h"
 
 

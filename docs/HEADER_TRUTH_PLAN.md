@@ -74,6 +74,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 8f7a392df | all 17 fake `*Inferred*Op*` sites + their 4 stripped rows removed; bytes 299819/299819, SLINK symtree no regressions | 0 | 125 | 175 | 94 | 154 | 487 |
 | 2026-11-12 | f3d2cf30c | Speech: one class definition for every includer. `MobileSpeaker`/`DispatchSpeaker` moved to speech-private `speech_speakers.h` (retail defined them in SPEECH.CPP: no other object records them); aih_cop Speaker variant, copspeak out-of-class defaults variant, `NFS4_SPEECH_AI_VIEW` and unused `ResetStatus()` removed | 0 | 124 | 167 | 94 | 154 | 487 |
 | 2026-11-12 | b88950b72 | Phase 3a: fedialog.h inferred accessors + body macros + tpdef_keys opt-out block removed; both SetChoices overloads for every includer; invented filler functions removed from 8 .cpp files | 0 | 115 | 167 | 94 | 154 | 513 |
+| 2026-11-12 | 9c6db3461 | Phase 3b: AnimScript_FreeInst x7, InheritMultiAnimState x10 (+NFS4_DRAWW_MULTI_COORD_PARAM), AIDelayCar GetPosition/GetLaneIndex, SimpleMem::FreeMemSize, AITrigger_NoTrigger/SwapTriggerPair removed; TriggerType unconditional. Gate now also fails on build SKIP (compile error = stale object) | 0 | 93 | 165 | 94 | 154 | 610 |
 
 ## Open mismatches (left unexplained on purpose)
 

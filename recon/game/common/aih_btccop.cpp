@@ -238,7 +238,7 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
     thisPerpCarIndex = testPerpCarObj->carIndex;
     thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex];
 
-    if (thisPerpHigh->basicPerpInfo_.Crime() != 0)
+    if (thisPerpHigh->basicPerpInfo_.GetCrime() != 0)
     { int copToTargetDistanceMeters;
       const int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj);
       copToTargetDistanceMeters = __builtin_abs(distanceMeters);

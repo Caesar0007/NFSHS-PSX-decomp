@@ -33,17 +33,17 @@ struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     void HighExecute();
     void NewStage(AIHigh_BTC_HumanCop *cop);
 };
-struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
-    Wingman_Role currentRole_, newRole_;
-    AIHigh_BTC_HumanCop *newHumanBoss_;
-    int spikeBeltPlaced_, spikeBeltSlice_, spikeBeltInterceptReleaseTime_;
-    AIHigh_BTC_Wingman(Car_tObj *carObj, int copIndex);
-    void HighExecute();
-    int CheckForActivation();
-    int UpdateFreezeModeAndPullOverMode();
-    void SetupWingman(AIHigh_BTC_HumanCop *humanCop);
-    void SetupBlockader(AIHigh_BTC_HumanCop *humanCop, int spikeBeltRequest);
-};
+
+
+
+
+
+
+
+
+
+
+
 #define NFS4_AIHIGH_TYPE_PART 2
 #include "aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART

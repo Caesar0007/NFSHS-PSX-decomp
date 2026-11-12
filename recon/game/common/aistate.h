@@ -184,7 +184,7 @@ extern Sim_tSimGlobalVar simGlobal;
 inline int AIState_Chase::IsSlowingDown() { return simGlobal.gameTicks < slowDownEndTime_; } inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}   /* INFERRED body: retail aistate.obj Idle run "Idle Car_tObj Idle" (key TU: link-stripped copy) */ inline AIState_RovingTraffic::~AIState_RovingTraffic() { (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y = (this->carObj_)->targetPos.z = 0; this->carObj_->targetLatPos = 0; this->carObj_->carFlags &= 0xfffff7ff; return; } inline int AIState_RovingTraffic::TestForRelease() { return this->pathIndex_ < this->numPathPoints_ ^ 1; } inline AIState_GotoSlice::~AIState_GotoSlice() { return; } inline AIState_Cruise::~AIState_Cruise() { return; }   /* retail AISTATE.H 200/206/234/258 inline bodies: NO_SLD deferred copies in the key TU (emitted in reverse definition order) */
 #endif
 
-#if defined(NFS4_AISTATE_CHASE_COP_INLINES) || defined(NFS4_GAME_COMMON_AIH_OPP_TYPES_H) || defined(NFS4_GAME_COMMON_AISTATE_TYPES_H)   /* retail AIH_Cop.obj HighExecute: six inlined AIState_Chase members (this REG records, SLD 266..343); INFERRED body: retail aih_opp.obj / aistate.obj AIState_Chase TPDEF run evidence (7 / 36: class + the six bodies) */
+/* AIState_Chase inline members, visible to every includer (retail AIH_Cop.obj HighExecute and AIH_BTCCop.obj inline them: this REG records) */
 inline int AIState_Chase::BarrierTicks32() { return barrierTicks32_; }
 inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance) {
     return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&
@@ -193,6 +193,6 @@ inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDista
 inline void AIState_Chase::SetNitrousTicks(int nitrousTicks) { nitrousTicks_ = nitrousTicks; }
 inline void AIState_Chase::SetSlowDownEndTime(int slowDownEndTime) { slowDownEndTime_ = slowDownEndTime; }
 inline int AIState_Chase::MurderMode() { return murderMode_; }
-#endif
+
 
 #endif

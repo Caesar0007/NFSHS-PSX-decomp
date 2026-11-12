@@ -134,6 +134,11 @@ struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
 #ifndef NFS4_AIHIGH_BLOCKADE_HEAD   /* Cop definitions: retail destructor records also identify AIHIGH.H; method bodies and data-type dependencies are unchanged. */
 #define NFS4_AIHIGH_BLOCKADE_HEAD "shared/blockadeMode_t.h"   /* aih_btcperp.obj: its AIHigh_BTC_AIPerp first (aih_btcperp_types.h) */
 #endif
+#ifdef NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H   /* AIH_BTCCop.obj (key object of the BTC cop classes) emits standalone copies of their inline members; the retail link removed them */
+#define NFS4_AIHIGH_BTCCOP_STRIP LINK_STRIPPED
+#else
+#define NFS4_AIHIGH_BTCCOP_STRIP
+#endif
 #include NFS4_AIHIGH_BLOCKADE_HEAD
 #include "shared/blockade_t.h"
 #include "shared/AIHigh_tDriveAwayMode.h"
@@ -159,7 +164,7 @@ typedef struct AIHigh_BasicCop : public AIHigh_Base {
 #undef NFS4_AIHIGH_TYPE_PART
 #endif
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* retail window "BTC_Cop BTC_Perp BTC_Cop" = plain def + the owner's PerpTarget body (aih_btccop_types.h) */
-    AIHigh_BTC_Perp *perpTarget_; inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
+    AIHigh_BTC_Perp *perpTarget_; inline AIHigh_BTC_Perp *PerpTarget() NFS4_AIHIGH_BTCCOP_STRIP;
     int chaseIndex_;
     enum {
         FREEZE_NONE = 0,
@@ -179,6 +184,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* retail window "BTC_Cop BTC
     void HudOff();
 #line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+inline AIHigh_BTC_Perp *AIHigh_BTC_Cop::PerpTarget() { return perpTarget_; }
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct + 10 in-class accessors = 11 TPDEFs per includer */
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
@@ -191,13 +197,13 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct +
         WINGMAN_BLOCKADER_ACTIVE = 5
     } wingmanStatus_;
     int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
-    inline void SetNeedPerp(int needPerp) { needPerp_ = needPerp; } /* inferred flag setter: retail records this in ClearForNewStage */
-    inline int CurrentStage() { return currentStage_; } /* inferred stage getter: retail records this at the stage read */
-    inline int InitialDirection() { return initialDirection_; } inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; } /* placement direction pair */
-    inline int InitialMovement() { return initialMovement_; } inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; } /* placement movement pair */
-    inline bool HasCatchTime() { return timeLeft_ > 5; } /* inferred query: HumanCop receiver, timeLeft_ > 5 in retail */
-    inline int NeedsPerp() { return copIndex_ == 0 ? needPerp_ : 0; } /* inferred lead-cop request query */
-    inline void SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; } inline int RequestedDesiredSpeed() { return requestedDesiredSpeed_; } /* speed pair */
+    inline void SetNeedPerp(int needPerp) NFS4_AIHIGH_BTCCOP_STRIP;   /* flag setter: retail records this in ClearForNewStage */
+    inline int CurrentStage() NFS4_AIHIGH_BTCCOP_STRIP;   /* stage getter: retail records this at the stage read */
+    inline int InitialDirection() NFS4_AIHIGH_BTCCOP_STRIP; inline void SetInitialDirection(int initialDirection) NFS4_AIHIGH_BTCCOP_STRIP;   /* placement direction pair */
+    inline int InitialMovement() NFS4_AIHIGH_BTCCOP_STRIP; inline void SetInitialMovement(int initialMovement) NFS4_AIHIGH_BTCCOP_STRIP;   /* placement movement pair */
+    inline bool HasCatchTime() NFS4_AIHIGH_BTCCOP_STRIP;   /* HumanCop receiver, timeLeft_ > 5 in retail */
+    inline int NeedsPerp() NFS4_AIHIGH_BTCCOP_STRIP;   /* lead-cop request query */
+    inline void SetRequestedDesiredSpeed(int speed) NFS4_AIHIGH_BTCCOP_STRIP; inline int RequestedDesiredSpeed() NFS4_AIHIGH_BTCCOP_STRIP;   /* speed pair */
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
     int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
     void ReleaseAndStartChase(AIHigh_BTC_Perp *p);
@@ -216,8 +222,29 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* retail: plain struct +
     void SetDesiredSpeed();
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
+    static int lastInputRequestTick_;   /* retail SYM/MAP: _19AIHigh_BTC_HumanCop.lastInputRequestTick_ (defined in AIH_BTCCOP.CPP) */
 #line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
+inline int AIHigh_BTC_HumanCop::CurrentStage() { return currentStage_; }
+inline int AIHigh_BTC_HumanCop::InitialDirection() { return initialDirection_; }
+inline int AIHigh_BTC_HumanCop::InitialMovement() { return initialMovement_; }
+inline void AIHigh_BTC_HumanCop::SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
+inline int AIHigh_BTC_HumanCop::RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
+inline void AIHigh_BTC_HumanCop::SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
+inline void AIHigh_BTC_HumanCop::SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; } inline bool AIHigh_BTC_HumanCop::HasCatchTime() { return timeLeft_ > 5; } inline void AIHigh_BTC_HumanCop::SetNeedPerp(int needPerp) { needPerp_ = needPerp; } inline int AIHigh_BTC_HumanCop::NeedsPerp() { return copIndex_ == 0 ? needPerp_ : 0; }
+struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {   /* retail AIHIGH.H:548; members defined in AIH_BTCCOP.CPP */
+    Wingman_Role currentRole_, newRole_;
+    AIHigh_BTC_HumanCop *newHumanBoss_;
+    int spikeBeltPlaced_, spikeBeltSlice_, spikeBeltInterceptReleaseTime_;
+    AIHigh_BTC_Wingman(Car_tObj *carObj, int copIndex);
+    void HighExecute();
+    int CheckForActivation();
+    int UpdateFreezeModeAndPullOverMode();
+    void SetupWingman(AIHigh_BTC_HumanCop *humanCop);
+    void SetupBlockader(AIHigh_BTC_HumanCop *humanCop, int spikeBeltRequest);
+#line 548 "C:/nfs4/GAME/COMMON/AIHIGH.H"
+};
+#line 248 "recon/game/common/aihigh.h"
 #ifdef NFS4_AIHIGH_TRAFFIC_AFTER_HUMANCOP   /* retail AIHIGH.H: Traffic (584) right after BTC_HumanCop (527): object.obj */
 #define NFS4_AIHIGH_TYPE_PART 2
 #include "aihigh.h"

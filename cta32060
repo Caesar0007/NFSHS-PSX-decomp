@@ -1,0 +1,2612 @@
+	.text
+	.file	1 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
+	.ent	__14AIHigh_BTC_CopP8Car_tObji
+__14AIHigh_BTC_CopP8Car_tObji:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	sw	$31,20($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	__15AIHigh_BasicCopP8Car_tObji
+	move	$16,$4
+	.set	macro
+	.set	reorder
+
+	move	$2,$16
+	lui	$3,%hi(_vt.14AIHigh_BTC_Cop) # high
+	addiu	$3,$3,%lo(_vt.14AIHigh_BTC_Cop) # low
+	sw	$3,20($2)
+	sw	$0,88($2)
+	sw	$0,92($2)
+	sw	$0,96($2)
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	__14AIHigh_BTC_CopP8Car_tObji
+	.text
+	.ent	AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,24($sp)
+	sw	$17,20($sp)
+	lw	$4,88($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L332
+	move	$17,$5
+	.set	macro
+	.set	reorder
+
+	lw	$5,28($16)
+	lw	$2,0($16)
+	lw	$7,24($16)
+	lw	$6,596($2)
+	jal	RemoveChaser__16AIHigh_BasicPerpii7copType
+$L332:
+	.set	noreorder
+	.set	nomacro
+	beq	$17,$0,$L331
+	sw	$17,88($16)
+	.set	macro
+	.set	reorder
+
+	lw	$5,28($16)
+	lw	$2,0($16)
+	lw	$7,24($16)
+	lw	$6,596($2)
+	.set	noreorder
+	.set	nomacro
+	jal	AddChaser__16AIHigh_BasicPerpii7copType
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+$L331:
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	.text
+	.ent	GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef
+GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef:
+	.frame	$sp,32,$31		# vars= 0, regs= 4/0, args= 16, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$18,24($sp)
+	move	$18,$5
+	sw	$31,28($sp)
+	sw	$17,20($sp)
+	lw	$2,0($16)
+	lw	$4,88($16)
+	lw	$5,28($16)
+	lw	$6,596($2)
+	.set	noreorder
+	.set	nomacro
+	jal	CheckChaserPosition__16AIHigh_BasicPerpii
+	move	$17,$0
+	.set	macro
+	.set	reorder
+
+	lw	$3,92($16)
+	#nop
+	beq	$2,$3,$L335
+	li	$17,1			# 0x00000001
+	sw	$2,92($16)
+$L335:
+	move	$2,$17
+	lui	$4,%hi(AIH_BTCCop_chasePositions) # high
+	lw	$5,92($16)
+	addiu	$4,$4,%lo(AIH_BTCCop_chasePositions) # low
+	sll	$3,$5,1
+	addu	$3,$3,$5
+	sll	$3,$3,2
+	addu	$3,$3,$4
+	lw	$7,0($3)
+	lw	$8,4($3)
+	lw	$9,8($3)
+	sw	$7,0($18)
+	sw	$8,4($18)
+	sw	$9,8($18)
+	lw	$31,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef
+	.text
+	.ent	CheckForNewTarget__14AIHigh_BTC_Cop
+CheckForNewTarget__14AIHigh_BTC_Cop:
+	.frame	$sp,56,$31		# vars= 0, regs= 9/0, args= 16, extra= 0
+	.mask	0x80ff0000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,56
+	sw	$21,36($sp)
+	move	$21,$4
+	sw	$19,28($sp)
+	move	$19,$0
+	sw	$20,32($sp)
+	li	$20,655360000			# 0x27100000
+	sw	$18,24($sp)
+	move	$18,$19
+	lui	$2,%hi(highLevelAIObjs) # high
+	sw	$23,44($sp)
+	addiu	$23,$2,%lo(highLevelAIObjs) # low
+	lui	$2,%hi(Cars_gRaceCarList) # high
+	sw	$17,20($sp)
+	addiu	$17,$2,%lo(Cars_gRaceCarList) # low
+	sw	$31,48($sp)
+	sw	$22,40($sp)
+	sw	$16,16($sp)
+	lw	$22,88($21)
+$L337:
+	lw	$2,Cars_gNumRaceCars
+	#nop
+	slt	$2,$18,$2
+	beq	$2,$0,$L338
+	lw	$5,0($17)
+	#nop
+	lbu	$2,145($5)
+	#nop
+	beq	$2,$0,$L339
+	lw	$2,608($5)
+	#nop
+	andi	$2,$2,0x0200
+	bne	$2,$0,$L339
+	lw	$2,596($5)
+	#nop
+	sll	$2,$2,2
+	addu	$2,$2,$23
+	lw	$16,0($2)
+	#nop
+	lw	$2,120($16)
+	#nop
+	beq	$2,$0,$L339
+	lw	$4,0($21)
+	jal	AIWorld_ApxSplineDistance__FP8Car_tObjT0
+	.set	noreorder
+	bgez	$2,1f
+	move	$3,$2
+	subu	$3,$0,$3
+1:
+	.set	reorder
+	slt	$2,$3,$20
+	beq	$2,$0,$L339
+	move	$20,$3
+	move	$19,$16
+$L339:
+	addu	$17,$17,4
+	.set	noreorder
+	.set	nomacro
+	j	$L337
+	addu	$18,$18,1
+	.set	macro
+	.set	reorder
+
+$L338:
+	beq	$19,$0,$L346
+	.set	noreorder
+	.set	nomacro
+	beq	$19,$22,$L346
+	move	$4,$21
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	move	$5,$19
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L349
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L346:
+	.set	noreorder
+	.set	nomacro
+	beq	$22,$0,$L349
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$19,$0,$L349
+	move	$4,$21
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	move	$5,$0
+	.set	macro
+	.set	reorder
+
+	move	$2,$0
+$L349:
+	lw	$31,48($sp)
+	lw	$23,44($sp)
+	lw	$22,40($sp)
+	lw	$21,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,56
+	.set	macro
+	.set	reorder
+
+	.end	CheckForNewTarget__14AIHigh_BTC_Cop
+	.text
+	.ent	StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$2,96($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L350
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	lw	$3,0($4)
+	sw	$2,96($4)
+	lw	$2,608($3)
+	#nop
+	andi	$2,$2,0x0200
+	beq	$2,$0,$L350
+	.set	noreorder
+	.set	nomacro
+	jal	Mobile__6SpeechP8Car_tObj
+	move	$4,$3
+	.set	macro
+	.set	reorder
+
+	lw	$3,76($2)
+	#nop
+	lh	$4,72($3)
+	#nop
+	addu	$4,$2,$4
+	lw	$2,76($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$2
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L350:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	.text
+	.ent	FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,20($sp)
+	lw	$3,96($16)
+	li	$2,3			# 0x00000003
+	beq	$3,$2,$L354
+	bne	$3,$0,$L353
+$L354:
+	lw	$3,20($16)
+	li	$2,4			# 0x00000004
+	sw	$2,96($16)
+	lh	$4,24($3)
+	lw	$2,28($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$2
+	addu	$4,$16,$4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	HudOff__14AIHigh_BTC_Cop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L353:
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	.text
+	.ent	FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$2,88($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$5,$L357
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	sw	$2,96($4)
+$L357:
+	j	$31
+	.end	FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp
+	.text
+	.ent	FreezeAndEndChase__14AIHigh_BTC_Cop
+FreezeAndEndChase__14AIHigh_BTC_Cop:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	j	$31
+	.end	FreezeAndEndChase__14AIHigh_BTC_Cop
+	.text
+	.ent	HudOff__14AIHigh_BTC_Cop
+HudOff__14AIHigh_BTC_Cop:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$2,28($4)
+	#nop
+	bne	$2,$0,$L360
+	jal	Hud_BustedOverlayOff__Fv
+$L360:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	HudOff__14AIHigh_BTC_Cop
+	.text
+	.ent	__19AIHigh_BTC_HumanCopP8Car_tObji
+__19AIHigh_BTC_HumanCopP8Car_tObji:
+	.frame	$sp,40,$31		# vars= 0, regs= 4/0, args= 24, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,28($sp)
+	move	$17,$4
+	sw	$16,24($sp)
+	move	$16,$6
+	sw	$31,36($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	__14AIHigh_BTC_CopP8Car_tObji
+	sw	$18,32($sp)
+	.set	macro
+	.set	reorder
+
+	move	$5,$0
+	lui	$2,%hi(_vt.19AIHigh_BTC_HumanCop) # high
+	addiu	$2,$2,%lo(_vt.19AIHigh_BTC_HumanCop) # low
+	sw	$2,20($17)
+	li	$2,1			# 0x00000001
+	sw	$2,132($17)
+	li	$2,-1			# 0xffffffff
+	sw	$2,100($17)
+	li	$2,65536			# 0x00010000
+	lui	$3,%hi(AITune_BTC) # high
+	sw	$2,108($17)
+	lui	$2,%hi(GameSetup_gData+8) # high
+	sw	$0,124($17)
+	sw	$0,128($17)
+	sw	$0,136($17)
+	sw	$0,104($17)
+	lw	$4,%lo(GameSetup_gData+8)($2)
+	addiu	$3,$3,%lo(AITune_BTC) # low
+	sll	$2,$4,3
+	subu	$2,$2,$4
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$2,12($2)
+	lw	$3,0($17)
+	move	$6,$5
+	sw	$2,112($17)
+	sw	$0,616($3)
+	sw	$0,16($sp)
+	sw	$0,20($sp)
+	lw	$4,0($17)
+	sw	$0,_19AIHigh_BTC_HumanCop.lastInputRequestTick_
+	.set	noreorder
+	.set	nomacro
+	jal	AILife_PlaceCarAtLocation__FP8Car_tObjiiiii
+	li	$7,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$16,$0,$L381
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	lw	$3,fastRandom
+	lw	$5,randSeed
+	#nop
+	mult	$3,$5
+	li	$6,16711680			# 0x00ff0000
+	ori	$6,$6,0xff00
+	mflo	$3
+	#nop
+	#nop
+	andi	$4,$3,0xffff
+	sw	$3,randtemp
+	and	$3,$3,$6
+	srl	$3,$3,8
+	sll	$2,$3,5
+	subu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	srl	$2,$2,16
+	sltu	$2,$2,500
+	sw	$4,fastRandom
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L370
+	li	$16,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	li	$16,1			# 0x00000001
+$L370:
+	mult	$4,$5
+	mflo	$3
+	#nop
+	#nop
+	andi	$2,$3,0xffff
+	sw	$3,randtemp
+	and	$3,$3,$6
+	srl	$3,$3,8
+	sw	$2,fastRandom
+	sll	$2,$3,5
+	subu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	srl	$2,$2,16
+	sltu	$2,$2,750
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L371
+	move	$18,$0
+	.set	macro
+	.set	reorder
+
+	lw	$2,AIHigh_CopGameType
+	#nop
+	xori	$2,$2,0x0004
+	sltu	$18,$18,$2
+$L371:
+	move	$4,$17
+	move	$5,$0
+	li	$6,100			# 0x00000064
+	.set	noreorder
+	.set	nomacro
+	jal	FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii
+	li	$7,500			# 0x000001f4
+	.set	macro
+	.set	reorder
+
+	lw	$3,100($17)
+	#nop
+	addu	$3,$3,1
+	andi	$3,$3,0x0001
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$0,$L372
+	move	$4,$2
+	.set	macro
+	.set	reorder
+
+	sll	$2,$16,3
+	.set	noreorder
+	.set	nomacro
+	j	$L373
+	subu	$2,$2,$16
+	.set	macro
+	.set	reorder
+
+$L372:
+	sll	$2,$16,3
+	subu	$2,$16,$2
+$L373:
+	lw	$4,0($17)
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_CalcRoadBend__FP8Car_tObji
+	li	$5,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	bgez	$2,$L378
+	subu	$2,$0,$2
+$L378:
+	slt	$2,$2,24249
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L382
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	lw	$3,AIHigh_CopGameType
+	li	$2,4			# 0x00000004
+	beq	$3,$2,$L382
+	li	$18,1			# 0x00000001
+$L382:
+	lw	$2,0($17)
+	move	$6,$16
+	lh	$5,8($2)
+	.set	noreorder
+	.set	nomacro
+	jal	NewStage__19AIHigh_BTC_HumanCopiii
+	move	$7,$18
+	.set	macro
+	.set	reorder
+
+	move	$2,$17
+$L381:
+	lw	$31,36($sp)
+	lw	$18,32($sp)
+	lw	$17,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	__19AIHigh_BTC_HumanCopP8Car_tObji
+	.text
+	.ent	FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii
+FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii:
+	.frame	$sp,48,$31		# vars= 0, regs= 7/0, args= 16, extra= 0
+	.mask	0x803f0000,-8
+	.fmask	0x00000000,0
+	lw	$3,fastRandom
+	lw	$2,randSeed
+	#nop
+	mult	$3,$2
+	subu	$sp,$sp,48
+	mflo	$3
+	#nop
+	#nop
+	srl	$2,$3,8
+	andi	$2,$2,0xffff
+	sll	$2,$2,1
+	mult	$7,$2
+	sw	$21,36($sp)
+	sw	$31,40($sp)
+	sw	$20,32($sp)
+	sw	$19,28($sp)
+	sw	$18,24($sp)
+	sw	$17,20($sp)
+	sw	$16,16($sp)
+	sw	$3,randtemp
+	andi	$3,$3,0xffff
+	sw	$3,fastRandom
+	mflo	$9
+	#nop
+	#nop
+	srl	$2,$9,16
+	subu	$2,$2,$7
+	.set	noreorder
+	.set	nomacro
+	bltz	$2,$L384
+	move	$21,$6
+	.set	macro
+	.set	reorder
+
+	lw	$3,gNumSlices
+	addu	$17,$5,$2
+	slt	$2,$17,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L401
+	li	$2,1717960704			# 0x66660000
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L401
+	subu	$17,$17,$3
+	.set	macro
+	.set	reorder
+
+$L384:
+	addu	$17,$5,$2
+	.set	noreorder
+	.set	nomacro
+	bgez	$17,$L401
+	li	$2,1717960704			# 0x66660000
+	.set	macro
+	.set	reorder
+
+	lw	$2,gNumSlices
+	#nop
+	addu	$17,$17,$2
+	li	$2,1717960704			# 0x66660000
+$L401:
+	ori	$2,$2,0x6667
+	mult	$21,$2
+	move	$19,$0
+	sll	$20,$21,1
+	sra	$2,$21,31
+	mfhi	$8
+	#nop
+	#nop
+	sra	$3,$8,1
+	subu	$18,$3,$2
+$L388:
+	slt	$2,$19,30
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L389
+	subu	$2,$0,$21
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bltz	$2,$L392
+	subu	$16,$17,$21
+	.set	macro
+	.set	reorder
+
+	lw	$3,gNumSlices
+	#nop
+	slt	$2,$16,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L402
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L394
+	subu	$16,$16,$3
+	.set	macro
+	.set	reorder
+
+$L392:
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L402
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$2,gNumSlices
+	#nop
+	addu	$16,$16,$2
+$L394:
+	move	$4,$16
+$L402:
+	move	$5,$20
+	li	$6,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_IsDriveableLaneInSliceRange__Fiiii
+	li	$7,6			# 0x00000006
+	.set	macro
+	.set	reorder
+
+	move	$4,$16
+	move	$5,$20
+	li	$6,1			# 0x00000001
+	li	$7,7			# 0x00000007
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_IsDriveableLaneInSliceRange__Fiiii
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	beq	$16,$0,$L396
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L403
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+$L396:
+	.set	noreorder
+	.set	nomacro
+	bltz	$18,$L397
+	addu	$5,$17,$18
+	.set	macro
+	.set	reorder
+
+	lw	$3,gNumSlices
+	#nop
+	slt	$2,$5,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L404
+	move	$17,$5
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L400
+	subu	$5,$5,$3
+	.set	macro
+	.set	reorder
+
+$L397:
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L404
+	move	$17,$5
+	.set	macro
+	.set	reorder
+
+	lw	$2,gNumSlices
+	#nop
+	addu	$5,$5,$2
+$L400:
+	move	$17,$5
+$L404:
+	.set	noreorder
+	.set	nomacro
+	j	$L388
+	addu	$19,$19,1
+	.set	macro
+	.set	reorder
+
+$L389:
+	move	$2,$17
+$L403:
+	lw	$31,40($sp)
+	lw	$21,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii
+	.text
+	.ent	ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp
+ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$31,24($sp)
+	sw	$16,16($sp)
+	lw	$3,0($17)
+	move	$16,$5
+	lw	$2,1392($3)
+	#nop
+	ori	$2,$2,0x0002
+	.set	noreorder
+	.set	nomacro
+	jal	CheckForNewTarget__14AIHigh_BTC_Cop
+	sw	$2,1392($3)
+	.set	macro
+	.set	reorder
+
+	lw	$2,88($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$16,$L406
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	sw	$2,96($17)
+	lui	$2,%hi(simGlobal+4) # high
+	lw	$2,%lo(simGlobal+4)($2)
+	#nop
+	sw	$2,116($17)
+$L406:
+	.set	noreorder
+	.set	nomacro
+	jal	ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp
+	.text
+	.ent	FreezeAndEndChase__19AIHigh_BTC_HumanCop
+FreezeAndEndChase__19AIHigh_BTC_HumanCop:
+	.frame	$sp,32,$31		# vars= 0, regs= 4/0, args= 16, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$18,24($sp)
+	move	$18,$4
+	sw	$31,28($sp)
+	sw	$17,20($sp)
+	sw	$16,16($sp)
+	lw	$2,28($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L407
+	li	$6,16711680			# 0x00ff0000
+	.set	macro
+	.set	reorder
+
+	lw	$3,fastRandom
+	lw	$5,randSeed
+	#nop
+	mult	$3,$5
+	ori	$6,$6,0xff00
+	mflo	$3
+	#nop
+	#nop
+	andi	$4,$3,0xffff
+	sw	$3,randtemp
+	and	$3,$3,$6
+	srl	$3,$3,8
+	sll	$2,$3,5
+	subu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	srl	$2,$2,16
+	sltu	$2,$2,500
+	sw	$4,fastRandom
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L409
+	li	$16,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	li	$16,1			# 0x00000001
+$L409:
+	mult	$4,$5
+	mflo	$3
+	#nop
+	#nop
+	andi	$2,$3,0xffff
+	sw	$3,randtemp
+	and	$3,$3,$6
+	srl	$3,$3,8
+	sw	$2,fastRandom
+	sll	$2,$3,5
+	subu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	srl	$2,$2,16
+	sltu	$2,$2,750
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L410
+	move	$17,$0
+	.set	macro
+	.set	reorder
+
+	lw	$2,AIHigh_CopGameType
+	#nop
+	xori	$2,$2,0x0004
+	sltu	$17,$17,$2
+$L410:
+	lw	$2,0($18)
+	lw	$4,AIDataRecord_TrackCurve
+	lh	$5,8($2)
+	jal	Get__25AIDataRecord_TrackCurve_ti
+	slt	$2,$2,66
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L418
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	lw	$3,AIHigh_CopGameType
+	li	$2,4			# 0x00000004
+	beq	$3,$2,$L418
+	li	$17,1			# 0x00000001
+$L418:
+	lw	$2,0($18)
+	li	$6,100			# 0x00000064
+	lh	$5,8($2)
+	.set	noreorder
+	.set	nomacro
+	jal	FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii
+	li	$7,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$3,100($18)
+	#nop
+	addu	$3,$3,1
+	andi	$3,$3,0x0001
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$0,$L412
+	move	$5,$2
+	.set	macro
+	.set	reorder
+
+	sll	$2,$16,3
+	.set	noreorder
+	.set	nomacro
+	j	$L413
+	subu	$2,$2,$16
+	.set	macro
+	.set	reorder
+
+$L412:
+	sll	$2,$16,3
+	subu	$2,$16,$2
+$L413:
+	bltz	$2,$L414
+	lw	$3,gNumSlices
+	addu	$5,$5,$2
+	slt	$2,$5,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L419
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L419
+	subu	$5,$5,$3
+	.set	macro
+	.set	reorder
+
+$L414:
+	addu	$5,$5,$2
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L419
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	lw	$2,gNumSlices
+	#nop
+	addu	$5,$5,$2
+$L419:
+	move	$6,$16
+	lw	$2,0($4)
+	move	$7,$17
+	.set	noreorder
+	.set	nomacro
+	jal	NewStage__19AIHigh_BTC_HumanCopiii
+	sh	$5,8($2)
+	.set	macro
+	.set	reorder
+
+$L407:
+	lw	$31,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	FreezeAndEndChase__19AIHigh_BTC_HumanCop
+	.text
+	.ent	CheckConditionWithCop0__19AIHigh_BTC_HumanCop
+CheckConditionWithCop0__19AIHigh_BTC_HumanCop:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$31,24($sp)
+	sw	$16,16($sp)
+	lw	$2,28($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L421
+	lui	$2,%hi(highLevelAIObjs) # high
+	.set	macro
+	.set	reorder
+
+	lw	$16,%lo(highLevelAIObjs)($2)
+	lw	$3,100($17)
+	lw	$2,100($16)
+	#nop
+	slt	$2,$3,$2
+	beq	$2,$0,$L422
+	lw	$2,0($16)
+	lw	$6,128($16)
+	lw	$7,132($16)
+	lh	$5,8($2)
+	addu	$2,$3,1
+	andi	$2,$2,0x0001
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L428
+	sll	$2,$6,3
+	.set	macro
+	.set	reorder
+
+	subu	$2,$2,$6
+	.set	noreorder
+	.set	nomacro
+	j	$L429
+	sll	$2,$2,1
+	.set	macro
+	.set	reorder
+
+$L428:
+	subu	$2,$2,$6
+	sll	$2,$2,1
+	subu	$2,$0,$2
+$L429:
+	bltz	$2,$L430
+	lw	$3,gNumSlices
+	addu	$5,$5,$2
+	slt	$2,$5,$3
+	bne	$2,$0,$L432
+	.set	noreorder
+	.set	nomacro
+	j	$L432
+	subu	$5,$5,$3
+	.set	macro
+	.set	reorder
+
+$L430:
+	addu	$5,$5,$2
+	bgez	$5,$L432
+	lw	$2,gNumSlices
+	#nop
+	addu	$5,$5,$2
+$L432:
+	.set	noreorder
+	.set	nomacro
+	jal	NewStage__19AIHigh_BTC_HumanCopiii
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+$L422:
+	lw	$2,0($16)
+	lw	$3,0($17)
+	lw	$2,1372($2)
+	#nop
+	sw	$2,1372($3)
+$L421:
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	CheckConditionWithCop0__19AIHigh_BTC_HumanCop
+	.text
+	.ent	NewStage__19AIHigh_BTC_HumanCopiii
+NewStage__19AIHigh_BTC_HumanCopiii:
+	.frame	$sp,64,$31		# vars= 8, regs= 7/0, args= 24, extra= 0
+	.mask	0x803f0000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,64
+	sw	$18,40($sp)
+	move	$18,$4
+	sw	$19,44($sp)
+	move	$19,$5
+	sw	$20,48($sp)
+	move	$20,$6
+	sw	$31,56($sp)
+	sw	$21,52($sp)
+	sw	$17,36($sp)
+	sw	$16,32($sp)
+	lw	$2,100($18)
+	#nop
+	addu	$2,$2,1
+	sw	$2,100($18)
+	lui	$2,%hi(GameSetup_gData) # high
+	addiu	$3,$2,%lo(GameSetup_gData) # low
+	lw	$2,436($3)
+	lw	$4,AIHigh_CopGameType
+	addu	$2,$2,1
+	sw	$2,436($3)
+	addu	$2,$4,-2
+	sltu	$2,$2,2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L438
+	move	$16,$7
+	.set	macro
+	.set	reorder
+
+	lw	$2,100($18)
+	lw	$3,428($3)
+	#nop
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L467
+	lui	$3,%hi(simVar+4) # high
+	.set	macro
+	.set	reorder
+
+$L438:
+	li	$2,4			# 0x00000004
+	bne	$4,$2,$L436
+	lw	$2,100($18)
+	#nop
+	slt	$2,$2,3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L436
+	lui	$3,%hi(simVar+4) # high
+	.set	macro
+	.set	reorder
+
+$L467:
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	j	$L435
+	sw	$2,%lo(simVar+4)($3)
+	.set	macro
+	.set	reorder
+
+$L436:
+	jal	BWorld_InitSpikeBelt__Fv
+	lui	$2,%hi(AICop_spikeBelt) # high
+	.set	noreorder
+	.set	nomacro
+	jal	Object_ClearCustomObjects__Fv
+	sw	$0,%lo(AICop_spikeBelt)($2)
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($18)
+	sw	$20,128($18)
+	sw	$16,132($18)
+	sh	$19,8($2)
+	lw	$2,0($18)
+	addu	$5,$sp,24
+	sw	$20,1364($2)
+	lw	$4,0($18)
+	addu	$6,$sp,28
+	sw	$0,AICop_gRoadBlockState
+	sw	$0,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1
+	sw	$0,24($sp)
+	.set	macro
+	.set	reorder
+
+	lw	$3,AIHigh_CopGameType
+	li	$2,4			# 0x00000004
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L442
+	move	$5,$19
+	.set	macro
+	.set	reorder
+
+	lw	$6,28($sp)
+	sw	$0,16($sp)
+	.set	noreorder
+	.set	nomacro
+	j	$L462
+	sw	$0,20($sp)
+	.set	macro
+	.set	reorder
+
+$L442:
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$0,$L444
+	li	$2,851968			# 0x000d0000
+	.set	macro
+	.set	reorder
+
+	ori	$2,$2,0x5555
+	mult	$20,$2
+	lw	$6,28($sp)
+	move	$5,$19
+	sw	$0,20($sp)
+	mflo	$9
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$L462
+	sw	$9,16($sp)
+	.set	macro
+	.set	reorder
+
+$L444:
+	lw	$2,BWorldSm_slices
+	sll	$21,$19,5
+	addu	$6,$21,$2
+	lbu	$2,31($6)
+	lbu	$4,29($6)
+	sll	$2,$2,15
+	andi	$3,$4,0x000f
+	mult	$2,$3
+	lbu	$3,30($6)
+	mflo	$17
+	#nop
+	srl	$7,$4,4
+	sll	$3,$3,15
+	mult	$3,$7
+	lh	$2,26($6)
+	li	$8,-32768			# 0xffff8000
+	sll	$2,$2,8
+	addu	$5,$2,$8
+	slt	$2,$17,$5
+	mflo	$16
+	#nop
+	beq	$2,$0,$L446
+	move	$5,$17
+$L446:
+	lh	$2,24($6)
+	#nop
+	sll	$2,$2,8
+	addu	$3,$2,$8
+	slt	$2,$16,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L447
+	move	$17,$5
+	.set	macro
+	.set	reorder
+
+	move	$3,$16
+$L447:
+	move	$16,$3
+	move	$4,$19
+	li	$5,6			# 0x00000006
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_IsDriveableLane__Fii
+	subu	$5,$5,$7
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L448
+	li	$2,-131072			# 0xfffe0000
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$2
+$L448:
+	lw	$2,BWorldSm_slices
+	#nop
+	addu	$2,$21,$2
+	lbu	$5,29($2)
+	move	$4,$19
+	andi	$5,$5,0x000f
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_IsDriveableLane__Fii
+	addu	$5,$5,7
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L449
+	li	$2,-131072			# 0xfffe0000
+	.set	macro
+	.set	reorder
+
+	addu	$17,$17,$2
+$L449:
+	lw	$2,28($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L450
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	lw	$3,AITune_driveSide
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L452
+	move	$5,$19
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L468
+	subu	$6,$0,$16
+	.set	macro
+	.set	reorder
+
+$L450:
+	lw	$3,AITune_driveSide
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L453
+	move	$5,$19
+	.set	macro
+	.set	reorder
+
+$L452:
+	move	$5,$19
+	move	$6,$17
+	sll	$2,$20,8
+	.set	noreorder
+	.set	nomacro
+	j	$L463
+	addu	$2,$2,512
+	.set	macro
+	.set	reorder
+
+$L453:
+	subu	$6,$0,$16
+$L468:
+	sll	$3,$20,8
+	li	$2,512			# 0x00000200
+	subu	$2,$2,$3
+$L463:
+	sw	$0,16($sp)
+	sw	$2,20($sp)
+$L462:
+	lw	$4,0($18)
+	.set	noreorder
+	.set	nomacro
+	jal	AILife_PlaceCarAtLocation__FP8Car_tObjiiiii
+	move	$7,$20
+	.set	macro
+	.set	reorder
+
+	lw	$3,AIHigh_CopGameType
+	li	$2,4			# 0x00000004
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L456
+	lui	$4,%hi(GameSetup_gData) # high
+	.set	macro
+	.set	reorder
+
+	lui	$2,%hi(AIH_BTC_Cop_1HC1HP_StageTimes) # high
+	lw	$3,100($18)
+	addiu	$2,$2,%lo(AIH_BTC_Cop_1HC1HP_StageTimes) # low
+	sll	$3,$3,2
+	addu	$3,$3,$2
+	lw	$2,0($3)
+	.set	noreorder
+	.set	nomacro
+	j	$L466
+	sll	$16,$2,5
+	.set	macro
+	.set	reorder
+
+$L456:
+	lw	$3,100($18)
+	addiu	$4,$4,%lo(GameSetup_gData) # low
+	sll	$2,$3,1
+	addu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$4
+	lw	$2,464($2)
+	#nop
+	sll	$16,$2,5
+$L466:
+	bgez	$16,$L458
+	move	$16,$0
+$L458:
+	lw	$2,108($18)
+	#nop
+	mult	$16,$2
+	mflo	$4
+	#nop
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$4,$L459
+	li	$2,65535			# 0x0000ffff
+	.set	macro
+	.set	reorder
+
+	addu	$4,$4,$2
+$L459:
+	lw	$2,28($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L460
+	sra	$16,$4,16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	Hud_BTC_BonusTime__Fl
+	sll	$4,$16,1
+	.set	macro
+	.set	reorder
+
+$L460:
+	lw	$2,112($18)
+	li	$3,1			# 0x00000001
+	sw	$3,124($18)
+	sw	$0,116($18)
+	sw	$0,120($18)
+	sw	$3,96($18)
+	addu	$2,$2,$16
+	.set	noreorder
+	.set	nomacro
+	jal	TrgSfx_RestartTrgSfx__Fv
+	sw	$2,112($18)
+	.set	macro
+	.set	reorder
+
+$L435:
+	lw	$31,56($sp)
+	lw	$21,52($sp)
+	lw	$20,48($sp)
+	lw	$19,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,64
+	.set	macro
+	.set	reorder
+
+	.end	NewStage__19AIHigh_BTC_HumanCopiii
+	.text
+	.ent	UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop
+UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,20($sp)
+	lw	$3,96($16)
+	li	$2,3			# 0x00000003
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L470
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	beq	$3,$2,$L470
+	lw	$2,112($16)
+	lw	$3,AI_elapsedTime
+	#nop
+	subu	$2,$2,$3
+	sw	$2,112($16)
+$L470:
+	lw	$2,88($16)
+	#nop
+	beq	$2,$0,$L471
+	lw	$5,112($16)
+	lw	$2,0($2)
+	lw	$3,0($16)
+	lw	$4,648($2)
+	lw	$6,1120($3)
+	.set	noreorder
+	.set	nomacro
+	j	$L478
+	addu	$4,$4,92
+	.set	macro
+	.set	reorder
+
+$L471:
+	lw	$2,0($16)
+	move	$4,$0
+	lw	$6,1120($2)
+	move	$5,$4
+$L478:
+	.set	noreorder
+	.set	nomacro
+	jal	Hud_BTC_Update__FPcib
+	sltu	$6,$6,1
+	.set	macro
+	.set	reorder
+
+	lw	$2,112($16)
+	#nop
+	bgez	$2,$L477
+	lw	$2,sayLose.412
+	#nop
+	beq	$2,$0,$L475
+	lw	$4,0($16)
+	jal	Mobile__6SpeechP8Car_tObj
+	lw	$3,76($2)
+	#nop
+	lh	$4,56($3)
+	lw	$3,60($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+	sw	$0,sayLose.412
+$L475:
+	lw	$2,112($16)
+	#nop
+	slt	$2,$2,-160
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L477
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	li	$3,1			# 0x00000001
+	lui	$2,%hi(simVar+4) # high
+	sw	$3,%lo(simVar+4)($2)
+	lw	$5,88($4)
+	lw	$7,0($4)
+	sw	$3,sayLose.412
+	.set	noreorder
+	.set	nomacro
+	jal	HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj
+	move	$6,$3
+	.set	macro
+	.set	reorder
+
+$L477:
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop
+	.text
+	.ent	UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop
+UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$5,$4
+	lw	$2,112($5)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L480
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($5)
+	#nop
+	lw	$4,1364($2)
+	li	$3,1			# 0x00000001
+	sw	$3,AIInit_forceHumanHandBrake
+	sw	$4,1120($2)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$0,136($5)
+	.set	macro
+	.set	reorder
+
+$L480:
+	lw	$3,96($5)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L483
+	li	$4,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($5)
+	#nop
+	sw	$0,1120($2)
+	lw	$3,0($5)
+	li	$2,1			# 0x00000001
+	sw	$2,632($3)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$0,136($5)
+	.set	macro
+	.set	reorder
+
+$L483:
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$4,$L486
+	li	$3,-3			# 0xfffffffd
+	.set	macro
+	.set	reorder
+
+	lw	$4,0($5)
+	#nop
+	lw	$2,1392($4)
+	#nop
+	and	$2,$2,$3
+	sw	$2,1392($4)
+	lw	$3,128($5)
+	lw	$2,0($5)
+	#nop
+	sw	$3,1120($2)
+	lw	$2,132($5)
+	lw	$3,0($5)
+	sltu	$2,$2,1
+	sw	$2,632($3)
+	lw	$2,0($5)
+	#nop
+	lw	$2,632($2)
+	#nop
+	beq	$2,$0,$L496
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$0,136($5)
+	.set	macro
+	.set	reorder
+
+$L486:
+	lw	$3,0($5)
+	#nop
+	lw	$2,632($3)
+	#nop
+	beq	$2,$4,$L493
+	lw	$2,1120($3)
+	#nop
+	beq	$2,$0,$L492
+$L493:
+	lw	$2,1392($3)
+	#nop
+	ori	$2,$2,0x0002
+	sw	$2,1392($3)
+$L492:
+	lw	$2,0($5)
+	sw	$0,136($5)
+	sw	$0,96($5)
+	sw	$0,1120($2)
+	lw	$2,0($5)
+	#nop
+	sw	$0,632($2)
+$L496:
+	j	$31
+	.end	UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop
+	.text
+	.ent	RequestWingman__19AIHigh_BTC_HumanCop
+RequestWingman__19AIHigh_BTC_HumanCop:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$31,24($sp)
+	sw	$16,16($sp)
+	lw	$2,96($17)
+	#nop
+	addu	$2,$2,-3
+	sltu	$2,$2,2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L497
+	lui	$6,%hi(GameSetup_gData) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$6,$6,%lo(GameSetup_gData) # low
+	lui	$5,%hi(AITune_BTC) # high
+	addiu	$5,$5,%lo(AITune_BTC) # low
+	lw	$2,100($17)
+	lw	$4,0($17)
+	sll	$3,$2,1
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$6
+	lw	$6,8($6)
+	lw	$3,468($3)
+	sll	$2,$6,3
+	subu	$2,$2,$6
+	sll	$2,$2,2
+	addu	$2,$2,$5
+	lw	$2,16($2)
+	sll	$3,$3,6
+	.set	noreorder
+	.set	nomacro
+	jal	Mobile__6SpeechP8Car_tObj
+	addu	$16,$3,$2
+	.set	macro
+	.set	reorder
+
+	lw	$3,76($2)
+	#nop
+	lh	$4,96($3)
+	lw	$3,100($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+	lw	$3,116($17)
+	#nop
+	beq	$3,$0,$L500
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$0,$L500
+	lui	$2,%hi(simGlobal+4) # high
+	.set	macro
+	.set	reorder
+
+	lw	$2,%lo(simGlobal+4)($2)
+	#nop
+	subu	$2,$2,$3
+	slt	$2,$16,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L500
+	li	$2,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+	lw	$3,120($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L500
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L497
+	sw	$2,120($17)
+	.set	macro
+	.set	reorder
+
+$L500:
+	jal	Dispatch__6Speech
+	lw	$3,76($2)
+	#nop
+	lh	$4,24($3)
+	lw	$3,28($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+$L497:
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	RequestWingman__19AIHigh_BTC_HumanCop
+	.text
+	.ent	RequestBlockader__19AIHigh_BTC_HumanCopi
+RequestBlockader__19AIHigh_BTC_HumanCopi:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,24($sp)
+	sw	$17,20($sp)
+	lw	$2,96($16)
+	#nop
+	addu	$2,$2,-3
+	sltu	$2,$2,2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L506
+	move	$17,$5
+	.set	macro
+	.set	reorder
+
+	beq	$17,$0,$L508
+	lw	$4,0($16)
+	jal	Mobile__6SpeechP8Car_tObj
+	lw	$3,76($2)
+	#nop
+	lh	$4,88($3)
+	lw	$3,92($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+	lui	$5,%hi(GameSetup_gData) # high
+	addiu	$5,$5,%lo(GameSetup_gData) # low
+	lui	$4,%hi(AITune_BTC) # high
+	lw	$2,100($16)
+	addiu	$4,$4,%lo(AITune_BTC) # low
+	sll	$3,$2,1
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$5
+	lw	$5,8($5)
+	lw	$3,472($3)
+	sll	$2,$5,3
+	subu	$2,$2,$5
+	sll	$2,$2,2
+	addu	$2,$2,$4
+	lw	$2,24($2)
+	.set	noreorder
+	.set	nomacro
+	j	$L520
+	sll	$3,$3,6
+	.set	macro
+	.set	reorder
+
+$L508:
+	lw	$4,0($16)
+	jal	Mobile__6SpeechP8Car_tObj
+	lw	$3,76($2)
+	#nop
+	lh	$4,80($3)
+	lw	$3,84($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+	lui	$5,%hi(GameSetup_gData) # high
+	addiu	$5,$5,%lo(GameSetup_gData) # low
+	lui	$4,%hi(AITune_BTC) # high
+	lw	$2,100($16)
+	addiu	$4,$4,%lo(AITune_BTC) # low
+	sll	$3,$2,1
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$2
+	sll	$3,$3,2
+	addu	$3,$3,$5
+	lw	$5,8($5)
+	lw	$3,476($3)
+	sll	$2,$5,3
+	subu	$2,$2,$5
+	sll	$2,$2,2
+	addu	$2,$2,$4
+	lw	$2,20($2)
+	sll	$3,$3,6
+$L520:
+	lw	$4,116($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L511
+	addu	$3,$3,$2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	blez	$3,$L511
+	lui	$2,%hi(simGlobal+4) # high
+	.set	macro
+	.set	reorder
+
+	lw	$2,%lo(simGlobal+4)($2)
+	#nop
+	subu	$2,$2,$4
+	slt	$2,$3,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L511
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+	lw	$3,120($16)
+	#nop
+	beq	$3,$2,$L511
+	jal	Dispatch__6Speech
+	lw	$3,76($2)
+	#nop
+	lh	$4,32($3)
+	lw	$3,36($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$17,$0,$L515
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L506
+	sw	$2,120($16)
+	.set	macro
+	.set	reorder
+
+$L515:
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	j	$L506
+	sw	$2,120($16)
+	.set	macro
+	.set	reorder
+
+$L511:
+	jal	Dispatch__6Speech
+	lw	$3,76($2)
+	#nop
+	lh	$4,24($3)
+	lw	$3,28($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+$L506:
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	RequestBlockader__19AIHigh_BTC_HumanCopi
+	.text
+	.ent	CheckForWingmanRequest__19AIHigh_BTC_HumanCop
+CheckForWingmanRequest__19AIHigh_BTC_HumanCop:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$3,120($4)
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L522
+	li	$2,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+	sw	$2,120($4)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L522:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.end	CheckForWingmanRequest__19AIHigh_BTC_HumanCop
+	.text
+	.ent	CheckForBlockaderRequest__19AIHigh_BTC_HumanCopPi
+CheckForBlockaderRequest__19AIHigh_BTC_HumanCopPi:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	sw	$0,0($5)
+	lw	$3,120($4)
+	#nop
+	addu	$2,$3,-2
+	sltu	$2,$2,2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L526
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	bne	$3,$2,$L527
+	li	$2,1			# 0x00000001
+	sw	$2,0($5)
+$L527:
+	li	$2,5			# 0x00000005
+	sw	$2,120($4)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L526:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.end	CheckForBlockaderRequest__19AIHigh_BTC_HumanCopPi
+	.text
+	.ent	UpdateWingmanRole__19AIHigh_BTC_HumanCop12Wingman_Role
+UpdateWingmanRole__19AIHigh_BTC_HumanCop12Wingman_Role:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	beq	$5,$2,$L533
+	slt	$2,$5,2
+	.set	macro
+	.set	reorder
+
+	beq	$2,$0,$L538
+	beq	$5,$0,$L532
+$L541:
+	j	$31
+$L538:
+	slt	$2,$5,4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L541
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$2,120($4)
+	.set	macro
+	.set	reorder
+
+$L532:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$0,120($4)
+	.set	macro
+	.set	reorder
+
+$L533:
+	li	$2,4			# 0x00000004
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$2,120($4)
+	.set	macro
+	.set	reorder
+
+	.end	UpdateWingmanRole__19AIHigh_BTC_HumanCop12Wingman_Role
+	.text
+	.ent	ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$4,$0
+	lw	$5,Cars_gNumTrafficCars
+	lui	$2,%hi(highLevelAIObjs) # high
+	addiu	$7,$2,%lo(highLevelAIObjs) # low
+	li	$6,1			# 0x00000001
+	lui	$2,%hi(Cars_gTrafficCarList) # high
+	addiu	$3,$2,%lo(Cars_gTrafficCarList) # low
+$L543:
+	slt	$2,$4,$5
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L549
+	addu	$4,$4,1
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($3)
+	#nop
+	lw	$2,596($2)
+	addu	$3,$3,4
+	sll	$2,$2,2
+	addu	$2,$2,$7
+	lw	$2,0($2)
+	.set	noreorder
+	.set	nomacro
+	j	$L543
+	sw	$6,28($2)
+	.set	macro
+	.set	reorder
+
+$L549:
+	j	$31
+	.end	ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+	.text
+	.ent	ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$4,$0
+	lw	$5,Cars_gNumTrafficCars
+	lui	$2,%hi(highLevelAIObjs) # high
+	addiu	$6,$2,%lo(highLevelAIObjs) # low
+	lui	$2,%hi(Cars_gTrafficCarList) # high
+	addiu	$3,$2,%lo(Cars_gTrafficCarList) # low
+$L551:
+	slt	$2,$4,$5
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L557
+	addu	$4,$4,1
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($3)
+	#nop
+	lw	$2,596($2)
+	addu	$3,$3,4
+	sll	$2,$2,2
+	addu	$2,$2,$6
+	lw	$2,0($2)
+	.set	noreorder
+	.set	nomacro
+	j	$L551
+	sw	$0,28($2)
+	.set	macro
+	.set	reorder
+
+$L557:
+	j	$31
+	.end	ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+	.text
+	.ent	SetDesiredSpeed__19AIHigh_BTC_HumanCop
+SetDesiredSpeed__19AIHigh_BTC_HumanCop:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,20($sp)
+	lw	$4,0($16)
+	#nop
+	lw	$2,1120($4)
+	#nop
+	beq	$2,$0,$L564
+	jal	AISpeeds_CalcHumanTopSpeed__FP8Car_tObj
+	move	$3,$2
+	lw	$5,136($16)
+	lw	$4,0($16)
+	slt	$2,$5,$3
+	beq	$2,$0,$L560
+	move	$3,$5
+$L560:
+	sw	$3,1372($4)
+$L564:
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	SetDesiredSpeed__19AIHigh_BTC_HumanCop
+	.text
+	.ent	HighExecute__19AIHigh_BTC_HumanCop
+HighExecute__19AIHigh_BTC_HumanCop:
+	.frame	$sp,48,$31		# vars= 16, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	sw	$16,32($sp)
+	move	$16,$4
+	sw	$31,40($sp)
+	sw	$17,36($sp)
+	lw	$2,28($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L566
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$3,96($16)
+	#nop
+	bne	$3,$2,$L566
+	jal	ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop
+$L566:
+	lw	$4,88($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L567
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$3,96($16)
+	#nop
+	beq	$3,$2,$L567
+	lw	$2,0($4)
+	lw	$3,0($16)
+	lw	$2,1364($2)
+	#nop
+	sw	$2,1360($3)
+$L567:
+	.set	noreorder
+	.set	nomacro
+	jal	SetDesiredSpeed__19AIHigh_BTC_HumanCop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	CheckConditionWithCop0__19AIHigh_BTC_HumanCop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	CheckForNewTarget__14AIHigh_BTC_Cop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$2,88($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L569
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef
+	addu	$5,$sp,16
+	.set	macro
+	.set	reorder
+
+$L569:
+	lw	$3,AIHigh_CopGameType
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L570
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$17,$2,%lo(simGlobal) # low
+	lw	$2,4($17)
+	lw	$3,_19AIHigh_BTC_HumanCop.lastInputRequestTick_
+	#nop
+	subu	$2,$2,$3
+	slt	$2,$2,641
+	bne	$2,$0,$L571
+	lw	$2,0($16)
+	#nop
+	lbu	$3,1099($2)
+	li	$2,4			# 0x00000004
+	bne	$3,$2,$L572
+	.set	noreorder
+	.set	nomacro
+	jal	RequestWingman__19AIHigh_BTC_HumanCop
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($16)
+	#nop
+	sb	$0,1099($2)
+	lw	$2,4($17)
+	#nop
+	sw	$2,_19AIHigh_BTC_HumanCop.lastInputRequestTick_
+$L572:
+	lw	$2,0($16)
+	#nop
+	lbu	$3,1099($2)
+	li	$2,5			# 0x00000005
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L573
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	RequestBlockader__19AIHigh_BTC_HumanCopi
+	move	$5,$0
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($16)
+	#nop
+	sb	$0,1099($2)
+	lw	$2,4($17)
+	#nop
+	sw	$2,_19AIHigh_BTC_HumanCop.lastInputRequestTick_
+$L573:
+	lw	$2,0($16)
+	#nop
+	lbu	$3,1099($2)
+	li	$2,6			# 0x00000006
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L570
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	RequestBlockader__19AIHigh_BTC_HumanCopi
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$2,0($16)
+	#nop
+	sb	$0,1099($2)
+	lw	$2,4($17)
+	#nop
+	sw	$2,_19AIHigh_BTC_HumanCop.lastInputRequestTick_
+	j	$L570
+$L571:
+	lw	$3,0($16)
+	#nop
+	lbu	$2,1099($3)
+	#nop
+	addu	$2,$2,-4
+	sltu	$2,$2,3
+	beq	$2,$0,$L570
+	sb	$0,1099($3)
+$L570:
+	lw	$4,4($16)
+	jal	StateExecute__12AIState_Base
+	lw	$31,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	HighExecute__19AIHigh_BTC_HumanCop
+	.text
+	.ent	HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj
+HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$2,608($7)
+	#nop
+	andi	$2,$2,0x0002
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L579
+	lui	$2,%hi(Cars_gHumanRaceCarList) # high
+	.set	macro
+	.set	reorder
+
+	lw	$7,%lo(Cars_gHumanRaceCarList)($2)
+$L579:
+	lw	$2,28($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L584
+	lui	$2,%hi(simGlobal+4) # high
+	.set	macro
+	.set	reorder
+
+	beq	$6,$0,$L583
+$L584:
+	sltu	$6,$6,1
+	lw	$3,0($5)
+	lw	$2,%lo(simGlobal+4)($2)
+	lw	$4,116($4)
+	lh	$7,596($7)
+	lw	$5,648($3)
+	subu	$4,$2,$4
+	.set	noreorder
+	.set	nomacro
+	jal	Hud_BustedOverlayOn__FiPcbs
+	addu	$5,$5,92
+	.set	macro
+	.set	reorder
+
+$L583:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj

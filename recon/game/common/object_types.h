@@ -25,21 +25,21 @@ struct SerializedGroup; struct SimpleMem; struct AIHigh_Cop;
 #include "shared/Trk_SimpleInst.h"
 #include "shared/Trk_AnimateBoomInst.h"
 #include "shared/Trk_SFX.h"
-struct AnimScript {
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-    AnimScript(int num);
-    AnimScript(int num, int numParts);
-    AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
-    /* Same inline class definition owned by anim.cpp; required here so the
-       two object-animation deleting destructors expand byte-exactly. */
-    ~AnimScript() { delete [] inst; }
-    void SetAnimAttrib(int flags);
-    void GetAnimFrameInfo(int *frame, int *numFrames);
-    int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);
-    int GetTimedAnimPosRot(int index, coorddef *pt, matrixtdef *mat);
-    int GetStatus();
-};
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4g) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/tQuat.h"
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"

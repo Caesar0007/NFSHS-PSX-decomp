@@ -30,20 +30,20 @@
 
 
 
-struct AnimScript {
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4g) */
 
-    AnimScript(int num);
-    AnimScript(int num, int numParts);
-    AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
-    ~AnimScript() { delete [] inst; }
-    void SetAnimAttrib(int flags);
-    void GetAnimFrameInfo(int *frame, int *numFrames);
-    int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);
-    int GetTimedAnimPosRot(int index, coorddef *pt, matrixtdef *mat);
-    int GetStatus();
-};
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/SceneElem.h"
 

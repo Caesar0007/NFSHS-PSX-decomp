@@ -69,22 +69,22 @@ typedef struct {
     short qx, qy, qz, qw;
 } Anim_tFrame;
 
-struct AnimScript {
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4g) */
 
-    AnimScript(int num);
-    AnimScript(int num, int numParts);
-    AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
-    /* Inline in the original class: its expansion is the exact retail delete
-       sequence in Anim_Restart and Anim_FreeHandle; no out-of-line dtor exists. */
-    ~AnimScript() { delete [] inst; }
-    void SetAnimAttrib(int flags);
-    void GetAnimFrameInfo(int *frame, int *numFrames);
-    int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);
-    int GetTimedAnimPosRot(int index, coorddef *pt, matrixtdef *mat);
-    int GetStatus();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"

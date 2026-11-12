@@ -62,10 +62,10 @@ typedef struct {
     int (*issurfacelocked)(void);
 } SNDSYSVEC;
 
-typedef struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-} SNDSAMPLEFORMAT;
+#include "shared/SNDSAMPLEFORMAT.h"   /* one SNDSAMPLEFORMAT definition (header-truth 4w) */
+
+
+
 
 
 

@@ -134,7 +134,7 @@ typedef enum Udff_tAccessType {
     UDFF_MEMORY = 1
 } Udff_tAccessType;
 #ifdef NFS4_COLOR_OMIT_UDFF_HANDLE   /* retail cars.obj: Udff_tInfo complete, C-style typedef (two TPDEF), right after Udff_tAccessType; Udff_tHandle at the tail (cars_types.h) */
-typedef struct Udff_tInfo { Udff_tAccessType type; int handle; char *memPtr; } Udff_tInfo;   /* = shared/Udff_tInfo.h */
+#include "shared/Udff_tInfo.h"   /* one Udff_tInfo definition (header-truth 4w) */
 #else   /* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */
 struct Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;

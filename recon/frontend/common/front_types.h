@@ -11,9 +11,9 @@
 #define NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
 #define NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 #define NFS4_FEMENUDEFS_NO_FEAPPLICATION
-#define NFS4_FEMENUDEFS_NO_GLOBALMENUDEFS
+
 #include "femenudefs_types.h"
-#undef NFS4_FEMENUDEFS_NO_GLOBALMENUDEFS
+
 #undef NFS4_FEMENUDEFS_NO_FEAPPLICATION
 #undef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 #undef NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
@@ -228,22 +228,22 @@ struct tCarInLineup {
 
 
 
-struct tGlobalMenuDefs {
-    char _storage[15128];
-    tGlobalMenuDefs();
-    ~tGlobalMenuDefs();
-};
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no opaque view; header-truth 4w) */
 
-struct Front_MissionManagerCodegenView {
-    char _storage[8];
-    void LoadDescription(bool)
-        __asm__("LoadDescription__15tMissionManagerb");
-    void GetMissionToRace(tMissionInfo **)
-        __asm__("GetMissionToRace__15tMissionManagerPP12tMissionInfo");
-    short GetMissionStages(short, short, tStageInfo **)
-        __asm__("GetMissionStages__15tMissionManagerssPP10tStageInfo");
-};
-#define tMissionManager Front_MissionManagerCodegenView
+
+
+
+
+#include "shared/tMissionManager.h"   /* the real tMissionManager (no codegen view / asm aliases; header-truth 4w) */
+
+
+
+
+
+
+
+
+
 
 /* GameSetup_gData: Front.obj records no GameSetup type -- read through a word-pair view of the same 2600
    bytes (front_externs.h: `extern int GameSetup_gData[325][2];`): replayMode [4][1], pinkSlipsForfeit [23][0],

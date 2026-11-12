@@ -168,12 +168,12 @@ typedef tQuat Quatern_quat;
 
 
 
-struct SaveSurface {
-    short fCount, fMaxCount;
-    tSaveSurface *fStack;
-    void Save(Trk_NewSimQuad *);
-    void RestoreAll();
-};
+#include "shared/SaveSurface.h"   /* one SaveSurface definition (header-truth 4w) */
+
+
+
+
+
 
 #define NFS4_AIHIGH_TYPE_PART 2
 #include "aihigh.h"

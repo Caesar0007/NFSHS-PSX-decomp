@@ -128,13 +128,13 @@ struct TrackHeader {
     int maxFullSize, maxSplitSize, metaChunkCount, chunkCount;
 };
 #elif defined(NFS4_CHUNK_IN_HOOK) && NFS4_CHUNK_IN_HOOK == 3
-struct SaveSurface {
-    short fCount, fMaxCount;
-    tSaveSurface *fStack;
-    SaveSurface(int numEntries);
-    ~SaveSurface();
-    void Save(Trk_NewSimQuad *simQuad);
-    void RestoreAll();
-};
+#include "shared/SaveSurface.h"   /* one SaveSurface definition (header-truth 4w) */
+
+
+
+
+
+
+
 #include "shared/tBoundingSphere.h"
 #endif

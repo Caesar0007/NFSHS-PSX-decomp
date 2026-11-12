@@ -117,6 +117,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 707a74697 | Phase 4v: tScreenUserName (3 copies), tScreenMemcard (2), tScreenTournamentStandings (3), ...3item (3) = ONE definition each. Ctors declared unconditionally; SetCallingMenu / SetMessage / SetDrawMoney in-class for all but the key object (explicit NFS4_KEY_OBJECT_* marker in the owner .cpp: cc1plus would emit a standalone copy there) | 0 | 7 | 143 | 20 | 139 | 1647 |
 | 2026-11-12 | d126d00a5 | Phase 4w: front_types.h opaque tGlobalMenuDefs char[15128] and Front_MissionManagerCodegenView (3 asm aliases) replaced by the real classes; SaveSurface / SNDSAMPLEFORMAT / Udff_tInfo = ONE definition each. cars.obj -1 Udff_tInfo (was typedef form), front.obj +1 tUserNameMenuItem | 0 | 7 | 143 | 16 | 139 | 1649 |
 | 2026-11-12 | afeff0f7c | Phase 4-B.1: asm-label aliases for tTournamentManager::GetTrophyName (3 files), tCarManager::GetCarFromSimID, tFEApplication::DisplayHelp replaced by member calls. Found: 17 frontend headers fake enums with  etc. (changes mangled names; reason for the remaining aliases) - Phase 4-C | 0 | 7 | 143 | 16 | 139 | 1648 |
+| 2026-11-12 | 07a427ee6 | Phase 4-B.2: X_GlobalMenuDefsCodegenView in 9 headers -> real tGlobalMenuDefs; dead t*_ctor/_dtor(...) decls removed. Census +18: the real class's field walk records tUserNameMenuItem / tTrackManager / tTrackInformation in 7 objects that retail lacks; screenaudio.obj order inversions 0->7 (accepted, open mismatch) | 0 | 7 | 143 | 16 | 139 | 1666 |
 
 ## Open mismatches (left unexplained on purpose)
 

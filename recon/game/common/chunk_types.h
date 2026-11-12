@@ -182,23 +182,23 @@ struct BO_tNewtonObj;
 /* __vtbl_ptr_type is GCC 2.7.2's built-in vtable-entry typedef. */
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectAnim {
-    ObjectAnim() {}
-    virtual ~ObjectAnim() {}
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-struct DRender_tView;
-struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedMultiAnim;
+#include "object_anim_classes.h"   /* the OBJECT.H animation class family: no private copies (header-truth 4h) */
 
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { NFS4_CHUNK_SIGN_CTOR
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedSignAnim;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;

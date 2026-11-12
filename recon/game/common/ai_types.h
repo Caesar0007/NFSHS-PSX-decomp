@@ -129,19 +129,19 @@ typedef struct AIDataRecord_BestLine_t : public AIDataRecord_t {
 struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
-struct ObjectAnim {
-    ObjectAnim() {}
-    virtual ~ObjectAnim() {}
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-struct DRender_tView;
-struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} } ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-} ObjectFinishedSignAnim;
+#include "object_anim_classes.h"   /* the OBJECT.H animation class family: no private copies (header-truth 4h) */
+
+
+
+
+
+
+
+
+
+
+
+
 typedef int CarLogic_tObservations[1][3];
 
 #endif

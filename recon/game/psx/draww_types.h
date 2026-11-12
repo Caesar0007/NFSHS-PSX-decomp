@@ -137,18 +137,18 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic family, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
-struct ObjectAnim {
-    ObjectAnim() {}
-    virtual ~ObjectAnim() {}
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} int Draw(DRender_tView *, Draw_DCache *, int); } ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
-    int Draw(DRender_tView *, Draw_DCache *, int);
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-} ObjectFinishedSignAnim;
+#include "../common/object_anim_classes.h"   /* the OBJECT.H animation class family: no private copies (header-truth 4h) */
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/DRender_tView.h"
 #include "shared/Draw_DCache.h"
 

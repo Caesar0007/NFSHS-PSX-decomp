@@ -38,17 +38,17 @@
 struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
-struct ObjectAnim {
-    ObjectAnim() {}
-    virtual ~ObjectAnim() {}
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} } ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-} ObjectFinishedSignAnim;
+#include "object_anim_classes.h"   /* the OBJECT.H animation class family: no private copies (header-truth 4h) */
+
+
+
+
+
+
+
+
+
+
 #include "shared/FLARE_PIECE_DEF.h"   /* retail aih_basiccop.obj: right after ObjectFinishedSignAnim */
 
 #include "speech_class.h"   /* retail: the full Speech class graph (Speaker + CarBank/LocationBank/CallSignBank with their inline bodies) is recorded in this AI object */

@@ -53,22 +53,22 @@
 
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectAnim {
-    ObjectAnim() {}
-    virtual ~ObjectAnim() {}
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-struct DRender_tView;
-struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedMultiAnim;
-typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedSignAnim;
+#include "object_anim_classes.h"   /* the OBJECT.H animation class family: no private copies (header-truth 4h) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/Object_tSimObjList.h"
 
 #endif

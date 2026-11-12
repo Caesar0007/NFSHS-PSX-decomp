@@ -81,76 +81,76 @@ struct Chunk {
 
 
 
-/* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
- * evidence (vtable order, deferred-inline tail order, __pure_virtual slot) -- see scratchpad/psyq_pipe/fevirt_object.py. */
-struct ObjectAnim {
-    /* Retail derived-ctor SYM has the empty inline base-construction scope. */
-    ObjectAnim() {}
-#line 53 "C:/nfs4/GAME/COMMON/OBJECT.H"
-    virtual ~ObjectAnim() {}
-#line 88 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
-    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
-};
-/* Empty Finished* constructor bodies supply retail's inline body regions.
- * Original SLINK /strip removes their two unreferenced standalone copies.
- * LINK_STRIPPED models that linker decision, not an instruction rewrite.
- * Proof: build/nc12/object_ctor_strip_20261026/probe-proof.json. */
-struct ObjectFinishedMultiAnim : public ObjectAnim {
-    ObjectFinishedMultiAnim() LINK_STRIPPED;
-#line 61 "C:/nfs4/GAME/COMMON/OBJECT.H"
-    ~ObjectFinishedMultiAnim() {}
-#line 95 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
-inline ObjectFinishedMultiAnim::ObjectFinishedMultiAnim() {}
-struct ObjectMultiAnim : public ObjectAnim {
-    coorddef impactVel;
-    Trk_SimObject *simObj;
-    Trk_CollideBoomInst *objCollideInstance;
-    Trk_ObjectDef *objDef;
-    AnimDef *animParms;
-    int objectAngle, impactAngle;
-    AnimScript *script;
-    ObjectFinishedMultiAnim *finishedAnim;
-    ObjectMultiAnim(coorddef *, AnimDef *, Trk_CollideBoomInst *,
-                    Trk_ObjectDef *, Trk_SimObject *, ObjectFinishedMultiAnim *);
-#line 84 "C:/nfs4/GAME/COMMON/OBJECT.H"
-    ~ObjectMultiAnim() {
-        delete script;
-        if (finishedAnim) delete finishedAnim; }
-#line 109 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
-    int Draw(DRender_tView *, Draw_DCache *, int);
-};
-struct ObjectFinishedSignAnim : public ObjectAnim {
-    ObjectFinishedSignAnim() LINK_STRIPPED;
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-#line 101 "C:/nfs4/GAME/COMMON/OBJECT.H"
-    ~ObjectFinishedSignAnim() {}
-#line 116 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
-inline ObjectFinishedSignAnim::ObjectFinishedSignAnim() {}
-struct ObjectSignAnim : public ObjectAnim {
-    coorddef impactVel;
-    Trk_SimObject *simObj;
-    Trk_CollideBoomInst *objCollideInstance;
-    Trk_ObjectDef *objDef;
-    AnimDef *animParms;
-    int objectAngle, impactAngle;
-    AnimScript *script;
-    ObjectFinishedSignAnim *finishedAnim;
-    ObjectSignAnim(coorddef *, int, AnimDef *, Trk_CollideBoomInst *,
-                   Trk_ObjectDef *, Trk_SimObject *, coorddef *,
-                   ObjectFinishedSignAnim *);
-#line 124 "C:/nfs4/GAME/COMMON/OBJECT.H"
-    ~ObjectSignAnim() {
-        delete script;
-        if (finishedAnim) delete finishedAnim; }
-#line 131 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
-    int Draw(DRender_tView *, Draw_DCache *, int);
-};
+#include "object_anim_classes.h"   /* the OBJECT.H animation class family (shared with every includer) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/Object_tSimObjList.h"
 #include "shared/Object_tIMassObjInfo.h"
 typedef tQuat Quatern_quat;

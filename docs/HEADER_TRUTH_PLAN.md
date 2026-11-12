@@ -92,6 +92,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | c0216e80a | Phase 4h: OBJECT.H animation classes = ONE definition each (owner's full block moved to object_anim_classes.h; 10 reduced copies and NFS4_CHUNK_SIGN_CTOR removed). Census 1751->1737, no census regressions; record ORDER worse in audedit.obj and scene.obj (inversions 0->2 each, accepted) | 0 | 8 | 146 | 78 | 139 | 1737 |
 | 2026-11-12 | 7f9fea8a1 | Phase 4i: AIDataRecord family = ONE definition each (owner block moved to aidatarecord_classes.h, 9 copies removed). Found: AIDataRecord_BestLine_t::Get lived only in ai_types.h (now shared); aiinit used asm-label ctor aliases with int params (removed, real enum constants at the call sites) | 0 | 8 | 147 | 74 | 139 | 1733 |
 | 2026-11-12 | 270f88a75 | Phase 4j: tFEApplication = ONE definition (was 10, each with a different accessor set, one an opaque char[896] view). Three GetPlayer() return-type variants resolved to GetPlayer (u_char) / CurrentPlayer (tPlayer); int-argument call sites use kPlayerOne; tAppCommand enum in shared/tAppCommand.h replaces a front-only #define. fecheats.obj +1 tDialogMessageStringWithTimeout | 0 | 8 | 147 | 73 | 139 | 1691 |
+| 2026-11-12 | 6a02a8be4 | Phase 4k: tCarManager = ONE definition (was 6). Removed: per-surface method switches in fe_core_cars.h, asm-label alias for GetClassList, plain/typedef form selector. tCarClassType copies all honour one guard. front.obj and screencarselect.obj +1 tCarManager (typedef form) | 0 | 8 | 144 | 72 | 139 | 1660 |
 
 ## Open mismatches (left unexplained on purpose)
 

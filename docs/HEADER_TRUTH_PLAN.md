@@ -85,6 +85,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 2ec80548d | Phase 4a: aih_btccop_types.h private copy of 9 AI classes replaced by the shared aih_hierarchy_types.h/aihigh.h. Shared headers completed from it: AIHigh_BTC_Wingman (AIHIGH.H:548), static lastInputRequestTick_, strip marking for the BTC cop accessors; AIState_Chase inline bodies unconditional; Crime()/GetCrime() duplicate resolved; aihigh_types.h Wingman copy removed. Census improved with no invented source | 0 | 8 | 145 | 85 | 139 | 1758 |
 | 2026-11-12 | b3551b8f3 | Phase 4b: private tMenuItemLeftRightChoice / tMenuItemGoToMenuButton copies in fecredits_types.h, fetools_types.h, screentrophyinfo_types.h replaced by screendisplay_menuitems.h; census unchanged (the copies bought nothing) | 0 | 8 | 145 | 85 | 139 | 1758 |
 | 2026-11-12 | 759d6b341 | Phase 4c: screentrackinfo_types.h copies of tMenuItemLeftRightChoice / tMenuItemLeftRightSlider / tMenuItemGoToMenuButton replaced by screendisplay_menuitems.h; census unchanged | 0 | 8 | 145 | 85 | 139 | 1758 |
+| 2026-11-12 | 4c67ce772 | Phase 4d: fOnButtonPress was (tMenuCommand &) in FEMenu and (void *) elsewhere - now the real type everywhere; member declarations of the shared menu-item classes unconditional; femenu_types.h copies removed | 0 | 8 | 145 | 84 | 139 | 1758 |
 
 ## Open mismatches (left unexplained on purpose)
 

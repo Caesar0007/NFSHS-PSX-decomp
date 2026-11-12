@@ -32,36 +32,36 @@ enum tMenuCommandType {
 
 #include "shared/POLY_F4.h"
 
-struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
-    tListIterator *fData;
-    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightChoice();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-};
-
-struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
-    tListIterator *fData;
-    short fX, fY, fWidth, fHeight;
-    tMenuItemLeftRightSlider(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightSlider();
-    long DebounceKeys();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-    void SetDimensions(short, short, short, short);
-};
-
-struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(tMenuCommand &);
-    tMenuItemGoToMenuButton(unsigned int, tMenu *,
-                            void (*)(tMenuCommand &));
-    ~tMenuItemGoToMenuButton();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
-
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_CORE_TMENU_KEY_TU   /* FEMenu.obj owns tMenu's virtuals */
-#include "fe_core_tmenu.h"   /* retail order: ..., tMenuItemGoToMenuButton, tMenu */
+#include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes, then tMenu (NFS4_FE_CORE_TMENU_AFTER_ITEMS); no private copies (header-truth 4d) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #undef NFS4_FE_CORE_FEMENU_METHODS
 
 /* retail FEMenu.obj order: tMenu, then tScreen and the dialog family (tMenu::fScreen sees tScreen incomplete) */

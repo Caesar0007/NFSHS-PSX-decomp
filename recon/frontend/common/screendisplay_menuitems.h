@@ -8,33 +8,33 @@
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
+
     tMenuItemLeftRightChoice(unsigned int, tListIterator *);
     ~tMenuItemLeftRightChoice();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void Draw(bool);
-#endif
+
 };
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
+
     tMenuItemLeftRightSlider(unsigned int, tListIterator *);
     ~tMenuItemLeftRightSlider();
     long DebounceKeys();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void Draw(bool);
     void SetDimensions(short, short, short, short);
-#endif
+
 };
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(void *);
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
+    void (*fOnButtonPress)(tMenuCommand &);
+
     tMenuItemGoToMenuButton(unsigned int, tMenu *,
                             void (*)(tMenuCommand &));
     ~tMenuItemGoToMenuButton();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
+
 };
 #ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu (and its tScreen* forward reference) right after tMenuItemGoToMenuButton */
 #include "fe_core_tmenu.h"

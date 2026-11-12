@@ -12,11 +12,11 @@ typedef struct tMenu {
     tItemList fItemList;
     tScreen *fScreen;
     tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    void (*fOnButtonPress)(tMenuCommand &);
-#else
-    void (*fOnButtonPress)(void *);
-#endif
+    void (*fOnButtonPress)(tMenuCommand &);   /* one type for every includer (was void* outside FEMenu) */
+
+
+
+
     short VertHelp;
     virtual ~tMenu();
     virtual void Initialize();

@@ -49,7 +49,8 @@ Remaining branch in `speech_speaker_virtuals.inc`: speech.cpp declares the 15 de
 `speech_speaker_virtuals.inc` loses its per-object branches (one member list for every includer);
 speech_class.h inferred accessors audited against the evidence rule.
 
-### Phase 3 - audit the remaining INFERRED bodies
+### Phase 3 - audit the remaining INFERRED bodies (DONE 2026-11-12, 3a-3g)
+Method that worked: count call sites first; a member matched code calls stays, an uncalled one goes. Kept as evidenced: ctors in ctor-sized source-line gaps, in-class ctors called from femenudefs, unused local declarations inside one function's record range. The 15 remaining markers are class-copy duplicates in aih_btccop_types.h / aih_*_externs.h / aistate.h (phase 4) and naming notes.
 Per file: keep (cite evidence in the comment) or remove. Macro-packed bodies in
 `shared/tpdef_keys.h` move back into their class headers as ordinary members or go away.
 
@@ -98,3 +99,9 @@ Phase 1 removals. Each is a retail type record our source no longer produces; re
 | audioclc/audiotrk/camera.obj | one `Trk_AnimateInst` each | count only |
 
 The four "gap" rows are the best candidates for real recovery: check NFS4-PC / NFS3 for a function at that position.
+| every frontend object (~45) | `tMenu` x16, `tMenuItem` x16 | FEMENU.H had about nine more in-class inline bodies than matched code calls; names unknown. Biggest single census item (+500) |
+| every frontend object | `tFEApplication` x9 (ours 3), `tCarManager` run, `tTournamentManager` 16-record run, dialog class runs | more in-class inline bodies in the retail headers; names unknown |
+| FEScreen.obj | `tScreen` 25 (ours 19) | six more bodies, names unknown |
+| ~10 game objects | `ObjectFinishedMultiAnim` x4 + `Trk_SimObject`/`Trk_CollideBoomInst`/`Trk_ObjectDef` params; `AnimScript AnimScript Trk_AnimateInst` | one static/inline body in OBJECT.H with that signature, and an AnimScript dtor-like body; consistent across objects, names unknown |
+| mathnfs/quatern/udff/texture/newton/draw/fe3dmenu.obj | extra `matrixtdef` / `tQuat` / `Udff_tInfo` / `Draw_tPixMap` / `coorddef` requests between functions | udff (124-202) and texture (708-725) sit in source-line gaps: link-stripped functions; others count only |
+| group.obj | `SerializedGroup` x12 (ours x11) + unit in SLD gap 134-165 | link-stripped members in the gap, names unknown |

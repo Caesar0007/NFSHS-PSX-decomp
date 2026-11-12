@@ -28,11 +28,11 @@
 /* These pointer-only foreign classes are used by the reconstructed extern
  * surface but have no completed records in FEMenuDefs.obj. */
 #ifndef NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
-struct FEMenuDefs_ScreenMainCodegenView {
-    void SwapBackground(int)
-        __asm__("SwapBackground__11tScreenMaini");
-};
-#define tScreenMain FEMenuDefs_ScreenMainCodegenView
+#include "screenmain_state.h"
+#include "shared/tTVConfig.h"
+#include "shared/tVideoTransition.h"
+#include "screenmain.h"   /* the real tScreenMain (no codegen view / asm alias; header-truth 4-B.3) */
+
 #endif
 struct tAllScreens;
 struct tScreenAudio;

@@ -83,13 +83,13 @@ typedef tRecordBuffer tSaveRecords[187];
 #define NFS4_FEMENUOPTIONS_FEAPP_DONE
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_DIALOGS
-struct FeMenuOptions_ScreenAudioCodegenView {
-    char _beforeSelectedSong[116];
-    short fSelectedSong;
-    char _beforeSongList[2];
-    AudioMus_tSongList *songlist;
-};
-#define tScreenAudio FeMenuOptions_ScreenAudioCodegenView
+#include "screenaudio.h"   /* the real tScreenAudio (no codegen view; header-truth 4-B.3) */
+
+
+
+
+
+
 
 #include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
 

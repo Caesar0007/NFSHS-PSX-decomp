@@ -169,11 +169,11 @@ typedef MCRDFILE_def MCRDFILE;
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 /* These completed foreign tags are absent from ScreenMemcard.obj.  The owner
  * uses only the priced fields below. */
-struct ScreenMemcard_FEApplicationCodegenView {
-    char _beforeInputPlayer[557];
-    char fInputPlayer;
-};
-#define tFEApplication ScreenMemcard_FEApplicationCodegenView
+#include "feapp_class.h"   /* the real tFEApplication (no codegen view; header-truth 4-B.3) */
+
+
+
+
 
 #include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
 

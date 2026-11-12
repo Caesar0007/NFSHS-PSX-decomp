@@ -84,11 +84,11 @@ typedef short tTextLocation[5];
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "shared/FLARE_PIECE_DEF.h"   /* retail: FLARE_PIECE_DEF after tScreenControllerConfig */
 /* Remaining foreign singleton views need owning-SYM source restoration. */
-struct ScreenController_FEApplicationCodegenView {
-    char _beforeInputPlayer[557];
-    char fInputPlayer;
-};
-#define tFEApplication ScreenController_FEApplicationCodegenView
+#include "feapp_class.h"   /* the real tFEApplication (no codegen view; header-truth 4-B.3) */
+
+
+
+
 
 #include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
 

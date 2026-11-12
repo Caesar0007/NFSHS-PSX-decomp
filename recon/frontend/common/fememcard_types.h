@@ -112,10 +112,10 @@ struct FEMemcard_MemCardInfoCodegenView {
 };
 #define fMemCardInfo_def FEMemcard_MemCardInfoCodegenView
 
-struct FEMemcard_ScreenMemcardCodegenView {
-    char _beforeGetNewIcons[0x5a0];
-    bool fGetNewIcons;
-};
-#define tScreenMemcard FEMemcard_ScreenMemcardCodegenView
+#include "cls_tScreenMemcard.h"   /* the real tScreenMemcard (no codegen view; header-truth 4-B.3) */
+
+
+
+
 
 #endif

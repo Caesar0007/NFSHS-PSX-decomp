@@ -65,9 +65,9 @@ struct ObjectAnim {
 };
 struct DRender_tView;
 struct Draw_DCache;
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail audedit.obj TPDEF/param run evidence (Multi x4, coorddef, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef); static (no this record), never called */ static void InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef);
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {}
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-} ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(coorddef *impactVel, Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
+} ObjectFinishedMultiAnim;
 
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;

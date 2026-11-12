@@ -53,7 +53,7 @@ typedef struct AIDelayCar {
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
-    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ void GetPosition(coorddef *p) { *p = position_; } /* INFERRED body: retail aidelaycar/aih_* .obj TPDEF run AIDelayCar coorddef AIDelayCar; never called */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */ int GetLaneIndex() { return laneIndex_; } /* INFERRED body: retail AIDelayCar x4 after it; never called */
+    void Update(); int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */
 } AIDelayCar;
 
 #include "aistate.h"
@@ -435,7 +435,7 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-} AnimScript; inline void AnimScript_FreeInst(Trk_AnimateInst **inst) { delete [] inst; } /* INFERRED body: retail aih_btccop.obj TPDEF run AnimScript AnimScript Trk_AnimateInst (the AnimScript dtor delete [] inst, without the receiver); never called */
+} AnimScript;
 
 
 
@@ -451,7 +451,7 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} /* INFERRED body: retail aih_btccop.obj TPDEF/param run evidence (Multi x4, Trk_SimObject, Trk_CollideBoomInst, Trk_ObjectDef), as ai_types.h; static (no this record), never called */ static void InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef); } ObjectFinishedMultiAnim; inline void ObjectFinishedMultiAnim::InheritMultiAnimState(Trk_SimObject *simObj, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef) {}
+typedef struct ObjectFinishedMultiAnim : public ObjectAnim { ObjectFinishedMultiAnim() {} } ObjectFinishedMultiAnim;
 typedef struct ObjectFinishedSignAnim : public ObjectAnim { ObjectFinishedSignAnim() {}
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;

@@ -6,5 +6,5 @@
 typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
-} AnimScript; inline void AnimScript_FreeInst(Trk_AnimateInst **inst) { delete [] inst; } /* INFERRED body: retail bworld.obj TPDEF run AnimScript AnimScript Trk_AnimateInst (the AnimScript dtor delete [] inst, without the receiver); never called */
+} AnimScript;
 #endif

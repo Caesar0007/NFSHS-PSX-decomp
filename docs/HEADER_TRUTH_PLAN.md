@@ -89,6 +89,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | c4aeadd5c | Phase 4e: femenuextended_types.h copies removed; tMenuItemLeftRightChoice, tMenuItemGoToMenuButton, tMenuItemLeftRightSlider = ONE definition each (were 7/7/3) | 0 | 8 | 145 | 82 | 139 | 1758 |
 | 2026-11-12 | 34ea40d82 | Phase 4f: seven identical data-only AnimScript copies -> shared/AnimScript.h | 0 | 8 | 145 | 82 | 139 | 1758 |
 | 2026-11-12 | d636d4fd3 | Phase 4g: AnimScript = ONE definition (was 13). The real inline dtor explains retail's AnimScript/AnimScript/Trk_AnimateInst run that the removed AnimScript_FreeInst fake imitated; census 1758->1751 with no invented source (draww.obj +1 Trk_AnimateInst) | 0 | 8 | 145 | 81 | 139 | 1751 |
+| 2026-11-12 | c0216e80a | Phase 4h: OBJECT.H animation classes = ONE definition each (owner's full block moved to object_anim_classes.h; 10 reduced copies and NFS4_CHUNK_SIGN_CTOR removed). Census 1751->1737, no census regressions; record ORDER worse in audedit.obj and scene.obj (inversions 0->2 each, accepted) | 0 | 8 | 146 | 78 | 139 | 1737 |
 
 ## Open mismatches (left unexplained on purpose)
 

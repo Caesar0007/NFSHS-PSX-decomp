@@ -56,6 +56,7 @@ Per file: keep (cite evidence in the comment) or remove. Macro-packed bodies in
 
 ### Phase 4 - one definition per class (IN PROGRESS; 4a done: aih_btccop on the shared AI headers)
 Method (4a): replace the private copy by the shared include, compile, and treat every error as a finding - the copy usually holds real members the shared header lacks (move them in), a duplicate under another name (pick one), or inline bodies switched on per object (make them unconditional). Then diff the generated .s against the committed build before gating. Key-object strip marking is the one legitimate per-object switch.
+Member ORDER matters too (4q): reordering a class's member declarations changed code generation in another file that inlines its constructors. Keep the member order that already matches for the non-owner includers; add owner-only pieces under one owner switch. Always diff the generated .s of the heaviest includer (not only the owner) before gating; a `git stash` build in the gate tree gives the baseline.
 Polymorphic families first (tMenuItem family, tMenu, tListIterator, AIHigh_Base), then
 tFEApplication, AnimScript, Object*Anim, AIDataRecord_*. Per-object copies replaced by the single
 reconstructed retail header; differences between objects explained by include graph only.

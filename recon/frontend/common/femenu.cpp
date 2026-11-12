@@ -1174,7 +1174,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
       break;
 
     case kInput_KeyType_Circle:
-      DisplayHelp(FEApp,0);
+      FEApp->DisplayHelp(0);
       break;
 
     case kInput_KeyType_Square:

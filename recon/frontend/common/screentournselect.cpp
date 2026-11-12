@@ -68,7 +68,7 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 
   *permFileName = "ztourn";
 
-  GetTrophyName(&tournamentManager, tourney, ts_Medium, gSwapFileName, -1);
+  tournamentManager.GetTrophyName(tourney, ts_Medium, gSwapFileName, -1);
   *swapFileName = gSwapFileName;
 }
 
@@ -161,7 +161,7 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 {
   if (tourn->fTrophyID != (signed char)this->fPreviousTrophy)
   {
-    GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
+    tournamentManager.GetTrophyName(tourn,ts_Medium,gSwapFileName,-1);
     this->AsyncLoadSwapShapeFile(gSwapFileName);
     this->fTVsInitialized = 0;
 

@@ -71,7 +71,7 @@ void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   numSwapShapes = 0x20;
   /* retail's tree is the function level plus one inline-call pair: no block, no `cur` local */
   tTourneyInfo *const tourn = TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[(byte)frontEnd.tier]);
-  GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
+  tournamentManager.GetTrophyName(tourn,ts_Small,gSwapFileName,-1);
   *permFileName = "zTrophy";
   *swapFileName = gSwapFileName; return;
 }
@@ -363,7 +363,7 @@ void tScreenTrophyRoom::LoadTrophy()
     int d;
 #line 245 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
     tTourneyInfo *const tourn = TourneyInTierSelf(((d = 0, (int)this) ?: 0));
-    GetTrophyName(&tournamentManager,tourn,ts_Small,gSwapFileName,-1);
+    tournamentManager.GetTrophyName(tourn,ts_Small,gSwapFileName,-1);
     this->AsyncLoadSwapShapeFile(gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }

@@ -21,7 +21,7 @@ void  AudioCmn_PlayFESFX(int sfx);
 void  AudioCmn_PlayFESFXVol(int sfx, int vol);
 /* w64 unlock (A19 sec-2.4): member fn taking short -- the free-fn int decl
  * emitted the phantom DisplayHelp__FP14tFEApplicationi. */
-void  DisplayHelp(tFEApplication *app, short which) __asm__("DisplayHelp__14tFEApplications");
+/* DisplayHelp: tFEApplication member (feapp_class.h) */
 
 /* ===== fefades.obj fade helper (overloaded) + libgpu ===== */
 int   CalcFadeVal(int color, int fade);

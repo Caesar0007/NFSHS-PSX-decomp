@@ -36,7 +36,7 @@ void tScreen_dtor(tScreen *s);
 
 
 /* --- FE / game / PsyQ helpers (de-namespaced) --- */
-void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
+/* GetTrophyName: tTournamentManager member (fetourn_manager_class.h) */
 void  AudioCmn_PlayFESFX(int sfx);
 void  FETexture_LoadPmxAtOffset(char *file, int off, tTexture_ShapeInfo *shapes, int a, int b);
 void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);

@@ -130,7 +130,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
     { int i; i = 1; if (0 < numRanked) { do {
           if (tournamentManager.PlayerRanking((short)i) == 0) {
             j = i;
-          } i = i + 1; } while (i <= numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
+          } i = i + 1; } while (i <= numRanked); } } tournamentManager.GetTrophyName(tourneyInfo,ts_Large,congratsSwapFileName,j);
     *swapFileName = congratsSwapFileName;
     numSwapShapes = 0x20; this->fNumSpinShapes = 0x20;
   }
@@ -140,7 +140,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
     case kSpinningGold:
 
       numSwapShapes = 0x20; this->fNumSmallSpinShapes = 0x20;
-      GetTrophyName(&tournamentManager,tourneyInfo,ts_Small,congratsSwapFileName,-1);
+      tournamentManager.GetTrophyName(tourneyInfo,ts_Small,congratsSwapFileName,-1);
       *swapFileName = congratsSwapFileName;
       break;
     case kSpinningMemCard:

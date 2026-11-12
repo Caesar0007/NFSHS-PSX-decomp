@@ -73,7 +73,7 @@ enum tMenuCommandType {
 #include "felines_kern.h"
 #include "fedialog.h"
 
-struct tFEApplication;
+#include "feapp_class.h"   /* class tFEApplication (FEApp->DisplayHelp) */
 
 /* FEMenu uses these enum values only as cross-TU arguments.  Its linked SYM
  * does not retain either foreign enum tag, so source-spelling macros plus the

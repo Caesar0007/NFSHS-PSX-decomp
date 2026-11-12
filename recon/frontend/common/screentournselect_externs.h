@@ -43,7 +43,7 @@ void DrawTV(tTVConfig &cfg);
 void DrawTVLines(tTVConfig &cfg);
 
 /* --- FE / game / PsyQ helpers --- */
-void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
+/* GetTrophyName: tTournamentManager member (fetourn_manager_class.h) */
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short op);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  FeDraw_SetABRMode(int abr);

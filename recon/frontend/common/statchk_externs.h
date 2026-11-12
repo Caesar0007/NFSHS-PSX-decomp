@@ -19,7 +19,7 @@ short Stattool_CheckForHumanCar(Car_tStats *dummyCars);
 int   Front_GetLapsForType(void);
 short Front_GetTrackRaced(void);
 char *PlayerName(int player);
-tCarInfo *GetCarFromSimID(tCarManager *mgr, short carID) asm("GetCarFromSimID__11tCarManagers");   /* tCarManager:: method (external) */
+/* GetCarFromSimID: tCarManager member (fecars_manager.h) */
 
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {

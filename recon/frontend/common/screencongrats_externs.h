@@ -19,7 +19,7 @@ extern bool showRoomFlag; /* fe3dmenu.obj SYM EXT BOOL, scalar */
 
 
 
-void GetTrophyName(tTournamentManager *mgr, tTourneyInfo *tourn, tTrophySize size, char *buffer, int place) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
+/* GetTrophyName: tTournamentManager member (fetourn_manager_class.h) */
 
 /* game C++ helpers + eaclib */
 void  AudioCmn_PlayFESFX(int SFXnum);

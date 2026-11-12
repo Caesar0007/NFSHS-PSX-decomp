@@ -68,7 +68,7 @@ bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCa
 
     for (i = 0; i < nNumCars; i++) {
 
-      carInfo = GetCarFromSimID(&carManager, (short)dummyCars[i].carType);
+      carInfo = carManager.GetCarFromSimID((short)dummyCars[i].carType);
 
 
       if ((dummyCars[i].carFlags & 0x200U) != 0) {
@@ -210,7 +210,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
   tCarInfo *carInfo;
 
 
-  carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
+  carInfo = carManager.GetCarFromSimID((short)dummyCars[nBestCarIndex].carType);
 
   if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
 
@@ -321,7 +321,7 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
   for (nCar = 0; nCar < nNumCars; nCar++) {
     tCarInfo *carInfo;
 
-    carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nCar].carType);
+    carInfo = carManager.GetCarFromSimID((short)dummyCars[nCar].carType);
 
     k = nRankCarTotalTimes[nCar]; if ((dummyCars[k].carFlags & 0x200U) != 0) {
 
@@ -505,8 +505,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 
   for (nCar = 0; nCar < nNumCars; nCar = nCar + 1) {
-      carInfo = GetCarFromSimID(&carManager,
-                 (short)dummyCars[nRankCarTotalTimes[nCar]].carType);
+      carInfo = carManager.GetCarFromSimID((short)dummyCars[nRankCarTotalTimes[nCar]].carType);
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
 
 

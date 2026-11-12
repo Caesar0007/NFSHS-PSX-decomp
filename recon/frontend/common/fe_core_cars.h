@@ -99,16 +99,16 @@ typedef struct tCarManager {   /* retail: C-style typedef form (TPDEF recorded t
     void AddCarToIngameList(tCarModels &, char &);
     bool FindSimilarCar(tCarModels &, char &, short, tCarModels *);
 #endif
-#if !defined(NFS4_FRONT_SURFACE) && !defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) && !defined(NFS4_GAME_COMMON_NFS3_TYPES_H) && !defined(NFS4_TSCREENCONGRATS_OWNER)   /* Front/ScreenCarSelect/NFS3: own tCarManager bodies already give retail's run */
-    /* INFERRED bodies (user ruling 2026-11-08): retail records `tCarManager x2 | tCarInfo, tOwnedCarInfo | tCarManager, tCarInfo` in
-       every object (ORDERG_state ANALYSIS): body #1 this-only (first request -> field types), body #2 this + a tCarInfo parameter; never called */
-    u_long CarCount() { return fNumCars; }
-#ifdef NFS4_FE_CORE_CARS_INDEX_INT   /* owners whose object already re-emits tCarInfo earlier (FEInput/FEMenuExtended/StatChk/StatTool): measured +1 with the tCarInfo parameter */
-    int CarIndex(int car) { return car - (int)fNumCars; }
-#else
-    int CarIndex(tCarInfo *car) { return car - fCars; }
-#endif
-#endif
+
+
+
+
+
+
+
+
+
+
 #if defined(NFS4_FRONT_SURFACE) || defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || (!defined(NFS4_GAME_COMMON_NFS3_TYPES_H) && !defined(NFS4_TSCREENCONGRATS_OWNER))   /* plain: Front/ScreenCarSelect own bodies; elsewhere the inferred CarCount/CarIndex bodies supply the 3rd record (typedef pair only for NFS3/ScreenCongrats) */
 };
 #else

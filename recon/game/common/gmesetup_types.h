@@ -159,12 +159,12 @@ typedef struct tCarManager {
     u_char fAvailableCars[48], fViewableCars[48];
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
-#if !defined(NFS4_FRONT_SURFACE) && !defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) && !defined(NFS4_GAME_COMMON_NFS3_TYPES_H) && !defined(NFS4_TSCREENCONGRATS_OWNER)   /* Front/ScreenCarSelect/NFS3: own tCarManager bodies already give retail's run */
-    /* INFERRED bodies (user ruling 2026-11-08): retail records `tCarManager x2 | tCarInfo, tOwnedCarInfo | tCarManager, tCarInfo` in
-       every object (ORDERG_state ANALYSIS): body #1 this-only (first request -> field types), body #2 this + a tCarInfo parameter; never called */
-    u_long CarCount() { return fNumCars; }
-    int CarIndex(int car) { return car - (int)fNumCars; }   /* game copies: tCarInfo already re-emitted by the field block (measured: a tCarInfo parameter overshoots by 1) */
-#endif
+
+
+
+
+
+
 } tCarManager;
 enum tPersonalities {
     kPersonalityNemesis = 0, kPersonalityBlurrr = 1,

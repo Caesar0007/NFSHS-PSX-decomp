@@ -22,8 +22,8 @@ struct tListIteratorCar : public tListIterator {
     void AdjustPosition(tPlayer, short);
     bool ValidCar(tPlayer, char);
     inline void SetFilter(int filter) { fCarListFilter = filter; }
-    inline bool IsFilter(int filter) { return fCarListFilter == filter; }   /* INFERRED body: retail TPDEF tListIteratorCar x4 per object (FESCR); never called */
-    inline int CarListFilter() { return fCarListFilter; }   /* INFERRED body (FESCR); never called */
+
+
 #endif
 };
 

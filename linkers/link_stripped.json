@@ -1237,18 +1237,6 @@
    "evidence": "tListIteratorCar::SetFilter -- in-class inline member (retail-real body, screendisplay_carblock_iters.h copy; FESCR2 2026-11-09): retail FECars.obj records TPDEF tListIteratorCar x4 at the class (declaration + 3 inline bodies), ours 1 without them; declared LINK_STRIPPED in recon/frontend/common/fecars_iters.h, defined inline after the class. FECars.obj emits the tListIteratorCar key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
-   "object": "build/recon/frontend/common/fecars.cpp.o",
-   "function": "IsFilter__16tListIteratorCari",
-   "source": "recon/frontend/common/fecars_iters.h",
-   "evidence": "tListIteratorCar::IsFilter -- INFERRED inline member (FESCR2 2026-11-09): retail FECars.obj records TPDEF tListIteratorCar x4 at the class (declaration + 3 inline bodies), ours 1 without them; declared LINK_STRIPPED in recon/frontend/common/fecars_iters.h, defined inline after the class. FECars.obj emits the tListIteratorCar key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fecars.cpp.o",
-   "function": "CarListFilter__16tListIteratorCar",
-   "source": "recon/frontend/common/fecars_iters.h",
-   "evidence": "tListIteratorCar::CarListFilter -- INFERRED inline member (FESCR2 2026-11-09): retail FECars.obj records TPDEF tListIteratorCar x4 at the class (declaration + 3 inline bodies), ours 1 without them; declared LINK_STRIPPED in recon/frontend/common/fecars_iters.h, defined inline after the class. FECars.obj emits the tListIteratorCar key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "__26tListIteratorDoubleIndexedPsPcT2iT2",
    "source": "recon/frontend/common/femenu.cpp",

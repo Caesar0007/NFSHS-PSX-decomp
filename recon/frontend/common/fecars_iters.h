@@ -16,16 +16,16 @@ struct tListIteratorCar : public tListIterator {
     void Decrement(tPlayer atIndex);
     bool ValidCar(tPlayer atIndex, char carNumber);
     inline void SetFilter(int filter) LINK_STRIPPED;
-    inline bool IsFilter(int filter) LINK_STRIPPED;
-    inline int CarListFilter() LINK_STRIPPED;
+
+
 };
-/* In-class inline members (retail FECars.obj: TPDEF tListIteratorCar x4 at the class = declaration + 3 bodies, as in every
-   FEMenuDefs-surface includer, screendisplay_carblock_iters.h).  SetFilter is retail-real (screendisplay copy); IsFilter /
-   CarListFilter = INFERRED body: retail FECars.obj TPDEF tListIteratorCar x4 run evidence (FESCR2).  FECars emits the key
-   function, so the unreferenced standalone copies land in .text.strip (LINK_STRIPPED, linkers/link_stripped.json). */
+/* SetFilter: called from matched code (screendisplay copy); FECars emits the key function, so its unreferenced
+   standalone copy lands in .text.strip (LINK_STRIPPED, linkers/link_stripped.json). */
+
+
 inline void tListIteratorCar::SetFilter(int filter) { fCarListFilter = filter; }
-inline bool tListIteratorCar::IsFilter(int filter) { return fCarListFilter == filter; }
-inline int tListIteratorCar::CarListFilter() { return fCarListFilter; }
+
+
 
 struct tListIteratorCarColor : public tListIterator {
     char *fPlayer, *fPlayerCar;

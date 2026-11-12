@@ -363,7 +363,7 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
 #ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
     tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
         : tMenuItemGoToMenuButton(t, m, f) {}
-    short EnableValue() { return fEnableVal; }   /* INFERRED body: retail TPDEF tMenuItemGoToMenuButtonFade x5 per object (FESCR) */
+
     void TransitionOff();
     void TransitionOn();
     bool TransitionIsFinished();

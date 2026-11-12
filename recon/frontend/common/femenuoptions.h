@@ -156,7 +156,7 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
 #if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
     tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
         : tMenuItemGoToMenuButton(t, m, f) {}
-    short EnableValue() { return fEnableVal; }   /* INFERRED body: retail TPDEF tMenuItemGoToMenuButtonFade x5 per object (FESCR); never called */
+
 #endif
 #if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
     void TransitionOff();

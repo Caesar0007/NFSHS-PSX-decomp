@@ -25,12 +25,12 @@
     }
 #endif
 #endif
-    /* INFERRED body (TM+tTierInfo) (user ruling 2026-11-08): retail frontend objects (e.g. FECars.obj, ScreenCarSelect.obj) record the 16-TPDEF tTournamentManager run TM TM [fields] TM, TM+tTourneyInfo x2, TM+tTierInfo, TM x3, TM+tCarLineup, TM+tCompetitor, TM x5; never called (no code) */
-#ifdef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H   /* FETourn: its out-of-line members already record this type (measured +1) -> builtin-only variant */
-    int CurrentTierInfo() { return fTier; }
-#else
-    tTierInfo *CurrentTierInfo() { return &fDefinition->fTiers[fTier]; }
-#endif
+
+
+
+
+
+
 #ifndef NFS4_FEMENUDEFS_SURFACE
     long GetMoney() { return fMoney; }
 #if !defined(NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H)
@@ -45,17 +45,17 @@
        front.cpp's `carLineup = ...` read; retail records one TM+tCarLineup body in every frontend object.
        Inlined everywhere (no VA, no Ghidra function): descriptive name. */
     tCarLineup *GetCarLineup() { return fCarLineup; }
-    /* INFERRED body (TM+tCompetitor): see CurrentTierInfo() */
-#ifdef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H   /* FETourn: its out-of-line members already record this type (measured +1) -> builtin-only variant */
-    int CompetitorAt(int i) { return fNumRacers - i; }   /* no tCompetitor member access (measured: fCompetitors[i].fPoints re-requests tCompetitor) */
-#else
-    tCompetitor *CompetitorAt(int i) { return &fCompetitors[i]; }
-#endif
+
+
+
+
+
+
 #ifndef NFS4_TSCREENCONGRATS_OWNER
     int PreviousPlacement() { return (signed char)fPrevBestPlacement; }
 #endif
-    /* INFERRED bodies (TM x builtin-only tail): see CurrentTierInfo() */
-    int TierIndex() { return fTier; }
-    int TournamentIndex() { return fTournament; }
-    int TierCount() { return fNumTiers; }
+
+
+
+
 #endif

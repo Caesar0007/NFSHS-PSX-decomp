@@ -91,19 +91,19 @@ struct tScreenCongrats : public tScreen {
 #line 90 "recon/frontend/common/screencongrats_types.h"
 
 #ifndef NFS4_SCREENCONGRATS_FEMENUDEFS_SURFACE
-struct tScreenTournamentTrophy : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    short fShapeCount;
-    char fDoUpdate;
+#include "cls_tScreenTournamentTrophy.h"   /* class tScreenTournamentTrophy (one definition) */
 
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#line 126 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
-};
-#line 103 "recon/frontend/common/screencongrats_types.h"
+
+
+
+
+
+
+
+
+
+
+
 
 struct tScreenPinkSlipCongrats : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */
@@ -119,25 +119,25 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {
 };
 #line 115 "recon/frontend/common/screencongrats_types.h"
 
-struct tScreenBeTheCopCongrats : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#line 151 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
-};
-#line 123 "recon/frontend/common/screencongrats_types.h"
+#include "cls_tScreenBeTheCopCongrats.h"   /* class tScreenBeTheCopCongrats (one definition) */
 
-struct tScreenTournamentCongrats : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#line 161 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.H"
-};
-#line 131 "recon/frontend/common/screencongrats_types.h"
+
+
+
+
+
+
+
+
+#include "cls_tScreenTournamentCongrats.h"   /* class tScreenTournamentCongrats (one definition) */
+
+
+
+
+
+
+
+
 #else
 #include "screencongrats_tt.h"   /* struct tScreenTournamentTrophy; (owner hook NFS4_SCREENCONGRATS_HOOK_TT: the definition here) */
 struct tScreenBeTheCopCongrats;

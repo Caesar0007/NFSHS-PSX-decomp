@@ -28,34 +28,34 @@
 
 
 
-struct tScreenControllerConfig : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    Force_tGlobal fShaker;
-    char fPrevConfig, fTextConfig, fTextController, fPrevController;
-    short fFade[2], fFadeController[2];
-    int fStartTick;
-    short fGotTick, fAnim, fAnimFrame, fAnimStart, fAnimStop, fAnimStep;
-    short fAnimController, fSwap, fAnimFade, fAnimFadeStart, fAnimFadeStop;
-    short fAnimFadeFrame, fAnimFadeController, CurrentlyLoadedArt, negconChoice;
-    bool fTransitionedIn, fTransitioningIn, fTransitioningOut;
-    short fArrowFade, fArrowFadeDir, fTextTypeOn;
-    bool fFadeTextOut;
-    short mult;
-    tDialogYesNo negconPopUp;
-    int fTimeOutStartTick;
-    bool SuperFastFadeOut, fPlayedInSound;
-    short fShakingItem;
-    bool fResetShakeTimeOut;
-    char fCurrentController;
-    int player;
+#include "cls_tScreenControllerConfig.h"   /* class tScreenControllerConfig: no private copy (header-truth 4u) */
 
-    tScreenControllerConfig();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/tRecordBuffer.h"   /* retail: right after tScreenControllerConfig (2 pairs off; the struct keeps its lines) */
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
@@ -86,21 +86,21 @@ struct tScreenControllerConfig : public tScreen {
 
 
 
-struct tScreenBeTheCopCongrats : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-};
+#include "cls_tScreenBeTheCopCongrats.h"   /* class tScreenBeTheCopCongrats: no private copy (header-truth 4u) */
 
-struct tScreenTournamentCongrats : public tScreenCongrats {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculatePrizes();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-};
+
+
+
+
+
+
+#include "cls_tScreenTournamentCongrats.h"   /* class tScreenTournamentCongrats: no private copy (header-truth 4u) */
+
+
+
+
+
+
 
 #include "screentrackrecords.h"
 

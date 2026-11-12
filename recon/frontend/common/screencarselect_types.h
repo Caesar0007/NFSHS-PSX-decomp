@@ -144,29 +144,29 @@ struct tScreenCarSelect : public tScreen {
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-struct tScreenCarSelectDuel : public tScreenCarSelect {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void DrawVideoWall(short);
-    void InitializeVideoWall();
-    void UpdateVideoWall(tCarInfo &);
-    void AllocateAsyncBuffer();
-    void FreeAsyncBuffer();
-    /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
-    virtual void DrawOpponentVideoWall(short);
-    short fPreviousOpponent;
-    bool fOpponentTVsInitialized;
-    tShapeInformation fOpponentShapes;
+#include "cls_tScreenCarSelectDuel.h"   /* class tScreenCarSelectDuel (one definition) */
 
-    /* implicit ctor (retail declares none: no body block in SYM) */
-    void UpdateOpponentVideoWall(tCarInfo &);
-#line 285 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 #ifdef NFS4_SCREENCARSELECT_HOOK_AFTER_DUEL   /* owner records right after tScreenCarSelect(Duel), before tScreenCarSelectTwoPlayer (Front: tScreenCarSelectDuel) */
 #include NFS4_SCREENCARSELECT_HOOK_AFTER_DUEL
@@ -210,26 +210,26 @@ enum PinkSlipsCarSelectState {
     CardCurrentlyLoading = 8
 };
 
-struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    bool GetCar(tCarInfo &);
-    void SetDialog();
-    int waitfordialog;
-    CARDINFO_def *pCI;
-    int fStartCheckTick;
-    bool fCardFailed, fExitingScreen;
+#include "cls_tScreenPinkSlipsCarSelect.h"   /* class tScreenPinkSlipsCarSelect (one definition) */
 
-    /* implicit ctor (retail declares none: no body block in SYM) */
-    void DoMemCardStuff();
-#line 348 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.H"
-};
-#line 219 "recon/frontend/common/screencarselect_types.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 #include "screencarselect_tail.h"   /* color.obj graph after the car-select screens (+ AudioMus for ScreenCarSelect) */
 struct tScreenTournamentStandings : public tScreen {

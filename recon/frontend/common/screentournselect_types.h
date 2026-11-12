@@ -110,13 +110,13 @@ struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
 #line 107 "screentournselect_types.h"
 
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
-struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
-    /* overrides (retail vtable), declared on every owner surface */
-    void DrawBackground();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* implicit ctor (retail declares none: no body block in SYM) */
-#line 82 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
-};
+#include "cls_tScreenPinkSlipStandings.h"   /* class tScreenPinkSlipStandings (one definition) */
+
+
+
+
+
+
 #line 115 "screentournselect_types.h"
 #else
 #line 116 "screentournselect_types.h"

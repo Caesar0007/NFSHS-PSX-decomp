@@ -32,53 +32,53 @@ typedef short tTextLocation[5];
 #endif
 #ifndef NFS4_SCREENCONTROLLER_CONFIG_DONE
 #include "shared/Force_tGlobal.h"
-struct tScreenControllerConfig : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    Force_tGlobal fShaker;
-    char fPrevConfig, fTextConfig, fTextController, fPrevController;
-    short fFade[2], fFadeController[2];
-    int fStartTick;
-    short fGotTick, fAnim, fAnimFrame, fAnimStart, fAnimStop, fAnimStep;
-    short fAnimController, fSwap, fAnimFade, fAnimFadeStart, fAnimFadeStop;
-    short fAnimFadeFrame, fAnimFadeController, CurrentlyLoadedArt, negconChoice;
-    bool fTransitionedIn, fTransitioningIn, fTransitioningOut;
-    short fArrowFade, fArrowFadeDir, fTextTypeOn;
-    bool fFadeTextOut;
-    short mult;
-    tDialogYesNo negconPopUp;
-    int fTimeOutStartTick;
-    bool SuperFastFadeOut, fPlayedInSound;
-    short fShakingItem;
-    bool fResetShakeTimeOut;
-    char fCurrentController;
-    int player;
+#include "cls_tScreenControllerConfig.h"   /* class tScreenControllerConfig (one definition) */
 
-#ifdef NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE
-    inline void ResetShakeTimeOut() { fResetShakeTimeOut = 1; }
-#endif
-    void ClearActuators();
-    void SetActuators(int);
-    void TurnOffShakers();
-    void ShakeIt();
-    short AnimKeyPoints(bool, bool);
-    void CheckConfigs();
-    void SwapInController();
-    void SetCurrentController(bool);
-    int CalcAnimFrame(int);
-    void ActualDrawController(int, int, int, int, int);
-    void DrawController();
-    void HorzVertLine(short *, bool);
-    void DrawArrow(short *);
-    int GetHelpText();
-    tScreenControllerConfig();
-#line 177 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.H"
-};
-#line 80 "recon/frontend/common/screencontroller.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #define NFS4_SCREENCONTROLLER_CONFIG_DONE
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR

@@ -29,23 +29,23 @@ struct tMenu;
 #undef NFS4_FE_CORE_FEMENU_METHODS
 #include "../../link_stripped.h"   /* LINK_STRIPPED ctor copies below (FESCR2).  color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */
 #define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h NFS4_PRIM_*) */
-struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
-    tListIterator *fData;
+#include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes; no private copies (header-truth 4e) */
 
-    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightChoice();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-};
 
-struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(tMenuCommand &);
 
-    tMenuItemGoToMenuButton(unsigned int, tMenu *,
-                            void (*)(tMenuCommand &));
-    ~tMenuItemGoToMenuButton();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/tActiveLine.h"   /* retail FEMenuExtended: tActiveLine right after the item classes (FRONTORD3) */
 
 #include "felines_types.h"

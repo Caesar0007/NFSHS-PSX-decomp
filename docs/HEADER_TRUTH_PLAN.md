@@ -96,6 +96,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | c1cb943c4 | Phase 4l: tTournamentManager = ONE definition (was 8 incl. two in screentrackinfo_types.h). tTournamentManager_inl.h has no per-object switches; #define tTrophySize int / ts_* macro fakes replaced by the real enum; screentrophyroom.obj +1 tTourneyInfo | 0 | 8 | 140 | 71 | 139 | 1660 |
 | 2026-11-12 | 1df371134 | Phase 4m: AIPhysic_BrakeInfo = ONE definition (was 9 copies of the same class in different formatting) | 0 | 7 | 140 | 70 | 139 | 1660 |
 | 2026-11-12 | 721f45f8f | Phase 4n/4o: Group (7 copies), AITrigger_TriggerManager (6) + triggerType (3), AIDelayCar (3), Chunk (4) = ONE definition each. Group::SetNumElements body now visible everywhere: +1 Group record in 7 objects (accepted, see open mismatches); aih_traf int-for-enum signature gone | 0 | 7 | 140 | 66 | 139 | 1662 |
+| 2026-11-12 | 3481893dc | Phase 4p: extended menu family (tMenuItemGoToMenuNFS4Button .. tMenuOptions) extracted from screendisplay_types.h to femenuextended_classes.h, members unconditional (were switched by NFS4_FEMENUDEFS_SURFACE), FEApp asm-label alias gone; 3 data-only copies removed | 0 | 7 | 140 | 66 | 139 | 1658 |
 
 ## Open mismatches (left unexplained on purpose)
 

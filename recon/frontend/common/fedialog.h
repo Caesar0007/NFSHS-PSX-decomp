@@ -41,15 +41,6 @@ struct tDialogBase : public tScreen {
 #define NFS4_FEDIALOG_SETCHOICES_T void   /* callers: retail records ONE tDialogYesNo per SetChoices body (`this` only) */
 #define NFS4_FEDIALOG_SETCHOICES_RET
 #endif
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_BASE)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
-    inline short GetOffsetX() { return OffsetX; } inline short GetOffsetY() { return OffsetY; }
-#endif
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_FESCR3_BASE)   /* INFERRED body (FESCR3): retail run Help x2 | Base | Help x4 = one tDialogBase member body defined after tDialogHelp; builtin-only, never called */
-    inline short GetMaxW();
-#define NFS4_FEDIALOG_INF_BASE_AFTER_HELP inline short tDialogBase::GetMaxW() { return MaxW; }
-#else
-#define NFS4_FEDIALOG_INF_BASE_AFTER_HELP
-#endif
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
@@ -65,16 +56,10 @@ struct tDialogHelp : public tDialogBase {
     void AddItem(short, short); inline void SetVariant(int);
     inline void CalculateDimensionsVirtual() NFS4_FEDIALOG_STRIP;
     tDialogHelp();
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_HELP)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
-    inline short Variant() { return variant; } inline short NumItems(); inline short HelpControllers(); inline short LeftText();
-#define NFS4_FEDIALOG_INF_HELP_DEFS inline short tDialogHelp::NumItems() { return numItems; } inline short tDialogHelp::HelpControllers() { return helpcontrollers; } inline short tDialogHelp::LeftText() { return lefttext; }
-#else
-#define NFS4_FEDIALOG_INF_HELP_DEFS
-#endif
 #line 174 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 51 "recon/frontend/common/fedialog.h"
-NFS4_FEDIALOG_INF_BASE_AFTER_HELP NFS4_FEDIALOG_INF_HELP_DEFS inline void tDialogHelp::CalculateDimensionsVirtual() { CalculateDimensions(); }
+inline void tDialogHelp::CalculateDimensionsVirtual() { CalculateDimensions(); }
 struct tDialogMessageString : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -100,15 +85,6 @@ struct tDialogMessageString : public tDialogBase {
        tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
     inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
 #endif
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_MS)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
-    inline char *GetString() { return string; } inline bool IsCentered() { return Centerit; }
-#endif
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_FESCR3_MS)   /* INFERRED body (FESCR3): retail run WT | MessageString | WT x2 = one tDialogMessageString member body defined after the WT class; builtin-only, never called */
-    inline int FadeText();
-#define NFS4_FEDIALOG_INF_MS_AFTER_WT inline int tDialogMessageString::FadeText() { return fFadeText; }
-#else
-#define NFS4_FEDIALOG_INF_MS_AFTER_WT
-#endif
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 76 "recon/frontend/common/fedialog.h"
@@ -118,16 +94,10 @@ inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
 #endif
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
     tDialogMessageStringWithTimeout();
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_WT)   /* INFERRED bodies: retail TPDEF run evidence (class-region TPDEF counts); builtin-only, never called */
-    inline void SetTimeoutTicks(long t); inline long TimeoutTicks();   /* INFERRED (FESCR3): retail WT x3 = class + 2 bodies, defined after the class */
-#define NFS4_FEDIALOG_INF_WT_DEFS inline void tDialogMessageStringWithTimeout::SetTimeoutTicks(long t) { timeOutTicks = t; } inline long tDialogMessageStringWithTimeout::TimeoutTicks() { return timeOutTicks; }
-#else
-#define NFS4_FEDIALOG_INF_WT_DEFS
-#endif
 #line 215 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 80 "recon/frontend/common/fedialog.h"
-NFS4_FEDIALOG_INF_MS_AFTER_WT NFS4_FEDIALOG_INF_WT_DEFS   /* INFERRED bodies: retail run WT | MessageString | WT x2 (MessageString member, then the 2 WT bodies) */
+
 struct tDialogBackUpOnly : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
@@ -154,9 +124,6 @@ struct tDialogInteractive : public tDialogMessageString {
    /* defined inline in fedialog.cpp, after tDialogMessageString's inline ctor */
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
-#if !defined(NFS4_FEDIALOG_DIRECT) && !defined(NFS4_FEDIALOG_NO_INFERRED_FESCR3_INT)   /* INFERRED body (FESCR3): retail Interactive x4 at the class; builtin-only, never called */
-    inline bool IsRunning() { return fCurrentlyRunning; }
-#endif
 #line 254 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 104 "recon/frontend/common/fedialog.h"
@@ -181,18 +148,18 @@ struct tDialogYesNo : public tDialogInteractive {
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 127 "recon/frontend/common/fedialog.h"
-#if defined(NFS4_FEDIALOG_DIRECT) || defined(NFS4_TU_FEMEMCARD)   /* retail: ONE SetChoices body per includer (YesNo x2 = class + 1 body); fememcard is the only 4-arg caller */
+
 inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue, short player) {
     yesnowords[0] = yesWord; yesnowords[1] = noWord;
     fDefault = defaultValue; specificPlayer = player;
     return NFS4_FEDIALOG_SETCHOICES_RET; }
-#endif
-#if defined(NFS4_FEDIALOG_DIRECT) || !defined(NFS4_TU_FEMEMCARD)   /* the 3-arg body for every other includer (femenudefs / screencontroller callers) */
+
+
 inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue) {
     yesnowords[0] = yesWord; yesnowords[1] = noWord;
     fDefault = defaultValue;
     return NFS4_FEDIALOG_SETCHOICES_RET; }
-#endif
+
 
 struct tDialogYesNoMem : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */

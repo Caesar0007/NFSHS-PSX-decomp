@@ -9,15 +9,15 @@
 
 
 
-enum triggerType {
-    TRIGGER_NONE = 0,
-    TRIGGER_COP_SIMPLE = 1,
-    TRIGGER_COP_ROADBLOCK = 2,
-    TRIGGER_COP_OFFROAD = 3,
-    TRIGGER_TRAFFIC_ACCIDENT = 4,
-    TRIGGER_TRAFFIC_PATH = 5,
-    TRIGGER_NUM_TRIGGER_TYPES = 6
-};
+#include "shared/triggerType.h"   /* retail: triggerType at this point of the object's type order */
+
+
+
+
+
+
+
+
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"
@@ -57,28 +57,28 @@ enum triggerType {
 
 
 
-typedef struct AITrigger_TriggerManager {   /* C-style form: retail records TPDEF twice at the definition */
-    int numTriggers_, invNumTriggers_;
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-    int InsertTrigger(trigger_t *trigger, bool fromFile);
-    trigger_t *GetNextTrigger(int car);
-    trigger_t *GetPrevTrigger(int car);
-    /* Inferred semantic name: retail's three nested inline scope pairs prove
-     * this bounds-checked receiver/index shape, not its literal spelling.
-     * Like retail, the check is only against numTriggers_ (no lower bound). */
-    inline trigger_t *GetCheckedTrigger(int triggerNum);
+#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
 
 
 
-    int CheckForTriggerAtSlice(int car, int slice);
-    trigger_t *GetTrigger(int trigger, int *used);
-    int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
-    void DescribeTrigger(trigger_t *trigger);
-    void Sort();
-} AITrigger_TriggerManager; /* bodies after the typedef: retail records both TPDEFs before the trigger_t walk */ inline trigger_t *AITrigger_TriggerManager::GetCheckedTrigger(int triggerNum) { if (triggerNum < numTriggers_) return triggers_[triggerNum]; return (trigger_t *)0; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

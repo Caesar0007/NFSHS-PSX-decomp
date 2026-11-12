@@ -63,17 +63,17 @@ struct SerializedGroup; struct SimpleMem; struct AIHigh_Cop;
 #if defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_OBJECT_CHUNK_DONE)   /* pass from color_types.h (after Group) */
 #define NFS4_OBJECT_CHUNK_DONE
 struct SerializedGroup; struct SimpleMem;
-struct Chunk {
-    RelCoord16 boundPts[4], chunkboundPts[4];
-    u_char quadCounts[6], pad[2];
-    Trk_Quad *renderQuads[4];
-    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
-    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
-    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
-    short firstSimSliceInd, chunkInd;
-    Group *vertexBuf;
-    void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
-};
+#include "shared/Chunk.h"   /* one Chunk definition (header-truth 4o) */
+
+
+
+
+
+
+
+
+
+
 #endif
 #if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_OBJECT_EARLY2_DONE)   /* second pass, continued */
 #define NFS4_OBJECT_EARLY2_DONE

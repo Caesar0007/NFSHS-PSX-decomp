@@ -15,17 +15,17 @@
 
 
 
-struct Chunk {
-    RelCoord16 boundPts[4], chunkboundPts[4];
-    u_char quadCounts[6];
-    u_char pad[2];
-    Trk_Quad *renderQuads[4];
-    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
-    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
-    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
-    short firstSimSliceInd, chunkInd;
-    Group *vertexBuf;
-};
+#include "shared/Chunk.h"   /* one Chunk definition (header-truth 4o) */
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/BW_tContext.h"
 

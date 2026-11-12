@@ -26,21 +26,21 @@
 
 
 
-struct AITrigger_TriggerManager {
-    int numTriggers_, invNumTriggers_;
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-    int InsertTrigger(trigger_t *trigger, bool fromFile);
-    trigger_t *GetNextTrigger(int car);
-    trigger_t *GetPrevTrigger(int car);
-    int CheckForTriggerAtSlice(int car, int slice);
-    trigger_t *GetTrigger(int trigger, int *used);
-    int CheckForClosestTriggerOfType(int slice, int type, int direction);
-    void DescribeTrigger(trigger_t *trigger);
-    void Sort();
-};
+#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

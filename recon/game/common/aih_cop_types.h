@@ -151,31 +151,31 @@
 
 
 
-enum triggerType {
-    TRIGGER_NONE = 0,
-    TRIGGER_COP_SIMPLE = 1,
-    TRIGGER_COP_ROADBLOCK = 2,
-    TRIGGER_COP_OFFROAD = 3,
-    TRIGGER_TRAFFIC_ACCIDENT = 4,
-    TRIGGER_TRAFFIC_PATH = 5,
-    TRIGGER_NUM_TRIGGER_TYPES = 6
-};
+#include "shared/triggerType.h"   /* retail: triggerType at this point of the object's type order */
 
-struct AITrigger_TriggerManager {
-    int numTriggers_, invNumTriggers_;
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-    int InsertTrigger(trigger_t *trigger, bool fromFile);
-    trigger_t *GetNextTrigger(int car);
-    trigger_t *GetPrevTrigger(int car);
-    int CheckForTriggerAtSlice(int car, int slice);
-    trigger_t *GetTrigger(int trigger, int *used);
-    int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
-    void DescribeTrigger(trigger_t *trigger);
-    void Sort();
-};
+
+
+
+
+
+
+
+
+#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,

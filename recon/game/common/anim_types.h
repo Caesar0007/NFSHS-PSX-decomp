@@ -18,11 +18,11 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 typedef struct tQuat Quatern_quat;
 
-struct Group {
-    int m_num_elements;
-    inline void *GetData() { return this + 1; }
-    inline int GetNumElements() { return m_num_elements; }
-};
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
+
+
+
+
 #endif
 #if defined(NFS4_ANIM_PADS_DONE) && !defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_ANIM_B_DONE)
 #define NFS4_ANIM_B_DONE

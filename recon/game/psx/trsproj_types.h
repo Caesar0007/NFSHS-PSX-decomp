@@ -39,11 +39,11 @@
 #include "shared/RelCoord16.h"
 #include "../common/gamesetup_leaf_types.h"   /* retail: GameSetup records right after RelCoord16 */
 
-struct Group {
-    int m_num_elements;
-    inline void *GetData() { return this + 1; }
-    inline int GetNumElements() { return m_num_elements; }
-};
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
+
+
+
+
 
 #include "shared/tSaveSurface.h"
 

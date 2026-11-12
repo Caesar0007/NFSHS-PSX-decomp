@@ -63,7 +63,7 @@
 #include "../common/gamesetup_leaf_types.h"
 #include "hrzsku_caches.h"
 
-struct Group { int m_num_elements; inline void *GetData(){return this+1;} inline int GetNumElements(){return m_num_elements;} };
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"

@@ -70,18 +70,18 @@
 
 
 
-typedef struct AIDelayCar {
-    int delayFactor_;
-    Car_tObj *basisCar_, *targetCar_;
-    int deltaMeters_, slice_;
-    coorddef deltaPosition_, position_;
-    int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
-    AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
-    void SetNewTargetCar(Car_tObj *targetCar);
-    void Update();
-    int GetCurrentSpeed() { return currentSpeed_; } /* inferred field getter */ int GetRoadPosition() { return roadPosition_; } /* inferred getter */
-    /* GetRoadPosition: defined in-class above (inferred getter for the three lateral-arm inline expansions) */
-} AIDelayCar;
+#include "shared/AIDelayCar.h"   /* one AIDelayCar definition (header-truth 4o) */
+
+
+
+
+
+
+
+
+
+
+
 
 
 

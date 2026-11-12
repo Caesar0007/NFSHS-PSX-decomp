@@ -41,16 +41,16 @@ enum forceFocus_t {
 #endif
 #if defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_CHUNK_DONE)   /* pass from color_types.h (after RelCoord16) */
 #define NFS4_DRAWW_CHUNK_DONE
-struct Chunk {
-    RelCoord16 boundPts[4], chunkboundPts[4];
-    u_char quadCounts[6], pad[2];
-    Trk_Quad *renderQuads[4];
-    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
-    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
-    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
-    short firstSimSliceInd, chunkInd;
-    Group *vertexBuf;
-};
+#include "shared/Chunk.h"   /* one Chunk definition (header-truth 4o) */
+
+
+
+
+
+
+
+
+
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_COLOR_IN_HOOK3) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_TAIL_DONE)   /* first pass, after color_types.h */
 #define NFS4_DRAWW_TAIL_DONE

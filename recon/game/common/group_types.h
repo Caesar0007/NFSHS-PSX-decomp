@@ -25,15 +25,15 @@ struct SerializedGroup {
                                    int dataSize);
 };
 
-struct Group {
-    int m_num_elements;
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
 
-    inline void *GetData() { return this + 1; }
-    inline int GetNumElements() { return m_num_elements; }
-#ifdef NFS4_GROUP_COUNT_SETTER_INLINE   /* retail group.obj: 9 Group TPDEFs = 3 inline bodies */
-    inline void SetNumElements(int numElements) { m_num_elements = numElements; }
-#endif
-};
+
+
+
+
+
+
+
 #ifndef NFS4_GROUP_KERNEL_LATE   /* track.obj: TCB/EXEC/DIRENTRY late (track_types.h) */
 #include "shared/TCB.h"
 

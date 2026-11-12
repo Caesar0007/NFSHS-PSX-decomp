@@ -30,17 +30,17 @@ typedef void (*Sched_tFunctionPt)(void *);
 #ifdef NFS4_COLOR_HOOK_BEFORE_GROUP   /* owner types after the GS/scheduler first blocks, right before Group (souffle, hrzsku) */
 #include NFS4_COLOR_HOOK_BEFORE_GROUP
 #endif
-struct Group {
-    int m_num_elements;
-    inline void *GetData() { return this + 1; }
-    inline int GetNumElements() { return m_num_elements; }
-#if defined(NFS4_GROUP_COUNT_SETTER_INLINE)   /* retail: SetNumElements inline only where used (object.obj); elsewhere 2 Group inline bodies */
-    /* Inferred setter;declaration-only consumers need not expose its body. */
-    inline void SetNumElements(int numElements) { m_num_elements = numElements; }
-#else
-    inline void SetNumElements(int numElements);
-#endif
-};
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
+
+
+
+
+
+
+
+
+
+
 #ifdef NFS4_COLOR_TRK_OBJ   /* retail: track object types right after Group (owner first header) */
 #include "shared/Trk_ObjectDef.h"
 #ifdef NFS4_COLOR_TRK_SIMPLE

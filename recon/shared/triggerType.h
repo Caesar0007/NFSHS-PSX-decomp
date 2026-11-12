@@ -1,0 +1,13 @@
+/* triggerType -- AITRIGER.H (one definition) */
+#ifndef NFS4_SHARED_TRIGGERTYPE_H
+#define NFS4_SHARED_TRIGGERTYPE_H
+enum triggerType {
+    TRIGGER_NONE = 0,
+    TRIGGER_COP_SIMPLE = 1,
+    TRIGGER_COP_ROADBLOCK = 2,
+    TRIGGER_COP_OFFROAD = 3,
+    TRIGGER_TRAFFIC_ACCIDENT = 4,
+    TRIGGER_TRAFFIC_PATH = 5,
+    TRIGGER_NUM_TRIGGER_TYPES = 6
+};
+#endif

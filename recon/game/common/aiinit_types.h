@@ -129,13 +129,13 @@
 
 
 
-struct AITrigger_TriggerManager {
-    int numTriggers_, invNumTriggers_;
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-};
+#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

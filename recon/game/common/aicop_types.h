@@ -84,12 +84,12 @@ typedef int CarLogic_tObservations[1][3];
 
 /* Exact externally owned layout from AITRIGER.SYM; needed here for the
  * original C++ new/delete and member-call expressions. */
-struct AITrigger_TriggerManager {
-    int numTriggers_, invNumTriggers_;
-    trigger_t *triggers_[100];
-    int checkTime_[100];
-    int lastTriggerChecked_[9];
-    void Init(char *rawTriggers);
-};
+#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
+
+
+
+
+
+
 
 #endif

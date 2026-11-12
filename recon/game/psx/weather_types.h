@@ -51,11 +51,11 @@
 
 
 
-struct Group {
-    int m_num_elements;
-    inline void *GetData() { return this + 1; }
-    inline int GetNumElements() { return m_num_elements; }
-};
+#include "shared/Group.h"   /* one Group definition (header-truth 4n) */
+
+
+
+
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"

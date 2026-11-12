@@ -66,18 +66,18 @@
 #include NFS4_CHUNK_HOOK
 #undef NFS4_CHUNK_IN_HOOK
 #endif
-struct Chunk {
-    RelCoord16 boundPts[4], chunkboundPts[4];
-    u_char quadCounts[6];
-    u_char pad[2];
-    Trk_Quad *renderQuads[4];
-    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
-    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
-    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
-    short firstSimSliceInd, chunkInd;
-    Group *vertexBuf;
-    void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
-};
+#include "shared/Chunk.h"   /* one Chunk definition (header-truth 4o) */
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"

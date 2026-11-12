@@ -86,6 +86,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | b3551b8f3 | Phase 4b: private tMenuItemLeftRightChoice / tMenuItemGoToMenuButton copies in fecredits_types.h, fetools_types.h, screentrophyinfo_types.h replaced by screendisplay_menuitems.h; census unchanged (the copies bought nothing) | 0 | 8 | 145 | 85 | 139 | 1758 |
 | 2026-11-12 | 759d6b341 | Phase 4c: screentrackinfo_types.h copies of tMenuItemLeftRightChoice / tMenuItemLeftRightSlider / tMenuItemGoToMenuButton replaced by screendisplay_menuitems.h; census unchanged | 0 | 8 | 145 | 85 | 139 | 1758 |
 | 2026-11-12 | 4c67ce772 | Phase 4d: fOnButtonPress was (tMenuCommand &) in FEMenu and (void *) elsewhere - now the real type everywhere; member declarations of the shared menu-item classes unconditional; femenu_types.h copies removed | 0 | 8 | 145 | 84 | 139 | 1758 |
+| 2026-11-12 | c4aeadd5c | Phase 4e: femenuextended_types.h copies removed; tMenuItemLeftRightChoice, tMenuItemGoToMenuButton, tMenuItemLeftRightSlider = ONE definition each (were 7/7/3) | 0 | 8 | 145 | 82 | 139 | 1758 |
 
 ## Open mismatches (left unexplained on purpose)
 

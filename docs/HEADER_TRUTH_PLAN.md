@@ -122,3 +122,4 @@ The four "gap" rows are the best candidates for real recovery: check NFS4-PC / N
 | group.obj | `SerializedGroup` x12 (ours x11) + unit in SLD gap 134-165 | link-stripped members in the gap, names unknown |
 | audedit.obj, scene.obj | type-record ORDER: 2 inversions each since 4h | the shared OBJECT.H class block sits at a different point of their include order than retail's; fix by include placement, not by a private copy |
 | draww.obj | one more `Trk_AnimateInst` than retail since 4g | AnimScript inline dtor visible there; unexplained |
+| ai, aih_basiccop, anim, bworld, bworldsm, chunk, track .obj | one more `Group` than retail since 4n | retail has Group's third inline body (SetNumElements) only in object.obj / draww.obj; where retail really defined it is unknown - not restored by a per-object switch |

@@ -97,7 +97,7 @@ static inline AudioElem *AudioList_Elems(CAudioList *list) { return (AudioElem *
 #endif
 #if defined(NFS4_AUDIOTRK_A_DONE) && !defined(NFS4_AUDIOTRK_B_DONE)
 #include "shared/FLARE_PIECE_DEF.h"
-inline void AudioTrk_InferredAnimInstOp(Trk_AnimateInst *animInst) { } /* INFERRED body: retail audiotrk.obj records a Trk_AnimateInst TPDEF right after FLARE_PIECE_DEF; non-member, never called */
+
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #define NFS4_AUDIOTRK_B_DONE

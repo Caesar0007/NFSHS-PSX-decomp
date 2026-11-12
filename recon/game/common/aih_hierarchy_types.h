@@ -214,7 +214,7 @@ typedef struct AIHigh_Base {
 #ifndef NFS4_AIHIGH_OWNER   /* retail: CarObj + GetCarObj both re-emit Car_tObj in the AI objects; aihigh keeps the declaration (its retail Car_tObj count) */
     inline Car_tObj *GetCarObj() { return carObj_; }
 #else
-    Car_tObj *GetCarObj(); inline void InferredOp() { }   /* aihigh only (NFS4_AIHIGH_OWNER): INFERRED body, retail aihigh.obj one more AIHigh_Base TPDEF (this-only) */
+    Car_tObj *GetCarObj();
 #endif
     AIState_Base *state_;
     stateType_t stateType_;

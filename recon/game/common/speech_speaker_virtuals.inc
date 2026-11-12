@@ -57,13 +57,13 @@
     virtual int Unit() { return 0; }
 #if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
     virtual bool KnownPerp(Car_tObj *car);
-    inline void InferredCopViewOp1() { }   /* INFERRED body: retail aih_cop.obj records this default's `this` Speaker but no Car_tObj */
+
 #else
     virtual bool KnownPerp(Car_tObj *car) { return false; }
 #endif
 #if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
     virtual void ClearPerp(Car_tObj *car);
-    inline void InferredCopViewOp2() { }   /* INFERRED body: retail aih_cop.obj records this default's `this` Speaker but no Car_tObj */
+
 #else
     virtual void ClearPerp(Car_tObj *car) {}
 #endif
@@ -74,14 +74,14 @@
     virtual int DistToPerp() { return 0x3e80000; }
 #if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
     virtual Car_tObj *CarObj();
-    inline void InferredCopViewOp3() { }   /* INFERRED body: retail aih_cop.obj records this default's `this` Speaker but no Car_tObj */
+
 #else
     virtual Car_tObj *CarObj() { return (Car_tObj *)0x0; }
 #endif
     virtual void ReActivate() {}
 #if defined(NFS4_GAME_COMMON_AIH_COP_TYPES_H)
     virtual Car_tObj *Perp();
-    inline void InferredCopViewOp4() { }   /* INFERRED body: retail aih_cop.obj records this default's `this` Speaker but no Car_tObj */
+
 #else
     virtual Car_tObj *Perp() { return (Car_tObj *)0x0; }
 #endif

@@ -767,7 +767,7 @@ static void uppercase(char *string)
   }
 }
 #include "../../link_stripped.h"
-void Hud_InferredCarOp(Car_tObj *car) LINK_STRIPPED; void Hud_InferredCarOp(Car_tObj *car) { }   /* INFERRED body: retail hud.obj Car_tObj record (+ its field walk incl. BO_tNewtonObj) after the HudPmx_tShape run and before Hud_BuildCdPlayer, owned by no retail function; HUD.CPP 795-800 gap after uppercase (link-stripped); name inferred */
+
 /* ---- Hud_Kill__Fv  [HUD.CPP:800-808] SLD-VERIFIED ---- */
 #line 797 "C:/nfs4/GAME/PSX/HUD.CPP"
 void Hud_Kill(void)

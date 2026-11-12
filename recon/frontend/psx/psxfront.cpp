@@ -58,7 +58,7 @@ void Quick_DD(int a,int b,int c)
 }
 
 #include "../../link_stripped.h"   /* lines 99-140: (static data / macros / comments - no emitted code) */
-void PSXFront_InferredCarShapeOp(Car_tObj *car, shapetbl *shape) LINK_STRIPPED; void PSXFront_InferredCarShapeOp(Car_tObj *car, shapetbl *shape) { }   /* INFERRED body: retail psxfront.obj orphan run "Car_tObj shapetbl" after the global records and before DoTitleScreen (whose only typed local is shapetbl tempShp2), owned by no retail function; PSXFRONT.CPP 98-141 gap (link-stripped); name inferred */
+
 /* ---- PSXFront_AllocateDrawMemory  (psxfront.cpp:141, code lines 141-154) ---- */
 #line 138 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSXFront_AllocateDrawMemory(void)
@@ -1457,7 +1457,7 @@ void LoadAllHelpShapes(void)
   }
 
 /* lines 1261-1337: (static data / macros / comments - no emitted code) */
-void PSXFront_InferredShapeOp(shapetbl *shape) LINK_STRIPPED; void PSXFront_InferredShapeOp(shapetbl *shape) { }   /* INFERRED body: retail psxfront.obj orphan shapetbl record after ScaleShapeExtended/LoadAllHelpShapes (neither records one) and before FontUpsideDownBlit; PSXFRONT.CPP 1260-1338 gap (link-stripped); name inferred */
+
 /* ---- PSXDrawSquare  (psxfront.cpp:1338, code lines 1338-1349) ---- */
 /* GPU packet: builds POLY_F4 (stride 0x18, code 0x28); prim=u_char* build cursor, prevPrim=u_char* link word */
 /* The "unpacked" literal that follows LoadAllHelpShapes' "%szperm.psh" in retail .rdata (0x80012848) is FETexture.obj's

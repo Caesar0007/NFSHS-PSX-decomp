@@ -139,7 +139,7 @@ struct camera_flags {
 };
 
 #include "shared/Camera_tCamSlot.h"
-inline void Camera_InferredAnimInstOp(Trk_AnimateInst *animInst) { } /* INFERRED body: retail camera.obj records a Trk_AnimateInst TPDEF right after Camera_tCamSlot; non-member, never called */ enum AIDataRecord_RecordMethod_t {
+enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2

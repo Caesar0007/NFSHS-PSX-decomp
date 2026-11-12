@@ -128,7 +128,7 @@ void AIDataRecord_t::StartUp2(void)
       recordCollection[recordLoop]->Setup();
     } } return;
 }
-static inline void AIDataRecord_InferredCarOp(AIDataRecord_t *record, Car_tObj *car) { }   /* INFERRED body: retail aidatarecord.obj records Car_tObj (+walk) and AIDataRecord_t between StartUp2 and CleanUp1; non-member so the key-function TU emits no out-of-line copy */
+
 /* ---- CleanUp1__14AIDataRecord_t COVERED-SLD-PASS ---- */
 
 #line 151 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"

@@ -22,7 +22,7 @@ struct Sim_tSimGlobalVar {
 };
 extern Sim_tSimGlobalVar simGlobal;   /* Sim.obj @0x8011E0AC (.gameTicks @0x8011E0B0) */
 
-static inline int AIHigh_BasicCop_InferredCarOp(Car_tObj *carObj) { return 0; }   /* INFERRED body: retail aih_basiccop.obj ctor record group "AIHigh_BasicCop Car_tObj Car_tObj AIHigh_BasicCop" = one more Car_tObj reference than the ctor's own; never called */
+
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
 
 #line 18 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"

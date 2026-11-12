@@ -29,7 +29,7 @@ enum tMenuCommandType {
 #include "fescreen_transition.h"   /* retail FEScreen.obj: tScreen_TransitionType before tShapeInformation */
 #include "shared/tShapeInformation.h"
 #include "fescreen_virtual_types.h"
-#include "../../link_stripped.h"   /* NFS4_FESCREEN_INFERRED_DECLS (shared/tpdef_keys.h) */
+#include "../../link_stripped.h"
 #include "fescreen.h"
 #include "shared/tDrawShapeExtended.h"
 #include "fedialog.h"

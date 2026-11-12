@@ -79,10 +79,10 @@ typedef struct tMenu {
 #if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_MENUITEM_INLINES)   /* FESCR: named by the tInsideBoxMenu inline ctor */
     tMenu(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short);
 #endif
-#if defined(NFS4_FE_CORE_TMENU_ALL_INLINES) && !defined(NFS4_FE_CORE_TMENU_KEY_TU)
-    /* INFERRED bodies: retail TPDEF tMenu x16 per object (2 inline bodies beyond the 12 spelled); builtin-only, never called */
-    inline short TitleText() { return fTitle; } inline bool NeverAnyEnabled() { return fNeverAnyEnabled; }
-#endif
+
+
+
+
 NFS4_FEMENU_TMENU_STRIPPED_DECLS } tMenu;
 NFS4_FEMENU_TMENU_STRIPPED_DEFS
 #endif

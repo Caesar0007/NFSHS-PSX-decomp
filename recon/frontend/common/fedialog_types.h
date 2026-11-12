@@ -85,7 +85,7 @@ struct tFEApplication {
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
     inline tPlayer GetPlayer() { return (tPlayer)fPlayer; }
 #endif
-    void Redraw(); NFS4_FEAPP_INF_FEDIALOG
+    void Redraw();
 };
 #define NFS4_FEDIALOG_FEAPP_DONE
 #endif

@@ -51,5 +51,5 @@ NFS4_TD_tScreen struct tScreen {
     void TransitionOff(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void TransitionOn(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void UpdateTransition();
-NFS4_FESCREEN_INFERRED_DECLS } NFS4_TDN_tScreen;
+} NFS4_TDN_tScreen;
 #endif

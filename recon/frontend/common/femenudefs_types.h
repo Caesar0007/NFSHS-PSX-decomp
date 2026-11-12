@@ -164,7 +164,7 @@ struct tFEApplication {
     int speechToPlay[2];
     inline tDialogMessageString *MessagePopup() { return &messagePopup; }
     inline tPlayer CurrentPlayer() { return fPlayer; }
-    void Redraw(); NFS4_FEAPP_INF6
+    void Redraw();
 };
 #endif
 

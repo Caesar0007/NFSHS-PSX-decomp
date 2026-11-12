@@ -53,11 +53,11 @@ typedef struct tMenuItem {
     inline bool IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
     inline unsigned int LeftRightFlag() { return fFlags & 0x400; }
 #endif
-#ifdef NFS4_FE_SURFACE_TMENU_INLINES
-    /* INFERRED bodies: retail TPDEF tMenuItem x16 per object (7 inline bodies beyond the 7 spelled above); builtin-only, never called */
-    inline unsigned int TextDescription() { return fTextDescription; } inline short SelFade() { return fSelFade; } inline void SetSelFade(short v) { fSelFade = v; }
-    inline int NumFrames() { return fNumFrames; } inline void SetNumFrames(int v) { fNumFrames = v; } inline int ButtonImageIndex() { return fButtonImage; } inline void SetButtonImageIndex(int v) { fButtonImage = v; }
-#endif
+
+
+
+
+
 } tMenuItem;
 typedef tMenuItem *tItemList[16];
 typedef struct tMenu {
@@ -93,10 +93,10 @@ typedef struct tMenu {
     inline unsigned int GetMusic() { return fFlags & 0xf000; }
     inline tMenuItem *CurrentMenuItem() { return fItemList[fCurrentItem]; }
 #endif
-#ifdef NFS4_FE_SURFACE_TMENU_INLINES
-    /* INFERRED bodies: retail TPDEF tMenu x16 per object (2 inline bodies beyond the 12 spelled); builtin-only, never called */
-    inline short TitleText() { return fTitle; } inline bool NeverAnyEnabled() { return fNeverAnyEnabled; }
-#endif
+
+
+
+
 } tMenu;
 struct tMenuItemInteractive : public tMenuItem {};
 #ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own types right after tMenuItemInteractive (nfs3.obj: tScreen) */

@@ -65,7 +65,7 @@ struct tFEApplication {
     bool gotName[2], needName[2];
     int speechToPlay[2];
 
-    int GetPlayer() { return (unsigned char)fPlayer; } NFS4_FEAPP_INF6
+    int GetPlayer() { return (unsigned char)fPlayer; }
 };
 
 #endif

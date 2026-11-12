@@ -193,7 +193,7 @@ struct tFEApplication {
     bool gotName[2], needName[2];
     int speechToPlay[2];
 
-    tPlayer Player() { return (tPlayer)(unsigned char)fPlayer; } NFS4_FEAPP_INF6
+    tPlayer Player() { return (tPlayer)(unsigned char)fPlayer; }
 };
 
 /* The linked owner retains this public array typedef while attributing the

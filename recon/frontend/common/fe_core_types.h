@@ -127,11 +127,11 @@ typedef struct tMenuItem {
 #endif
     inline int ButtonImage() { return fButtonImage; }
 #endif
-#if defined(NFS4_FE_CORE_TMENU_ALL_INLINES) && !defined(NFS4_FE_CORE_TMENU_KEY_TU)
-    /* INFERRED bodies: retail TPDEF tMenuItem x16 per object (7 inline bodies beyond the 7 spelled above); builtin-only, never called */
-    inline unsigned int TextDescription() { return fTextDescription; } inline short SelFade() { return fSelFade; } inline void SetSelFade(short v) { fSelFade = v; }
-    inline int NumFrames() { return fNumFrames; } inline void SetNumFrames(int v) { fNumFrames = v; } NFS4_FE_INFERRED_BUTTONIMAGEINDEX inline void SetButtonImageIndex(int v) { fButtonImage = v; }
-#endif
+
+
+
+
+
 NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS } tMenuItem;
 NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }

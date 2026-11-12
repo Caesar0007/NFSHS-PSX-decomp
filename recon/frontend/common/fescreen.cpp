@@ -273,13 +273,13 @@ void tScreen::UploadSwapShapes(int numSwapShapes)
   this->UploadShapes(this->fSwapShapes,0,0,(short)numSwapShapes,0);
 }
 
-/* INFERRED bodies: retail FEScreen.obj TPDEF tScreen run (IsShapeFileLoaded..Draw: 25 vs 19) evidence; out-of-line copies LINK_STRIPPED */
-inline int tScreen::TransitionTicks() { return fTransitionTicks; }
-inline bool tScreen::IsTransitionOff() { return fTransitionOff; }
-inline short tScreen::ScreenFadeVal() { return fScreenFadeVal; }
-inline void tScreen::SetScreenFadeVal(short fadeVal) { fScreenFadeVal = fadeVal; }
-inline int tScreen::InternalScreenFadeVal() { return fInternalScreenFadeVal; }
-inline void tScreen::SetInternalScreenFadeVal(int fadeVal) { fInternalScreenFadeVal = fadeVal; }
+
+
+
+
+
+
+
 
 
 

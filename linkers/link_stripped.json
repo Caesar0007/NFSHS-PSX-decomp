@@ -919,42 +919,6 @@
    "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (FRONT26 set AB2); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
   },
   {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "TransitionTicks__7tScreen",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::TransitionTicks -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "IsTransitionOff__7tScreen",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::IsTransitionOff -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "ScreenFadeVal__7tScreen",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::ScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "SetScreenFadeVal__7tScreens",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::SetScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "InternalScreenFadeVal__7tScreen",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::InternalScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/fescreen.cpp.o",
-   "function": "SetInternalScreenFadeVal__7tScreeni",
-   "source": "recon/frontend/common/fescreen.cpp",
-   "evidence": "tScreen::SetInternalScreenFadeVal -- INFERRED inline member (FESCR 2026-11-08): retail FEScreen.obj records TPDEF tScreen x25 between IsShapeFileLoaded's and AsyncLoadShapeFile's tShapeInformation (ours 19 without the 6 inferred bodies); declared LINK_STRIPPED in the FEScreen-only NFS4_FESCREEN_INFERRED_DECLS (recon/shared/tpdef_keys.h), body in recon/frontend/common/fescreen.cpp. FEScreen.obj owns the tScreen key function and emits this unreferenced standalone copy into .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
    "object": "build/recon/game/common/speech.cpp.o",
    "function": "Ambulance__Q26Speech7Speaker",
    "source": "recon/game/common/speech_class.h",
@@ -1298,18 +1262,6 @@
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "NeverAnyEnabled__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenu::NeverAnyEnabled -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "TitleText__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenu::TitleText -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "CurrentMenuItem__5tMenu",
    "source": "recon/shared/tpdef_keys.h",
    "evidence": "tMenu::CurrentMenuItem -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
@@ -1376,18 +1328,6 @@
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "SelFade__9tMenuItem",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenuItem::SelFade -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "TextDescription__9tMenuItem",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenuItem::TextDescription -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "LeftRightFlag__9tMenuItem",
    "source": "recon/shared/tpdef_keys.h",
    "evidence": "tMenuItem::LeftRightFlag -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
@@ -1433,18 +1373,6 @@
    "function": "__31tMenuItemOptionsLeftRightChoiceUiP13tListIterator",
    "source": "recon/frontend/common/femenuextended_types.h",
    "evidence": "tMenuItemOptionsLeftRightChoice ctor -- retail in-class inline constructor (the screendisplay_types.h spelling; FESCR2 2026-11-09): retail FEMenuExtended.obj records TPDEF tMenuItemOptionsLeftRightChoice x3 at the class (declaration + ctor body), ours 1 without it; declared LINK_STRIPPED in recon/frontend/common/femenuextended_types.h, defined inline right after the class. FEMenuExtended.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "NumFrames__9tMenuItem",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenuItem::NumFrames -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (typedef pair + IsEnabled/NewMenu + in-class TransitionOff/On + 10 inline bodies); declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
-  },
-  {
-   "object": "build/recon/frontend/common/femenu.cpp.o",
-   "function": "SetSelFade__9tMenuItems",
-   "source": "recon/shared/tpdef_keys.h",
-   "evidence": "tMenuItem::SetSelFade -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenuItem x16 at the class (typedef pair + IsEnabled/NewMenu + in-class TransitionOff/On + 10 inline bodies); declared LINK_STRIPPED via NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   }
  ]
 }

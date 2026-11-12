@@ -78,6 +78,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | c99f4e063 | Phase 3c: 10 unused game-side inferred members removed (call-site check first; members matched code calls stay); IgnoreCops stripped row removed | 0 | 84 | 165 | 94 | 153 | 637 |
 | 2026-11-12 | 0def7381d | Phase 3d: 21 unused frontend members removed (tFEApplication/tScreen/tMenuItem/tMenu accessors), macro bodies out of tpdef_keys.h, fe_menu_game_surface.h copies, 12 stripped rows. Census jump = tMenu/tMenuItem x16 in ~45 objects: retail really had ~9 more inline bodies in FEMENU.H, names unknown | 0 | 70 | 162 | 94 | 141 | 1137 |
 | 2026-11-12 | 54ce593c1 | Phase 3e: tCarManager CarCount/CarIndex x6, tTournamentManager x5 (incl. per-object body variants), tListIteratorCar IsFilter/CarListFilter, EnableValue, 2 stripped rows, NFS4_FE_CORE_CARS_INDEX_INT removed. CORRECTION to the 3a row above: its fedialog.h / tpdef_keys.h part did NOT land in b88950b72 (edit script stopped early); redone as 3f | 0 | 56 | 154 | 94 | 139 | 1507 |
+| 2026-11-12 | 256f4afa5 | Phase 3f: fedialog.h inferred accessors (GetOffsetX/Y, GetMaxW, Variant, NumItems, HelpControllers, LeftText, GetString, IsCentered, FadeText, Set/TimeoutTicks, IsRunning) + body macros + tpdef_keys opt-out block removed; per-object SetChoices split removed | 0 | 36 | 145 | 94 | 139 | 1780 |
 
 ## Open mismatches (left unexplained on purpose)
 

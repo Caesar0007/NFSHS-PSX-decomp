@@ -126,7 +126,7 @@ int Udff_GetInt(Udff_tInfo *handle)
 
   return value;
 }
-/* INFERRED bodies: retail udff.obj TPDEF run has 3 more Udff_tInfo requests (gap UDFF.CPP 124-202 between Udff_GetInt and Udff_GetBuffer), no code; never called */ inline short Udff_GetShort(Udff_tInfo *info) { return 0; } inline char Udff_GetByte(Udff_tInfo *info) { return 0; } inline void Udff_Skip(Udff_tInfo *info, int size) { }
+
 /* ---- Udff_GetBuffer__FP10Udff_tInfoPci  [UDFF.CPP:203-218] SLD-VERIFIED ---- */
 #line 200 "C:/nfs4/GAME/COMMON/UDFF.CPP"
 void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size)

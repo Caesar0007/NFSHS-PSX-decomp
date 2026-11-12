@@ -2497,7 +2497,7 @@ void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
  * No new qualifier,asm,volatile,fake use or scope is added.
  * Boundary reset preserves only unchanged-neighbor coordinates.
  * Receipt:build/nc12/newton_gravity_speed_20261029/final-proof.json. */
-/* INFERRED body: retail newton.obj TPDEF run has one more coorddef request between Newton_LimitAngularVelocity (ends 2456) and Newton_ApplyTheLawOfGravity (2466), no code; never called */ inline void Newton_ClearVector(coorddef *v) { v->x = 0; v->y = 0; v->z = 0; }
+
 
 #line 2465 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)

@@ -366,7 +366,7 @@ int AITrigger_Compare(const void *op1, const void *op2)
   trigger_t *tb = *(trigger_t *const *)op2;
   return ta->any.slice - tb->any.slice;
 }
-/* INFERRED body: retail aitriger.obj TPDEF run (4 trigger_t between DescribeTrigger and Sort); never called */ static inline int AITrigger_SliceOrder(trigger_t *a, trigger_t *b) { return a->any.slice - b->any.slice; }
+
 /* ---- AITrigger_TriggerManager::Sort  [@0x80072e30] ---- */
 
 

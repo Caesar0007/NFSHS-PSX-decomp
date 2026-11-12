@@ -723,7 +723,7 @@ void Texture_CloneUVPmx(Draw_tPixMap *pmx,int mode,Draw_tPixMap *rpmx)
     *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u2;
     *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u0;
   } return; }
-/* INFERRED bodies: retail Texture.obj TPDEF run has 3 more Draw_tPixMap requests in the tail (gap TEXTURE.CPP 708-725), no code; never called */ inline void Texture_CopyPmx(Draw_tPixMap *src, Draw_tPixMap *dst) { *dst = *src; } inline int Texture_PmxIsValid(Draw_tPixMap *pmx) { return pmx != 0; }
+
 /* ---- Texture_InitTrackTexture__Fv  [TEXTURE.CPP:726-738] SLD-VERIFIED ---- */
 #line 723 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitTrackTexture(void)

@@ -19,59 +19,7 @@
  * CPP definition/key-function producer and EXT/STAT gap remain unresolved.
  * Receipt:build/nc12/record_header_layout_20261027/. */
 #line 1 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
-enum AIDataRecord_WhichRecord_t {
-    NORECORD_R = 0,
-    RACER_SPEED_R = 1,
-    TRAFFIC_SPEED_R = 2,
-    ACCELERATION_R = 3,
-    REMOVED_R = 4,
-    BEST_LINE_R = 5,
-    TRACK_CURVE_R = 6,
-    CURVESPEED_TABLE_R = 7,
-    CAR_TRACKING_R = 8
-};
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-/* Real virtuals since 2026-09-19.  Declaration ORDER is retail evidence: g++ 2.8 emits the vtables at finish_file in
- * reverse declaration order and retail has CarTracking, CurveSpeedTable, TrackCurve, BestLine, AccTable, base.
- * The vptr follows the data members (old g++ ABI), where the hand-written `_vf` member used to be.
- * The derived classes declare NO destructor: retail's are the compiler-synthesized ones (no vptr store). */
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_;
-    /* Inferred accessor spellings: retail inline receiver pairs establish
-       these operations, but do not preserve their original identifiers. */
-    inline AIDataRecord_RecordMethod_t RecordMethod() LINK_STRIPPED;   /* AIDATARECORD.obj's standalone copies: SLINK /strip removed them (P6 Route C 2026-11-07) */
-    inline char *Name() LINK_STRIPPED;
-    inline char *DataBuffer() LINK_STRIPPED;
-    inline char *PreAllocatedBuffer() LINK_STRIPPED;
-    inline int BufferSize() LINK_STRIPPED;
-    inline int NumElements() LINK_STRIPPED;
-    inline void SetDataBuffer(char *buffer) LINK_STRIPPED;
-    AIDataRecord_t(AIDataRecord_WhichRecord_t which, char *name);
-    virtual ~AIDataRecord_t();
-    int AddRecordToCollection();
-    int RemoveRecordFromCollection();
-    static void StartUp1();
-    static void StartUp2();
-    static void CleanUp1();
-    static void CleanUp2();
-    virtual void Setup();
-    int Load();
-    int SaveAndPurge();
-} AIDataRecord_t;
-inline AIDataRecord_RecordMethod_t AIDataRecord_t::RecordMethod() { return recordMethod_; }
-inline char *AIDataRecord_t::Name() { return name_; }
-inline char *AIDataRecord_t::DataBuffer() { return dataBuffer_; }
-inline char *AIDataRecord_t::PreAllocatedBuffer() { return preAllocatedBuffer_; }
-inline int AIDataRecord_t::BufferSize() { return bSize_; }
-inline int AIDataRecord_t::NumElements() { return numElements_; }
-inline void AIDataRecord_t::SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
+#include "aidatarecord_classes.h"   /* the AIDATARECORD.H record-class family (shared with every includer) */
 
 
 
@@ -122,12 +70,6 @@ inline void AIDataRecord_t::SetDataBuffer(char *buffer) { dataBuffer_ = buffer; 
 
 
 
-struct AIDataRecord_AccTable_t : public AIDataRecord_t {
-    int scale_;
-    AIDataRecord_AccTable_t(char *name, int n, AIDataRecord_WhichRecord_t which);
-    int Get(int i);
-    void Setup();
-};
 
 
 
@@ -166,9 +108,6 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
 
 
 
-typedef struct AIDataRecord_BestLine_t : public AIDataRecord_t {
-    AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
-} AIDataRecord_BestLine_t;
 
 
 
@@ -178,10 +117,6 @@ typedef struct AIDataRecord_BestLine_t : public AIDataRecord_t {
 
 
 
-struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {
-    AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t which);
-    int Get(int i);
-};
 
 
 
@@ -196,11 +131,6 @@ struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {
 
 
 
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
-    AIDataRecord_CurveSpeedTable_t(char *name, AIDataRecord_WhichRecord_t which);
-    int Get(int i);
-    void Upgrade(int i);
-};
 
 
 
@@ -213,20 +143,90 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
 
 
 
-struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
-    /* Get inline in the class (SYM: AIDATARECORD.H:191, kind 6 LOCAL, vtable unlabelled = no key method); plain `struct`
-     * (retail has 2 class-level TPDEFs = class name + the inline member, typedef form gave 3).  LANE2 2026-11-07. */
-#line 190 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
-    virtual int Get(int slice)
-{
 
-  return 0;
-}
 
-    AIDataRecord_CarTracking_t(AIDataRecord_WhichRecord_t which, char carLetter) LINK_STRIPPED;
 
 
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

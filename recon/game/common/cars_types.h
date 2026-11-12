@@ -23,20 +23,20 @@ struct AIPhysic_BrakeInfo {
     int deceleration_; /* the 5 retail AIPhysic_BrakeInfo inline bodies (aiphysic_types.h + aispeeds_types.h); retail 7 TPDEFs per includer */ inline void SetBrakeDistance(int speed, int distance) { int sIndex = speed / 0x10000; if (sIndex < 0) sIndex = -sIndex; if (!(sIndex < 0x80)) sIndex = 0x80; brakeTable_[sIndex] = (u_char)(distance / 0x20000); } AIPhysic_BrakeInfo(int deceleration) { int invDeceleration; deceleration_ = deceleration; invDeceleration = fixeddiv(0x10000, deceleration); for (int brakeTableLoop = 0; brakeTableLoop < 0x80; brakeTableLoop++) { int brakeDistanceMeters = fixedmult(fixedmult(brakeTableLoop << 0x10, invDeceleration), brakeTableLoop << 0x10) / 2; SetBrakeDistance(brakeTableLoop << 0x10, brakeDistanceMeters); } } inline int Deceleration() { return deceleration_; } int GetBrakeDistance(int speed) { int sIndex = speed / 0x10000; if (sIndex < 0) { sIndex = -sIndex; } if (!(sIndex < 0x80)) { sIndex = 0x80; } return (u_int)brakeTable_[sIndex] * 0x20000; } int GetNeededDistance(int futureSpeed,int currentSpeed) { return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed); }
 };
 #include "shared/AIPhysic_ModelConfig_t.h"
-enum AIDataRecord_RecordMethod_t {
-    NORMAL_M = 0,
-    RECORD_M = 1,
-    TEST_M = 2
-};
-typedef struct AIDataRecord_t {
-    int numElements_, bSize_;
-    char name_[64];
-    char *dataBuffer_, *preAllocatedBuffer_;
-    AIDataRecord_RecordMethod_t recordMethod_; /* accessors as in aidatarecord_types.h (retail 9 TPDEFs per includer) */ inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; } inline char *Name() { return name_; } inline char *DataBuffer() { return dataBuffer_; } inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; } inline int BufferSize() { return bSize_; } inline int NumElements() { return numElements_; } inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
-    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
-    virtual void Setup();
-} AIDataRecord_t;
-struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
+#include "aidatarecord_classes.h"   /* the AIDATARECORD.H record-class family: no private copies (header-truth 4i) */
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4f) */
 
 
@@ -70,7 +70,7 @@ struct Draw_DCache;
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_CARS_TAIL_DONE)   /* first pass, after copspeak_types.h */
 #define NFS4_CARS_TAIL_DONE
-struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
+
 #undef NFS4_COLOR_OMIT_UDFF_HANDLE
 
 

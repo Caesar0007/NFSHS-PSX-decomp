@@ -397,7 +397,7 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
     accelerationScale = AITune_accelerationScale[carType].scale;
   }
 
-  carObj->accelerationRecord = new AIDataRecord_AccTable_t((char *)carObj->accTable,accelerationScale,3);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
+  carObj->accelerationRecord = new AIDataRecord_AccTable_t((char *)carObj->accTable,accelerationScale,ACCELERATION_R);
   if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {
 
 
@@ -406,7 +406,7 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 
 
 
-    carObj->curveSpeedTable = new AIDataRecord_CurveSpeedTable_t(carObj->carName,7);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
+    carObj->curveSpeedTable = new AIDataRecord_CurveSpeedTable_t(carObj->carName,CURVESPEED_TABLE_R);
   }
   else {
 

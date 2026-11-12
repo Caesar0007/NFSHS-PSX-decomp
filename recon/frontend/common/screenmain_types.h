@@ -56,14 +56,14 @@ typedef long STREAMREQUESTID;
 
 
 #else
-struct tCreditManager {
-    tCredit *CreditBuffer;
-    int fTVFade, fTextFade, fTextFadeDir;
-    bool fCreditsInitialized, fRequestDeInit;
-    int fNumCredits, fShowCreditNum, fCurrCredit;
-    bool StartedTransition, StartedLines, StartedTextFade;
-    int fLineTicks, fStartTicks; void Init(int); void DeInit(); void Draw(bool);
-};
+#include "shared/tCreditManager.h"   /* one tCreditManager definition (header-truth 4t) */
+
+
+
+
+
+
+
 
 struct tVertex {
     short x, y;

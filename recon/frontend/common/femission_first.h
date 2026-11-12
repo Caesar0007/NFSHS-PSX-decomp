@@ -7,14 +7,14 @@
 #include "shared/tStageInfo.h"
 #include "shared/tAcademyDefinition.h"
 
-struct tMissionManager {
-    char fNumTiers;
-    tAcademyDefinition *fDefinition;
+#include "shared/tMissionManager.h"   /* one tMissionManager definition (header-truth 4t) */
 
-    void Initialize();
-    void LoadDescription(bool LoadHotPursuit);
-    void ReleaseDescription();
-    short GetMissionStages(short tier, short mission, tStageInfo **pStages);
-    void GetMissionToRace(tMissionInfo **mission);
-};
+
+
+
+
+
+
+
+
 #endif

@@ -16,35 +16,35 @@ enum tTVState {
 
 #include "shared/tTVConfig.h"
 
-typedef struct tVideoWall {
-    tTVConfig *fTVs;
-    short fFirstTVShape, fNumTVs;
-    tTexture_ShapeInfo *fTVShapes;
-    short *tvOrder;
-    u_long fTVTicks;
-    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY;
-    short fAvailableTextID, fAvailable, fAvailableBright, fValid;
-    short fAvailableX, fAvailableY;
-    tTexture_ShapeInfo *fIconShapes;
-    short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated;
+#include "shared/tVideoWall.h"   /* one tVideoWall definition (header-truth 4t) */
 
-    void Initialize(tTVConfig *tvs, tTexture_ShapeInfo *shapes,
-                    short firstTV, short numTVs, short *tvOrdering,
-                    short flip_axis);
-    void UpdateImages();
-    void SetAvailableText(short textID, short x, short y);
-    void SetAvailableIcon(short icon, short numFrames, short x, short y,
-                          tTexture_ShapeInfo *iconImages);
-    void SetOffset(short x, short y);
-    void SetAvailable(short avail);
-    void SetValid(short valid);
-    void UpdateTransition();
-    void Draw();
-    void TurnOff();
-    void TurnOffInstant();
-    void TurnOn();
-} tVideoWall;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/kernpair.h"
 

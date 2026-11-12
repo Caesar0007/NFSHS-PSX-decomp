@@ -11,10 +11,10 @@
 #include "shared/Sched_tSchedule.h"
 #include "shared/tTrackInformation.h"
 
-struct tTrackManager {
-    u_long fNumTracks;
-    tTrackInformation *fTracks;
-    bool fAvailableTracks[16], fViewableTracks[16];
-};
+#include "shared/tTrackManager.h"   /* one tTrackManager definition (header-truth 4t) */
+
+
+
+
 
 #endif

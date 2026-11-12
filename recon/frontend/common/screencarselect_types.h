@@ -69,36 +69,36 @@ struct tDrawShapeExtended;
 
 #endif
 
-struct tVideoWall {
-    tTVConfig *fTVs;
-    short fFirstTVShape, fNumTVs;
-    tTexture_ShapeInfo *fTVShapes;
-    short *tvOrder;
-    u_long fTVTicks;
-    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY;
-    short fAvailableTextID, fAvailable, fAvailableBright, fValid;
-    short fAvailableX, fAvailableY;
-    tTexture_ShapeInfo *fIconShapes;
-    short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated;
+#include "shared/tVideoWall.h"   /* one tVideoWall definition (header-truth 4t) */
 
-    /* ORIGINAL-NAME-UNRESOLVED: inferred getter spelling for retail's
-     * receiver-free inline pair at the transition-direction read. */
-    short TransitionDirection() { return fTransitionDirection; }
 
-    void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short);
-    void UpdateImages();
-    void SetAvailableText(short, short, short);
-    void SetAvailableIcon(short, short, short, short, tTexture_ShapeInfo *);
-    void SetOffset(short, short);
-    void SetAvailable(short);
-    void SetValid(short);
-    void UpdateTransition();
-    void Draw();
-    void TurnOff();
-    void TurnOffInstant();
-    void TurnOn();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct tOverlay {
     RECT location[2];

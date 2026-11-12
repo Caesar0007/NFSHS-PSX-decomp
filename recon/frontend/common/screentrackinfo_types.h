@@ -129,12 +129,12 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 #endif
 
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail: tVideoWall + tScreenTrackInfo before the tMenuNFS4 family */
-struct tVideoWall {
-    tTVConfig *fTVs; short fFirstTVShape, fNumTVs; tTexture_ShapeInfo *fTVShapes; short *tvOrder; u_long fTVTicks;
-    short fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY; short fAvailableTextID, fAvailable, fAvailableBright, fValid;
-    short fAvailableX, fAvailableY; tTexture_ShapeInfo *fIconShapes; short fIcon, fIconFrames, fIconX, fIconY;
-    bool fUpdated; void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short); void UpdateImages(); void UpdateTransition(); void Draw(); void TurnOffInstant(); void TurnOn();
-};
+#include "shared/tVideoWall.h"   /* one tVideoWall definition (header-truth 4t) */
+
+
+
+
+
 #include "screentrackinfo.h"
 #endif
 #include "femenuextended_classes.h"   /* the FEMENUEXTENDED.H menu family: no private copies (header-truth 4q) */

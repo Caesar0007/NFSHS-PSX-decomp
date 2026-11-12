@@ -255,10 +255,10 @@ struct Front_MissionManagerCodegenView {
 
 
 
-struct tCreditManager {
-    char _storage[56];
-    void Setup();
-};
+#include "shared/tCreditManager.h"   /* one tCreditManager definition (no opaque view; header-truth 4t) */
+
+
+
 
 #undef NFS4_FRONT_SURFACE
 #endif

@@ -184,7 +184,7 @@ void tScreenTrackSelect::DrawBackground()
   this->UpdateVideoWall(trackInfo);
 
   this->IsShapeFileLoaded(this->fSwapShapes);
-  if (((this->fSwapShapes.fFile != (char *)0x0) && (this->fVideoWall.GetTransitionDirection() != -1)) && (this->fBrightness == 0)) {
+  if (((this->fSwapShapes.fFile != (char *)0x0) && (this->fVideoWall.TransitionDirection() != -1)) && (this->fBrightness == 0)) {
 
       this->UploadSwapShapes(10);
       this->fVideoWall.TurnOn(); }

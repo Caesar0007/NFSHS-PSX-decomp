@@ -31,13 +31,13 @@
 #undef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 #undef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
-typedef enum tTrackClassType {
-    tct_Beginner = 0,
-    tct_Intermediate = 1,
-    tct_Expert = 2,
-    tct_GTR = 3,
-    tct_Bonus = 4
-} tTrackClassType;
+#include "shared/tTrackClassType.h"   /* one tTrackClassType definition (header-truth 4t) */
+
+
+
+
+
+
 
 
 
@@ -86,15 +86,15 @@ struct tMenu;
 
 
 
-struct tTrackManager {
-    u_long fNumTracks;
-    tTrackInformation *fTracks;
-    bool fAvailableTracks[16], fViewableTracks[16];
+#include "shared/tTrackManager.h"   /* one tTrackManager definition (header-truth 4t) */
 
-    void Initialize();
-    void LoadDescription();
-    void ReleaseDescription();
-};
+
+
+
+
+
+
+
 
 #include "shared/tTierInfo.h"
 
@@ -209,14 +209,14 @@ struct tTrackManager {
 
 
 
-struct tMissionManager {
-    char fNumTiers;
-    tAcademyDefinition *fDefinition;
+#include "shared/tMissionManager.h"   /* one tMissionManager definition (header-truth 4t) */
 
-    void Initialize();
-    void LoadDescription(bool LoadHotPursuit);
-    void ReleaseDescription();
-};
+
+
+
+
+
+
 
 #include "shared/TCB.h"   /* retail nfs3.obj: kernel/skidmark types after tMissionManager */
 #include "shared/EXEC.h"
@@ -248,14 +248,14 @@ struct tMenu;
 
 
 
-typedef struct tCreditManager {
-    tCredit *CreditBuffer;
-    int fTVFade, fTextFade, fTextFadeDir;
-    bool fCreditsInitialized, fRequestDeInit;
-    int fNumCredits, fShowCreditNum, fCurrCredit;
-    bool StartedTransition, StartedLines, StartedTextFade;
-    int fLineTicks, fStartTicks;
-} tCreditManager;
+#include "shared/tCreditManager.h"   /* one tCreditManager definition (header-truth 4t) */
+
+
+
+
+
+
+
 
 #include "shared/tRecordBuffer.h"
 

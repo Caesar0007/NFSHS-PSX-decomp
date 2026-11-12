@@ -293,12 +293,15 @@ enum forceFocus_t {
 #include "shared/kernpair.h"
 typedef kernpair KERN;
 #elif defined(NFS4_AUDIOCMN_IN_CAR) && NFS4_AUDIOCMN_IN_CAR == 1
+#ifndef NFS4_TCARCLASSTYPE_DEFINED
+#define NFS4_TCARCLASSTYPE_DEFINED
 typedef enum tCarClassType {
     cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,
     cct_SportsCar = 3, cct_SuperCar = 4, cct_GTRCar = 5,
     cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
     cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
 } tCarClassType;
+#endif
 enum tCarNameLength {
     cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
 };

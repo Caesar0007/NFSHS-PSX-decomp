@@ -1,6 +1,8 @@
-/* frontend/common/fecars_manager.h -- FECars.obj owner records emitted through the fe_core_cars.h hook NFS4_FE_CORE_CARS_HOOK_MANAGER (retail order). */
+/* frontend/common/fecars_manager.h -- class tCarManager (FECARS.H), one definition for every includer (header-truth 4k). Members are defined in fecars.cpp. */
 #ifndef NFS4_FRONTEND_COMMON_FECARS_MANAGER_H
 #define NFS4_FRONTEND_COMMON_FECARS_MANAGER_H
+struct tSaveCarInfo;
+#include "shared/tCarClassType.h"
 typedef struct tCarManager {
     u_long fNumCars;
     tCarInfo *fCars;

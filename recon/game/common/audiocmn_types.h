@@ -168,26 +168,26 @@ enum tCarNameLength {
     cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
 };
 #endif
-typedef struct tCarManager {
-    u_long fNumCars;
-    tCarInfo *fCars;
-    tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
-    u_char fAvailableCars[48], fViewableCars[48];
-    u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
-    short fCarTextList[49];
-#ifdef NFS4_AUDIOCMN_DECLARE_CAR_MANAGER_METHODS
-    void Initialize();
-    void LoadDescription();
-    void ReleaseDescription();
-    void SetClassViewable(tCarClassType carClass, bool viewFlag);
-#endif
+#include "../../frontend/common/fecars_manager.h"   /* class tCarManager: no private copy (header-truth 4k) */
 
 
 
 
 
 
-} tCarManager;
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NFS4_AUDIOCMN_CAR_ORDER
 #define NFS4_AUDIOCMN_IN_CAR 2
 #include NFS4_AUDIOCMN_CAR_ORDER

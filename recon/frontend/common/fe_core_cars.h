@@ -50,55 +50,7 @@ enum tCarNameLength {
 #undef NFS4_FE_CORE_CARS_IN_HOOK
 #endif
 
-#ifdef NFS4_FE_CORE_CARS_HOOK_MANAGER   /* owner hook: the owner spells its own tCarManager (fecars) */
-#define NFS4_FE_CORE_CARS_IN_HOOK
-#include NFS4_FE_CORE_CARS_HOOK_MANAGER
-#undef NFS4_FE_CORE_CARS_IN_HOOK
-#else
-#ifndef NFS4_FRONTEND_COMMON_FETOURN_TYPES_H   /* FETourn.obj defines its own tCarManager (fetourn_types.h): no shared copy, no alias view (INV-B E1) */
-#if defined(NFS4_FRONT_SURFACE) || defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || (!defined(NFS4_GAME_COMMON_NFS3_TYPES_H) && !defined(NFS4_TSCREENCONGRATS_OWNER))   /* plain: Front/ScreenCarSelect own bodies; elsewhere the inferred CarCount/CarIndex bodies supply the 3rd record (typedef pair only for NFS3/ScreenCongrats) */
-struct tCarManager {
-#else
-typedef struct tCarManager {   /* retail: C-style typedef form (TPDEF recorded twice at the definition) */
-#endif
-    u_long fNumCars;
-    tCarInfo *fCars;
-    tOwnedCarInfo fCarGarage[2][32], fPinkSlipsCars[2][32];
-    u_char fAvailableCars[48], fViewableCars[48];
-    u_char fPinkSlipsAvailableCars[2][48];
-    u_char fPinkSlipsViewableCars[2][48];
-    short fCarTextList[49];
-#ifdef NFS4_FE_CORE_FECHEATS_METHODS
-    void SetClassAvailable(tCarClassType, bool); void SaveCars(struct tSaveCarInfo &); void LoadCars(struct tSaveCarInfo &, short); void LoadPinkSlipsCars(struct tSaveCarInfo &, short); void SavePinkSlipsCars(struct tSaveCarInfo &, short, short);
-#endif
-#if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || \
-    defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FEMENUDEFS_SURFACE)
-    long CheapestCarStockPrice();
-    long CalcUsedPrice(short);
-    void GetStockCar(short, tCarInfo &);
-    void GetGarageCar(short, tCarInfo &, short);
-    void GetPinkSlipsCar(short, tCarInfo &, short);
-    short GetNumOwnedCars(short);
-    short GetNumTourneyCars(short);
-    short GetNumPinkSlipsCars(short); tCarInfo *GetCarFromID(short);
-#endif
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    long PurchaseCar(short, short, short);
-    long SellCar(short, short);
-    long PurchaseUpgrade(short, short, short);
-
-    void SetCarAvailable(tCarModels, bool);
-    void AddToPinkSlipsList(short, short, short);
-    void AddUpgradesToPinkSlipsList(short, short, short);
-#endif
-#ifdef NFS4_FRONT_SURFACE
-    short GetClassList(int, short, tCarModels *)
-        __asm__("GetClassList__11tCarManager13tCarClassTypesP10tCarModels");
-    void InitializeIngameCarList();
-    bool IsCarAnAddedModel(tCarModels &, char &);
-    void AddCarToIngameList(tCarModels &, char &);
-    bool FindSimilarCar(tCarModels &, char &, short, tCarModels *);
-#endif
+#include "fecars_manager.h"   /* class tCarManager: one definition (header-truth 4k) */
 
 
 
@@ -109,13 +61,61 @@ typedef struct tCarManager {   /* retail: C-style typedef form (TPDEF recorded t
 
 
 
-#if defined(NFS4_FRONT_SURFACE) || defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || (!defined(NFS4_GAME_COMMON_NFS3_TYPES_H) && !defined(NFS4_TSCREENCONGRATS_OWNER))   /* plain: Front/ScreenCarSelect own bodies; elsewhere the inferred CarCount/CarIndex bodies supply the 3rd record (typedef pair only for NFS3/ScreenCongrats) */
-};
-#else
-} tCarManager;
-#endif
-#endif   /* !FETOURN */
-#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER   /* owner hook: right after tCarManager (retail: tListIteratorCar, tListIteratorCarColor) */
 #define NFS4_FE_CORE_CARS_IN_HOOK
 #include NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER

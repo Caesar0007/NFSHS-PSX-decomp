@@ -42,7 +42,7 @@
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete physics/AI/car graph. */
 #include "../../game/common/color_types.h"
 #endif
-#ifndef NFS4_FE_CORE_CARS_CLASSTYPE   /* FEMemcard: tCarClassType from fe_core_cars.h instead */
+#if !defined(NFS4_FE_CORE_CARS_CLASSTYPE) && !defined(NFS4_TCARCLASSTYPE_DEFINED)   /* FEMemcard: tCarClassType from fe_core_cars.h instead */
 #define NFS4_TCARCLASSTYPE_DEFINED
 enum tCarClassType {
     cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,

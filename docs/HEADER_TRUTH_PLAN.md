@@ -100,6 +100,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 3481893dc | Phase 4p: extended menu family (tMenuItemGoToMenuNFS4Button .. tMenuOptions) extracted from screendisplay_types.h to femenuextended_classes.h, members unconditional (were switched by NFS4_FEMENUDEFS_SURFACE), FEApp asm-label alias gone; 3 data-only copies removed | 0 | 7 | 140 | 66 | 139 | 1658 |
 | 2026-11-12 | 0b03017dc | Phase 4q: extended menu family = ONE definition each (owner copy + screentrackinfo copy removed). LAW: member declaration order of a class changes codegen in other files that inline its ctors (femenudefs) - the shared header keeps the passing non-owner order; owner-only strip pieces under one owner switch | 0 | 7 | 145 | 56 | 139 | 1654 |
 | 2026-11-12 | 292f1ce64 | Phase 4r: options-menu family (17 classes) = ONE definition each; member switches (FEMENUOPTIONS_SURFACE / CONTROLLER_METHODS / ScreenPost exclusion) removed. +1 tOptionsMenu in feapp/screenaudio/screentrackinfo.obj, +2 records in screenpost.obj (inline tInsideBoxMenu ctor now visible there) | 0 | 7 | 144 | 39 | 139 | 1657 |
+| 2026-11-12 | b1ee69124 | Phase 4s: list iterators Car/CarColor/Track/Tournament = ONE definition each (7 copies removed); SCREENCARSELECT asm-label aliases for Increment/Decrement gone; owner strip switch for SetFilter | 0 | 7 | 143 | 35 | 139 | 1652 |
 
 ## Open mismatches (left unexplained on purpose)
 

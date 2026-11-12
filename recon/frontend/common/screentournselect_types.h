@@ -23,8 +23,8 @@
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #include "../../game/common/color_types.h"   /* no-op unless NFS4_FE_COLOR_LATE (color.obj graph after the frontend graph) */
 #ifndef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE   /* These foreign enum tags are absent from this owner graph.  Keep the source constants while the extern boundary below preserves their retail names. */
-#define tTrophySize int
-#define ts_Medium 1
+
+
 #endif
 #endif
 #if defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE) && !defined(NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE)   /* no 2nd pass: enums here */

@@ -18,9 +18,9 @@
 #define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "screentrophyroom_types.h"
 #define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define tTrophySize int
-#define ts_Small 0
-#define ts_Medium 1
+
+
+
 #define tMenuTextState int
 #define textState_Hilighted 2
 #define tMenuTextType int

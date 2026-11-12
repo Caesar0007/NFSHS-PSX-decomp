@@ -91,35 +91,35 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 
 
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-typedef struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65]; short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
-#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
-    short *GetTrackList(short tier, short tournament);
-    void GetTrackToRace(tTrackInfo &track);
-    /* ORIGINAL-NAME-UNRESOLVED: inline read of the current-track field. */
-    int CurrentTrack() { return fCurrentTrack; }
-    /* ORIGINAL-NAME-UNRESOLVED: inline money mutator and amount parameter.
-       Unsigned access through the corresponding signed/unsigned type keeps
-       the target's word-width arithmetic defined without another source local. */
-    void SubtractMoney(u_long amount) { (u_long &)fMoney -= amount; }
-    /* ORIGINAL-NAME-UNRESOLVED: same typed accessor used by the tournament owner. */
-    tTourneyInfo *CurrentTourney() {
-        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
-    }
-} tTournamentManager;
+#include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -401,35 +401,35 @@ struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 #define NFS4_FE_TRACK_NO_PLAYER
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
-typedef struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65]; short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
-#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
-    short *GetTrackList(short tier, short tournament);
-    void GetTrackToRace(tTrackInfo &track);
-    /* ORIGINAL-NAME-UNRESOLVED: inline read of the current-track field. */
-    int CurrentTrack() { return fCurrentTrack; }
-    /* ORIGINAL-NAME-UNRESOLVED: inline money mutator and amount parameter.
-       Unsigned access through the corresponding signed/unsigned type keeps
-       the target's word-width arithmetic defined without another source local. */
-    void SubtractMoney(u_long amount) { (u_long &)fMoney -= amount; }
-    /* ORIGINAL-NAME-UNRESOLVED: same typed accessor used by the tournament owner. */
-    tTourneyInfo *CurrentTourney() {
-        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
-    }
-} tTournamentManager;
+#include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct tListIteratorTrack : public tListIteratorIndexed {
     tTrackManager *fTrackManager;
 };

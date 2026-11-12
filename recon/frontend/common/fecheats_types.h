@@ -67,23 +67,23 @@ enum tCarClassType {
 #undef NFS4_FE_TRACK_NO_PLAYER
 #undef NFS4_FE_CORE_FECHEATS_METHODS
 
-typedef struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65]; short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards; void SaveTournament(struct tSaveTournament &); void LoadTournament(struct tSaveTournament &);
-#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
-} tTournamentManager;
+#include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NFS4_FECHEATS_DIALOGS_LATE   /* FEMemcard: dialog/app block after its memcard records */
 #include "fecheats_dialogs.h"

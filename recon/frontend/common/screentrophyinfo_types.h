@@ -38,28 +38,28 @@ struct tMenu;
 /* Source spellings/constants that do not create records in this owner. */
 #define byte unsigned char
 #define uint unsigned int
-#define ts_Large 2
+
 #define textState_Hilighted 2
 #define textType_ScreenInfo 4
-typedef struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65]; short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
-#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
-    /* ORIGINAL-NAME-UNRESOLVED: inferred receiver-free definition accessor. */
-    /* (Definition(): now the first body of shared/tTournamentManager_inl.h, INV-B I5b) */
-} tTournamentManager;
+#include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifndef NFS4_FE_COLOR_LATE   /* The retail owner contains color.obj's complete 71-record graph (after the tracks). */
 #include "../../game/common/color_types.h"
 #endif

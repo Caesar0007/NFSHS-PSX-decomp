@@ -47,10 +47,10 @@ enum tScreenCongratsMessage {
 
 /* ScreenCongrats.obj uses these values and ABI names without retaining the
  * foreign enum definitions in its own type graph. */
-#define tTrophySize int
-#define ts_Small 0
-#define ts_Medium 1
-#define ts_Large 2
+
+
+
+
 #define textType_PostGame 10
 #define textType_TrackRecords 11
 

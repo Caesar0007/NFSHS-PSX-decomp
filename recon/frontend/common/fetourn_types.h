@@ -64,53 +64,53 @@ typedef tRecordBuffer tSaveRecords[187];
 
 
 
-typedef struct tTournamentManager {
-    char fNumTiers;
-    int fTier, fTournament, fCurrentTrack;
-    int fNumRacers;
-    long fMoney;
-    tTournamentDefinition *fDefinition;
-    short fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];
-    short fTournamentList[65]; short fTrackList[17];
-    char fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];
-    tCompetitor fCompetitors[6];
-    tCarLineup fCarLineup[6];
-    signed char fBestPlacement[64];
-    char fPrevBestPlacement;
-    u_char fFinishPoints[6], fRanking[6];
-    tAwardInformation fAwards;
-#include "shared/tTournamentManager_inl.h"   /* retail in-class inline bodies (see file) */
+#include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
 
-    void Initialize();
-    void LoadDescription();
-    void ReleaseDescription();
-    void UpdateTrackList(short tier, short tournament);
-    short *GetTrackList(short tier, short tournament);
-    void GetTrackToRace(tTrackInfo &track);
-    void StartNewTournament(unsigned char tier, unsigned char tournament);
-    short IsTournamentFinished();
-    void UpdateTournFinishMoney();
-    void UpdateTrackFinishMoney();
-    void CalcTrackFinishDamageBill(bool recalculate, long &bill, long &bonus);
-    void UpdateTrackFinishPoints();
-    short AdvanceToNextTrack();
-    short GetLastTrackRaced();
-    void SaveTournament(tSaveTournament &save);
-    void LoadTournament(tSaveTournament &load);
-    short GetNumCompetitors();
-    /* (CurrentTourney(): in-class body in shared/tTournamentManager_inl.h, INV-B I6) */
-    void UpdateCarLineup();
-    long GetTrackFinishPrize(short position);
-    long GetTournamentFinishPrize(short position);
-    void GetAwardInformation(tAwardInformation &info);
-    void UpdateAwardInformation();
-    short TournPointTotal(short *points);
-    short PlayerRanking(short position);
-    void CalcTierFinishPrize();
-    void GetTrophyName(tTourneyInfo *tourn, tTrophySize size,
-                       char *buffer, int place);
-    bool ValidCar(tCarInfo &carInfo);
-} tTournamentManager;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;

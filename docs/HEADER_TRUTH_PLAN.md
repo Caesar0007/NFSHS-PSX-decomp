@@ -76,6 +76,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | b88950b72 | Phase 3a: fedialog.h inferred accessors + body macros + tpdef_keys opt-out block removed; both SetChoices overloads for every includer; invented filler functions removed from 8 .cpp files | 0 | 115 | 167 | 94 | 154 | 513 |
 | 2026-11-12 | 9c6db3461 | Phase 3b: AnimScript_FreeInst x7, InheritMultiAnimState x10 (+NFS4_DRAWW_MULTI_COORD_PARAM), AIDelayCar GetPosition/GetLaneIndex, SimpleMem::FreeMemSize, AITrigger_NoTrigger/SwapTriggerPair removed; TriggerType unconditional. Gate now also fails on build SKIP (compile error = stale object) | 0 | 93 | 165 | 94 | 154 | 610 |
 | 2026-11-12 | c99f4e063 | Phase 3c: 10 unused game-side inferred members removed (call-site check first; members matched code calls stay); IgnoreCops stripped row removed | 0 | 84 | 165 | 94 | 153 | 637 |
+| 2026-11-12 | 0def7381d | Phase 3d: 21 unused frontend members removed (tFEApplication/tScreen/tMenuItem/tMenu accessors), macro bodies out of tpdef_keys.h, fe_menu_game_surface.h copies, 12 stripped rows. Census jump = tMenu/tMenuItem x16 in ~45 objects: retail really had ~9 more inline bodies in FEMENU.H, names unknown | 0 | 70 | 162 | 94 | 141 | 1137 |
 
 ## Open mismatches (left unexplained on purpose)
 

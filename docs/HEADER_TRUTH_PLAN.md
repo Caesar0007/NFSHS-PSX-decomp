@@ -83,6 +83,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 256f4afa5 | Phase 3f: fedialog.h inferred accessors (GetOffsetX/Y, GetMaxW, Variant, NumItems, HelpControllers, LeftText, GetString, IsCentered, FadeText, Set/TimeoutTicks, IsRunning) + body macros + tpdef_keys opt-out block removed; per-object SetChoices split removed | 0 | 36 | 145 | 94 | 139 | 1780 |
 | 2026-11-12 | 821eed9ed | Phase 3g: CarBank::Make removed; gap-evidenced ctors (femenu iterators, aistate RovingTraffic/Donuts) and called in-class menu-item ctors relabelled; draww unused declarations kept as evidenced. PHASE 3 DONE | 0 | 15 | 145 | 94 | 139 | 1790 |
 | 2026-11-12 | 2ec80548d | Phase 4a: aih_btccop_types.h private copy of 9 AI classes replaced by the shared aih_hierarchy_types.h/aihigh.h. Shared headers completed from it: AIHigh_BTC_Wingman (AIHIGH.H:548), static lastInputRequestTick_, strip marking for the BTC cop accessors; AIState_Chase inline bodies unconditional; Crime()/GetCrime() duplicate resolved; aihigh_types.h Wingman copy removed. Census improved with no invented source | 0 | 8 | 145 | 85 | 139 | 1758 |
+| 2026-11-12 | b3551b8f3 | Phase 4b: private tMenuItemLeftRightChoice / tMenuItemGoToMenuButton copies in fecredits_types.h, fetools_types.h, screentrophyinfo_types.h replaced by screendisplay_menuitems.h; census unchanged (the copies bought nothing) | 0 | 8 | 145 | 94 | 139 | 1758 |
 
 ## Open mismatches (left unexplained on purpose)
 

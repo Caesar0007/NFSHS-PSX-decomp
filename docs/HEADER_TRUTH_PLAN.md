@@ -114,3 +114,5 @@ The four "gap" rows are the best candidates for real recovery: check NFS4-PC / N
 | ~10 game objects | `ObjectFinishedMultiAnim` x4 + `Trk_SimObject`/`Trk_CollideBoomInst`/`Trk_ObjectDef` params; `AnimScript AnimScript Trk_AnimateInst` | one static/inline body in OBJECT.H with that signature, and an AnimScript dtor-like body; consistent across objects, names unknown |
 | mathnfs/quatern/udff/texture/newton/draw/fe3dmenu.obj | extra `matrixtdef` / `tQuat` / `Udff_tInfo` / `Draw_tPixMap` / `coorddef` requests between functions | udff (124-202) and texture (708-725) sit in source-line gaps: link-stripped functions; others count only |
 | group.obj | `SerializedGroup` x12 (ours x11) + unit in SLD gap 134-165 | link-stripped members in the gap, names unknown |
+| audedit.obj, scene.obj | type-record ORDER: 2 inversions each since 4h | the shared OBJECT.H class block sits at a different point of their include order than retail's; fix by include placement, not by a private copy |
+| draww.obj | one more `Trk_AnimateInst` than retail since 4g | AnimScript inline dtor visible there; unexplained |

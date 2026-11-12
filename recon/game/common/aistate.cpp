@@ -1691,7 +1691,7 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 
 
-AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj, trigger_pathPosition_t *path) : AIState_Base(carObj) { }   /* INFERRED body: retail aistate.obj run (ctor shape) "RT RT RT Car_tObj trigger_pathPosition_t" between the RovingTraffic ctor and CheckIfCarIsNearbyAndStop; no retail function (link-stripped) */
+AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj, trigger_pathPosition_t *path) : AIState_Base(carObj) { }   /* GAP-EVIDENCED ctor (name forced by the class): retail aistate.obj run (ctor shape) "RT RT RT Car_tObj trigger_pathPosition_t" between the RovingTraffic ctor and CheckIfCarIsNearbyAndStop; no retail function (link-stripped) */
 /* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [retail AISTATE.CPP:1130-1169; native/byte verified, SLD attribution open] ---- */
 
 #line 1126 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
@@ -1879,7 +1879,7 @@ void AIState_RovingTraffic::Execute()
 
 
 
-AIState_Donuts::AIState_Donuts(Car_tObj *carObj) : AIState_Base(carObj) { }   /* INFERRED body: retail aistate.obj "Donuts Donuts Car_tObj" run before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap; no retail function (link-stripped) */
+AIState_Donuts::AIState_Donuts(Car_tObj *carObj) : AIState_Base(carObj) { }   /* GAP-EVIDENCED ctor (name forced by the class): retail aistate.obj "Donuts Donuts Car_tObj" run before ~AIState_Donuts in the AISTATE.CPP 1225-1247 gap; no retail function (link-stripped) */
 /* ---- _._14AIState_Donuts  AIState_Donuts::dtor  [AISTATE.CPP:1248-1253] SLD-VERIFIED ---- */
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 

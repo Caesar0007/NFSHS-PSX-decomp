@@ -174,7 +174,7 @@ void tListIteratorIndexed::Decrement(tPlayer)
 /* ---- tListIteratorDoubleIndexed::dtor  [FEMENU.CPP:156-156] SLD-VERIFIED ---- */
 
 
-/* INFERRED body: retail FEMenu.obj records TPDEF tListIteratorDoubleIndexed x13 like every other iterator class (ctor 3 + 5 methods x 2;
+/* GAP-EVIDENCED ctor (name forced by the class): retail FEMenu.obj records TPDEF tListIteratorDoubleIndexed x13 like every other iterator class (ctor 3 + 5 methods x 2;
    ours 10 without a ctor), and FEMENU.CPP leaves a ctor-sized gap (141-155) before the dtor, as for tListIteratorIndexed.
    Nothing constructs it, so the retail link removed it (absent from NFS4.MAP): LINK_STRIPPED (FESCR2). */
 tListIteratorDoubleIndexed::tListIteratorDoubleIndexed(short *selection,char *valPtr,char *index1,int multiplier,char *index2)
@@ -250,7 +250,7 @@ void tListIteratorDoubleIndexed::Decrement(tPlayer)
 /* ---- tListIteratorMultiPlayer::dtor  [FEMENU.CPP:202-202] SLD-VERIFIED ---- */
 
 
-/* INFERRED body: retail FEMenu.obj records TPDEF tListIteratorMultiPlayer x13 like every other iterator class (ctor 3 + 5 methods x 2;
+/* GAP-EVIDENCED ctor (name forced by the class): retail FEMenu.obj records TPDEF tListIteratorMultiPlayer x13 like every other iterator class (ctor 3 + 5 methods x 2;
    ours 10 without a ctor), and FEMENU.CPP leaves a ctor-sized gap (187-201) before the dtor, as for tListIteratorIndexed.
    Nothing constructs it, so the retail link removed it (absent from NFS4.MAP): LINK_STRIPPED (FESCR2). */
 tListIteratorMultiPlayer::tListIteratorMultiPlayer(short *selection,char *valPtr)

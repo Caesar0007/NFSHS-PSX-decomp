@@ -49,7 +49,7 @@ struct Speech {
         bool Check(char *name, int id, CarBankName *bankname);
         /* getters: Speaker::SetCar reads them through GetCarBank()'s temporary (variable-free pairs) */
         inline int Full() { return fFull; }
-        inline int Model() { return fModel; } inline int Make() { return fMake; }   /* INFERRED body: retail speech.obj CarBank TPDEF run x5 (ours x4 without it) */
+        inline int Model() { return fModel; }
     } CarBank;
 
     typedef struct LocationBank {

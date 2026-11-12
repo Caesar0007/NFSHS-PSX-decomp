@@ -190,7 +190,7 @@ struct tMenu; struct tDrawShapeExtended;
 NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
     tMenuItemGoToMenuNFS4Button(unsigned int, tMenu *, void (*)(tMenuCommand &), int, int);
     ~tMenuItemGoToMenuNFS4Button();
     void Draw(int, int, bool);
@@ -204,7 +204,7 @@ NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public 
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
     tMenuItemNFS4LeftRightChoice(unsigned int, tListIterator *, int, int);
     ~tMenuItemNFS4LeftRightChoice();
     void Draw(int, int, bool);
@@ -219,7 +219,7 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 #include "femenuextended.h"
 #undef NFS4_FEMENUEXTENDED_TYPE_PART
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d) {}
     void Draw(int, int, bool);
@@ -228,7 +228,7 @@ struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* INFERRED in-class bodies visible in every retail includer (FESCR) */
+#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
     tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d)
     { fOnOffFade = 0x80; }

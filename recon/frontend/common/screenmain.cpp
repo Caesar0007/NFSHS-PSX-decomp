@@ -318,11 +318,11 @@ void tScreenMain::InitDynamicImages()
 #line 405 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 {
-  if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(0) > 0)
+  if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(kPlayerOne) > 0)
   {
     this->SwapBackground(-1);
 
-    if ((tMenuNFS4 *)FEApp->CurrentMenu(0) == &menuDefs->menuPinkSlipSelect) {
+    if ((tMenuNFS4 *)FEApp->CurrentMenu(kPlayerOne) == &menuDefs->menuPinkSlipSelect) {
       frontEnd.raceType = RaceType_SingleRace;
     }
   }
@@ -528,11 +528,11 @@ void tScreenMain::DrawBackground()
       }
     }
   }
-  if ((this->fState == kScreenMain_Credits) && (FEApp->CurrentMenu(0) != (tMenu *)&menuDefs->menuCredits))
+  if ((this->fState == kScreenMain_Credits) && (FEApp->CurrentMenu(kPlayerOne) != (tMenu *)&menuDefs->menuCredits))
   {
     this->SetState(kScreenMain_StaticImage);
   }
-  else if (FEApp->CurrentMenu(0) == (tMenu *)&menuDefs->menuCredits)
+  else if (FEApp->CurrentMenu(kPlayerOne) == (tMenu *)&menuDefs->menuCredits)
   {
     this->SetState(kScreenMain_Credits);
   }
@@ -542,11 +542,11 @@ void tScreenMain::DrawBackground()
   if (this->fState == kScreenMain_WarningImage)
   {
     if ((frontEnd.raceType != RaceType_PinkSlips) &&
-        ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(0)->fItemList[FEApp->CurrentMenu(0)->fCurrentItem] != &menuDefs->itemTwoPlayerPinkSlips)) {
+        ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(kPlayerOne)->fItemList[FEApp->CurrentMenu(kPlayerOne)->fCurrentItem] != &menuDefs->itemTwoPlayerPinkSlips)) {
       this->SetState(kScreenMain_StaticImage); }
   }
   else if (
-      (frontEnd.raceType == RaceType_PinkSlips) || ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(0)->fItemList[FEApp->CurrentMenu(0)->fCurrentItem] == &menuDefs->itemTwoPlayerPinkSlips)) {
+      (frontEnd.raceType == RaceType_PinkSlips) || ((tMenuItemGoToMenuNFS4Button *)FEApp->CurrentMenu(kPlayerOne)->fItemList[FEApp->CurrentMenu(kPlayerOne)->fCurrentItem] == &menuDefs->itemTwoPlayerPinkSlips)) {
     this->SetState(kScreenMain_WarningImage);
   }
 

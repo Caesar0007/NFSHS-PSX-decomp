@@ -1002,7 +1002,7 @@ void tScreenCarSelect::DrawBackground()
 
     if ((this->fSwapShapes.fFile != (char *)0x0) &&
         (this->fVideoWall[0].TransitionDirection() != -1) &&
-        (gCarObj[FEApp->GetPlayer()]->async_handle == 0) &&
+        (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) &&
         (0x80 < FE_Ticks() - this->fFadeTicks[0]))
     {
       this->tScreen::UploadSwapShapes(0xb);
@@ -1188,7 +1188,7 @@ void tScreenCarSelect::DrawForeground()
     carInfo.fCarID = -1;
   this->UpdateVideoWall(carInfo);
 
-  if (gCarObj[FEApp->GetPlayer()]->async_handle != 0)
+  if (gCarObj[FEApp->CurrentPlayer()]->async_handle != 0)
   {
     this->SetBrightness(0,0);
     this->fVideoWall[0].TurnOff();
@@ -1839,7 +1839,7 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
   int currentplayer;
-  int garageNumber; currentplayer = FEApp->GetPlayer(); garageNumber = currentplayer;
+  int garageNumber; currentplayer = FEApp->CurrentPlayer(); garageNumber = currentplayer;
 
   if (frontEnd.carListType == '\0') {
 
@@ -1859,7 +1859,7 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
   }
 
 
-  carInfo.fCountry = frontEnd.carCountry[FEApp->GetPlayer()][(signed char)carInfo.fCarID];
+  carInfo.fCountry = frontEnd.carCountry[FEApp->CurrentPlayer()][(signed char)carInfo.fCarID];
 
   return 1;
 }
@@ -1893,8 +1893,8 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   {
     if (this->fTVsInitialized == 0)
     {
-      this->fVideoWall->SetOffset(6,(FEApp->GetPlayer() != 0) ? 0x69 : 0);
-      this->fVideoWall[0].SetAvailableText(0xf8,0x10e, (FEApp->GetPlayer() != 0) ? 0x96 : 0x2d);
+      this->fVideoWall->SetOffset(6,(FEApp->CurrentPlayer() != 0) ? 0x69 : 0);
+      this->fVideoWall[0].SetAvailableText(0xf8,0x10e, (FEApp->CurrentPlayer() != 0) ? 0x96 : 0x2d);
       this->fVideoWall[0].UpdateImages();
       this->fTVsInitialized = 1;
     }
@@ -2013,7 +2013,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
 
   r.x = 0x122;
   r.y = 0x19;
-  if (FEApp->GetPlayer() == kPlayerTwo) {
+  if (FEApp->CurrentPlayer() == kPlayerTwo) {
     r.y = 0x82;
   } r.w = 200;
   r.h = 0xc;
@@ -2021,7 +2021,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   if (this->GetCar(carInfo) != 0) {
 
     r.y = 0x14;
-    if (FEApp->GetPlayer() == kPlayerTwo) {
+    if (FEApp->CurrentPlayer() == kPlayerTwo) {
 
       carY = 0xb8;
       r.y = 0x80;
@@ -2032,14 +2032,14 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
 
     this->UpdateVideoWall(carInfo);
-    if (gCarObj[FEApp->GetPlayer()]->async_handle != 0) {
+    if (gCarObj[FEApp->CurrentPlayer()]->async_handle != 0) {
 
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = FE_Ticks();
     }
 
 
-    if (gCarObj[FEApp->GetPlayer()]->async_handle == 0) {
+    if (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) {
       if (((this->fBrightness[0] == this->fDestBrightness[0]) &&
            (this->fBrightness[0] == 0)) &&
 
@@ -2052,7 +2052,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     this->UpdateBrightness(0);
 
     showRoomFlag = 0;
-    DrawCar(carInfo,0x116,carY,1.7,-9.9,(char)this->fBrightness[0],false, this->fCameraRotation,FEApp->GetPlayer());
+    DrawCar(carInfo,0x116,carY,1.7,-9.9,(char)this->fBrightness[0],false, this->fCameraRotation,FEApp->CurrentPlayer());
   }
   else {
 
@@ -2060,24 +2060,24 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     this->UpdateVideoWall(carInfo);
 
     showRoomFlag = 0;
-    DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false, this->fCameraRotation,FEApp->GetPlayer());
+    DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false, this->fCameraRotation,FEApp->CurrentPlayer());
     this->TurnOffVideoWall() ;
   }
 
   this->IsShapeFileLoaded(this->fSwapShapes);
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
      (this->fVideoWall[0].TransitionDirection() != -1)) &&
-     (gCarObj[FEApp->GetPlayer()]->async_handle == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
+     (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
     this->tScreen::UploadShapes(this->fSwapShapes,0,
 
-                               FEApp->GetPlayer() == kPlayerTwo ? 0x41 : 0,5,0);
+                               FEApp->CurrentPlayer() == kPlayerTwo ? 0x41 : 0,5,0);
     this->fVideoWall[0].TurnOn();
     if (this->fDestBrightness[0] == this->fBrightness[0]) {
       this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
     }
   }
   r.y = 0;
-  if (FEApp->GetPlayer() == kPlayerTwo) {
+  if (FEApp->CurrentPlayer() == kPlayerTwo) {
     r.y = 0x69;
   } this->DrawVideoWall(r.y);
 
@@ -2085,7 +2085,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   this->SetDialog();
 
   setRECT(&temp,0,drenv->clip.y,0x200,(short)(screenheight / 2));
-  if (FEApp->GetPlayer() == kPlayerTwo) {
+  if (FEApp->CurrentPlayer() == kPlayerTwo) {
     temp.y = temp.y + temp.h;
   } daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp); return;
@@ -2109,7 +2109,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   short yOffset;
   bool gotcar;
   yOffset = 0x2d;
-  if (FEApp->GetPlayer() == 1) {
+  if (FEApp->CurrentPlayer() == 1) {
 
     yOffset = 0x96;
   }
@@ -2118,7 +2118,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   gotcar = this->GetCar(carInfo);
 
 
-  if (FEApp->GetPlayer() == 0)
+  if (FEApp->CurrentPlayer() == 0)
   {
     MenuItem_Enable(&menuDefs->itemColorP1);
     if (gotcar == 0 || carInfo.fCarClass == 7)
@@ -2147,7 +2147,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 #line 1880 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.CPP"
 void tScreenCarSelectTwoPlayer::SetDialog()
 {
-  int player = FEApp->GetPlayer();
+  int player = FEApp->CurrentPlayer();
   if (FEApp->waitingForOtherPlayer[player] != 0)
   {
     int ok = (Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
@@ -2240,7 +2240,7 @@ bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 {
   if (PinkSlipsScreenState[0] == CardLoadedFine && PinkSlipsScreenState[1] == CardLoadedFine)
   {
-    tFEApplication *app = FEApp; /* DEVICE (exact-only): unused copy; its line-3 load note precedes the GetPlayer inline (cse folds the inline's FEApp load into it) -> retail {3 then-scope + {4 pairs, code tagged 3, `this` record kept */ const tPlayer player = FEApp->GetPlayer(); carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
+    tFEApplication *app = FEApp; /* DEVICE (exact-only): unused copy; its line-3 load note precedes the GetPlayer inline (cse folds the inline's FEApp load into it) -> retail {3 then-scope + {4 pairs, code tagged 3, `this` record kept */ const tPlayer player = FEApp->CurrentPlayer(); carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
 
     carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
 
@@ -2286,7 +2286,7 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
 
 {
-  int player = FEApp->GetPlayer();
+  int player = FEApp->CurrentPlayer();
   int card = player != kPlayerOne ? 5 : 1;
 
   if (this->fExitingScreen != 0) {
@@ -2483,7 +2483,7 @@ void tScreenPinkSlipsCarSelect::SetDialog()
 
 {
   int player;
-  player = FEApp->GetPlayer(); this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c) ->SetSpecificPlayer((short)player);
+  player = FEApp->CurrentPlayer(); this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c) ->SetSpecificPlayer((short)player);
 
 
 

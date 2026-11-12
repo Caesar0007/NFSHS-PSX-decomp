@@ -197,7 +197,7 @@ void tScreenPinkSlips::Initialize()
 
   frontEnd.pinkSlipsTrackIndex = '\0';
   menuDefs->iteratorTrack.Decrement((tPlayer)kPlayerBoth);
-  menuDefs->iteratorTrack.Increment((tPlayer)kPlayerBoth); this->fMenu = FEApp->CurrentMenu(0);
+  menuDefs->iteratorTrack.Increment((tPlayer)kPlayerBoth); this->fMenu = FEApp->CurrentMenu(kPlayerOne);
 
 
 

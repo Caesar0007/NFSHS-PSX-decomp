@@ -492,7 +492,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand
 
   } else if (keyval == kInput_KeyType_Triangle)
   {
-    if (!FEApp->CurrentMenu(0)->IsSubMenu())
+    if (!FEApp->CurrentMenu(kPlayerOne)->IsSubMenu())
     { this->fVideoWall.TurnOffInstant(); } } }
 
 

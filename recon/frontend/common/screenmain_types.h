@@ -32,29 +32,29 @@ typedef long STREAMREQUESTID;
 #endif
 #ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "screenmain_early.h"
-struct tFEApplication {
-    unsigned int fCurrentMusic;
-    tMenu *fCurrentMenu[2];
-    tScreen *fCurrentScreen[2];
-    tMenu *fTransitionToMenu[2];
-    tScreen *fTransitionToScreen[2];
-    tMenu *fParentMenu[2];
-    tDialogMessageString messagePopup;
-    tMenu *backList[2][16];
-    int backDepth[2];
-    tInputKeyType fLastKeyPressed[2];
-    short fYOffset;
-    tDialogHelp helpPopup;
-    char fPlayer, fInputPlayer;
-    bool waitingForOtherPlayer[2];
-    tDialogMessageStringWithTimeout MemCardDialog;
-    tDialogNoInputMessage NoInputMemCardDialog;
-    bool gotName[2], needName[2];
-    int speechToPlay[2];
+#include "feapp_class.h"   /* class tFEApplication: no private copy (header-truth 4j) */
 
-    int BackDepth(int player) { return backDepth[player]; }
-    tMenu *CurrentMenu(int player) { return fCurrentMenu[player]; }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #else
 struct tCreditManager {
     tCredit *CreditBuffer;

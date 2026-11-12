@@ -20,7 +20,7 @@
 #undef NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
 #undef NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
 #include "front_processing_type.h"
-#define kApp_Command_StartRace 0
+
 #endif
 #ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "shared/Force_tGlobal.h"
@@ -220,13 +220,13 @@ struct tCarInLineup {
 /* These foreign objects are complete at their allocation/use sites, but their
  * tags are not retained in Front.obj. Exact-size views preserve codegen while
  * keeping the owner graph honest. */
-struct tFEApplication {
-    char _storage[896];
-    tFEApplication();
-    ~tFEApplication();
-    int RunFrontEnd();
-    int RunPostGame();
-};
+#include "feapp_class.h"   /* class tFEApplication: no private copy (header-truth 4j) */
+
+
+
+
+
+
 
 struct tGlobalMenuDefs {
     char _storage[15128];

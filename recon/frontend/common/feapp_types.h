@@ -55,11 +55,11 @@ enum tMenuCommandType {
 #include "shared/SNDSAMPLEFORMAT.h"
 #endif
 #ifdef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
-enum tAppCommand {
-    kApp_Command_StartRace = 0,
-    kApp_Command_ReStartRace = 1,
-    kApp_Command_StartReplay = 2
-};
+#include "shared/tAppCommand.h"
+
+
+
+
 #endif
 
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
@@ -97,45 +97,45 @@ struct tScreenUserName : public tScreen {
     void DrawHorizontalLine(short, short, short); inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; } /* ORIGINAL-NAME-UNRESOLVED: retail RunPostGame records this screen pair (this $6, m $5) */
 };
 #else
-struct tFEApplication {
-    unsigned int fCurrentMusic;
-    tMenu *fCurrentMenu[2];
-    tScreen *fCurrentScreen[2];
-    tMenu *fTransitionToMenu[2];
-    tScreen *fTransitionToScreen[2];
-    tMenu *fParentMenu[2];
-    tDialogMessageString messagePopup;
-    tMenu *backList[2][16];
-    int backDepth[2];
-    tInputKeyType fLastKeyPressed[2];
-    short fYOffset;
-    tDialogHelp helpPopup;
-    char fPlayer, fInputPlayer;
-    bool waitingForOtherPlayer[2];
-    tDialogMessageStringWithTimeout MemCardDialog;
-    tDialogNoInputMessage NoInputMemCardDialog;
-    bool gotName[2], needName[2];
-    int speechToPlay[2];
+#include "feapp_class.h"   /* class tFEApplication (shared with every includer) */
 
-    inline u_char GetPlayer() { return (u_char)fPlayer; }
-    inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
-    inline tDialogMessageString *MessagePopup() { return &messagePopup; }
-    inline tPlayer CurrentPlayer() { return fPlayer; }
-    void Redraw();
-    tFEApplication();
-    ~tFEApplication();
-    void PerformMenuInitialization();
-    void PerformMenuDestruction();
-    void DrawHelpIcons();
-    void UpdateMusic();
-    void SetMenu(short, tMenu *);
-    void SetScreen(short, tScreen *);
-    void DisplayHelp(short);
-    void RunDemoVideo();
-    tAppCommand MainLoop(tMenu *);
-    tAppCommand RunPostGame();
-    tAppCommand RunFrontEnd();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 #ifndef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 

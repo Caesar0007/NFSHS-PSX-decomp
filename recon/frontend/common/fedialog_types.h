@@ -59,34 +59,34 @@ static inline void _fedialog_dtor_msg(tDialogMessageString *p) { p->~tDialogMess
 #endif
 #endif
 #if !defined(NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE) && (defined(NFS4_FEDIALOG_IN_FEAPP_HOOK) || !defined(NFS4_FEDIALOG_FEAPP_DONE))
-struct tFEApplication {
-    unsigned int fCurrentMusic;
-    tMenu *fCurrentMenu[2];
-    tScreen *fCurrentScreen[2];
-    tMenu *fTransitionToMenu[2];
-    tScreen *fTransitionToScreen[2];
-    tMenu *fParentMenu[2];
-    tDialogMessageString messagePopup;
-    tMenu *backList[2][16];
-    int backDepth[2];
-    tInputKeyType fLastKeyPressed[2];
-    short fYOffset;
-    tDialogHelp helpPopup;
-    char fPlayer, fInputPlayer;
-    bool waitingForOtherPlayer[2];
-    tDialogMessageStringWithTimeout MemCardDialog;
-    tDialogNoInputMessage NoInputMemCardDialog;
-    bool gotName[2], needName[2];
-    int speechToPlay[2];
+#include "feapp_class.h"   /* class tFEApplication: no private copy (header-truth 4j) */
 
-    inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
-    /* name inferred: tDialogHelp::CalculateDimensions records a this+player inline pair at line 69 */
-    inline int BackDepth(tPlayer player) { return backDepth[player]; }
-#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-    inline tPlayer GetPlayer() { return (tPlayer)fPlayer; }
-#endif
-    void Redraw();
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #define NFS4_FEDIALOG_FEAPP_DONE
 #endif
 #ifndef NFS4_FEDIALOG_IN_FEAPP_HOOK

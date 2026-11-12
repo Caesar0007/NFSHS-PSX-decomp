@@ -45,27 +45,27 @@ struct tMenu;
 #include "shared/tActiveLine.h"
 #include "fedialog.h"
 
-struct tFEApplication {
-    unsigned int fCurrentMusic;
-    tMenu *fCurrentMenu[2];
-    tScreen *fCurrentScreen[2];
-    tMenu *fTransitionToMenu[2];
-    tScreen *fTransitionToScreen[2];
-    tMenu *fParentMenu[2];
-    tDialogMessageString messagePopup;
-    tMenu *backList[2][16];
-    int backDepth[2];
-    tInputKeyType fLastKeyPressed[2];
-    short fYOffset;
-    tDialogHelp helpPopup;
-    char fPlayer, fInputPlayer;
-    bool waitingForOtherPlayer[2];
-    tDialogMessageStringWithTimeout MemCardDialog;
-    tDialogNoInputMessage NoInputMemCardDialog;
-    bool gotName[2], needName[2];
-    int speechToPlay[2];
+#include "feapp_class.h"   /* class tFEApplication: no private copy (header-truth 4j) */
 
-    int GetPlayer() { return (unsigned char)fPlayer; }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

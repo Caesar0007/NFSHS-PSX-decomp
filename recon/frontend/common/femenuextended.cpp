@@ -707,7 +707,7 @@ void tMenuNFS4::Draw()
   if (image >= 0 && frames > 0)
   {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10, FEApp->Player() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
+    DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10, (tPlayer)FEApp->GetPlayer() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
   }
 
 
@@ -748,7 +748,7 @@ tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer() {}
 void tMenuNFS4TwoPlayer::DrawItem(int item)
 {
   short y;
-  y = 0x2b; if (FEApp->Player() == 1) {
+  y = 0x2b; if ((tPlayer)FEApp->GetPlayer() == 1) {
     y = 0x94;
   }
 

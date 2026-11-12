@@ -88,6 +88,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 4c67ce772 | Phase 4d: fOnButtonPress was (tMenuCommand &) in FEMenu and (void *) elsewhere - now the real type everywhere; member declarations of the shared menu-item classes unconditional; femenu_types.h copies removed | 0 | 8 | 145 | 84 | 139 | 1758 |
 | 2026-11-12 | c4aeadd5c | Phase 4e: femenuextended_types.h copies removed; tMenuItemLeftRightChoice, tMenuItemGoToMenuButton, tMenuItemLeftRightSlider = ONE definition each (were 7/7/3) | 0 | 8 | 145 | 82 | 139 | 1758 |
 | 2026-11-12 | 34ea40d82 | Phase 4f: seven identical data-only AnimScript copies -> shared/AnimScript.h | 0 | 8 | 145 | 82 | 139 | 1758 |
+| 2026-11-12 | d636d4fd3 | Phase 4g: AnimScript = ONE definition (was 13). The real inline dtor explains retail's AnimScript/AnimScript/Trk_AnimateInst run that the removed AnimScript_FreeInst fake imitated; census 1758->1751 with no invented source (draww.obj +1 Trk_AnimateInst) | 0 | 8 | 145 | 81 | 139 | 1751 |
 
 ## Open mismatches (left unexplained on purpose)
 

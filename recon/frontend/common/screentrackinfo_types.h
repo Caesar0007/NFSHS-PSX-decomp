@@ -24,38 +24,38 @@ struct tMenu;
 #define textState_Hilighted 2
 #define textType_ScreenInfo 4
 #define textType_TrackRecords 11
-struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
-    tListIterator *fData;
-#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
-    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightChoice();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-#endif
-};
-struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
-    tListIterator *fData;
-    short fX, fY, fWidth, fHeight;
-#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
-    tMenuItemLeftRightSlider(unsigned int, tListIterator *);
-    ~tMenuItemLeftRightSlider();
-    long DebounceKeys();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-    void SetDimensions(short, short, short, short);
-#endif
-};
-struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(void *);
-#ifdef NFS4_FE_MENUITEM_INLINES   /* retail: full member declarations + in-class bodies, as the shared family headers (FESCR2) */
-    tMenuItemGoToMenuButton(unsigned int, tMenu *, void (*)(tMenuCommand &));
-    ~tMenuItemGoToMenuButton();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
-};
-#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* ScreenAudio: tMenu right after its own tMenuItemGoToMenuButton (retail) */
-#include "fe_core_tmenu.h"
-#endif
+#include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes (+ tMenu after them when keyed); no private copies (header-truth 4c) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #undef NFS4_DRAW_LEAF_CORE_ONLY   /* ScreenAudio: draw_leaf phase 2 (PCOORD16 .. Draw_*) after the menu core */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, then kernpair */
 #include "felines_types.h"

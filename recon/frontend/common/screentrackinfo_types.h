@@ -123,9 +123,9 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 
 
 
-struct tListIteratorTournament : public tListIterator {
-    tTournamentManager *fTournamentManager;
-};
+#include "felist_tournament_iter.h"   /* tListIteratorTournament: one definition (header-truth 4s) */
+
+
 #endif
 
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* retail: tVideoWall + tScreenTrackInfo before the tMenuNFS4 family */
@@ -430,12 +430,12 @@ struct tVideoWall {
 
 
 
-struct tListIteratorTrack : public tListIteratorIndexed {
-    tTrackManager *fTrackManager;
-};
-struct tListIteratorTournament : public tListIterator {
-    tTournamentManager *fTournamentManager;
-};
+#define NFS4_SCREENDISPLAY_ITERS_TRACK
+#include "screendisplay_carblock_iters.h"   /* tListIteratorTrack: one definition (header-truth 4s) */
+#undef NFS4_SCREENDISPLAY_ITERS_TRACK
+#include "felist_tournament_iter.h"   /* tListIteratorTournament: one definition (header-truth 4s) */
+
+
 #endif
 
 #ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE

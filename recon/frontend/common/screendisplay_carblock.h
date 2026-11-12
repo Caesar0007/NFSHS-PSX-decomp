@@ -128,18 +128,18 @@ struct tCarManager;
 #undef NFS4_SCREENDISPLAY_ITERS_TRACK
 #endif
 
-struct tListIteratorTournament : public tListIterator {
-    tTournamentManager *fTournamentManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTournament(char *, tTournamentManager *);
-    ~tListIteratorTournament();
-    char Value(tPlayer);
-#endif
-    short TextValue(tPlayer);
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    void Increment(tPlayer); void Decrement(tPlayer); bool ValidTournament(char);
-#endif
-};
+#include "felist_tournament_iter.h"   /* tListIteratorTournament: one definition (header-truth 4s) */
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NFS4_SCREENDISPLAY_SCREEN_AFTER_TOURNAMENT   /* retail FEMenuDefs: tShapeInformation + the tScreen definition right after tListIteratorTournament (earlier: forward copy only) */
 #include "shared/tShapeInformation.h"
 #include "fescreen.h"

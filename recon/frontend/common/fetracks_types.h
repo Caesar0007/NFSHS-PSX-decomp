@@ -11,16 +11,16 @@
 
 
 
-struct tListIteratorTrack : public tListIteratorIndexed {
-    tTrackManager *fTrackManager;
+#define NFS4_SCREENDISPLAY_ITERS_TRACK
+#include "screendisplay_carblock_iters.h"   /* tListIteratorTrack: one definition (header-truth 4s) */
+#undef NFS4_SCREENDISPLAY_ITERS_TRACK
 
-    tListIteratorTrack(char *valPtr, char *index,
-                       tTrackManager *trackManager);
-    ~tListIteratorTrack();
-    short TextValue(tPlayer atIndex);
-    void Increment(tPlayer atIndex);
-    void Decrement(tPlayer atIndex);
-    bool ValidTrack(char track);
-};
+
+
+
+
+
+
+
 
 #endif

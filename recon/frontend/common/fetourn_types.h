@@ -112,16 +112,16 @@ typedef tRecordBuffer tSaveRecords[187];
 
 
 
-struct tListIteratorTournament : public tListIterator {
-    tTournamentManager *fTournamentManager;
+#include "felist_tournament_iter.h"   /* tListIteratorTournament: one definition (header-truth 4s) */
 
-    tListIteratorTournament(char *valPtr, tTournamentManager *tournManager);
-    ~tListIteratorTournament();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-    bool ValidTournament(char tourn);
-};
+
+
+
+
+
+
+
+
+
 
 #endif

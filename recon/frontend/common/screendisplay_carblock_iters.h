@@ -8,37 +8,34 @@ struct tListIteratorCar : public tListIterator {
     int fCarListFilter;
     tCarManager *fCarManager;
     tCarNameLength fNameLength;
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
     short TextValue(tPlayer);
-    void Increment(tPlayer)
-        __asm__("Increment__16tListIteratorCar7tPlayer");
-    void Decrement(tPlayer)
-        __asm__("Decrement__16tListIteratorCar7tPlayer");
-#endif
-#if defined(NFS4_FEMENUDEFS_SURFACE) || (defined(NFS4_FE_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENCONGRATS_TYPES_H))   /* retail: full declarations + in-class bodies in every includer (FESCR; ScreenCongrats: its tCarManager is not walked yet -> keep) */
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
     tListIteratorCar(char *, tCarManager *);
     ~tListIteratorCar();
     char Value(tPlayer);
     void AdjustPosition(tPlayer, short);
     bool ValidCar(tPlayer, char);
+#ifdef NFS4_FRONTEND_COMMON_FECARS_ITERS_H   /* FECars.obj (key object) emits a standalone copy; the retail link removed it */
+    inline void SetFilter(int filter) LINK_STRIPPED;
+#else   /* retail in-class body (called from matched code) */
     inline void SetFilter(int filter) { fCarListFilter = filter; }
-
-
 #endif
 };
+#ifdef NFS4_FRONTEND_COMMON_FECARS_ITERS_H
+inline void tListIteratorCar::SetFilter(int filter) { fCarListFilter = filter; }
+#endif
 
 struct tListIteratorCarColor : public tListIterator {
     char *fPlayer, *fPlayerCar;
     int fIndexSize;
     tCarManager *fCarManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
     tListIteratorCarColor(char *, char *, char *, int, tCarManager *);
     ~tListIteratorCarColor();
     char Value(tPlayer);
     short TextValue(tPlayer);
     void Increment(tPlayer);
     void Decrement(tPlayer);
-#endif
 };
 #ifdef NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN
 #include NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN
@@ -48,14 +45,10 @@ struct tListIteratorCarColor : public tListIterator {
 #define NFS4_FRONTEND_COMMON_SCREENDISPLAY_ITERS_TRACK_H
 struct tListIteratorTrack : public tListIteratorIndexed {
     tTrackManager *fTrackManager;
-#ifdef NFS4_FEMENUDEFS_SURFACE
     tListIteratorTrack(char *, char *, tTrackManager *);
     ~tListIteratorTrack();
-#endif
     short TextValue(tPlayer); void Increment(tPlayer); void Decrement(tPlayer);
-#ifdef NFS4_FEMENUDEFS_SURFACE
     bool ValidTrack(char);
-#endif
 };
 #ifdef NFS4_SCREENDISPLAY_ITERS_TRACK_CHAIN
 #include NFS4_SCREENDISPLAY_ITERS_TRACK_CHAIN

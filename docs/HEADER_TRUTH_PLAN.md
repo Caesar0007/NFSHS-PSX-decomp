@@ -103,6 +103,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | b1ee69124 | Phase 4s: list iterators Car/CarColor/Track/Tournament = ONE definition each (7 copies removed); SCREENCARSELECT asm-label aliases for Increment/Decrement gone; owner strip switch for SetFilter | 0 | 7 | 143 | 35 | 139 | 1652 |
 | 2026-11-12 | c8051621f | Phase 4t: managers tTrackManager (4 copies), tMissionManager (2), tCreditManager (4, one an opaque char[56] view), tVideoWall (4) and enum tTrackClassType (2) = ONE definition each; TransitionDirection/GetTransitionDirection name duplicate resolved | 0 | 7 | 143 | 31 | 139 | 1651 |
 | 2026-11-12 | 027ade1a3 | Phase 4u: tScreenControllerConfig, tScreenBeTheCopCongrats, tScreenTournamentCongrats, tScreenTournamentTrophy, tScreenPinkSlipsCarSelect, tScreenPinkSlipStandings, tScreenCarSelectDuel = ONE definition each (cls_<name>.h, included where each copy stood, so record order is unchanged). Found: Front's copy declared DrawOpponentVideoWall non-virtual while the owner declares it virtual | 0 | 7 | 143 | 24 | 139 | 1651 |
+| 2026-11-12 | 707a74697 | Phase 4v: tScreenUserName (3 copies), tScreenMemcard (2), tScreenTournamentStandings (3), ...3item (3) = ONE definition each. Ctors declared unconditionally; SetCallingMenu / SetMessage / SetDrawMoney in-class for all but the key object (explicit NFS4_KEY_OBJECT_* marker in the owner .cpp: cc1plus would emit a standalone copy there) | 0 | 7 | 143 | 20 | 139 | 1647 |
 
 ## Open mismatches (left unexplained on purpose)
 

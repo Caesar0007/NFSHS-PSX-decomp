@@ -157,6 +157,6 @@ typedef struct AITrigger_TriggerManager {
     trigger_t *GetTrigger(int trigger, int *used);
     int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
     void DescribeTrigger(trigger_t *trigger);
-    void Sort(); /* INFERRED bodies: retail aih_play.obj TPDEF run (TM TM | trigger_t walk | TM TM trigger_t trigger_t), as aitriger.obj; never called here */ inline trigger_t *GetCheckedTrigger(int triggerNum); inline void SwapTriggers(trigger_t *a, trigger_t *b);
-} AITrigger_TriggerManager; inline trigger_t *AITrigger_TriggerManager::GetCheckedTrigger(int triggerNum) { if (triggerNum < numTriggers_) return triggers_[triggerNum]; return (trigger_t *)0; } inline void AITrigger_TriggerManager::SwapTriggers(trigger_t *a, trigger_t *b) { }
+    void Sort(); inline trigger_t *GetCheckedTrigger(int triggerNum);
+} AITrigger_TriggerManager; inline trigger_t *AITrigger_TriggerManager::GetCheckedTrigger(int triggerNum) { if (triggerNum < numTriggers_) return triggers_[triggerNum]; return (trigger_t *)0; }
 #endif

@@ -22,7 +22,7 @@ struct SerializedGroup {
     Group *LocateCreateGroupType(int type, SimpleMem *mem, int index);
     Group *CreateLiteGroup(SerializedGroup *source, SimpleMem *mem);
     Group *CreateLiteGroupDataSize(SerializedGroup *source, SimpleMem *mem,
-                                   int dataSize); int GetLength(); int GetType(); Group *CreateLite(SimpleMem *mem); int Dummy(); /* INFERRED, bodies in group.cpp */
+                                   int dataSize);
 };
 
 struct Group {

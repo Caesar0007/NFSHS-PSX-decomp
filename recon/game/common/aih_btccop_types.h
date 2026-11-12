@@ -76,7 +76,7 @@ inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDista
 inline void AIState_Chase::SetNitrousTicks(int nitrousTicks) { nitrousTicks_ = nitrousTicks; }   /* INFERRED body: retail aih_btccop.obj AIState_Chase TPDEF run evidence (7 = class + six bodies; same accessors as aistate.h) */
 inline void AIState_Chase::SetSlowDownEndTime(int slowDownEndTime) { slowDownEndTime_ = slowDownEndTime; }   /* INFERRED body: likewise */
 inline int AIState_Chase::MurderMode() { return murderMode_; }   /* INFERRED body: likewise */
-inline int AIState_GotoSlice::TargetSlice() { return targetSlice_; }   /* INFERRED body: retail aih_btccop.obj AIState_GotoSlice TPDEF run (class + one this-only body); name inferred */
+
 
 
 

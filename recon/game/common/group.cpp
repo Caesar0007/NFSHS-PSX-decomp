@@ -111,8 +111,6 @@ SerializedGroup * SerializedGroup::LocateGroupNum(int index)
    header/type-copy order remains unresolved. No qualifier/fake-use dial.
    Receipt: build/nc12/group_final_observer_20261023/findings-proof.json. */
 
-/* INFERRED body: retail group.obj TPDEF run SerializedGroup x12 after the Group definition (ours x11 without it); never called */
-inline int SerializedGroup::GetLength() { return m_length; }
 #line 116 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 Group *
 SerializedGroup::LocateCreateGroupType(int type,SimpleMem *mem,int index)
@@ -137,11 +135,6 @@ SerializedGroup::LocateCreateGroupType(int type,SimpleMem *mem,int index)
 
 /* ---- CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem [@0x8009c27c] covered SLD requires native comparison ---- */
 
-/* INFERRED bodies: retail group.obj TPDEF unit `SerializedGroup | Group SerializedGroup SimpleMem | SerializedGroup` between
-   LocateCreateGroupType (ends 134) and CreateLiteGroup (SLD gap 134-165); never called */
-inline int SerializedGroup::GetType() { return m_type; }
-inline Group *SerializedGroup::CreateLite(SimpleMem *mem) { return CreateLiteGroup(this, mem); }
-inline int SerializedGroup::Dummy() { return dummy; }
 #line 165 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source,SimpleMem *mem)
 

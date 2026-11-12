@@ -266,9 +266,9 @@ struct AIHigh_Traffic : public AIHigh_Base {
     trigger_t *CheckForNewTriggers();
     /* These inline-only spellings remain inferred, not uniquely SYM-named. */
     inline int ForcePurgatory() NFS4_AIHIGH_STRIP;
-    inline void SetAccidentData(SceneElem *accidentData) NFS4_AIHIGH_STRIP; inline void SetForcePurgatory(int force) NFS4_AIHIGH_STRIP; inline int IgnoreCops() NFS4_AIHIGH_STRIP;   /* INFERRED bodies: retail object.obj / aih_traf.obj AIHigh_Traffic TPDEF run (class + 4 this-only bodies); SetForcePurgatory = aih_btccop_types.h body, IgnoreCops name inferred */
+    inline void SetAccidentData(SceneElem *accidentData) NFS4_AIHIGH_STRIP; inline void SetForcePurgatory(int force) NFS4_AIHIGH_STRIP;   /* SetAccidentData / (Set)ForcePurgatory: called from matched code */
 #line 584 "C:/nfs4/GAME/COMMON/AIHIGH.H"
-}; inline int AIHigh_Traffic::ForcePurgatory() { return forcePurgatory_; } inline void AIHigh_Traffic::SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; } inline void AIHigh_Traffic::SetForcePurgatory(int force) { forcePurgatory_ = force; } inline int AIHigh_Traffic::IgnoreCops() { return ignoreCops_; }
+}; inline int AIHigh_Traffic::ForcePurgatory() { return forcePurgatory_; } inline void AIHigh_Traffic::SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; } inline void AIHigh_Traffic::SetForcePurgatory(int force) { forcePurgatory_ = force; }
 #endif
 #else
 #error Unknown AIHIGH.H type part

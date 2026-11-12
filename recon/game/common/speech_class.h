@@ -29,7 +29,7 @@ struct Speech {
         return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
     }
     inline int FileHandle() { return fFileHandle; }
-    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; } inline Car_tObj *SpeakerCar();   /* INFERRED body (defined below the class): retail speech.obj run "Speech Car_tObj | Car_tObj Speech" = setter + getter */
+    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; }
     struct CarBankName {
         char *fFull, *fMake, *fModel;
         inline bool Full(char *name) {
@@ -62,7 +62,7 @@ struct Speech {
             fEndSlice = end;
             fName = name;
         }
-        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */ inline int StartSlice() { return fStartSlice; }   /* INFERRED body: retail speech.obj LocationBank in-class run x6 = ctor, Set, BankId, this one + the Speech field walk */
+        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */
         int Distance(int slice);
     } LocationBank;
 
@@ -310,7 +310,7 @@ struct Speech {
 /* one definition for every includer (header-truth phase 2b) */
 
 
-inline Car_tObj *Speech::SpeakerCar() { return fSpeakerCar; }
+
 
 inline Speech::Speaker::Speaker() { fSub = 0; } inline Speech::Speaker *Speech::Speaker::Sub() { return fSub; } inline void Speech::Speaker::SetColour(int Colour) { fColour.flags = Colour; } inline void Speech::Speaker::SetBlockade(int Blockade) { fBlockade.flags = Blockade; } inline void Speech::Speaker::SetArrest(int Arrest) { fArrest.flags = Arrest; } inline void Speech::Speaker::SetUpdate(int Update) { fUpdate.flags = Update; } inline void Speech::Speaker::SetSub(Speaker *Sub) { fSub = Sub; } inline void Speech::Speaker::SetTo(int to) { fTo = to; } inline int Speech::Speaker::To() { return fTo; } inline int Speech::Speaker::From() { return fFrom; } inline void Speech::Speaker::SetFrom(int from) { fFrom = from; } inline void Speech::Speaker::SetConfirm(int confirm) { fConfirm.flags = confirm; } inline void Speech::Speaker::SetPerpName(int name) { fPerpName.flags = name; } inline void Speech::Speaker::SetHavePerp(bool have) { fHavePerp = have; } inline void Speech::Speaker::SetReverse(int reverse) { fReverse.flags = reverse; } inline SPCHNFSType_REVINTRO *Speech::Speaker::Reverse() { return &fReverse; } inline void Speech::Speaker::SetPosition(int position) { fPosition.flags = position; } inline void Speech::Speaker::SetDistance(int distance) { fDistance.flags = distance; } inline void Speech::Speaker::SetLocation(LocationBank *location) { fLocation = location->BankId(); } inline SPCHNFSType_POSITION *Speech::Speaker::Position() { return &fPosition; }   /* Speaker's inline members, defined out of the class so speech.obj can tag its standalone copies (NFS4_SPEECH_STRIP) */
 inline SPCHNFSType_PERP_NAME *Speech::Speaker::PerpName() { return &fPerpName; } inline void Speech::Speaker::SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; } inline SPCHNFSType_AMBULANCE *Speech::Speaker::Ambulance() { return &fAmbulance; } inline SPCHNFSType_ARREST *Speech::Speaker::Arrest() { return &fArrest; } inline SPCHNFSType_SPIKE_BELT_SIDE *Speech::Speaker::SpikeSide() { return &fSpikeSide; } inline void Speech::Speaker::SetSpikeSide(int side) { fSpikeSide.flags = side; } inline int Speech::Speaker::BlockadeFlags() { return fBlockade.flags; } inline void Speech::Speaker::SetWing(int wing) { fWing = wing; } inline int Speech::Speaker::Wing() { return fWing; } inline int Speech::Speaker::ArrestFlags() { return fArrest.flags; } inline int Speech::Speaker::UpdateFlags() { return fUpdate.flags; } inline SPCHNFSType_PURS_UPDT *Speech::Speaker::Update() { return &fUpdate; } inline bool Speech::Speaker::HavePerp() { return fHavePerp; } inline int Speech::Speaker::Car() { return fCar; } inline SPCHNFSType_vs_RDBLK_SSTRP *Speech::Speaker::BlockadeSlot() { return &fBlockade; } inline SPCHNFSType_CONFIRM *Speech::Speaker::Confirm() { return &fConfirm; } inline int Speech::Speaker::Location() { return fLocation; } inline SPCHNFSType_DISTANCE *Speech::Speaker::Distance() { return &fDistance; } inline SPCHNFSType_COLOUR *Speech::Speaker::Colour() { return &fColour; }

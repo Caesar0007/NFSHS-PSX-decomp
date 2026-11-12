@@ -799,12 +799,6 @@
    "evidence": "AIHigh_Traffic inline body (NFS4_AIHIGH_STRIP, owner NFS4_AIH_TRAF_OWNER), INFERRED (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail object.obj and aih_traf.obj record the AIHigh_Traffic class + 4 this-only bodies (5 TPDEFs); SetForcePurgatory is aih_btccop_types.h's body, IgnoreCops name inferred. AIH_Traf.obj owns the class key function and emits this standalone copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
   },
   {
-   "object": "build/recon/game/common/aih_traf.cpp.o",
-   "function": "IgnoreCops__14AIHigh_Traffic",
-   "source": "recon/game/common/aihigh.h",
-   "evidence": "AIHigh_Traffic inline body (NFS4_AIHIGH_STRIP, owner NFS4_AIH_TRAF_OWNER), INFERRED (user ruling 2026-11-08: inferred inline bodies; STRIPPED COPIES allowed): retail object.obj and aih_traf.obj record the AIHigh_Traffic class + 4 this-only bodies (5 TPDEFs); SetForcePurgatory is aih_btccop_types.h's body, IgnoreCops name inferred. AIH_Traf.obj owns the class key function and emits this standalone copy into .text.strip; nothing references it; the final link removes it. Receipt: build/tmp/v/GSDATA_state.md GSDATA3."
-  },
-  {
    "object": "build/recon/game/common/aih_btccop.cpp.o",
    "function": "PerpTarget__14AIHigh_BTC_Cop",
    "source": "recon/game/common/aih_btccop_types.h",

@@ -69,7 +69,7 @@ typedef struct AITrigger_TriggerManager {   /* C-style form: retail records TPDE
     /* Inferred semantic name: retail's three nested inline scope pairs prove
      * this bounds-checked receiver/index shape, not its literal spelling.
      * Like retail, the check is only against numTriggers_ (no lower bound). */
-    inline trigger_t *GetCheckedTrigger(int triggerNum); /* INFERRED bodies: retail aitriger.obj TPDEF run (TM TM | trigger_t walk | TM TM trigger_t trigger_t | TM x4 before Init); never called */ inline void SwapTriggers(trigger_t *a, trigger_t *b); inline int NumTriggers();
+    inline trigger_t *GetCheckedTrigger(int triggerNum);
 
 
 
@@ -78,7 +78,7 @@ typedef struct AITrigger_TriggerManager {   /* C-style form: retail records TPDE
     int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
     void DescribeTrigger(trigger_t *trigger);
     void Sort();
-} AITrigger_TriggerManager; /* bodies after the typedef: retail records both TPDEFs before the trigger_t walk */ inline trigger_t *AITrigger_TriggerManager::GetCheckedTrigger(int triggerNum) { if (triggerNum < numTriggers_) return triggers_[triggerNum]; return (trigger_t *)0; } inline void AITrigger_TriggerManager::SwapTriggers(trigger_t *a, trigger_t *b) { } inline int AITrigger_TriggerManager::NumTriggers() { return numTriggers_; }
+} AITrigger_TriggerManager; /* bodies after the typedef: retail records both TPDEFs before the trigger_t walk */ inline trigger_t *AITrigger_TriggerManager::GetCheckedTrigger(int triggerNum) { if (triggerNum < numTriggers_) return triggers_[triggerNum]; return (trigger_t *)0; }
 
 typedef int CarLogic_tObservations[1][3];
 

@@ -158,7 +158,7 @@ struct AIState_GotoSlice : public AIState_Normal {
     AIState_GotoSlice(Car_tObj *, int, int);
     ~AIState_GotoSlice();
     void Execute();
-    int InTargetSliceRange(int); int TargetSlice();   /* inferred inline accessor, defined in aih_btccop_types.h only */
+    int InTargetSliceRange(int);
 };
 #include "shared/cruiseMode_t.h"
 struct AIState_Cruise : public AIState_Normal {

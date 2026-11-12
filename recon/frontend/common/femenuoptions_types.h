@@ -91,11 +91,11 @@ struct FeMenuOptions_ScreenAudioCodegenView {
 };
 #define tScreenAudio FeMenuOptions_ScreenAudioCodegenView
 
-struct FeMenuOptions_GlobalMenuDefsCodegenView {
-    char _beforeMenuPlayList[0x2758];
-    tInsideBoxSongMenu menuPlayListMenu;
-};
-#define tGlobalMenuDefs FeMenuOptions_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 static inline void _femenuoptions_dtor_fade(tMenuItemLeftRightFade *p) { p->~tMenuItemLeftRightFade(); }
 #line 404 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"

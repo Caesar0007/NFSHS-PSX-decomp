@@ -91,18 +91,18 @@ int s_lower(char *);
 
 
 
-tScreenAudio *tScreenAudio_ctor(...);
-tScreenCarSelect *tScreenCarSelect_ctor(...);
-tScreenCarSelect *tScreenCarSelect_dtor(...);
-tScreenControllerConfig *tScreenControllerConfig_ctor(...);
-tScreenMemcard *tScreenMemcard_ctor(...);
-tScreenTournSelect *tScreenTournSelect_ctor(...);
-tScreenTournSelect *tScreenTournSelect_dtor(...);
-tScreenTournamentStandings *tScreenTournamentStandings_ctor(...);
-tScreenTrophyRoom *tScreenTrophyRoom_ctor(...);
-tScreenTrophyRoom *tScreenTrophyRoom_dtor(...);
-tScreen *tScreen_ctor(...);
-tScreen *tScreen_dtor(...);
+
+
+
+
+
+
+
+
+
+
+
+
 extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cpp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) --
                                      front.cpp indexes Cars_gNewCarStatsList[0].finalPosition; the

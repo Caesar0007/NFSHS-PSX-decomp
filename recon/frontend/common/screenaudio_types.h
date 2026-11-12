@@ -45,18 +45,18 @@ struct tDrawShapeExtended;
 
 /* FEMenuDefs.obj owns the complete aggregate.  ScreenAudio reads this exact
  * contiguous member slice only. */
-struct ScreenAudio_GlobalMenuDefsCodegenView {
-    char _beforeItemMusicVolume[0x25cc];
-    tMenuItemLeftRightAudioSlider itemMusicVolume;
-    tMenuItemLeftRightAudioSlider itemSoundEffectsVolume;
-    tMenuItemLeftRightAudioSlider itemEngineVolume;
-    tMenuItemLeftRightAudioSlider itemSpeechVolume;
-    tMenuItemLeftRightAudioSlider itemAmbientVolume;
-    tMenuItemDisplayLeftRightChoice itemAudioMode;
-    tMenuItemSlidingActivated itemSlidingPlayList;
-    tInsideBoxSongMenu menuPlayListMenu;
-    tOptionsMenu menuAudio;
-};
-#define tGlobalMenuDefs ScreenAudio_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

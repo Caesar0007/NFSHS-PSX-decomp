@@ -64,13 +64,13 @@ typedef tRecordBuffer tSaveRecords[187];
 #endif
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-struct ScreenPinkSlips_GlobalMenuDefsCodegenView {
-    char _beforeIteratorTrack[0xc88];
-    tListIteratorTrack iteratorTrack;
-    char _beforeItemTraffic[0xf4c - 0xca0];
-    tMenuItemOptionsTwoItemChoice itemTraffic, itemLocalSpeech;
-};
-#define tGlobalMenuDefs ScreenPinkSlips_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
 #endif
 
 #endif

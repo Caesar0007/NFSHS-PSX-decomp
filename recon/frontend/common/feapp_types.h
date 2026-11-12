@@ -147,19 +147,19 @@ struct GameSetup_tData;
 
 
 
-struct FeApp_GlobalMenuDefsCodegenView {
-    tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace;
-    tMenuItemGoToMenuNFS4Button itemMainTwoPlayerRace;
-    char _beforeMenuMain[0xb0 - 0x58];
-    tMenuNFS4 menuMain;
-    char _beforeUserName1[0x31b8 - 0x12c];
-    tUserNameMenuItem menuItemUserName1;
-    tUserNameMenuItem menuItemUserName2;
-    char _beforePostGameNames[0x36d0 - 0x32d0];
-    tOptionsMenu menuPostGamePlayer1Name;
-    tOptionsMenu menuPostGamePlayer2Name;
-};
-#define tGlobalMenuDefs FeApp_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
 #endif

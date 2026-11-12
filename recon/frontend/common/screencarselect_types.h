@@ -262,37 +262,37 @@ enum PinkSlipsCarSelectState {
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 /* Remaining foreign menu view needs owning-SYM source restoration. */
-struct ScreenCarSelect_GlobalMenuDefsCodegenView {
-    char _beforeIteratorCar1[0x116c];
-    tListIteratorCar iteratorCar1;
-    char _beforeItemCar[0x4c];
-    tMenuItemNFS4LeftRightChoice itemCar, itemColor;
-    tMenuItemGoToMenuNFS4Button itemShowcase;
-    char _beforeIteratorGarageCar[0x7c];
-    tListIteratorCar iteratorGarageCar;
-    tMenuItemNFS4LeftRightChoice itemGarageCar;
-    tMenuItemGoToMenuNFS4Button itemCarDealer, itemUpgradeCar;
-    char _beforeIteratorOpponentCar[0xf8];
-    tListIteratorCar iteratorOpponentCar;
-    char _beforeItemColorP1[0x21c];
-    tMenuItemNFS4LeftRightChoice itemColorP1;
-    char _beforeItemColorP2[0xd0];
-    tMenuItemNFS4LeftRightChoice itemColorP2;
-    char _beforeIteratorPinkSlipsCar[0x21c];
-    tListIteratorCar iteratorPinkSlipsCar;
-    char _beforeItemDealerCar[0x2b0];
-    tMenuItemNFS4LeftRightChoice itemDealerCar;
-    char _beforeItemSellerCar[0x118];
-    tMenuItemNFS4LeftRightChoice itemSellerCar;
-    tMenuItemGoToMenuNFS4Button itemSellCar;
-    char _beforeMenuCarUpgrades[0x100];
-    tMenuNFS4 menuCarUpgrades;
-    char _beforeItemTransmission[0x48];
-    tMenuItemOptionsLeftRightChoice itemTransmission, itemABS, itemDamage;
-    tMenuItemOptionsLeftRightChoice itemTransmission2, itemABS2, itemDamage2;
-    tMenuItemOptionsLeftRightChoice itemOpponentUpgrades;
-};
-#define tGlobalMenuDefs ScreenCarSelect_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 
 #ifdef NFS4_SCREENCARSELECT_HOOK_AFTER_STANDINGS   /* owner records right after tScreenTournamentStandings3item (FEMenuDefs: femenudefs_tail.h) */

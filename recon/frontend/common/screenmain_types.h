@@ -73,15 +73,15 @@ struct tVertex {
 #include "screenmain.h"
 
 /* ScreenMain reads three fields from the foreign FEMenuDefs aggregate. */
-struct ScreenMain_GlobalMenuDefsCodegenView {
-    char _beforeItemTwoPlayerPinkSlips[0x8f4];
-    tMenuItemGoToMenuNFS4Button itemTwoPlayerPinkSlips;
-    char _beforeMenuPinkSlipSelect[0x100];
-    tMenuNFS4 menuPinkSlipSelect;
-    char _beforeMenuCredits[0x2f54];
-    tMenuBlank menuCredits;
-};
-#define tGlobalMenuDefs ScreenMain_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
+
+
 
 #endif
 #endif

@@ -131,13 +131,13 @@ typedef long STREAMREQUESTID;
 #endif
 #if !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) && !(defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE) && defined(NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE) && !defined(NFS4_SCREENTOURNSELECT_PASS2_DONE))   /* view: not in the ScreenPost 2nd pass */
 /* tGlobalMenuDefs is owned by FEMenuDefs.obj (no completed tag here); this exact-offset view exposes only the two iterators read by this owner. */
-struct ScreenTournSelect_GlobalMenuDefsCodegenView {
-    char _beforeIteratorTournament[0x6a8];
-    tListIteratorTournament iteratorTournament;
-    char _beforeIteratorSpecialEvent[0x78c - 0x6bc];
-    tListIteratorTournament iteratorSpecialEvent;
-};
-#define tGlobalMenuDefs ScreenTournSelect_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
 #endif
 #define NFS4_SCREENTOURNSELECT_PASS2_DONE   /* end of a pass: ScreenPost's nested 2nd pass ends before pass 1 resumes */
 #endif

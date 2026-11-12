@@ -175,11 +175,11 @@ struct ScreenMemcard_FEApplicationCodegenView {
 };
 #define tFEApplication ScreenMemcard_FEApplicationCodegenView
 
-struct ScreenMemcard_GlobalMenuDefsCodegenView {
-    char _beforeItemSaveGame[0x3054];
-    tMemoryCardMenuItem itemSaveGame, itemLoadGame;
-};
-#define tGlobalMenuDefs ScreenMemcard_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
 
 struct ScreenMemcard_PrimTagCodegenCarrier {
     u_int addr : 24;

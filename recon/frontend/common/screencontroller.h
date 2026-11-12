@@ -90,29 +90,29 @@ struct ScreenController_FEApplicationCodegenView {
 };
 #define tFEApplication ScreenController_FEApplicationCodegenView
 
-struct ScreenController_GlobalMenuDefsCodegenView {
-    char _beforeItemControllerSettings[0x2b28];
-    tMenuItemSlidingMenu itemControllerSettings;
-    tOptionsMenu menuControllerConfig;
-    char _beforeItemControllerSteeringRange1[0x2c78 - 0x2bec];
-    tInsideBoxTwoWaySlider itemControllerSteeringRange1;
-    char _beforeItemControllerDeadSpot1[0x2cbc - 0x2ca8];
-    tInsideBoxTwoWaySlider itemControllerDeadSpot1;
-    char _beforeItemControllerSteeringRange2[0x2d00 - 0x2cec];
-    tInsideBoxTwoWaySlider itemControllerSteeringRange2;
-    char _beforeItemControllerDeadSpot2[0x2d44 - 0x2d30];
-    tInsideBoxTwoWaySlider itemControllerDeadSpot2;
-    char _beforeItemControllerJoyRange[0x2d88 - 0x2d74];
-    tInsideBoxTwoWaySlider itemControllerJoyRange;
-    char _beforeItemControllerCenterPoint[0x2dcc - 0x2db8];
-    tInsideBoxTwoWaySlider itemControllerCenterPoint;
-    char _beforeControllerMenus[0x2e84 - 0x2dfc];
-    tInsideBoxMenu menuControllerDualShock;
-    tInsideBoxMenu menuControllerAnalog;
-    tInsideBoxMenu menuControllerDualShockAnalog;
-    tInsideBoxMenu menuControllerNegcon;
-};
-#define tGlobalMenuDefs ScreenController_GlobalMenuDefsCodegenView
+#include "femenudefs_globalmenudefs.h"   /* the real tGlobalMenuDefs (no codegen view; header-truth 4-B.2) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
 #endif

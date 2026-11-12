@@ -69,6 +69,9 @@ These exist because a calling file did not see the real class. With single defin
 - nine asm-label aliases that call a member function as a free function with an explicit object (`GetTrophyName(tTournamentManager *, ...) asm("GetTrophyName__18tTournamentManager...")`, `DisplayHelp`, `GetCarFromSimID`, `FECheat_*` with int for an enum);
 - key-object exceptions (`NFS4_KEY_OBJECT_*`, owner strip switches): the fuller model is declare + LINK_STRIPPED + out-of-class body + a link_stripped.json row for the owner.
 
+### Phase 4-C - macro-faked enums (found 2026-11-13)
+17 frontend headers replace enums by macros (`#define tMenuTextState int`, `#define tMenuTextType int`, `#define textState_Hilighted 2`, also `tPlayer`, `tInputKeyType`, `tCheatCode`, earlier `tTrophySize`). With `int` the C++ mangled name of every function taking the enum changes, which is why asm-label aliases (FETextRender_WordWrapFade, FECheat_*) and int-typed virtual signatures (shared/fe_menu_game_surface.h) exist. Fix = include the one real enum definition (fetextrender_types.h, fe_player_types.h, fe_input_enums.h, fecheats_cheatcode.h) and drop the macros; expect ENTAG census changes in many objects - retail objects that call these functions without recording the enum are an open question.
+
 ### Phase 5 - gate and comments
 Add the counters above to the gate (must not rise). Fix the stale "manual _vf" file headers.
 

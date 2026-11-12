@@ -306,158 +306,158 @@ struct tMenu; struct tDrawShapeExtended;
 
 
 
-#define NFS4_FEMENUOPTIONS_TYPE_PART 1
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-NFS4_TD_tOptionsMenu struct tOptionsMenu : public tMenu {
-    bool fInMenuTransition;
-    signed char fTransitionDirection;
-    short fPrevItem;
-    int fScreenFade, fFirstFrame, fNumFrames;
-    /* W86-S4 SYM: tScreenUserName::DrawBackground's `8c` block carries a NESTED block whose only record is `REG this $2 v0 PTR STRUCT tag
-       tOptionsMenu`, emitted at the function's first statement -- an INLINED tOptionsMenu accessor reading fScreenFade there (the SYM records the inlined `this`, not the method's name). */
-#ifdef NFS4_FEMENUOPTIONS_OWNER   /* FeMenuOptions.obj emits standalone copies of these inline members; SLINK /strip removed them (P6 Route C 2026-11-07) */
-#define NFS4_SCREENDISPLAY_STRIP LINK_STRIPPED
-#else
-#define NFS4_SCREENDISPLAY_STRIP
-#endif
-    int GetScreenFade() NFS4_SCREENDISPLAY_STRIP;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *,
-                 void (*)(tMenuCommand &), short, int, int,
-                 tMenuItem *, ...);
-    ~tOptionsMenu(); long DebounceKeys(); void TransitionOff(); void TransitionOn();
-#endif
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_SCREENDISPLAY_CONTROLLER_METHODS)
-    bool TransitionIsFinished();
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void UpdateTransition(); void Draw(); void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
+#include "femenuoptions_classes.h"   /* the FEMENUOPTIONS.H menu family (one definition) */
 
-} NFS4_TDN_tOptionsMenu;
-inline int tOptionsMenu::GetScreenFade() { return fScreenFade; }
-struct tInsideBoxMenu : public tMenu {
-    short fPrevItem, fMoving, fMovingDir;
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *,
-                   void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    /* non-variadic form for derived classes (tInsideBoxSongMenu): retail's SongMenu ctor calls the tMenu ctor directly and stores only its own table, i.e. this one is inline */
-    /* Retail SongMenu's expanded constructor records these exact parameter names at depth1 in registers8/9; they are not caller locals o/fn.
-       The other spellings follow the recorded variadic overload's argument roles; their literal inline spellings are absent from optimized SYM. */
-    tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
-                   void (*OnButtonPress)(tMenuCommand &), short title) NFS4_SCREENDISPLAY_STRIP;   /* defined right after the class */
-    ~tInsideBoxMenu();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    virtual void Draw(short, short, short, short, short);
-#endif
-};
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || (defined(NFS4_FE_MENUITEM_INLINES) && !defined(NFS4_FRONTEND_COMMON_SCREENPOST_TYPES_H))   /* FESCR: inline ctor body in every includer (ScreenPost: its tScreen* parameter would field-walk the declarations-only tScreen) */
-inline tInsideBoxMenu::tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
-                                      void (*OnButtonPress)(tMenuCommand &), short title)
-    : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
-#endif
-struct tMenuItemSlidingMenu : public tMenuItem {
-    tInsideBoxMenu *currMenu, *nextMenu;
-    short fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;
-    bool fInTransition, fTransitioningOut, fClosing;
-    short fDiffX, fDiffY;
-    bool fFillback; void SetMenu(bool, tInsideBoxMenu *);
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
-    ~tMenuItemSlidingMenu();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-    long DebounceKeys();
-    void Draw(bool);
-    virtual void UpdatefOpenHeight(bool);
-    void Draw(int, int, bool);
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 
-#endif
-};
 
-#define NFS4_FEMENUOPTIONS_TYPE_PART 2
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-#define NFS4_FEMENUOPTIONS_TYPE_PART 3
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-#define NFS4_FEMENUOPTIONS_TYPE_PART 4
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
-    short fFadeVal, fFadeDir;
-    bool fInTransition;
-    short fAudioArt;
-    int flareextra;
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tMenuItemLeftRightAudioSlider(unsigned int, tListIterator *, int);
-    ~tMenuItemLeftRightAudioSlider();
-    void Draw(int, int, bool);
-    int Percentage();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-#endif
-};
 
-struct tInsideBoxSongMenu : public tInsideBoxMenu {
-    short fOnOffFade[5], fSelFade[5];
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tInsideBoxSongMenu(unsigned int, tScreen *, tMenu *, tMenu *,
-                       void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    ~tInsideBoxSongMenu();
-    virtual void Draw(short, short, short, short, short);
-    virtual void DrawOneSong(short, short, short, short, short, short);
-    long DebounceKeys();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
-};
 
-#define NFS4_FEMENUOPTIONS_TYPE_PART 5
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
-    ~tInsideBoxLeftRightSlider();
-    void Draw(int, int, int, bool);
-#endif
-};
 
-struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
-    short fType;
-    bool fActive;
-#if defined(NFS4_FEMENUOPTIONS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* retail: full member declarations in every includer (FESCR) */
-    tInsideBoxTwoWaySlider(unsigned int, tListIterator *, int);
-    ~tInsideBoxTwoWaySlider();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(int, int, int, bool);
-    void Calibrate();
-#endif
-};
-#define NFS4_FEMENUOPTIONS_TYPE_PART 6
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-#define NFS4_FEMENUOPTIONS_TYPE_PART 7
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-#define NFS4_FEMENUOPTIONS_TYPE_PART 8
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-#define NFS4_FEMENUOPTIONS_TYPE_PART 10
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
-#define NFS4_FEMENUOPTIONS_TYPE_PART 9
-#include "femenuoptions.h"
-#undef NFS4_FEMENUOPTIONS_TYPE_PART
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifdef NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS   /* owner records after the menu family, before the car graph */
 #include NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS

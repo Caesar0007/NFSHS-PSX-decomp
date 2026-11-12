@@ -9,16 +9,16 @@
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
-    tListIterator *fData;
-};
+#include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes (+ tMenu after them when keyed); no private copies (header-truth 4b) */
 
-struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
-    void (*fOnButtonPress)(void *);
-};
-#ifdef NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu right after this owner's tMenuItemGoToMenuButton */
-#include "fe_core_tmenu.h"
-#endif
+
+
+
+
+
+
+
+
 
 #include "../../game/common/draw_leaf_types.h"
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail FECredits: tTexture_ShapeInfo, tActiveLine, tShapeInformation, (tScreen), kernpair */

@@ -22,32 +22,32 @@
 
 
 
-struct AIPhysic_BrakeInfo {
-    u_char brakeTable_[128];
-    int deceleration_; /* + the 3 aiphysic_types.h bodies (retail 7 TPDEFs) */ inline void SetBrakeDistance(int speed, int distance) { int sIndex = speed / 0x10000; if (sIndex < 0) sIndex = -sIndex; if (!(sIndex < 0x80)) sIndex = 0x80; brakeTable_[sIndex] = (u_char)(distance / 0x20000); } AIPhysic_BrakeInfo(int deceleration) { int invDeceleration; deceleration_ = deceleration; invDeceleration = fixeddiv(0x10000, deceleration); for (int brakeTableLoop = 0; brakeTableLoop < 0x80; brakeTableLoop++) { int brakeDistanceMeters = fixedmult(fixedmult(brakeTableLoop << 0x10, invDeceleration), brakeTableLoop << 0x10) / 2; SetBrakeDistance(brakeTableLoop << 0x10, brakeDistanceMeters); } } inline int Deceleration() { return deceleration_; }
+#include "shared/AIPhysic_BrakeInfo.h"   /* one AIPhysic_BrakeInfo definition (header-truth 4m) */
 
-    /* SYM-INFERRED-INLINE-NAMES: PsyQ preserves the nested this/speed/sIndex
-     * and currentSpeed/futureSpeed scopes, but not either unlinked method name.
-     * These semantic names and both bodies are therefore codegen-proven
-     * reconstructions rather than name claims from the SYM. */
-    int GetBrakeDistance(int speed)
-    {
-        int sIndex = speed / 0x10000;
-        if (sIndex < 0) {
-            sIndex = -sIndex;
-        }
-        if (!(sIndex < 0x80)) {
-            sIndex = 0x80;
-        }
-        return (u_int)brakeTable_[sIndex] * 0x20000;
-    }
 
-    /* Retail inline records list futureSpeed before currentSpeed. */
-    int GetNeededDistance(int futureSpeed,int currentSpeed)
-    {
-        return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
-    }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "aidatarecord_classes.h"   /* the AIDATARECORD.H record-class family: no private copies (header-truth 4i) */
 

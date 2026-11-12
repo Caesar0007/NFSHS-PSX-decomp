@@ -99,6 +99,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 721f45f8f | Phase 4n/4o: Group (7 copies), AITrigger_TriggerManager (6) + triggerType (3), AIDelayCar (3), Chunk (4) = ONE definition each. Group::SetNumElements body now visible everywhere: +1 Group record in 7 objects (accepted, see open mismatches); aih_traf int-for-enum signature gone | 0 | 7 | 140 | 66 | 139 | 1662 |
 | 2026-11-12 | 3481893dc | Phase 4p: extended menu family (tMenuItemGoToMenuNFS4Button .. tMenuOptions) extracted from screendisplay_types.h to femenuextended_classes.h, members unconditional (were switched by NFS4_FEMENUDEFS_SURFACE), FEApp asm-label alias gone; 3 data-only copies removed | 0 | 7 | 140 | 66 | 139 | 1658 |
 | 2026-11-12 | 0b03017dc | Phase 4q: extended menu family = ONE definition each (owner copy + screentrackinfo copy removed). LAW: member declaration order of a class changes codegen in other files that inline its ctors (femenudefs) - the shared header keeps the passing non-owner order; owner-only strip pieces under one owner switch | 0 | 7 | 145 | 56 | 139 | 1654 |
+| 2026-11-12 | 292f1ce64 | Phase 4r: options-menu family (17 classes) = ONE definition each; member switches (FEMENUOPTIONS_SURFACE / CONTROLLER_METHODS / ScreenPost exclusion) removed. +1 tOptionsMenu in feapp/screenaudio/screentrackinfo.obj, +2 records in screenpost.obj (inline tInsideBoxMenu ctor now visible there) | 0 | 7 | 144 | 39 | 139 | 1657 |
 
 ## Open mismatches (left unexplained on purpose)
 

@@ -7,13 +7,13 @@
 #include "femenuextended_externs.h"
 #elif NFS4_FEMENUEXTENDED_TYPE_PART == 1
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
+
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
         : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
 #line 80 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
     void Draw(int, int, bool) {}
     bool TransitionIsFinished() { return true; }
-#endif
+
 };
 #line 16 "recon/frontend/common/femenuextended.h"
 #else

@@ -1,8 +1,13 @@
 /* frontend/common/femenuextended_classes.h -- the FEMENUEXTENDED.H menu family (tMenuItemGoToMenuNFS4Button ..
- * tMenuOptions), one definition for every includer, members declared unconditionally (header-truth 4p; moved from
- * screendisplay_types.h).  Members are defined in femenuextended.cpp. */
+ * tMenuOptions), one definition for every includer, members declared unconditionally (header-truth 4p/4q; retail line
+ * anchors from the owner).  Members are defined in femenuextended.cpp. */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_CLASSES_H
 #define NFS4_FRONTEND_COMMON_FEMENUEXTENDED_CLASSES_H
+#ifdef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H   /* FEMenuExtended.obj (key object) emits standalone copies of the in-class ctors; the retail link removed them */
+#define NFS4_FEMENUEXTENDED_STRIP LINK_STRIPPED
+#else
+#define NFS4_FEMENUEXTENDED_STRIP
+#endif
 NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
     short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
@@ -13,7 +18,9 @@ NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public 
     void TransitionOff();
     bool TransitionIsFinished();
     void UpdateTransition(bool);
+#line 46 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
     void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
+#line 24 "recon/frontend/common/femenuextended_classes.h"
 } NFS4_TDN_tMenuItemGoToMenuNFS4Button;
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
@@ -31,19 +38,37 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 #include "femenuextended.h"
 #undef NFS4_FEMENUEXTENDED_TYPE_PART
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
+#ifdef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H   /* key object: declared for the stripped standalone copy, defined right after the class */
+    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) NFS4_FEMENUEXTENDED_STRIP;
+#else   /* retail in-class body */
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d) {}
+#endif
     void Draw(int, int, bool);
+#line 99 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+#ifdef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
+inline tMenuItemOptionsLeftRightChoice::tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) {}
+#endif
+#line 54 "recon/frontend/common/femenuextended_classes.h"
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
+#ifdef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
+    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) NFS4_FEMENUEXTENDED_STRIP;
+#else   /* retail in-class body */
     tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
         : tMenuItemLeftRightChoice(t, d)
     { fOnOffFade = 0x80; }
+#endif
     void TransitionOn();
     void Draw(int, int, bool);
+#line 110 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 };
+#ifdef NFS4_FRONTEND_COMMON_FEMENUEXTENDED_TYPES_H
+inline tMenuItemOptionsTwoItemChoice::tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { fOnOffFade = 0x80; }
+#endif
+#line 72 "recon/frontend/common/femenuextended_classes.h"
 
 struct tMenuNFS4 : public tMenu {
     bool fInItemTransition, fInMenuTransition;

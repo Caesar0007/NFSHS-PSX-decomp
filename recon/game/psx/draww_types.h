@@ -93,10 +93,10 @@ typedef struct { short chunkInd; char geomRez, enableBits; } tBuildEntry;
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld_types.h declares it in its BO pass */
 
-typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-} AnimScript;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4f) */
+
+
+
 #endif
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: AIDataRecord family and tQuat right after AnimScript */
 enum AIDataRecord_RecordMethod_t {

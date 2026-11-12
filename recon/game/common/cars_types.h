@@ -37,10 +37,10 @@ typedef struct AIDataRecord_t {
     virtual void Setup();
 } AIDataRecord_t;
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
-typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-} AnimScript;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4f) */
+
+
+
 
 #include "shared/SceneElem.h"
 

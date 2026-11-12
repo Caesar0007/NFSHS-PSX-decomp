@@ -109,10 +109,10 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 #endif
 
-typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-} AnimScript;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4f) */
+
+
+
 
 #include "shared/BWorldSm_Pos.h"
 

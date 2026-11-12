@@ -84,10 +84,10 @@ static inline void _btc_perp_dtor_ref(void *p) { ((AIHigh_BTC_Perp *)p)->~AIHigh
 
 
 
-typedef struct AnimScript {   /* retail: C-style typedef (two TPDEF AnimScript) */
-    int baseTicks, baseFrame, flags, numParts;
-    Trk_AnimateInst **inst;
-} AnimScript;
+#include "shared/AnimScript.h"   /* one AnimScript definition (header-truth 4f) */
+
+
+
 #include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;

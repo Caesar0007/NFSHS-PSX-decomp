@@ -101,6 +101,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 0b03017dc | Phase 4q: extended menu family = ONE definition each (owner copy + screentrackinfo copy removed). LAW: member declaration order of a class changes codegen in other files that inline its ctors (femenudefs) - the shared header keeps the passing non-owner order; owner-only strip pieces under one owner switch | 0 | 7 | 145 | 56 | 139 | 1654 |
 | 2026-11-12 | 292f1ce64 | Phase 4r: options-menu family (17 classes) = ONE definition each; member switches (FEMENUOPTIONS_SURFACE / CONTROLLER_METHODS / ScreenPost exclusion) removed. +1 tOptionsMenu in feapp/screenaudio/screentrackinfo.obj, +2 records in screenpost.obj (inline tInsideBoxMenu ctor now visible there) | 0 | 7 | 144 | 39 | 139 | 1657 |
 | 2026-11-12 | b1ee69124 | Phase 4s: list iterators Car/CarColor/Track/Tournament = ONE definition each (7 copies removed); SCREENCARSELECT asm-label aliases for Increment/Decrement gone; owner strip switch for SetFilter | 0 | 7 | 143 | 35 | 139 | 1652 |
+| 2026-11-12 | c8051621f | Phase 4t: managers tTrackManager (4 copies), tMissionManager (2), tCreditManager (4, one an opaque char[56] view), tVideoWall (4) and enum tTrackClassType (2) = ONE definition each; TransitionDirection/GetTransitionDirection name duplicate resolved | 0 | 7 | 143 | 31 | 139 | 1651 |
 
 ## Open mismatches (left unexplained on purpose)
 

@@ -29,16 +29,16 @@
 
 
 #include "shared/tActiveLine.h"   /* retail FETools: tActiveLine right before tMenuItemNFS4LeftRightChoice */
-struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
-    short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-};
+#include "femenuextended_classes.h"   /* the FEMENUEXTENDED.H menu family: no private copies (header-truth 4p) */
 
-struct tMenuNFS4 : public tMenu {
-    bool fInItemTransition, fInMenuTransition;
-    short fTransitionVal;
-    signed char fTransitionDirection;
-    char fLastItem, fNumItems;
-};
+
+
+
+
+
+
+
+
 #endif
 
 #ifndef NFS4_PSXFRONT_SCREEN_LATE   /* PSXFront: tShapeInformation + tScreen after Car_tObj (psxfront_screen_late.h) */

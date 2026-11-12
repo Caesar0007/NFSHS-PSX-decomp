@@ -64,16 +64,16 @@ struct tMenu;
 #include "../../game/common/color_types.h"
 #endif
 /* These menu records are retained by the original screen header even though this implementation does not instantiate them directly. */
-struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
-    short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-};
+#include "femenuextended_classes.h"   /* the FEMENUEXTENDED.H menu family: no private copies (header-truth 4p) */
 
-struct tMenuNFS4 : public tMenu {
-    bool fInItemTransition, fInMenuTransition;
-    short fTransitionVal;
-    signed char fTransitionDirection;
-    char fLastItem, fNumItems;
-};
+
+
+
+
+
+
+
+
 
 
 

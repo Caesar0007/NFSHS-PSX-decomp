@@ -187,125 +187,125 @@ struct tMenu; struct tDrawShapeExtended;
 #ifdef NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU   /* owner records between the car/track block and the tMenuNFS4 family */
 #include NFS4_SCREENDISPLAY_HOOK_BEFORE_NFS4MENU
 #endif
-NFS4_TD_tMenuItemGoToMenuNFS4Button struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
-    int fOrdinalPos;
-    short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
-    tMenuItemGoToMenuNFS4Button(unsigned int, tMenu *, void (*)(tMenuCommand &), int, int);
-    ~tMenuItemGoToMenuNFS4Button();
-    void Draw(int, int, bool);
-    void TransitionOn();
-    void TransitionOff();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-    void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
-#endif
-} NFS4_TDN_tMenuItemGoToMenuNFS4Button;
+#include "femenuextended_classes.h"   /* the FEMENUEXTENDED.H menu family (one definition) */
 
-struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
-    short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
-    tMenuItemNFS4LeftRightChoice(unsigned int, tListIterator *, int, int);
-    ~tMenuItemNFS4LeftRightChoice();
-    void Draw(int, int, bool);
-    void TransitionOn();
-    void TransitionOff();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-#endif
-};
 
-#define NFS4_FEMENUEXTENDED_TYPE_PART 1
-#include "femenuextended.h"
-#undef NFS4_FEMENUEXTENDED_TYPE_PART
-struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
-    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightChoice(t, d) {}
-    void Draw(int, int, bool);
-#endif
-};
 
-struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
-    short fOnOffFade;
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_MENUITEM_INLINES)   /* in-class ctors/bodies (called from femenudefs; names forced by the classes) */
-    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightChoice(t, d)
-    { fOnOffFade = 0x80; }
-    void TransitionOn();
-    void Draw(int, int, bool);
-#endif
-};
 
-struct tMenuNFS4 : public tMenu {
-    bool fInItemTransition, fInMenuTransition;
-    short fTransitionVal;
-    signed char fTransitionDirection;
-    char fLastItem, fNumItems;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuNFS4(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    tMenuNFS4(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short);
-    ~tMenuNFS4();
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition();
-    virtual void DrawItem(int);
-    void Draw();
-#endif
-#ifdef NFS4_SCREENDISPLAY_FEAPP_METHODS
-    /* FEApp's menuMain calls the derived override.  The tPlayer record is
-     * absent from this owner graph, so retain its retail symbol explicitly. */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &)
-        asm("ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand");
-#endif
-};
 
-NFS4_TD_tMenuNFS4TwoPlayer struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuNFS4TwoPlayer(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    ~tMenuNFS4TwoPlayer();
-    virtual void DrawItem(int);
-#endif
-} NFS4_TDN_tMenuNFS4TwoPlayer;
-struct tMenuNFS4Bottom : public tMenuNFS4 {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuNFS4Bottom(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
-    ~tMenuNFS4Bottom();
-    void Draw();
-#endif
-};
-NFS4_TD_tMenuBlank struct tMenuBlank : public tMenuNFS4 {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuBlank(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short);
-    ~tMenuBlank();
-    void Draw();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Initialize();
-    long DebounceKeys();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition();
-#endif
-} NFS4_TDN_tMenuBlank;
 
-struct tMenuOptions : public tMenuNFS4 {
-    u_long fMenuEnterTicks;
-    short fPlayer;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuOptions(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, short, tMenuItem *, ...);
-    ~tMenuOptions();
-    void Draw();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    bool IsSubMenu();
-#endif
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #define NFS4_FEMENUOPTIONS_TYPE_PART 1
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART

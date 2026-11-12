@@ -77,16 +77,16 @@ enum tScreenMainState {
 
 #include "fe_core_cars.h"
 
-struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
-    short fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;
-};
+#include "femenuextended_classes.h"   /* the FEMENUEXTENDED.H menu family: no private copies (header-truth 4p) */
 
-struct tMenuNFS4 : public tMenu {
-    bool fInItemTransition, fInMenuTransition;
-    short fTransitionVal;
-    signed char fTransitionDirection;
-    char fLastItem, fNumItems;
-};
+
+
+
+
+
+
+
+
 
 #define cheat_MyMomSaysImCool 21
 

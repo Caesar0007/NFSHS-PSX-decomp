@@ -93,6 +93,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 7f9fea8a1 | Phase 4i: AIDataRecord family = ONE definition each (owner block moved to aidatarecord_classes.h, 9 copies removed). Found: AIDataRecord_BestLine_t::Get lived only in ai_types.h (now shared); aiinit used asm-label ctor aliases with int params (removed, real enum constants at the call sites) | 0 | 8 | 147 | 74 | 139 | 1733 |
 | 2026-11-12 | 270f88a75 | Phase 4j: tFEApplication = ONE definition (was 10, each with a different accessor set, one an opaque char[896] view). Three GetPlayer() return-type variants resolved to GetPlayer (u_char) / CurrentPlayer (tPlayer); int-argument call sites use kPlayerOne; tAppCommand enum in shared/tAppCommand.h replaces a front-only #define. fecheats.obj +1 tDialogMessageStringWithTimeout | 0 | 8 | 147 | 73 | 139 | 1691 |
 | 2026-11-12 | 6a02a8be4 | Phase 4k: tCarManager = ONE definition (was 6). Removed: per-surface method switches in fe_core_cars.h, asm-label alias for GetClassList, plain/typedef form selector. tCarClassType copies all honour one guard. front.obj and screencarselect.obj +1 tCarManager (typedef form) | 0 | 8 | 144 | 72 | 139 | 1660 |
+| 2026-11-12 | c1cb943c4 | Phase 4l: tTournamentManager = ONE definition (was 8 incl. two in screentrackinfo_types.h). tTournamentManager_inl.h has no per-object switches; #define tTrophySize int / ts_* macro fakes replaced by the real enum; screentrophyroom.obj +1 tTourneyInfo | 0 | 8 | 140 | 71 | 139 | 1660 |
 
 ## Open mismatches (left unexplained on purpose)
 

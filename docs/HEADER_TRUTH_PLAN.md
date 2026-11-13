@@ -81,6 +81,33 @@ bytes 299819/299819, 0 masked, gdebug 0 FAILED, every including TU PASS, SLINK l
 Census/inversions are recorded, regressions caused by removing a fabrication are accepted and
 re-baselined (head.json / slink_head.json).
 
+## State after 2026-11-13 (read this first)
+
+Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, 0 build SKIP, 0 debug failures, linked SYM tree 2537 clean / 33 dirty (unchanged since the start), SLINK census 1662 (honest; was 436 with fabrications).
+
+| Counter (`python tools/header_truth_counters.py`) | Start | Now |
+|---|---|---|
+| fake `*Inferred*Op*` members | 17 | 0 |
+| `INFERRED` markers | 142 | 7 (naming notes, evidenced) |
+| opaque `_storage` views | 3 | 0 |
+| `*CodegenView` stand-in types | 20 | 1 (fMemCardInfo_def: no real definition in the tree) |
+| macro-faked enum types (`#define tX int`) | 28 | 0 |
+| classes defined more than once | 94 | 12 counted, 6 real (below) |
+| asm-label aliases, all files | ~55 | 39 (none in frontend headers) |
+| per-object header conditionals | 176 | 143 |
+| stripped rows, non-SDK | 158 | 139 |
+
+Done: phases 1, 2, 3, 4 (a-x), 4-B.1-4, 4-C.1-3, 5a.
+
+Still open, in suggested order:
+1. Game-side menu header `shared/fe_menu_game_surface.h`: second definitions of tMenu, tMenuItem, tMenuItemInteractive, tListIterator, tListIteratorRange (+ tListIteratorIndexed in nfs3_types.h). The enum fakes that forced them are gone; replacing them means including frontend/common/felist_classes.h and fe_core_types.h from ~20 game objects (order effects expected).
+2. `tMenuItem` / `tMenu` member switches in fe_core_types.h / fe_core_tmenu.h. Two things need a ruling, not a mechanical edit: (a) two different bodies named `IsEnabled()` (`((fFlags ^ 1) & 1) != 0` vs `(fFlags & 1) == 0`) selected per object - retail had one name per body, the second name is unknown; (b) `virtual void Draw(bool) = 0` is pure only in the FEMenu owner.
+3. Key-object exceptions (`NFS4_KEY_OBJECT_*`, owner strip switches, speech.cpp's declaration-only virtual defaults): model as declare + LINK_STRIPPED + out-of-class body + link_stripped.json row.
+4. Order inversions introduced by single definitions (audedit, scene, screenaudio, screencontroller .obj): fix by include placement.
+5. The 143 per-object conditionals: almost all are type-ORDER dials (hooks that place a type at a given point of one object's record order). They do not change any class; decide whether they stay as the mechanism for record order.
+6. Remaining asm-label aliases (39, in .cpp files and game headers): classify legit (GTE/BIOS/EA templates) vs call-form fakes.
+7. Recover the unknown inline bodies listed under Open mismatches (FEMENU.H ~9 bodies is the largest).
+
 ## Progress log
 
 | Date | Commit | Change | Fake ops | INFERRED | Per-object conds | Dup classes | Stripped rows | Census |

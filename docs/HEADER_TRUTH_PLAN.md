@@ -265,6 +265,7 @@ Gate per function: BYTE + SYM + SLD, as today.
 | 2026-11-12 | 298af5835 | Phase 4-C.1: tMenuTextType / tMenuTextState = ONE enum definition each (shared/);  + constant macros removed from 11 headers; macro-faked enum count 28 -> 7; census unchanged | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | 65f574ba1 | Phase 4-C.2: constant-macro fakes of the text enums removed from 6 headers; tCheatCode real enum in fetourn/screencarselect/fecars/fecredits; WordWrapFade (RECT&) and FECheat_*(tCheatCode) real prototypes. No asm-label aliases left in frontend headers | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | db68d0bb7 | Phase 4-C.3:  /  removed (fe_menu_game_surface.h, nfs3_types.h, mmeffect_types.h); mpause_types.h uses the one definition. Macro-faked enum types: 0. Census unchanged | 0 | 7 | 143 | 12 | 139 | 1662 |
+| 2026-11-12 | 7a756e5b7 | Phase 6a: sprintf declared in 12 spellings (27 of them ) -> the PsyQ 4.3 STDIO.H form everywhere; dead SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short) decl removed. All 1313 C++ prototypes audited compatible with retail mangled names | 0 | 7 | 143 | 12 | 139 | 1662 |
 
 ## Open mismatches (left unexplained on purpose)
 

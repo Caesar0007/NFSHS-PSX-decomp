@@ -1,11 +1,16 @@
 #define NFS4_AIHIGH_OWNER   /* aihigh.obj's exact owner delta over the shared AI hierarchy graph; key: AIState_None bodies (aistate.h), GetCarObj decl-only (aih_hierarchy_types.h) */
 #if !defined(NFS4_GAME_COMMON_AIHIGH_TYPES_H)
 #define NFS4_GAME_COMMON_AIHIGH_TYPES_H
-#define NFS4_AIH_HIERARCHY_WINGMAN "aihigh_types.h"   /* retail aihigh.obj: AIHigh_CopGameType_t right after stateType_t (second pass below) */
 #define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
-#include "aih_hierarchy_types.h"
+#define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H   /* this object lists the hierarchy parts itself (retail record order) */
+#include "aih_hier_triggers.h"
+#include "shared/Sched_tSchedule.h"
+#include "aih_hier_states.h"
+#include "shared/AIHigh_CopGameType_t.h"   /* retail aihigh.obj: AIHigh_CopGameType_t between stateType_t and Wingman_Role */
+#include "shared/Wingman_Role.h"
+#include "aih_hier_classes.h"
 
 
 
@@ -72,14 +77,4 @@ inline AIHigh_BTC_HumanPerp::AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC
 
 typedef int CarLogic_tObservations[1][3];
 
-#elif !defined(NFS4_AIHIGH_WINGMAN_DONE)   /* second pass: aih_hierarchy_types.h NFS4_AIH_HIERARCHY_WINGMAN */
-#define NFS4_AIHIGH_WINGMAN_DONE
-#include "shared/AIHigh_CopGameType_t.h"   /* one AIHigh_CopGameType_t definition (header-truth 7a) */
-
-
-
-
-
-
-#include "shared/Wingman_Role.h"
 #endif

@@ -1,11 +1,17 @@
 /* aih_play.obj's exact owner delta over the shared AI hierarchy. */
 #if !defined(NFS4_GAME_COMMON_AIH_PLAY_TYPES_H)
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
-#define NFS4_AIH_HIERARCHY_TRIGGERS_TAIL "aih_play_types.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t (second pass below) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
-#include "aih_hierarchy_types.h"
+#define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H   /* this object lists the hierarchy parts itself (retail record order) */
+#include "aih_hier_triggers.h"
+#include "shared/Sched_tSchedule.h"
+#include "shared/triggerType.h"
+#include "aitrigger_manager_class.h"   /* retail aih_play.obj: AITrigger_TriggerManager right after trigger_t */
+#include "aih_hier_states.h"
+#include "shared/Wingman_Role.h"
+#include "aih_hier_classes.h"
 
 
 
@@ -130,33 +136,5 @@ typedef long (*TraceFuncPtr)();
 typedef char *(*MemAllocFuncPtr)();
 typedef void (*MemFreeFuncPtr)();
 typedef void (*SetSentenceRuleFuncPtr)();
-
-#elif !defined(NFS4_AIH_PLAY_TRIG_DONE)   /* second pass: aih_hierarchy_types.h NFS4_AIH_HIERARCHY_TRIGGERS_TAIL */
-#define NFS4_AIH_PLAY_TRIG_DONE
-#include "shared/Sched_tSchedule.h"
-#include "shared/triggerType.h"   /* retail: triggerType at this point of the object's type order */
-
-
-
-
-
-
-
-
-#include "aitrigger_manager_class.h"   /* triggerType + class AITrigger_TriggerManager: one definition (header-truth 4n) */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

@@ -56,7 +56,8 @@ extern int            StatsTimer[2];
 
 /* ---- HudPmx shape tables ---- */
 extern HudPmx_tShape  HudPmx_gShapes[];
-extern int            HudPmx_gHudNumberUV[];
+#include "shared/HudPmx_tUV.h"
+extern HudPmx_tUV     HudPmx_gHudNumberUV[10];   /* real type; was an int view */
 
 /* ---- Cars / sim / setup / camera / dashhud ---- */
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */

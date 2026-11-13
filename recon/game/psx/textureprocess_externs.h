@@ -3,15 +3,12 @@
 #define TEXTUREPROCESS_EXTERNS_H
 
 #include "textureprocess_types.h"
+#include "shared/CTrackSpec.h"
+#include "shared/DRender_tView.h"
 
 /* ---- globals (SYM Globals.jsonl) ---- */
-/* SOURCE-REVIEW-UNRESOLVED: these are legacy foreign-object word views,
- * not actual array identities. Retail owns TrackSpec_gSpec as CTrackSpec264.
- * This TU omits its completed body; opaque aggregate/reference/pointer views
- * still alter ColorClut anchoring (27dif/129). Do not treat visibility or
- * the passing word ABI as an original-declaration exemption. */
 extern int                GameSetup_gData[];     /* 0x801131ec */
-extern int                TrackSpec_gSpec[];     /* 0x8012327c */
+extern CTrackSpec         TrackSpec_gSpec;       /* 0x8012327c */
 extern char              *Paths_Paths[50];       /* 0x80116468 */
 /* W65-A8 ORDER IS LOAD-BEARING: a TU-owned tentative definition is emitted in
  * the order its identifier is FIRST DECLARED -- which is HERE, not at the
@@ -30,7 +27,7 @@ extern FogKey             Fog_gBuf[32];          /* 0x8012307c */
 extern int                openkeys[32];          /* 0x801231fc */
 extern int                gNumSlices;            /* 0x8013c7c8 */
 extern short              gClutDepth[256][16];   /* 0x8012107c */
-extern int                gCView[];              /* 0x80116f7c */
+extern DRender_tView      gCView;                /* 0x80116f7c */
 extern int                Chunk_numLight;        /* 0x8013d4ec */
 extern CVECTOR           *Chunk_lightTable;      /* 0x8013c818 */
 

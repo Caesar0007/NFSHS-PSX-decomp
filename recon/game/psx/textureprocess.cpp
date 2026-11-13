@@ -100,12 +100,11 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
-  /* DEVICE (exact-only, record-neutral): the fog color (TrackSpec_gSpec+0x14) is read through the TU's existing CSkySpec type (frontcolors[3] = +0x14) -- a COMPONENT_REF base forces &TrackSpec_gSpec into a pseudo (retail la v1 + copy fp, no spec record). No new type record. */
   char *sourcedata;
   int contrasttemp;
   sourcedata = data;
   {
-  int j; contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
+  int j; contrasttemp = (TrackSpec_gSpec.fogspec.contrast * level) / (maxlevel + -1);
 
 
 
@@ -131,9 +130,9 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
       g = (color >> 2) & 0xf8;
       r = (color & 0x1f) * 8;
       {
-      int temp; temp = r - fixedmult(r - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].r,contrasttemp); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
-      } { int temp; temp = g - fixedmult(g - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].g,contrasttemp); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
-      } { int temp; temp = b - fixedmult(b - ((CSkySpec *)TrackSpec_gSpec)->frontcolors[3].b,contrasttemp); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
+      int temp; temp = r - fixedmult(r - TrackSpec_gSpec.fogspec.color.r,contrasttemp); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      } { int temp; temp = g - fixedmult(g - TrackSpec_gSpec.fogspec.color.g,contrasttemp); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      } { int temp; temp = b - fixedmult(b - TrackSpec_gSpec.fogspec.color.b,contrasttemp); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
 
@@ -367,7 +366,7 @@ void Fog_Update(int player)
 
 
 
-    BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
+    BWorldSm_FindClosestQuadRez((coorddef *)&gCView.cview,fogslicePos + player,1);
 
     currentslice = fogslicePos[player].slice;
 
@@ -403,7 +402,7 @@ void Fog_Update(int player)
     }
 
 
-  ((CFogSpec *)(TrackSpec_gSpec + 4))->start = final_dist;
+  TrackSpec_gSpec.fogspec.start = final_dist;
 }
 
 /* ---- Fog_MakeTrackPathName__FPc  [TEXTUREPROCESS.CPP:1015-1022] SLD-VERIFIED ---- */
@@ -528,7 +527,7 @@ void Fog_InitFogTriggers(void)
   if (Fog_ReadFogKeys() == 0) {
 
 
-    Fog_AddKey(0,((CFogSpec *)(TrackSpec_gSpec + 4))->start);
+    Fog_AddKey(0,TrackSpec_gSpec.fogspec.start);
   }
 
   Fog_gCurrentKey[0] = Fog_gHeadKey;

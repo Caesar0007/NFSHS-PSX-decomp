@@ -194,7 +194,7 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
   for (int checkSliceOffset = 0; checkSliceOffset < numSlicesToCheck; checkSliceOffset++)
   {
     int checkSlice = WRAP_SLICE(checkSliceOffset * direction,startSlice);
-    if ((*(short *)(checkSlice * 0x20 + (int)BWorldSm_slices + 0x16) & mask) == 0)
+    if ((BWorldSm_slices[checkSlice].pavedProfile & mask) == 0)
       return 0;
   }
   return 1;
@@ -219,7 +219,7 @@ int AIWorld_IsDriveableLane(int slice,int laneIndex)
 
 
   mask = 1 << (0xfU - profileIndex);
-  return (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & mask;
+  return (int)BWorldSm_slices[slice].pavedProfile & mask;
 }
 
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
@@ -248,7 +248,7 @@ int AIWorld_GetProfileMask(int laneIndex)
 #line 249 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_IsDriveableLane_UsingMask(int slice,int mask)
 {
-  return *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & mask;
+  return BWorldSm_slices[slice].pavedProfile & mask;
 }
 
 /* ---- AIWorld_CheckForBarrierBetweenLanes__Fiii  [@0x80073458] ---- */
@@ -257,7 +257,7 @@ int AIWorld_IsDriveableLane_UsingMask(int slice,int mask)
 int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
 {
   int profileLane0, profileLane1;
-  int profile = (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
+  int profile = (int)BWorldSm_slices[slice].pavedProfile;
 
 
 
@@ -293,13 +293,13 @@ int AIWorld_LaneIndex(int slice,int position)
   if (position < 0)
   {
     li = 6;
-    laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 30) * 0x8000;
+    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthLf * 0x8000;
   }
 
   else
   {
     li = 7;
-    laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 31) * 0x8000;
+    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthRt * 0x8000;
   }
 
 
@@ -525,7 +525,7 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
   nextSlice = WRAP_SLICE(lookAhead,thisSlice);
 
 
-  bend = (((int)*(signed char *)(BWorldSm_slices + nextSlice * 32 + 15) << 9) / 0x100) * (((int)*(signed char *)(BWorldSm_slices + thisSlice * 32 + 18) << 9) / 0x100) + (((int)*(signed char *)(BWorldSm_slices + nextSlice * 32 + 17) << 9) / 0x100) * (((int)*(signed char *)(BWorldSm_slices + thisSlice * 32 + 20) << 9) / 0x100);
+  bend = (((int)(signed char)BWorldSm_slices[nextSlice].forward[0] << 9) / 0x100) * (((int)(signed char)BWorldSm_slices[thisSlice].right[0] << 9) / 0x100) + (((int)(signed char)BWorldSm_slices[nextSlice].forward[2] << 9) / 0x100) * (((int)(signed char)BWorldSm_slices[thisSlice].right[2] << 9) / 0x100);
   return bend;
 }
 
@@ -546,9 +546,9 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
 
   currentSlice = (carObj->N).simRoadInfo.slice;
   futureSlice = WRAP_SLICE(slicesAhead,currentSlice);
-  right.x = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 18) << 9;
-  right.y = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 19) << 9;
-  right.z = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 20) << 9;
+  right.x = (int)(signed char)BWorldSm_slices[futureSlice].right[0] << 9;
+  right.y = (int)(signed char)BWorldSm_slices[futureSlice].right[1] << 9;
+  right.z = (int)(signed char)BWorldSm_slices[futureSlice].right[2] << 9;
   temp = fixedmult((carObj->N).linearVel.x,right.x) + fixedmult((carObj->N).linearVel.y,right.y) + fixedmult((carObj->N).linearVel.z,right.z);
 
   return temp;
@@ -595,12 +595,12 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
   if (roadSide == 1)
   {
     *goodLane = 7;
-    laneWidth = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1f) << 15;
+    laneWidth = BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthRt << 15;
   }
   else
   {
     *goodLane = 6;
-    laneWidth = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1e) << 15;
+    laneWidth = BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthLf << 15;
   }
 
 

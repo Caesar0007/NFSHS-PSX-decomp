@@ -2,6 +2,7 @@
 #ifndef _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #include "femenuoptions_types.h"
+#include "shared/SPEECHINFO.h"
 extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
 extern "C" void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
@@ -51,7 +52,7 @@ void Font_TextColor(int);  void Font_TextTint(int);  void Font_TextXY(char*,int,
 void DrawShapeFlat(int,int,int,int,int);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 
-extern char ginfo[256];  extern int gFlip;  extern int Draw_gPlayer1View;
+extern SPEECHINFO ginfo;   /* real type; was char[256] */  extern int gFlip;  extern int Draw_gPlayer1View;
 DRAWENV *Draw_GetDRAWENV(int,int); /* retail FCN PTR STRUCT DRAWENV */
 int  TextSys_WordFlags(int);
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char*);
@@ -72,7 +73,7 @@ static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it
 
 static inline unsigned char ListIterator_Max(tListIterator *it) { return it->fMaxValue; }
 
-static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
+static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo.areLoading; }
 
 static inline int Text_BrightColor(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][5]]; }
 

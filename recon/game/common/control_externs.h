@@ -5,14 +5,15 @@
 extern Sim_tSimGlobalVar   simGlobal;          /* Sim.obj */
 #define CONTROL_GAME_TICKS (*(int *)((char *)&simGlobal + 4))
 extern int                Cars_gNumAICars;     /* Cars.obj  */
-extern int                Input_gSim;          /* Input.obj word view */
+#include "shared/Input_tResults.h"
+extern Input_tResults     Input_gSim;          /* Input.obj (real type; was a word view) */
 /* Owner SYM: steering CHAR@0, gas/brake/flags UCHAR@1/2/3. */
 /* The opaque aggregate trial changes this caller's address expansion
  * (26 diffs/282 versus 288); retain the proven four-byte view for review. */
-#define CONTROL_INPUT_STEERING (*(signed char *)&Input_gSim)
-#define CONTROL_INPUT_GAS (((u_char *)&Input_gSim)[1])
-#define CONTROL_INPUT_BRAKE (((u_char *)&Input_gSim)[2])
-#define CONTROL_INPUT_FLAGS (((u_char *)&Input_gSim)[3])
+#define CONTROL_INPUT_STEERING ((signed char)Input_gSim.steering)   /* plain char is unsigned in this build; retail reads it signed */
+#define CONTROL_INPUT_GAS (Input_gSim.gas)
+#define CONTROL_INPUT_BRAKE (Input_gSim.brake)
+#define CONTROL_INPUT_FLAGS (Input_gSim.flags)
 extern GameSetup_tData     GameSetup_gData;     /* gmesetup.obj */
 #define CONTROL_MIRROR_TRACK (*(int *)((char *)&GameSetup_gData + 44))
 extern int                HudBustedOverlay;    /* Hud.obj   */

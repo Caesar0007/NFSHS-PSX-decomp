@@ -8,7 +8,6 @@ extern CVECTOR * Chunk_lightTable;
 extern Chunk *Track_chunkList;
 extern coorddef * Chunk_chunkCenters;
 extern int  xzsquaredist32(coorddef *, coorddef *);
-extern int BWorld_gChunkBuildList[];
 int  Math_DistXZ(coorddef *a, coorddef *b);
 void Math_NormalizeVector(coorddef *v);
 extern "C" {

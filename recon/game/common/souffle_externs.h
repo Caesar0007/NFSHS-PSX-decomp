@@ -11,8 +11,9 @@ struct Sched_tSchedule;
 extern Sim_tSimGlobalVar simGlobal;   /* 0x8011e0ac (real type; was an int view) */
 #define SOUFFLE_GAME_TICKS simGlobal.gameTicks
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
-extern int               Replay_ReplayInterface[8];
-#define SOUFFLE_REPLAY_SPEED Replay_ReplayInterface[1]
+#include "shared/tReplayInterface.h"
+extern tReplayInterface   Replay_ReplayInterface;   /* real type; was an int[8] view */
+#define SOUFFLE_REPLAY_SPEED Replay_ReplayInterface.speed
 extern void Sfx_Add(Souffle_tISouffle *);
 extern void Sfx_BuildSouffleFacet(DRender_tView *, Souffle_tISouffle *);
 extern void Sfx_Transform(coorddef *worldpt, SVECTOR *campt, coorddef *t);

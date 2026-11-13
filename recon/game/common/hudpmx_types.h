@@ -9,10 +9,7 @@
 
 
 
-struct HudPmx_tUV {
-    u_char u0, v0;
-    u_short clut;
-};
+#include "shared/HudPmx_tUV.h"
 
 #include "textsys_types.h"   /* retail hudpmx.obj: the full core + draw leaf first, kernpair after HudPmx_tUV */
 #include "gamesetup_leaf_types.h"

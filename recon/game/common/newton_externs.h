@@ -71,7 +71,7 @@ extern u_long              gWSavePtr;
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" unsigned long SetSp(unsigned long stack_pointer);
+extern "C" unsigned long SetSp(unsigned long);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"

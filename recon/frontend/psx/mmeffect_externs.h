@@ -4,8 +4,8 @@
 #define _FRONTEND_PSX_MMEFFECT_EXTERNS_H_
 #include "mmeffect_types.h"
 
-extern "C" int GetTPage(...);
-extern "C" void SetDrawMode(...);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
+extern "C" void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 
 /* GPU packet build cursors (byte-addressable), shared with PSXFRONT.CPP */
 

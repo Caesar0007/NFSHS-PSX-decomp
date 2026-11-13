@@ -17,7 +17,7 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sstop.h"
 }
 extern "C" {
-void *SetSp(...);
+unsigned long SetSp(unsigned long);
 void *memcpy(...);
 int sprintf(char *buffer, char *fmt, ...);
 }

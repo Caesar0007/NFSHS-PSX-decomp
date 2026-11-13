@@ -26,8 +26,8 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sstrstat.h"
 }
 extern "C" {
-int CdDiskReady(...);
-int GetRCnt(...);
+int CdDiskReady(int mode);
+long GetRCnt(unsigned long);
 int sprintf(char *buffer, char *fmt, ...);
 unsigned int strlen(...);
 }

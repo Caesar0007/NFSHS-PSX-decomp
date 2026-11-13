@@ -44,7 +44,7 @@ void  trap(int code);
 void AIInit_ClearAICar(Car_tObj *carObj);
 void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj);
 void AI_ChooseNewLaneSlack(Car_tObj *carObj);
-extern "C" void *SetSp(...);
+extern "C" unsigned long SetSp(unsigned long);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/fixdmult.h"

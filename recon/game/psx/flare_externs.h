@@ -47,7 +47,7 @@ extern "C" {
 extern "C" {
 long VectorNormal(VECTOR *input, VECTOR *output);
 MATRIX *RotMatrixZ(long angle, MATRIX *matrix);
-void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
+void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 }
 
 extern long           Camera_gGeomScreen;    /* 0x8013c7dc (owner: camera) */

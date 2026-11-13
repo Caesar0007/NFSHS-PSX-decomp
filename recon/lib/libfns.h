@@ -27,29 +27,29 @@ extern "C" {
  * ===================================================================== */
 #ifndef NFS4_PSYQ_HEADERS
 /* ---- libgpu (graphics) ---- */
-int ClearImage(...);   /* (RECT *rect, u_char r, u_char g, u_char b) */
+int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);   /* (RECT *rect, u_char r, u_char g, u_char b) */
 u_long * ClearOTagR(...);   /* (u_long *ot, int n) */
 void DrawOTag(...);   /* (u_long *) */
-long DrawSync(...);   /* (long mode) */
-unsigned short GetClut(...);   /* (int,int) */
-int GetTPage(...);   /* (int,int,int,int) */
+int DrawSync(int mode);   /* (long mode) */
+unsigned short GetClut(int x, int y);   /* (int,int) */
+unsigned short GetTPage(int tp, int abr, int x, int y);   /* (int,int,int,int) */
 int LoadImage(...);   /* (RECT * recp, u_long * p) */
 int MoveImage(...);   /* (RECT *rect, int x, int y) */
 DISPENV * PutDispEnv(...);   /* (DISPENV *) */
 DRAWENV * PutDrawEnv(...);   /* (DRAWENV *) */
-DISPENV * SetDefDispEnv(...);   /* (DISPENV *, int, int, int, int) */
+DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);   /* (DISPENV *, int, int, int, int) */
 DRAWENV * SetDefDrawEnv(...);   /* (DRAWENV *, int, int, int, int) */
 void SetDispMask(...);   /* (int) */
-void SetDrawArea(...);   /* (DR_AREA *p, RECT *r) */
+void SetDrawArea(DR_AREA *p, RECT *r);   /* (DR_AREA *p, RECT *r) */
 void SetDrawEnv(...);   /* (void *, DRAWENV *) */
-void SetDrawMode(...);   /* (void*,int,int,int,RECT*) */
+void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);   /* (void*,int,int,int,RECT*) */
 void SetDrawStp(...);   /* (void *p,int stp) */
 void SetPolyF3(...);   /* (POLY_F3 *p = 0) */
-void SetPolyF4(...);   /* (void*) */
+void SetPolyF4(POLY_F4 *p);   /* (void*) */
 void SetPolyFT4(...);   /* (void*) */
-void SetPolyG4(...);   /* (POLY_G4 *p) */
-void SetPolyGT4(...);   /* (POLY_GT4 *p) */
-void SetSemiTrans(...);   /* (void*,int) */
+void SetPolyG4(POLY_G4 *p);   /* (POLY_G4 *p) */
+void SetPolyGT4(POLY_GT4 *p);   /* (POLY_GT4 *p) */
+void SetSemiTrans(void *p, int abe);   /* (void*,int) */
 void SetShadeTex(...);   /* (void*,int) */
 void SetTexWindow(...);   /* (void *prim, RECT *tw) */
 int StoreImage(...);   /* (RECT *rect, u_long *p) */
@@ -63,10 +63,10 @@ void SetGeomScreen(...);   /* (int h) */
 int VectorNormal(...);   /* (VECTOR *v0, VECTOR *v1) */
 long VectorNormalS(...);   /* (VECTOR *v0, SVECTOR *v1) */
 /* ---- libetc (callback / vsync / rcnt / video) ---- */
-int GetRCnt(...);   /* (int spec) */
+long GetRCnt(unsigned long);   /* (int spec) */
 void ResetCallback(...);   /* (void) */
 void SetVideoMode(...);   /* (int) */
-int VSync(...);   /* (int) */
+int VSync(int mode);   /* (int) */
 void VSyncCallback(...);   /* (void *cb) */
 /* ---- libapi (kernel) ---- */
 void FlushCache(...);   /* (void) */
@@ -83,7 +83,7 @@ void PadStartCom(void);                           /* PsyQ 4.3 <libpad.h> */
  *  EA eaclib / syslib  +  libc  +  libgcc soft-float -- ALWAYS declared.
  *  (No PsyQ header declares these; safe under both toolchains.)
  * ===================================================================== */
-int CdDiskReady(...);   /* (int mode) -- EA wrapper, not PsyQ CdReady */
+int CdDiskReady(int mode);   /* (int mode) -- EA wrapper, not PsyQ CdReady */
 int FILE_addbigsync(...);   /* (char *name, void *a, int b, int *handle) */
 int FILE_closesync(...);   /* (int h) */
 int FILE_completeop(...);   /* (int oph) */
@@ -136,7 +136,7 @@ int SNDsetlimits(void *opts);   /* (void *opts) */
 int SNDstop(...);   /* (int handle) */
 int SNDtimeremaining(...);   /* (int handle) */
 void SNDvol(...);   /* (int handle, int vol) */
-void  * SetSp(...);   /* (void *sp) -- EA, not PsyQ */
+unsigned long SetSp(unsigned long);   /* (void *sp) -- EA, not PsyQ */
 double __adddf3(...);   /* (double, double) */
 double __divdf3(...);   /* (double, double) */
 float __divsf3(...);   /* (float a, float b) */

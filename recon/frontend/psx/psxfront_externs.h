@@ -26,12 +26,12 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 }
 extern "C" {
-long DrawSync(...);
-unsigned short GetClut(...);
-DISPENV *SetDefDispEnv(...);
-void SetPolyG4(...);
-void SetPolyGT4(...);
-void SetSemiTrans(...);
+int DrawSync(int mode);
+unsigned short GetClut(int x, int y);
+DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
+void SetPolyG4(POLY_G4 *p);
+void SetPolyGT4(POLY_GT4 *p);
+void SetSemiTrans(void *p, int abe);
 void InitGeom(...);
 void PAD_update(void);
 int sprintf(char *buffer, char *fmt, ...);

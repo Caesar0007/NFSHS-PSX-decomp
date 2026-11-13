@@ -32,14 +32,14 @@ extern void Texture_Vramcf(shapetbl *, int, int, int, int);
 
 extern "C" u_long *ClearOTagR(...);
 extern "C" void DrawOTag(...);
-extern "C" long DrawSync(...);
+extern "C" int DrawSync(int mode);
 extern "C" DISPENV *PutDispEnv(...);
 extern "C" DRAWENV *PutDrawEnv(...);
-extern "C" DISPENV *SetDefDispEnv(...);
+extern "C" DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
 extern "C" DRAWENV *SetDefDrawEnv(...);
 extern "C" void SetDispMask(...);
 extern "C" void SetDrawEnv(...);
 extern "C" void InitGeom(...);
-extern "C" int VSync(...);
+extern "C" int VSync(int mode);
 
 #endif

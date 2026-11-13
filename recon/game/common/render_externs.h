@@ -6,8 +6,8 @@
  * Fixed SDK interfaces; SetSp exchanges unsigned stack-address words.
  * Baseline backup/evidence: build/nc12/render_sdk_prototypes_20261022. */
 extern "C" int DrawSync(int mode);
-extern "C" u_short GetTPage(int tp,int abr,int x,int y);
-extern "C" void SetDrawMode(DR_MODE *p,int dfe,int dtd,int tpage,RECT *tw);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
+extern "C" void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 extern "C" void SetDrawStp(DR_STP *p,int pbw);
 extern "C" unsigned long SetSp(unsigned long);
 extern "C" int StoreImage(RECT *rect,u_long *p);

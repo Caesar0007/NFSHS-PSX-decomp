@@ -47,7 +47,7 @@ extern "C" {
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" void *SetSp(void *stack_pointer);
+extern "C" unsigned long SetSp(unsigned long);
 
 /* The PRNG step CheckForWipeOut reads: retail's SLD/SYM record it as a header inline (its block pair
    carries the caller's line, its loads the caller's statement line), not a .cpp-local one. */

@@ -64,9 +64,9 @@ void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x,
 
 
 extern "C" {
-int ClearImage(RECT *, u_char, u_char, u_char);
-long DrawSync(long);
-unsigned short GetTPage(int, int, int, int);
+int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
+int DrawSync(int mode);
+unsigned short GetTPage(int tp, int abr, int x, int y);
 int sprintf(char *buffer, char *fmt, ...);
 }
 

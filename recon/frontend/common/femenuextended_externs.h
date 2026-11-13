@@ -50,7 +50,7 @@ void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int)
   __asm__("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 
 extern "C" {
-void SetDrawArea(...);
+void SetDrawArea(DR_AREA *p, RECT *r);
 int sprintf(char *buffer, char *fmt, ...);
 unsigned int strlen(const char *);
 }

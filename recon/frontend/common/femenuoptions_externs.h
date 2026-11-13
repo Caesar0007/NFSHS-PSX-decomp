@@ -3,9 +3,9 @@
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #include "femenuoptions_types.h"
 extern "C" int sprintf(char *buffer, char *fmt, ...);
-extern "C" int GetTPage(int, int, int, int);
-extern "C" int SetDrawMode(DR_MODE *, int, int, int, int);
-extern "C" int SetDrawArea(DR_AREA *, RECT *);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
+extern "C" void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+extern "C" void SetDrawArea(DR_AREA *p, RECT *r);
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 #include "shared/pad_module_globals.h"

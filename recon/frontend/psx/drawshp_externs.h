@@ -4,8 +4,8 @@
 #define _FRONTEND_PSX_DRAWSHP_EXTERNS_H_
 #include "drawshp_types.h"
 
-extern "C" int GetTPage(...);
-extern "C" void SetDrawMode(...);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
+extern "C" void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 
 extern tTexture_ShapeInfo *gHelpShapes;   /* P887: native768122 scalar pointer at0x80052a64. */
 

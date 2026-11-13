@@ -11,8 +11,8 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 }
 extern "C" {
-int ClearImage(RECT *, u_char, u_char, u_char);
-long DrawSync(long);
+int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
+int DrawSync(int mode);
 void SetVideoMode(int);
 int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(char *, char *);

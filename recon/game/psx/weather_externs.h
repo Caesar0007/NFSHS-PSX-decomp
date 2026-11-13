@@ -69,7 +69,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/trnspos.h"
 }
 extern "C" {
-void SetDrawMode(...);
+void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 }
 
 #endif /* WEATHER_EXTERNS_H */

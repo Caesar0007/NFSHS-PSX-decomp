@@ -62,7 +62,7 @@ extern "C" void *memset(void *, int, unsigned int);
 extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"
 }
-extern "C" int SetSp(int);
+extern "C" unsigned long SetSp(unsigned long);
 extern "C" void __builtin_delete(void *);
 
 /* spike-belt slice getter (header inline: retail records its inline pair at the caller's line) */

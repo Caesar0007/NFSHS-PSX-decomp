@@ -48,7 +48,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-long  DrawSync(long mode);
+int DrawSync(int mode);
 int   LoadImage(RECT *rect, u_long *data);
 int sprintf(char *buffer, char *fmt, ...);
 void *memset(void *dst, int value, size_t size);

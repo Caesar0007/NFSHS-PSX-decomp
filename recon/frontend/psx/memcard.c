@@ -263,7 +263,7 @@ extern int  addtimer(void (*proc)(void));
 extern int  deltimer(void (*proc)(void));
 extern void timedwait(int n);
 extern void asyncidle();
-extern int  VSync(int mode);                             /* libetc */
+extern int VSync(int mode);                             /* libetc */
 extern char *strcpy(char *dst, char *src);               /* libc */
 extern char *strcat(char *dst, char *src);
 extern char *strncpy(char *dst, char *src, int n);

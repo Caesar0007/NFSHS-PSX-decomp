@@ -24,10 +24,10 @@ extern u_char    currentfont[0xb8];       /* 0x80135ba0  (active font header buf
 
 /* ---- PsyQ libgpu ---- */
 extern "C" {
-extern int       DrawSync(int mode);
-extern u_short   GetTPage(int tp, int abr, int x, int y);
-extern void      SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
-extern void      SetSemiTrans(void *p, int abe);
+extern int DrawSync(int mode);
+extern unsigned short GetTPage(int tp, int abr, int x, int y);
+extern void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+extern void SetSemiTrans(void *p, int abe);
 }
 
 /* ---- game texture manager ---- */

@@ -22,7 +22,7 @@ extern "C" {
 }
 extern "C" {
 void DrawOTag(u_long *p);
-long DrawSync(long mode);
+int DrawSync(int mode);
 int MoveImage(RECT *rect, int x, int y);
 DISPENV *PutDispEnv(DISPENV *env);
 int VSync(int mode);

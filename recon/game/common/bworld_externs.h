@@ -79,7 +79,7 @@ extern "C" {
 extern "C" {
 /* LIBAPI.H (4.3) and the reconstructed TRNSPOS/XFORM owners supply these
    actual signatures; none is variadic. SetSp exchanges target-word values. */
-unsigned long SetSp(unsigned long stack_pointer);
+unsigned long SetSp(unsigned long);
 /* PsyQ 4.3 COFF/INCLUDE/RAND.H: no arguments, not an ellipsis function. */
 int rand(void);
 }

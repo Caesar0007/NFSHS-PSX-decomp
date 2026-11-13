@@ -90,7 +90,7 @@ extern "C" {
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
 void *memset(void *, int, int);
-void SetDrawArea(DR_AREA *, RECT *);
+void SetDrawArea(DR_AREA *p, RECT *r);
 }
 
 /* tDialog* vtables (defined in FEDialog.obj) */

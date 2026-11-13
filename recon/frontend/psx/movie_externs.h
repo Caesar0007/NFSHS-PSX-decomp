@@ -14,21 +14,21 @@ extern "C" {
 }
 extern "C" {
 extern int StCdIntrFlag;                 /* PsyQ libcd interrupt flag */
-int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
+int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
 int CdControl(u_char com, u_char * param, u_char * result);
 int CdControlB(u_char com, u_char * param, u_char * result);
 void * CdDataCallback(void * func);
 int CdRead2(int mode);
 void * CdReadyCallback(void * func);
 void * CdSearchFile(void * fp, char * name);
-void DecDCTReset(long mode);
-void DecDCTin(u_long * runlevel, long mode);
+void DecDCTReset(int mode);
+void DecDCTin(unsigned long *buf, int mode);
 long DecDCTinSync(long mode);
-void DecDCTout(u_long * cell, long size);
-long DecDCToutCallback(void * func);
-int DecDCTvlc(u_long * bs, u_long * buf);
+void DecDCTout(unsigned long *buf, int size);
+int DecDCToutCallback(void (*func)());
+int DecDCTvlc(unsigned long *bs, unsigned long *buf);
 int DecDCTvlcSize(int size);
-long DrawSync(long mode);
+int DrawSync(int mode);
 u_long * FntFlush(int id);   /* match real PsyQ libgpu.h proto (int, not long) */
 int LoadImage(RECT *rect, u_long *data);
 u_short PAD_state(int padID);

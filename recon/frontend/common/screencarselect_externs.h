@@ -171,7 +171,7 @@ extern "C" {
 DRAWENV *Draw_GetDRAWENV(int, int); /* retail FCN PTR STRUCT DRAWENV */
 extern "C" int gettick(void);
 extern "C" int sprintf(char *buffer, char *fmt, ...);
-extern "C" void SetDrawArea(DR_AREA *, RECT *);
+extern "C" void SetDrawArea(DR_AREA *p, RECT *r);
 
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */

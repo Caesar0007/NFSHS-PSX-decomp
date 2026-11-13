@@ -9,10 +9,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/vars.h"
 }
 extern "C" {
-int ClearImage(RECT *, u_char, u_char, u_char);
-long DrawSync(long);
+int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
+int DrawSync(int mode);
 int sprintf(char *buffer, char *fmt, ...);
-int GetTPage(int, int, int, int);
+unsigned short GetTPage(int tp, int abr, int x, int y);
 }
 
 /* --- globals --- */

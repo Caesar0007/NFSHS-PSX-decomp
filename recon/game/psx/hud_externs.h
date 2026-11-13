@@ -177,12 +177,12 @@ extern char countdown; extern int countdownTick_216;   /* countdown was stale in
 #define RaceType_HotPursuit 1
 
 extern "C" {
-void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
-void SetSemiTrans(void *packet, int abe);
+void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+void SetSemiTrans(void *p, int abe);
 void SetPolyF3(POLY_F3 *packet);
-void SetPolyF4(POLY_F4 *packet);
+void SetPolyF4(POLY_F4 *p);
 void SetPolyFT4(POLY_FT4 *packet);
-void SetPolyG4(POLY_G4 *packet);
+void SetPolyG4(POLY_G4 *p);
 u_short PAD_state(int padID);
 int ccos(int angle);
 int csin(int angle);

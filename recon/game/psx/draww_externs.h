@@ -19,7 +19,7 @@ extern "C" {
 }
 extern "C" {
 void SetTexWindow(void *, void *);
-void *SetSp(void *);
+unsigned long SetSp(unsigned long);
 void SetFarColor(int, int, int);
 void SetFogNear(int, int);
 }

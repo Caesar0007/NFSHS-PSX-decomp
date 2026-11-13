@@ -90,9 +90,9 @@ extern "C" {
 }
 extern "C" {
 u_long *ClearOTagR(u_long *ot, int n);
-long DrawSync(long mode);
+int DrawSync(int mode);
 MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
-void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
+void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 int sprintf(char *buffer, char *fmt, ...);
 char *strcat(char *destination, const char *source);
 char *strcpy(char *destination, const char *source);

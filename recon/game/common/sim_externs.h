@@ -101,7 +101,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 }
 extern "C" {
-void *SetSp(...);
+unsigned long SetSp(unsigned long);
 }
 
 #endif

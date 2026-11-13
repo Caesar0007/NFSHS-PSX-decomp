@@ -20,10 +20,10 @@ extern "C" {
 extern "C" {
 /* PsyQ libpress (MDEC) */
 void DecDCTReset(int mode);
-void DecDCToutCallback(void (*cb)(void));
-void DecDCTvlc(u_long *bs, u_long *buf);
-void DecDCTin(u_long *buf, long mode);
-void DecDCTout(u_long *buf, long size);
+int DecDCToutCallback(void (*func)());
+int DecDCTvlc(unsigned long *bs, unsigned long *buf);
+void DecDCTin(unsigned long *buf, int mode);
+void DecDCTout(unsigned long *buf, int size);
 /* PsyQ libgpu */
 /* eaclib */
 }

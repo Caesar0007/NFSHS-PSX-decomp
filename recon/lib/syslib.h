@@ -406,10 +406,10 @@ void _padIntRecvData();   /* PADIF */
 /* -- libpress -- */
 void Libp_table();   /* TABLE */
 extern int DecDCTvlcSize(int size);   /* VLC */
-extern int DecDCTvlc(u_long *bs, u_long *buf);   /* VLC */
+extern int DecDCTvlc(unsigned long *bs, unsigned long *buf);   /* VLC */
 extern void DecDCTReset(int mode);   /* LIBPRESS */
-extern void DecDCTin(u_long *buf, int mode);   /* LIBPRESS */
-extern void DecDCTout(u_long *buf, int size);   /* LIBPRESS */
+extern void DecDCTin(unsigned long *buf, int mode);   /* LIBPRESS */
+extern void DecDCTout(unsigned long *buf, int size);   /* LIBPRESS */
 extern int DecDCTinSync( int mode) ;   /* LIBPRESS */
 extern int DecDCToutCallback(void (*func)());   /* LIBPRESS */
 void MDEC_rest();   /* LIBPRESS */

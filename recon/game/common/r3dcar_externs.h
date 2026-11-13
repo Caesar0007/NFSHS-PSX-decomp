@@ -8,9 +8,9 @@
 /* Pruned C-linkage boundary declarations, without libfns.h's project-wide
  * type surface. sprintf below uses the canonical PsyQ4.3 STDIO.H signature;
  * do not treat the remaining reconstructed boundaries as verified prototypes. */
-extern "C" long DrawSync(...);
+extern "C" int DrawSync(int mode);
 extern "C" long VectorNormalS(...);
-extern "C" void *SetSp(...);
+extern "C" unsigned long SetSp(unsigned long);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/eac_mem.h"

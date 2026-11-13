@@ -22,8 +22,8 @@ extern void  TextureProcess_Init(void);                    /* sibling TexturePro
 extern int   TextureProcess_TransColorCheck(char *data, int numentry);
 extern int   TextureProcess_DepthColorCluts(char *data, int numentry);
 
-extern "C" unsigned short GetClut(...);
-extern "C" int GetTPage(...);
+extern "C" unsigned short GetClut(int x, int y);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
 extern "C" int LoadImage(...);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {

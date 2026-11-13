@@ -28,8 +28,8 @@ int   CalcFadeVal(int color, int fade);
 int   CalcFadeVal(int color, int packedRGB, int fade);
 
 extern "C" {
-void SetPolyF4(...);
-void SetSemiTrans(...);
+void SetPolyF4(POLY_F4 *p);
+void SetSemiTrans(void *p, int abe);
 }
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110B8): the unused inline of the

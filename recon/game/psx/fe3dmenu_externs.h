@@ -49,7 +49,7 @@ extern "C" {
 extern "C" {
 int   csin(int angle);
 int   ccos(int angle);
-void *SetSp(void *stack_pointer);
+unsigned long SetSp(unsigned long);
 }
 
 /* 3D car / texture / projection render */

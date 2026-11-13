@@ -73,7 +73,7 @@ void tDialogYesNo_ctor(tDialogYesNo*);
    (MCRD_savefile really returns int in memcard.c; return type is not mangled, so the
    `void` spelling is link-safe -- left alone, the caller ignores $v0.) */
 extern "C" {
-int VSync(...);
+int VSync(int mode);
 void PAD_restore(...);
 void padinit(...);
 int rand(...);

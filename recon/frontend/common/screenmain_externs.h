@@ -5,10 +5,10 @@
 
 extern "C" int rand(void);
 extern "C" int sprintf(char *buffer, char *fmt, ...);
-extern "C" unsigned short GetClut(int, int);
-extern "C" int GetTPage(...);
-extern "C" int ClearImage(...);
-extern "C" long DrawSync(...);
+extern "C" unsigned short GetClut(int x, int y);
+extern "C" unsigned short GetTPage(int tp, int abr, int x, int y);
+extern "C" int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
+extern "C" int DrawSync(int mode);
 extern "C" int gettick(void);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {

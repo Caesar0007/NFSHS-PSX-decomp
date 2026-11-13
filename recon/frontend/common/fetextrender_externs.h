@@ -30,7 +30,7 @@ extern "C" {
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(...);
-unsigned int strlen(...);
+int strlen(...);
 }
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }

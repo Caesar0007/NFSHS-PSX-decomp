@@ -217,14 +217,14 @@ void *locatebigentry(...);   /* (char *bigfile, char *name, int a, int *b, int s
 void *locatebigentryz(...);   /* (void * arg0) */
 void *locateshape(...);   /* (void *base, const char *tag, int n) */
 void *locateshapez(...);   /* (char *buf, char *name) */
-void * memcpy(...);   /* (void *dest, void *src, uint n) */
-void * memset(...);   /* (void *, int, int) */
+void *memcpy(...);   /* (void *dest, void *src, uint n) */
+void *memset(...);   /* (void *, int, int) */
 void movfxya(...);   /* (void *, int, int) */
 void padinit(...);
 int purgememadr(...);   /* (char *p) */
-int puts(...);   /* (const char *s) */
+void puts(char *);   /* (const char *s) */
 void qsort(...);   /* (void*, int, int, int(*)(char*, char*)) */
-int rand(...);
+int rand(void);
 int random(...);   /* (void) */
 void reorthogonalize(...);   /* (matrixtdef *m) */
 void  * reservememadr(...);   /* (const char *, int, int) */
@@ -242,13 +242,13 @@ void shapename(...);   /* (void *, int, char *) */
 void *shapepointer(...);   /* (void*, int) */
 int shapetoclutid(...);   /* (void * shape) */
 int sprintf(char *buffer, char *fmt, ...);   /* (char *, const char *, ...) */
-char * strcat(...);   /* (char *, const char *) */
-char * strchr(...);   /* (char*, int) */
+char *strcat(char *, char *);   /* (char *, const char *) */
+char *strchr(char *, char);   /* (char*, int) */
 int strcmp(...);   /* (char *, char *) */
-char * strcpy(...);   /* (char*, char*) */
-unsigned int strlen(...);   /* (char *) */
+char *strcpy(...);   /* (char*, char*) */
+int strlen(...);   /* (char *) */
 int strncmp(...);   /* (const char *, const char *, unsigned) */
-char  * strncpy(...);   /* (char *, char *, int) */
+char *strncpy(char *, char *, int);   /* (char *, char *, int) */
 char * strstr(...);   /* (const char *haystack, const char *needle) */
 int systemtask(...);   /* (int taskFlag) */
 void timedwait(...);   /* (int) */

@@ -7,7 +7,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/fixdmult.h"
 }
 extern "C" int sprintf(char *buffer, char *fmt, ...);
-extern "C" char *strcpy(char *destination, const char *source);
+extern "C" char *strcpy(...);
 
 /* arrays (technique #1: indexed globals so gcc computes a separate base reg) */
 extern Car_tObj         *Cars_gList[];

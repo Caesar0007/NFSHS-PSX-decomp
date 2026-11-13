@@ -77,6 +77,6 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"
 #include "eaclib/psx/eacpsxz/eac_matrix.h"
 }
-extern "C" void *memset(void *dst, int value, unsigned int size);
+extern "C" void *memset(...);
 
 #endif /* NEWTON_EXTERNS_H */

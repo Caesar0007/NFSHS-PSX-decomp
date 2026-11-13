@@ -9,7 +9,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-void *memcpy(void *destination, const void *source, unsigned int size);
+void *memcpy(...);
 }
 
 #endif

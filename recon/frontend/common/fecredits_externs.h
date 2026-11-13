@@ -39,9 +39,9 @@ bool  FECheat_IsCheatEnabled(int)
 
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
-char *strchr(...);
+char *strchr(char *, char);
 char *strcpy(...);
-unsigned int strlen(...);
+int strlen(...);
 }
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read

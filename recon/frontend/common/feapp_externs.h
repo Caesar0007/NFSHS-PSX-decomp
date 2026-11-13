@@ -89,7 +89,7 @@ extern "C" {
 }
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
-void *memset(void *, int, int);
+void *memset(...);
 void SetDrawArea(DR_AREA *p, RECT *r);
 }
 

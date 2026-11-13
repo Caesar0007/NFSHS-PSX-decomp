@@ -29,7 +29,7 @@ extern "C" {
 int CdDiskReady(int mode);
 long GetRCnt(unsigned long);
 int sprintf(char *buffer, char *fmt, ...);
-unsigned int strlen(...);
+int strlen(...);
 }
 
 extern bool Hud_kTurnSongOffNext;

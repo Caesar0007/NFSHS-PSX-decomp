@@ -29,7 +29,7 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sbremove.h"
 }
 extern "C" {
-char *strcat(...);
+char *strcat(char *, char *);
 char *strcpy(...);
 }
 

@@ -40,7 +40,7 @@ bool  FECheat_IsCheatEnabled(tCheatCode cheat);
 
 extern "C" {
 void qsort(...);
-int rand(...);
+int rand(void);
 int sprintf(char *buffer, char *fmt, ...);
 }
 

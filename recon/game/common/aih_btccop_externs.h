@@ -57,7 +57,7 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 /* Opaque owner-external class: keep only the canonical member-call symbol. */
 void AILife_PlaceCarAtLocation(Car_tObj *c, int rot);
 void AILife_PlaceCarAtLocation(Car_tObj *c, int slice, int lat, int dir, int spd, int rot);
-extern "C" void *memset(void *, int, unsigned int);
+extern "C" void *memset(...);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/eac_math.h"

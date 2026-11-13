@@ -5,7 +5,7 @@
 #ifndef NFS4_SPEECH_STRIP   /* speech.obj (speech_types.h) defines it LINK_STRIPPED: its standalone copies of the inline Speaker/MobileSpeaker/DispatchSpeaker members go to .text.strip */
 #define NFS4_SPEECH_STRIP
 #endif
-extern "C" int strlen(char *);   /* PsyQ4.3 STRINGS.H: declare these before the inline name comparisons (late/implicit declarations are not a portable C++ interface) */
+extern "C" int strlen(...);   /* PsyQ4.3 STRINGS.H: declare these before the inline name comparisons (late/implicit declarations are not a portable C++ interface) */
 extern "C" int strncmp(char *, char *, int);
 struct Car_tObj;
 #include "shared/SPCHNFSType_POSITION.h"

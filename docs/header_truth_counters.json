@@ -16,6 +16,6 @@
  "per_object_conditionals": 143,
  "sym_codegen_carriers": 175,
  "typeof_uses": 22,
- "variadic_only_prototypes": 72,
+ "variadic_only_prototypes": 81,
  "volatile_uses": 270
 }

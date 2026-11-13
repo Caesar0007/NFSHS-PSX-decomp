@@ -14,7 +14,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-void *memcpy(void *, const void *, unsigned int);
+void *memcpy(...);
 int sprintf(char *buffer, char *fmt, ...);
 int DrawSync(int mode);
 int atoi(...);

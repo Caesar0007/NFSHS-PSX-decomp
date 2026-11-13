@@ -51,7 +51,7 @@ extern "C" {
 int DrawSync(int mode);
 int   LoadImage(RECT *rect, u_long *data);
 int sprintf(char *buffer, char *fmt, ...);
-void *memset(void *dst, int value, size_t size);
+void *memset(...);
 }
 
 #endif /* TEXTUREPROCESS_EXTERNS_H */

@@ -264,11 +264,11 @@ extern int  deltimer(void (*proc)(void));
 extern void timedwait(int n);
 extern void asyncidle();
 extern int VSync(int mode);                             /* libetc */
-extern char *strcpy(char *dst, char *src);               /* libc */
-extern char *strcat(char *dst, char *src);
-extern char *strncpy(char *dst, char *src, int n);
-extern unsigned int strlen(char *s);
-extern int  strcmp(char *a, char *b);
+extern char *strcpy();               /* libc */
+extern char *strcat(char *, char *);
+extern char *strncpy(char *, char *, int);
+extern int strlen();
+extern int strcmp();
 extern CARDINFO *MCRD_getcard(int card);                 /* sibling memcard TU */
 
 /* ---- this TU's fns (fwd decls; intra-TU calls before definitions) ---- */
@@ -752,7 +752,7 @@ int MCRD_savefile(int card,MCRDFILE *pFILE)
        * cross-jump); a goto to a tail label puts the block at the end instead. */
 
 
-      if (0x20 < strlen(pFILE->title)) {
+      if (0x20U < strlen(pFILE->title)) {   /* retail compares unsigned; PsyQ strlen returns int */
 
 
 

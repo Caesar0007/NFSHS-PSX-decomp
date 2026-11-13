@@ -94,8 +94,8 @@ int DrawSync(int mode);
 MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 int sprintf(char *buffer, char *fmt, ...);
-char *strcat(char *destination, const char *source);
-char *strcpy(char *destination, const char *source);
+char *strcat(char *, char *);
+char *strcpy(...);
 }
 
 #endif

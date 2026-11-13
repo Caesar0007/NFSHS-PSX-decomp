@@ -76,7 +76,7 @@ extern "C" {
 int VSync(int mode);
 void PAD_restore(...);
 void padinit(...);
-int rand(...);
+int rand(void);
 int sprintf(char *buffer, char *fmt, ...);
 
 int   MCRD_handlecardevents(int);

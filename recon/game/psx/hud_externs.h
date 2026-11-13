@@ -187,7 +187,7 @@ u_short PAD_state(int padID);
 int ccos(int angle);
 int csin(int angle);
 int sprintf(char *buffer, char *fmt, ...);
-unsigned int strlen(const char *string);
+int strlen(...);
 }
 
 /* retail's SYM records an inline-call pair at every tick read in hud.cpp: the tick counter is read

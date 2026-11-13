@@ -100,7 +100,7 @@ struct AIState_Offroad : public AIState_Base {
     void Execute();
 };
 
-extern "C" void *memset(void *, int, unsigned int);
+extern "C" void *memset(...);
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *, int, coorddef *, int);
 struct AIState_NonActive : public AIState_Base {
     /* retail's inline body (aistate/aih_btccop/aih_btcperp all expand it): park the car */

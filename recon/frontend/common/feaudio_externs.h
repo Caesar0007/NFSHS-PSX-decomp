@@ -40,9 +40,9 @@ int    SNDover(...);
 int    SNDplay(...);
 void   SNDplaysetdef(...);
 int sprintf(char *buffer, char *fmt, ...);
-int    strcmp(...);
-char  *strcpy(...);
-char  *strncpy(...);
+int strcmp(...);
+char *strcpy(...);
+char *strncpy(char *, char *, int);
 }
 
 /* same-TU forward decls (called before defined) */

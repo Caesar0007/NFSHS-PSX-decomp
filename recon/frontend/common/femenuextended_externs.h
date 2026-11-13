@@ -52,7 +52,7 @@ void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int)
 extern "C" {
 void SetDrawArea(DR_AREA *p, RECT *r);
 int sprintf(char *buffer, char *fmt, ...);
-unsigned int strlen(const char *);
+int strlen(...);
 }
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }

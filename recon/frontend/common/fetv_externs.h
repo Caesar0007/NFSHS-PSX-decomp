@@ -2,7 +2,7 @@
 #ifndef _FE_SCREENS_FETV_EXTERNS_H_
 #define _FE_SCREENS_FETV_EXTERNS_H_
 #include "fetv_types.h"
-extern "C" int rand();
+extern "C" int rand(void);
 extern "C" unsigned short GetClut(int x, int y);
 extern tTexture_ShapeInfo *gHelpShapes; /* P886: native768122 scalar pointer. */
 void  FeDraw_SetABRMode(int abr);

@@ -908,7 +908,7 @@ int AudioMus_PlaySong(char *pattern)
 
       AudioMus_BuildPattern(pattern);
 
-      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3d))
+      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3dU))   /* retail compares unsigned (sltu); PsyQ strlen returns int, so the bound is the unsigned operand */
       {
         char title[128];
 

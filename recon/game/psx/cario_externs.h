@@ -47,7 +47,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/locatshp.h"
 #include "eaclib/psx/eacpsxz/memstd.h"
 }
-extern "C" char *strcat(...);
-extern "C" unsigned int strlen(...);
+extern "C" char *strcat(char *, char *);
+extern "C" int strlen(...);
 
 #endif

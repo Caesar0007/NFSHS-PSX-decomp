@@ -26,7 +26,7 @@ extern "C" {
 }
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
-unsigned int strlen(...);
+int strlen(...);
 }
 
 /* Retail fetools.obj opens .rodata with this unreferenced class tag. */

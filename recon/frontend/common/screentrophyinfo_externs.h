@@ -47,6 +47,6 @@ void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, int sz,
 
 
 
-extern "C" unsigned int strlen(...);
+extern "C" int strlen(...);
 
 #endif

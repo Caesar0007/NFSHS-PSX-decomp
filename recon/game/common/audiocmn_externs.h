@@ -29,8 +29,8 @@ extern "C" {
 }
 extern "C" {
 void *memcpy(...);
-int puts(...);
-char *strcat(...);
+void puts(char *);
+char *strcat(char *, char *);
 char *strcpy(...);
 }
 

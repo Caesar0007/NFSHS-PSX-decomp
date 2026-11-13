@@ -80,10 +80,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/random.h"
 }
 extern "C" {
-void *memset(void *dst, int value, int size);
+void *memset(...);
 /* Byte-copy contract: PsyQ4.3 MEMORY.H provides unsigned-int size_t;
  * GCC cp/decl.c registers this standard C builtin signature. */
-void *memcpy(void *, const void *, unsigned int);
+void *memcpy(...);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 void SetGeomScreen(int h);
 void SetPolyGT4(POLY_GT4 *p);

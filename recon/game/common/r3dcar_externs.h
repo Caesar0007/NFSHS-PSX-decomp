@@ -20,7 +20,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 }
 extern "C" int sprintf(char *buffer, char *fmt, ...); /* PsyQ4.3 STDIO.H:35 */
-extern "C" char *strcat(...);
+extern "C" char *strcat(char *, char *);
 extern "C" char *strcpy(...);
 
 extern "C" void trap(int code);                  /* gcc MIPS div-by-zero/overflow break helper */

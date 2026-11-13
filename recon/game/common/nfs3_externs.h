@@ -15,7 +15,7 @@ int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);
 int DrawSync(int mode);
 void SetVideoMode(int);
 int sprintf(char *buffer, char *fmt, ...);
-char *strcpy(char *, char *);
+char *strcpy(...);
 int FECheat_ActivateBonus__F10tCheatCode(int);
 int Front_Menu__F21tFront_ProcessingType(int);
 }

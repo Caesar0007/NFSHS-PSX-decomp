@@ -19,8 +19,8 @@ extern "C" {
 }
 extern "C" {
 int sprintf(char *buffer, char *fmt, ...);
-char *strcat(...);
-int strcmp(char *, char *); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */
+char *strcat(char *, char *);
+int strcmp(...); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */
 }
 
 /* ---- audio (audiocmn/audioclc/audiomus.obj) ---- */

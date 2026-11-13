@@ -351,6 +351,7 @@ measured mismatch that cannot be explained is logged, never fitted.
 | 2026-11-12 | 880f2ca98 | Phase 8e: removed 32 macros that nothing tests any more (per-object member-set selectors of tMenuItem/tMenu/menu items, old Group setter selectors, unused TD/TU keys) - 68 #define/#undef lines in 30 files. No measured change | 0 | 7 | 145 | 6 | 150 | 1336 |
 | 2026-11-12 | 80e881467 | Phase 8f: the three NFS4_KEY_OBJECT_* blocks that hid an inline member from the class key object are gone - the member is declared for every includer, the key object emits its standalone copy into .text.strip (+3 rows). Census 1336 -> 1333: retail's key objects do record these bodies | 0 | 7 | 145 | 6 | 153 | 1333 |
 | 2026-11-12 | 5da57ed46 | Phase 8g: 4 of the 6 remaining member conditionals removed. aihigh.obj TPDEF Car_tObj extra 1 -> 2 (the declaration-only GetCarObj in the owner was a fit; logged). Kept: CAudioList::Elems (its owner audedit does not know AudioElem) and tUserNameMenuItem::SetUpP (feapp-only body) | 0 | 7 | 145 | 6 | 154 | 1331 |
+| 2026-11-12 | 2df22b753 | Phase 8h: the feapp-only SetUpP member had the same statements as SetPostGameNameData; feapp now calls that name and both recording objects (FEMenuDefs, FEApp) include one definition (usernameitem_postgame_inline.h). One member conditional left in the tree: CAudioList::Elems | 0 | 7 | 145 | 6 | 154 | 1331 |
 
 ## Open mismatches (left unexplained on purpose)
 

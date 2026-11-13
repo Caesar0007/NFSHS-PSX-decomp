@@ -54,11 +54,11 @@ struct tMenuCommand;
 
 
 /* this owner defines neither tPlayer nor tInputKeyType: the int spellings it always used */
-#define tPlayer int
-#define tInputKeyType int
+
+
 #include "frontend/common/fescreen.h"
-#undef tPlayer
-#undef tInputKeyType
+
+
 
 
 

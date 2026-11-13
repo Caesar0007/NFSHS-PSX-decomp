@@ -225,15 +225,15 @@ struct tMenu;
 #include "shared/Skidmark_Chunk.h"
 #include "shared/tActiveLine.h"
 
-#define tPlayer int
-#define tInputKeyType int
+
+
 #include "shared/tShapeInformation.h"
 struct tMenuCommand;
 struct tMenu;
 #include "frontend/common/fescreen.h"
 #include "frontend/common/fedialog.h"
-#undef tPlayer
-#undef tInputKeyType
+
+
 
 
 

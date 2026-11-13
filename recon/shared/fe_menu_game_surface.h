@@ -9,8 +9,8 @@
 #define NFS4_FE_SURFACE_TMENU_INLINES
 #endif
 #include "shared/fe_menu_game_tmenucommand.h"   /* retail: tMenuCommand (tMenu forward copy) before tListIterator; opt-out NFS4_FE_SURFACE_NO_TMENUCOMMAND */
-#define tPlayer int
-#define tInputKeyType int
+#include "frontend/common/fe_player_types.h"
+#include "frontend/common/fe_input_enums.h"   /* the real tPlayer / tInputKeyType enums (were `#define ... int`; header-truth 4-C.3) */
 
 typedef struct tListIterator {
     short *fSelectionList;
@@ -102,6 +102,6 @@ struct tMenuItemInteractive : public tMenuItem {};
 #ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own types right after tMenuItemInteractive (nfs3.obj: tScreen) */
 #include NFS4_FE_SURFACE_HOOK
 #endif
-#undef tPlayer
-#undef tInputKeyType
+
+
 #endif

@@ -2,7 +2,7 @@
  "asm_label_aliases": 39,
  "classes_defined_more_than_once": 12,
  "codegen_views": 1,
- "enum_macro_fakes": 6,
+ "enum_macro_fakes": 0,
  "fake_inferred_ops": 0,
  "inferred_markers": 7,
  "link_stripped_rows_non_sdk": 139,

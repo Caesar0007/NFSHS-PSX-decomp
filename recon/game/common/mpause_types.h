@@ -23,24 +23,24 @@
 
 
 
-enum tInputKeyType {
-    kInput_KeyType_NoKey = 0,
-    kInput_KeyType_AlreadyProcessed = 1,
-    kInput_KeyType_Cross = 2,
-    kInput_KeyType_Circle = 4,
-    kInput_KeyType_Square = 8,
-    kInput_KeyType_Triangle = 16,
-    kInput_KeyType_L1 = 32,
-    kInput_KeyType_L2 = 64,
-    kInput_KeyType_R1 = 128,
-    kInput_KeyType_R2 = 256,
-    kInput_KeyType_Up = 512,
-    kInput_KeyType_Down = 1024,
-    kInput_KeyType_Left = 2048,
-    kInput_KeyType_Right = 4096,
-    kInput_KeyType_Start = 8192,
-    kInput_KeyType_Select = 16384
-};
+#define NFS4_FE_INPUT_NO_PLAYER
+#include "frontend/common/fe_input_enums.h"   /* one tInputKeyType definition (header-truth 4-C.3) */
+#undef NFS4_FE_INPUT_NO_PLAYER
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NFS4_MPAUSE_PAUSEMENU_ORDER   /* pausemenu.obj second pass: kernpair/tTexture/frontend block, then tPMenuCommandType */
 #define NFS4_MPAUSE_IN_PAUSEMENU
 #include "pausemenu_types.h"
@@ -61,11 +61,11 @@ enum tInputKeyType {
 
 
 /* unconditional since 2026-09-19: the iterator VIRTUALS take a tPlayer, so every TU that sees the classes needs it */
-typedef enum tPlayer {
-    kPlayerBoth = -1,
-    kPlayerOne = 0,
-    kPlayerTwo = 1
-} tPlayer;
+#include "frontend/common/fe_player_types.h"   /* one tPlayer definition (header-truth 4-C.3) */
+
+
+
+
 
 #if !defined(NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES) && !defined(NFS4_MPAUSE_SND_LATE)   /* mpause.obj: SND* after kernpair/AudioMus (tPauseMenuDefs block) */
 #include "shared/SNDSYSCAP.h"

@@ -11,7 +11,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/vars.h"
 }
 extern "C" {
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 extern tfrontEnd   frontEnd;

@@ -241,7 +241,7 @@ int shapedepth(...);   /* (void *shp) */
 void shapename(...);   /* (void *, int, char *) */
 void *shapepointer(...);   /* (void*, int) */
 int shapetoclutid(...);   /* (void * shape) */
-int sprintf(...);   /* (char *, const char *, ...) */
+int sprintf(char *buffer, char *fmt, ...);   /* (char *, const char *, ...) */
 char * strcat(...);   /* (char *, const char *) */
 char * strchr(...);   /* (char*, int) */
 int strcmp(...);   /* (char *, char *) */

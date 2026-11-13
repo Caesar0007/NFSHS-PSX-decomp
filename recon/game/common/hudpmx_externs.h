@@ -21,7 +21,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 #endif /* HUDPMX_EXTERNS_H */

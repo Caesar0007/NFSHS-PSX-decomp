@@ -18,7 +18,7 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/stimerem.h"
 }
 extern "C" {
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcat(...);
 int strcmp(char *, char *); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */
 }

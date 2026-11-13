@@ -186,7 +186,7 @@ void SetPolyG4(POLY_G4 *packet);
 u_short PAD_state(int padID);
 int ccos(int angle);
 int csin(int angle);
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 unsigned int strlen(const char *string);
 }
 

@@ -11,7 +11,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 #include "eaclib/psx/eacpsxz/eac_file.h"
 }
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* ---- replay state globals ----
  * Main-data declarations follow replay.obj's exact SYM/retail VA order. */

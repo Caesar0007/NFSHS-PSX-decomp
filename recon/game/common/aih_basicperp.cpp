@@ -10,7 +10,7 @@
 
 /* Retail aih_basicperp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* Semantic reconstruction names: retail SYM retains the inlined receiver
    scopes, but not the inline method identifiers. Owner-only bodies in the

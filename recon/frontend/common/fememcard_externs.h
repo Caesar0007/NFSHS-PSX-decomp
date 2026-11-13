@@ -77,7 +77,7 @@ int VSync(...);
 void PAD_restore(...);
 void padinit(...);
 int rand(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 
 int   MCRD_handlecardevents(int);
 void  MCRD_savefile(int, MCRDFILE_def*);
@@ -107,7 +107,7 @@ void  RestoreTournament(tTournamentManager*, tSaveTournament*);
 
 
 
-void  SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short);   /* overload of FE SavePinkSlipsCars(short,short) */
+
 
 void  SetPads();
 void  Front_ResetPSXController(int, int);

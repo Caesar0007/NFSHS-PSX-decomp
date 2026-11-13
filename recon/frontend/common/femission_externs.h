@@ -12,7 +12,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 

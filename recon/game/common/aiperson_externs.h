@@ -6,7 +6,7 @@
 extern "C" {
 #include "eaclib/psx/eacpsxz/fixdmult.h"
 }
-extern "C" int sprintf(char *buffer, const char *format, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" char *strcpy(char *destination, const char *source);
 
 /* arrays (technique #1: indexed globals so gcc computes a separate base reg) */

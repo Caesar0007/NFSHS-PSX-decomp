@@ -170,7 +170,7 @@ extern "C" {
 }
 DRAWENV *Draw_GetDRAWENV(int, int); /* retail FCN PTR STRUCT DRAWENV */
 extern "C" int gettick(void);
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" void SetDrawArea(DR_AREA *, RECT *);
 
 

@@ -65,7 +65,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/random.h"
 }
 extern "C" {
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 /* ---- this module (forward decls for intra-TU calls) ---- */

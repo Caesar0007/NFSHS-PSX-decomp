@@ -18,7 +18,7 @@ extern "C" {
 }
 extern "C" {
 void *memcpy(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */

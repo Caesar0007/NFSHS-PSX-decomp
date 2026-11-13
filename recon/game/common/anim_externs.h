@@ -18,7 +18,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/eac_file.h"
 }
 extern "C" {
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strstr(const char *haystack, const char *needle);
 }
 

@@ -31,7 +31,7 @@ extern int Weather_gSnowTrack;
 extern int Weather_gTrackIntensityLimit;
 
 #include "weather_externs.h"
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* weather.obj .data 0x80123384..0x8012349c, owned here since 2026-09-19 (was the retail dump data_8010CCD4_r16).
    The initialized tables come first; the uninitialized publics follow because cc1plus 2.8 emits them as

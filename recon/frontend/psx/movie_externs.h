@@ -40,7 +40,7 @@ DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
 DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);
 void SetDispMask(int mask);
 int SNDcdvol(int vol);
-int sprintf(char *dst, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 void StCdInterrupt(void);
 void StClearRing(void);
 u_long StFreeRing(u_long * base);

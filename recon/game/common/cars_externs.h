@@ -13,7 +13,7 @@ extern "C" {
 }
 extern "C" {
 void *memset(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(...);
 }
 

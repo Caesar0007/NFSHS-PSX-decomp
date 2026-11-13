@@ -14,7 +14,7 @@ extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
 void SetVideoMode(int);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(char *, char *);
 int FECheat_ActivateBonus__F10tCheatCode(int);
 int Front_Menu__F21tFront_ProcessingType(int);

@@ -15,7 +15,7 @@ extern "C" {
 }
 extern "C" {
 void *memcpy(void *, const void *, unsigned int);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 int DrawSync(...);
 int atoi(...);
 }

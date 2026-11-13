@@ -10,7 +10,7 @@
 
 /* Retail color.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* @0x80091ec0  IsNumChar(char c) -- line 454 */
 /* Matched NFS2 PC risk/IsNumChar.c confirms this digit/minus/plus return chain.

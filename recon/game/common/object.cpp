@@ -9,7 +9,7 @@
 /* Retail object.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 
 /* EXT/STAT data OWNED by object.obj */

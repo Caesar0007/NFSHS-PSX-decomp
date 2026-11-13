@@ -14,7 +14,7 @@
 
 /* Retail chunk.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* ---- chunk.obj-owned globals (.bss zero) ---- */
 CVECTOR      *Chunk_lightTable;      /* @0x8013c818 */

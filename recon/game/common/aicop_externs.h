@@ -17,7 +17,7 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
 int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"

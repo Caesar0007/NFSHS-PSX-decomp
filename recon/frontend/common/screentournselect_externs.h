@@ -67,7 +67,7 @@ extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
 unsigned short GetTPage(int, int, int, int);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 /* Explicit frontend selection (see screentournselect.cpp); a header inline, so SLD records its blocks at the caller's line. */

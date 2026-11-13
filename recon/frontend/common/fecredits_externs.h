@@ -38,7 +38,7 @@ bool  FECheat_IsCheatEnabled(int)
     __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 
 extern "C" {
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strchr(...);
 char *strcpy(...);
 unsigned int strlen(...);

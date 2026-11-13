@@ -56,7 +56,7 @@ extern "C" {
 }
 extern "C" {
 u_short PAD_state(int padID);
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 

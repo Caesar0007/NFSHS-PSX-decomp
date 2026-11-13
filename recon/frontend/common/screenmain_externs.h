@@ -4,7 +4,7 @@
 #include "screenmain_types.h"
 
 extern "C" int rand(void);
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" unsigned short GetClut(int, int);
 extern "C" int GetTPage(...);
 extern "C" int ClearImage(...);

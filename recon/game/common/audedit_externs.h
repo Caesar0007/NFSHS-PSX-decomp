@@ -8,6 +8,6 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 #endif /* _GAME_COMMON_AUDEDIT_EXTERNS_H_ */

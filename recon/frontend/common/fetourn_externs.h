@@ -41,7 +41,7 @@ bool  FECheat_IsCheatEnabled(tCheatCode cheat);
 extern "C" {
 void qsort(...);
 int rand(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 /* Retail fetourn.obj opens .rodata with this unreferenced class tag. */

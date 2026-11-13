@@ -15,7 +15,7 @@ static inline int NumCars(void) { return Cars_gNumCars; }
 
 /* Retail aihigh.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* ---- #75: aihigh.obj-owned anonymous vtables (real nfs4-f.exe bytes; pfn VAs symbolicated) ---- */
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */

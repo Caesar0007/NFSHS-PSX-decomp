@@ -93,7 +93,7 @@ u_long *ClearOTagR(u_long *ot, int n);
 long DrawSync(long mode);
 MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
 void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcat(char *destination, const char *source);
 char *strcpy(char *destination, const char *source);
 }

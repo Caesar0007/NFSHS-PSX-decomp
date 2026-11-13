@@ -19,7 +19,7 @@ extern "C" {
 extern "C" {
 void *SetSp(...);
 void *memcpy(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 /* ---- speech-event trigger fns: SPCHEVNT.C is #included into speech.cpp (it is part of Speech.obj), real prototypes there ---- */

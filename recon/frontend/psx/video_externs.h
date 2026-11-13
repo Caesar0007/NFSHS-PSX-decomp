@@ -28,7 +28,7 @@ int   mdecdone(int);
 }
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" int sprintf(char *out, const char *format, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */

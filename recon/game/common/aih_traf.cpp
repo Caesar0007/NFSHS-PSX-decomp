@@ -15,7 +15,7 @@ static inline int NumCars(void) { return Cars_gNumCars; }
 
 /* Retail aih_traf.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 
 /* ---- CheckForCops__14AIHigh_TrafficPi  AIHigh_Traffic::CheckForCops  [AIH_TRAF.CPP:32-56] SLD-VERIFIED ---- */

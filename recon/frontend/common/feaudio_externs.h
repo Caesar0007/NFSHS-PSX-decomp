@@ -39,7 +39,7 @@ void   SNDbankremove(...);
 int    SNDover(...);
 int    SNDplay(...);
 void   SNDplaysetdef(...);
-int    sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 int    strcmp(...);
 char  *strcpy(...);
 char  *strncpy(...);

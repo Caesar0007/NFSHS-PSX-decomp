@@ -29,7 +29,7 @@ extern int   Hud_BuildString(char *str, int x, int y, int rgb, int flag, bool ce
 extern void  Hud_FBuildF4(int x, int y, int yy, int w, int h, u_long col, char c0, char c1);
 extern char *TextSys_Word(int id);
 extern "C" int textpixels(char *s);
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern void  Font_TextColor(int idx);
 extern void  Font_TextXY(char *s, int x, int y);
 extern void  OptionsBarThing(int x, int y, int w, int h);

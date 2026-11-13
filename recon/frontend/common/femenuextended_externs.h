@@ -51,7 +51,7 @@ void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int)
 
 extern "C" {
 void SetDrawArea(...);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 unsigned int strlen(const char *);
 }
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */

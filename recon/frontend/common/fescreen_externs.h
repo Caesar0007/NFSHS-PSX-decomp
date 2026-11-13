@@ -67,7 +67,7 @@ void  FeAudio_systemtask(int);
 
 /* ===== libc / libgpu / libetc ===== */
 extern "C" {
-int sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 int DrawSync(int mode);
 int VSync(int mode);
 }

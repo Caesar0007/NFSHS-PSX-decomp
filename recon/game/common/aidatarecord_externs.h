@@ -37,6 +37,6 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 #include "eaclib/psx/eacpsxz/nloadpk.h"
 }
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 #endif /* _GAME_COMMON_AIDATARECORD_EXTERNS_H_ */

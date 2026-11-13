@@ -18,7 +18,7 @@ extern char textDefinitions[14][6];
 extern tTexture_ShapeInfo *gCurrentShapes;
 
 
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" int textpixels(char *);
 
 char *PlayerName(int);

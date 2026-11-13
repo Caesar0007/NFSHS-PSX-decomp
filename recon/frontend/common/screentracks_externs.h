@@ -11,7 +11,7 @@ extern "C" {
 extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 int GetTPage(int, int, int, int);
 }
 

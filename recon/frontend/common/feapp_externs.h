@@ -88,7 +88,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 }
 extern "C" {
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 void *memset(void *, int, int);
 void SetDrawArea(DR_AREA *, RECT *);
 }

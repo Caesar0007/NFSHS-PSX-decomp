@@ -34,7 +34,7 @@ void SetPolyGT4(...);
 void SetSemiTrans(...);
 void InitGeom(...);
 void PAD_update(void);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(...);
 }
 

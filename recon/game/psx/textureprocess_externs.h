@@ -50,7 +50,7 @@ extern "C" {
 extern "C" {
 long  DrawSync(long mode);
 int   LoadImage(RECT *rect, u_long *data);
-int   sprintf(char *buffer, const char *format, ...);
+int sprintf(char *buffer, char *fmt, ...);
 void *memset(void *dst, int value, size_t size);
 }
 

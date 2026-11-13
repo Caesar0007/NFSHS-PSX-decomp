@@ -11,7 +11,7 @@
 
 /* Retail pausemenu.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and
    gPause_CurrentY as file-static INT. */

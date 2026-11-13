@@ -9,7 +9,7 @@ int SNDover(int);
 int SNDSYS_getopts(SNDSYSOPTS *);
 int SNDSYS_setopts(SNDSYSOPTS *);
 int SNDstop(int);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 extern tfrontEnd   frontEnd;

@@ -6,7 +6,7 @@
 
 /* Retail fe3dmenu.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* fe3dmenu.obj front.data 0x80051260..0x800514B8, owned here since 2026-09-19 (SYM: all five are EXT symbols of
    fe3dmenu.obj, in this order; was the retail dump front_data_r00).  Uninitialized C++ publics. */

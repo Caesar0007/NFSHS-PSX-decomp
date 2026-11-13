@@ -17,7 +17,7 @@ static inline crimeType NoCrime(void) { return CRIME_NONE; }
 
 /* Retail aih_btcperp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
 

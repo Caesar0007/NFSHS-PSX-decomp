@@ -4,7 +4,7 @@
  */
 #include "statchk.h"
 
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 
 /* Retail records71db85/71dba4 declare BOOL[8] and scalar BOOL; the matching

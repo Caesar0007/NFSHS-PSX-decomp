@@ -36,7 +36,7 @@ static inline void SpikeBelt_Freshen(int timeNow) { SpikeBelt_SetFreshenTime(tim
 
 /* Retail aih_btccop.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern char gBlockadeTypes[5];

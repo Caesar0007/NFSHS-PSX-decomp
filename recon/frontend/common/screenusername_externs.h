@@ -3,7 +3,7 @@
 #define _FE_SCREENS_SCREENUSERNAME_EXTERNS_H_
 #include "screenusername_types.h"
 
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 extern tfrontEnd frontEnd;          /* FE state (.language) */
 

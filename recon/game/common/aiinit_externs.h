@@ -11,7 +11,7 @@ extern "C" {
 }
 extern "C" {
 void *memset(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 }
 
 /* AIDataRecord_AccTable_t / _CurveSpeedTable_t ctors now via `new Class(...)` (aidatarecord.obj) -- flat ctor externs removed */

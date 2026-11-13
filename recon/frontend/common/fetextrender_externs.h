@@ -28,7 +28,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/blkmov.h"
 }
 extern "C" {
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 char *strcpy(...);
 unsigned int strlen(...);
 }

@@ -11,7 +11,7 @@ extern char          *Paths_Paths[];           /* 0x80116468 */
 /* ---- eaclib / syslib / Draw helpers ---- */
 extern void  Draw_SetEnvironment(int w, int h, int edraw, int edisplay, int erase, int r, int g, int b);
 extern void  Draw_DrawDirectScreen(shapetbl *s, int x, int y);
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/eac_shape.h"

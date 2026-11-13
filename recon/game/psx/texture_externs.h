@@ -31,6 +31,6 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/memstd.h"
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 #endif /* TEXTURE_EXTERNS_H */

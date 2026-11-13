@@ -31,7 +31,7 @@ void PadSetAct(int, u_char *, int);
 int PadSetActAlign(int, u_char *);
 void PadStartCom(void);
 int rand(void);
-int sprintf(char *, const char *, ...);
+int sprintf(char *buffer, char *fmt, ...);
 void settrans(int);
  }
 

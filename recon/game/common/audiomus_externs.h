@@ -28,7 +28,7 @@ extern "C" {
 extern "C" {
 int CdDiskReady(...);
 int GetRCnt(...);
-int sprintf(...);
+int sprintf(char *buffer, char *fmt, ...);
 unsigned int strlen(...);
 }
 

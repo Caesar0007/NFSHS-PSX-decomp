@@ -11,7 +11,7 @@
 
 /* Retail aih_hum.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 
 /* ---- HighExecute__12AIHigh_Human  AIHigh_Human::HighExecute  [AIH_HUM.CPP:26-34] SLD-VERIFIED ---- */

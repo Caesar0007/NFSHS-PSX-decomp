@@ -3,7 +3,7 @@
 #define _FE_FEMENUDEFS_EXTERNS_H_
 #include "femenudefs_types.h"
 
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {

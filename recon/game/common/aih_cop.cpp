@@ -13,7 +13,7 @@
 
 /* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 
 extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
                               W57-A8: the `volatile` here was WRONG (it forced a re-LOAD of

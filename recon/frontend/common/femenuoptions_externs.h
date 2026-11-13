@@ -2,7 +2,7 @@
 #ifndef _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #include "femenuoptions_types.h"
-extern "C" int sprintf(char *, const char *, ...);
+extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern "C" int GetTPage(int, int, int, int);
 extern "C" int SetDrawMode(DR_MODE *, int, int, int, int);
 extern "C" int SetDrawArea(DR_AREA *, RECT *);

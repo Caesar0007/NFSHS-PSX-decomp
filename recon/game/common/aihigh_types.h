@@ -19,20 +19,20 @@
    their completed tags are omitted by AIHIGH.OBJ's linked debug graph. */
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 inline AIHigh_BTC_HumanPerp::AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
-struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
-    int perpMode_;
-    int creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_;
-    int originalMass_, originalMassInv_;
-    Car_tObj *closestCopCarObj_;
-    int closestCopCarDistanceMeters_;
-    AIHigh_BTC_AIPerp(Car_tObj *carObj);
-    ~AIHigh_BTC_AIPerp();
-    void AvoidCops();
-    void CalculateTimeTillContact();
-    void FindClosestCop();
-    void HighExecute();
-    void NewStage(AIHigh_BTC_HumanCop *cop);
-};
+#include "cls_AIHigh_BTC_AIPerp.h"   /* class AIHigh_BTC_AIPerp: no private copy (perpMode_ has its enum type) */
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

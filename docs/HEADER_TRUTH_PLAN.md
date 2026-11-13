@@ -224,9 +224,26 @@ Work, in this order:
   With real headers the type is visible; whether a record appears is the compiler's business. Remove them
   family by family and log the census effect.
 
-**Phase 9 - record order.** After phases 6-8 the only remaining job of the 271 order conditionals is record
-ORDER. Decide (ruling 3) between: keep them as the order mechanism, or replace the hook web by plain include
-lists per object in the order the retail SYM shows (one small ordered list per .cpp, no macros).
+**Phase 9 - record order (RULED 2026-11-14: keep order as a measurement, stop buying it with hooks).**
+The order of type records in an object is a fingerprint of what that .cpp included and in which sequence - the
+best evidence of the retail include graph - so it stays measured. The 271 order conditionals, 53 computed includes
+and 21 self-including "part" headers write the answer in per object and hide the cause, which in retail is one of:
+the .cpp included its headers in another sequence; the type lives in another header than we think; or the compiler
+emitted the record at first use, not at definition (debug-request law).
+
+Method:
+1. One file per retail header (`FEMENU.H`, `AIHIGH.H`, `SCREENPOST.H`, ...), types in retail's in-file order. The
+   existing `#line` anchors already give retail file names and line numbers for many classes.
+2. One explicit include list per object, in the sequence that object's SYM implies. No macros.
+3. Delete a hook only when the plain structure gives the same or fewer inversions for that object. Where it gives
+   more, log the inversion under Open mismatches; never keep or add a hook to win one back.
+4. Inversions are a tracked counter (SLINK lane), not a pass/fail gate.
+
+Sequence: last, after phases 7 and 8 (each of those changes record order). The four objects that picked up
+inversions in phase 4 (audedit, scene, screenaudio, screencontroller) are fixed here by include placement.
+Pilot first on the AI objects (aihigh.h is already close to a real header): measure how many hooks disappear at
+equal inversions before committing to the rest. Known limit: positions that depend on emission-at-first-use come
+from code, not includes, and may not be reproducible from header structure alone.
 
 **Phase 10 - bodies.** Per file, worst first (draww, drawc, aih_cop, aistate, collide, screencontroller):
 remove `goto` (law says same bytes), carriers and devices where a natural spelling matches, decompiler names
@@ -239,7 +256,8 @@ Gate per function: BYTE + SYM + SLD, as today.
 1. `tMenuItem` has two different bodies under the name `IsEnabled()` chosen per object. Give the second a
    descriptive name and show both everywhere?
 2. `virtual void Draw(bool) = 0` is pure only in the FEMenu owner. Make it pure everywhere?
-3. Record order: keep the hook macros, or replace them by per-object include lists?
+3. Record order: RULED 2026-11-14 - see phase 9 (measure, replace hooks by real headers + per-object include
+   lists, never keep a hook to win an inversion, pilot on the AI objects).
 4. View types for globals (ruling 2026-11-08 allows them when SYM stays exact, e.g. `extern int
    GameSetup_gData[650]`). They are the data-side equivalent of the class views removed in phase 4-B. Keep the
    ruling, or move to real types and accept the extra records?

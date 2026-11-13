@@ -1251,67 +1251,67 @@
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "CurrentMenuItem__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::CurrentMenuItem -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "GetMusic__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::GetMusic -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "GetScreen__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::GetScreen -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "ExitsWithBack__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::ExitsWithBack -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "HasOptionsMenu__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::HasOptionsMenu -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "CanContinue__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::CanContinue -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "Item__5tMenui",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::Item -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "HasFlag__5tMenuUi",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::HasFlag -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "SetVerticalHelp__5tMenus",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::SetVerticalHelp -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "SetChildMenu__5tMenuP5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::SetChildMenu -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {
    "object": "build/recon/frontend/common/femenu.cpp.o",
    "function": "CurrentItem__5tMenu",
-   "source": "recon/shared/tpdef_keys.h",
+   "source": "recon/frontend/common/fe_core_tmenu.h",
    "evidence": "tMenu::CurrentItem -- inline member (spelling of NFS4_FE_CORE_TMENU_ALL_INLINES; FESCR2 2026-11-09): retail FEMenu.obj records TPDEF tMenu x16 at the class (declaration + in-class inline bodies), ours 2 without them; declared LINK_STRIPPED via NFS4_FEMENU_TMENU_STRIPPED_DECLS and defined right after the class via NFS4_FEMENU_TMENU_STRIPPED_DEFS (recon/shared/tpdef_keys.h, FEMenu-only). FEMenu.obj emits the class key function, so this unreferenced standalone copy lands in .text.strip; SLINK /strip removes it (user ruling 2026-11-08 STRIPPED COPIES); absent from the retail MAP."
   },
   {

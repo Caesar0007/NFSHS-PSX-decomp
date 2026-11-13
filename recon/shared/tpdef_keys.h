@@ -102,11 +102,7 @@
 #define NFS4_TDN_tScreen
 #endif
 #ifdef NFS4_TU_FEMENU   /* FEMenu (tMenu/tMenuItem key TU): the retail inline-member sets (same spellings as NFS4_FE_CORE_TMENU_ALL_INLINES in fe_core_types.h/fe_core_tmenu.h), declared LINK_STRIPPED and defined right after each class (incl. the existing IsEnabled/NewMenu, moved from femenu_externs.h) -> TPDEF runs at the classes as retail; standalone copies in .text.strip.  tMenuItem: 10 of the 13 (retail class run 16 = typedef pair + IsEnabled/NewMenu + the in-class virtual TransitionOff/On bodies at FEMENU.H:274/275 (fe_core_types.h, NFS4_TU_FEMENU) + 10) (FESCR2) */
-#define NFS4_FEMENU_TMENU_STRIPPED_DECLS inline short CurrentItem() LINK_STRIPPED; inline void SetChildMenu(tMenu *child) LINK_STRIPPED; inline void SetVerticalHelp(short help) LINK_STRIPPED; inline bool HasFlag(unsigned int flag) LINK_STRIPPED; inline tMenuItem *Item(int n) LINK_STRIPPED; inline bool CanContinue() LINK_STRIPPED; inline bool HasOptionsMenu() LINK_STRIPPED; inline unsigned int ExitsWithBack() LINK_STRIPPED; inline tScreen *GetScreen() LINK_STRIPPED; inline unsigned int GetMusic() LINK_STRIPPED; inline tMenuItem *CurrentMenuItem() LINK_STRIPPED;
-#define NFS4_FEMENU_TMENU_STRIPPED_DEFS inline short tMenu::CurrentItem() { return fCurrentItem; } inline void tMenu::SetChildMenu(tMenu *child) { fChildMenu = child; } inline void tMenu::SetVerticalHelp(short help) { VertHelp = help; } inline bool tMenu::HasFlag(unsigned int flag) { return (fFlags & flag) != 0; } inline tMenuItem *tMenu::Item(int n) { return fItemList[n]; } inline bool tMenu::CanContinue() { return fNextMenu != (tMenu *)0x0 || (fFlags & 0x400) != 0 || fOnButtonPress != 0x0; } inline bool tMenu::HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; } inline unsigned int tMenu::ExitsWithBack() { return fFlags & 0x100; } inline tScreen *tMenu::GetScreen() { return fScreen; } inline unsigned int tMenu::GetMusic() { return fFlags & 0xf000; } inline tMenuItem *tMenu::CurrentMenuItem() { return fItemList[fCurrentItem]; }
 #else
-#define NFS4_FEMENU_TMENU_STRIPPED_DECLS
-#define NFS4_FEMENU_TMENU_STRIPPED_DEFS
 #endif
 #ifdef NFS4_TU_FEMENUEXTENDED   /* FEMenuExtended: retail full tMenu/tMenuItem inline-member sets (fe_core_types.h/fe_core_tmenu.h); its own headers carry #line anchors, so the key lives here (FESCR2) */
 #define NFS4_FE_CORE_TMENU_ALL_INLINES

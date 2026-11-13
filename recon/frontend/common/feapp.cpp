@@ -4,7 +4,7 @@
  */
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "../../lib/nfs4_new.h"
-#define NFS4_FEAPP_USERNAME_SETUP
+
 #include "feapp.h"
 
 
@@ -1552,14 +1552,14 @@ tAppCommand tFEApplication::RunPostGame()
 
 
 
-      menuDefs->menuItemUserName1.SetUpP(0, frontEnd.playerNameList[0]); screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer1Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer1Name);
+      menuDefs->menuItemUserName1.SetPostGameNameData(0, frontEnd.playerNameList[0]); screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer1Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer1Name);
     }
     if (this->needName[1] != 0)
     {
 
 
 
-      menuDefs->menuItemUserName2.SetUpP(1, frontEnd.playerNameList[1]);   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer2Name);
+      menuDefs->menuItemUserName2.SetPostGameNameData(1, frontEnd.playerNameList[1]);   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */ screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name); return this->MainLoop((tMenu *)&menuDefs->menuPostGamePlayer2Name);
     }
   }
 

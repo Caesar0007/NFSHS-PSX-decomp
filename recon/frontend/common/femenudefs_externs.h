@@ -123,7 +123,7 @@ static inline void CarIterator_SetFilter(tListIteratorCar &iterator, int filter)
 /* menu-item state test (retail records a variable-free inline pair on menuDefs->itemSaveGame) */
 /* tUserNameMenuItem setters: retail records these two inline bodies in FEMenuDefs.obj only, so they are defined here. */
 inline void tUserNameMenuItem::SetUserNameData(short player, char *data) { fPlayer = player; fMaxStringLength = 7; fCurrentRow = 0; fCurrentColumn = 0; fData = data; }
-inline void tUserNameMenuItem::SetPostGameNameData(short player, char *data) { fPlayer = player; fData = data; fMaxStringLength = 7; fCurrentRow = 0; fCurrentColumn = 0; }
+#include "usernameitem_postgame_inline.h"
 static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
 
 /* header inline (retail SLD records the caller's line for its block pair) */

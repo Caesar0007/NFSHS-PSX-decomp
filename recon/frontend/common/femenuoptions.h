@@ -116,9 +116,9 @@ NFS4_TD_tUserNameMenuItem struct tUserNameMenuItem : public tMenuItem {
     char fRowList[10][9];
     short fPlayer, fFadeVal, fFadeDir;
     bool fInTransition;
-#ifdef NFS4_FEAPP_USERNAME_SETUP  /* feapp RunPostGame only: retail inline pair (this $3, no param records); ORIGINAL-NAME-UNRESOLVED */
-    inline void SetUpP(short player, char *data) { fPlayer = player; fData = data; fMaxStringLength = 7; fCurrentRow = 0; fCurrentColumn = 0; }
-#endif
+
+
+
     /* declared for every includer */
     inline void SetUserNameData(short player, char *data);       /* body: femenudefs_externs.h - retail records it in FEMenuDefs.obj only */
 

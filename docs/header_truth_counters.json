@@ -7,7 +7,7 @@
  "enum_macro_fakes": 0,
  "fake_inferred_ops": 0,
  "goto_statements": 245,
- "header_conditionals_all": 589,
+ "header_conditionals_all": 588,
  "header_conditionals_member_visibility": 78,
  "header_conditionals_omit_type": 93,
  "inferred_markers": 7,

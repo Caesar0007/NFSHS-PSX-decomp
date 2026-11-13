@@ -72,7 +72,8 @@ These exist because a calling file did not see the real class. With single defin
 ### Phase 4-C - macro-faked enums (found 2026-11-13)
 17 frontend headers replace enums by macros (`#define tMenuTextState int`, `#define tMenuTextType int`, `#define textState_Hilighted 2`, also `tPlayer`, `tInputKeyType`, `tCheatCode`, earlier `tTrophySize`). With `int` the C++ mangled name of every function taking the enum changes, which is why asm-label aliases (FETextRender_WordWrapFade, FECheat_*) and int-typed virtual signatures (shared/fe_menu_game_surface.h) exist. Fix = include the one real enum definition (fetextrender_types.h, fe_player_types.h, fe_input_enums.h, fecheats_cheatcode.h) and drop the macros; expect ENTAG census changes in many objects - retail objects that call these functions without recording the enum are an open question.
 
-### Phase 5 - gate and comments
+### Phase 5 - gate and comments (5a DONE: counters tool + stale comments)
+Run `python tools/header_truth_counters.py --check` in every gate; `--save` only after a counter went down. Baseline 2026-11-13: fake ops 0, INFERRED 7, opaque views 0, codegen views 5, classes defined more than once 16 (about 10 real), per-object conditionals 143, stripped rows 139, asm-label aliases 43 (all files), macro-faked enum types 28.
 Add the counters above to the gate (must not rise). Fix the stale "manual _vf" file headers.
 
 ## Gate per change

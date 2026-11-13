@@ -96,17 +96,114 @@ Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, 0 build
 | asm-label aliases, all files | ~55 | 39 (none in frontend headers) |
 | per-object header conditionals | 176 | 143 |
 | stripped rows, non-SDK | 158 | 139 |
+| header conditionals, all kinds | (not measured) | 628 |
+| functions with conflicting prototypes | (not measured) | 96 |
+| `(...)`-only prototypes | (not measured) | 129 |
+| globals with conflicting types | (not measured) | 36 |
 
 Done: phases 1, 2, 3, 4 (a-x), 4-B.1-4, 4-C.1-3, 5a.
 
-Still open, in suggested order:
-1. Game-side menu header `shared/fe_menu_game_surface.h`: second definitions of tMenu, tMenuItem, tMenuItemInteractive, tListIterator, tListIteratorRange (+ tListIteratorIndexed in nfs3_types.h). The enum fakes that forced them are gone; replacing them means including frontend/common/felist_classes.h and fe_core_types.h from ~20 game objects (order effects expected).
-2. `tMenuItem` / `tMenu` member switches in fe_core_types.h / fe_core_tmenu.h. Two things need a ruling, not a mechanical edit: (a) two different bodies named `IsEnabled()` (`((fFlags ^ 1) & 1) != 0` vs `(fFlags & 1) == 0`) selected per object - retail had one name per body, the second name is unknown; (b) `virtual void Draw(bool) = 0` is pure only in the FEMenu owner.
-3. Key-object exceptions (`NFS4_KEY_OBJECT_*`, owner strip switches, speech.cpp's declaration-only virtual defaults): model as declare + LINK_STRIPPED + out-of-class body + link_stripped.json row.
-4. Order inversions introduced by single definitions (audedit, scene, screenaudio, screencontroller .obj): fix by include placement.
-5. The 143 per-object conditionals: almost all are type-ORDER dials (hooks that place a type at a given point of one object's record order). They do not change any class; decide whether they stay as the mechanism for record order.
-6. Remaining asm-label aliases (39, in .cpp files and game headers): classify legit (GTE/BIOS/EA templates) vs call-form fakes.
-7. Recover the unknown inline bodies listed under Open mismatches (FEMENU.H ~9 bodies is the largest).
+Open work: see "Deep analysis 2026-11-13 and revised roadmap" below.
+
+## Deep analysis 2026-11-13 and revised roadmap
+
+Scope measured: recon/game, recon/frontend, recon/shared = 831 headers (35.7k lines) and 181 sources (146.7k lines).
+Of the headers, 159 are per-object `*_types.h`, 146 per-object `*_externs.h`, 231 single-type `shared/*.h`.
+
+### What the tree still does wrong (by layer)
+
+**Layer 1 - class definitions (mostly fixed).** One definition per class now holds except the game-side menu
+header (5 classes) and `tListIteratorIndexed`. `tMenuItem` / `tMenu` still switch members per object.
+
+**Layer 2 - declarations are per object, and they disagree (NOT started).**
+Every object has its own `*_externs.h` that re-declares the functions and globals it uses. Measured:
+- 947 functions declared in externs; **96 are declared with more than one signature**
+  (`AIWorld_ApxSplineDistance`: `(Car_tObj*,Car_tObj*)`, `(Car_tObj*,int)`, `(int,Car_tObj*)`, `(int,int)`;
+  `CalcFadeVal` with 2, 3 and 4 arguments; `DrawSync`, `SetSp`, `GetTPage`, `sprintf`, `memset` in 3-5 forms);
+- **129 prototypes are `(...)` only** (no parameter types at all);
+- 491 globals declared `extern`; **36 with more than one declared type** - mostly "view" arrays:
+  `GameSetup_gData` in 7 forms (`[650]`, `[50][13]`, `[325][2]`, `[]`, real `GameSetup_tData`), `simGlobal` as
+  `int[6]` / `int[2]`, `Camera_gInfo`, `Cars_gList`, `highLevelAIObjs` as `AIHigh_Base*[]` vs `AIHigh_Traffic*[]`.
+
+A wrong prototype compiles silently in C linkage and gives a wrong mangled name in C++ (the reason asm-label
+aliases existed). Retail had one prototype per function in the defining module's header.
+
+**Layer 3 - header conditionals (partly fixed).** 628 non-guard conditionals, 921 distinct `NFS4_*` macros:
+
+| Kind | Count | Meaning |
+|---|---|---|
+| order / hook / pass | 271 | place a type at one point of one object's record order (53 computed includes, 21 self-including "type part" headers) |
+| member visibility | 116 | a class shows different members per object (femenuoptions.h 18, screenmemcard_types.h 15, screentournselect_types.h 15, fe_core_tmenu.h 10, screencarselect_types.h 10, fe_core_types.h 8) |
+| omit a type / record | 93 | a type is left out for one object (draww_types.h 14, audioclc_types.h 13, audiocmn_types.h 10) |
+| owner / key object | 47 | strip marking or key-object exception (legitimate mechanism) |
+| other / keyed on includer | 115 | mixed |
+
+**Layer 4 - function bodies (NOT started; partly covered by standing rulings).**
+
+| Construct | Count | Note |
+|---|---|---|
+| `SYM-CODEGEN-CARRIER` locals | 175 | draww 27, screencontroller 21, aih_cop 18 |
+| `DEVICE (exact-only)` | 138 | allowed by ruling when BYTE+SYM+SLD exact |
+| `goto` | 245 | retail had none (law: if/else + duplicated tail gives the same bytes); aistate 32, draww 27, collide 22 |
+| `volatile` in sources | 270 | ruling allows it only for MMIO / ISR-shared with evidence; feapp 25, audiocmn 23 need review |
+| `do { } while (0)` | 63 | allowed as scheduling barrier |
+| asm statements | 52 | GTE / BIOS / EA templates are allowed; the rest to classify |
+| asm-label aliases | 39 | none left in frontend headers; rest in .cpp and game headers |
+| `__typeof__` | 22 | |
+| decompiler names (`param_N`, `iVarN`, `in_`, `unaff_`) | 410 in 36 files | hrzsku 45, drawc 41, draww 38, r3dcar 31, front 29 |
+| `D_8xxxxxxx` data names | 43 | |
+
+**Layer 5 - comments.** 219 "Ghidra" mentions, 229 references to a `nfs4_types.h` that no longer describes the
+layout, 170 "inferred" notes. Cosmetic, but they misdescribe the code.
+
+**Layer 6 - unknown retail content.** The Open-mismatch table (inline bodies retail had and we cannot name).
+
+### Revised roadmap
+
+**Phase 6 - one prototype per function (highest value, mechanical, low risk).**
+1. Build `tools/prototype_audit.py`: for every C++ function the retail SYM gives a mangled name, and a mangled
+   name encodes the exact parameter types. Compare each prototype in the tree against it; report conflicts
+   between externs files and conflicts with the retail name. (C-linkage and PsyQ functions: compare against
+   the PsyQ 4.3 headers.)
+2. Create one module header per retail header name the SYM/SLD shows (e.g. `AIWORLD.H`, `FETEXTRENDER.H`),
+   holding the single prototype; every `*_externs.h` includes it instead of re-declaring.
+3. Fix call sites that only compiled because of a wrong prototype (int for pointer, missing arguments).
+
+Gate: bytes identical; `variadic_only_prototypes` 129 -> 0; conflicting prototypes 96 -> 0.
+
+**Phase 7 - one type per global.** Same audit for `extern` data: the retail SYM records each global's type.
+Replace view arrays by the real type where the object records it; where retail records no type for that object
+the access expression has to change (see ruling question 4). Counter: globals with more than one type 36 -> 0.
+
+**Phase 8 - finish the classes.**
+- Game-side menu header -> frontend headers (5 classes + `tListIteratorIndexed`).
+- `tMenuItem` / `tMenu` and the 116 member-visibility conditionals: flatten per class, keeping member order
+  (4q law), sweeping every includer's generated assembly. Needs rulings 1 and 2.
+- Key-object exceptions -> declare + LINK_STRIPPED + out-of-class body + link_stripped.json row.
+- The 93 "omit a type" conditionals: each hides a type from one object because retail does not record it there.
+  With real headers the type is visible; whether a record appears is the compiler's business. Remove them
+  family by family and log the census effect.
+
+**Phase 9 - record order.** After phases 6-8 the only remaining job of the 271 order conditionals is record
+ORDER. Decide (ruling 3) between: keep them as the order mechanism, or replace the hook web by plain include
+lists per object in the order the retail SYM shows (one small ordered list per .cpp, no macros).
+
+**Phase 10 - bodies.** Per file, worst first (draww, drawc, aih_cop, aistate, collide, screencontroller):
+remove `goto` (law says same bytes), carriers and devices where a natural spelling matches, decompiler names
+-> SYM names (the SYM names every recorded local), review each `volatile` against the MMIO/ISR rule.
+Gate per function: BYTE + SYM + SLD, as today.
+
+**Phase 11 - recover unknown bodies** from the Open-mismatch table (FEMENU.H first), using NFS4-PC and line gaps.
+
+### Rulings needed
+1. `tMenuItem` has two different bodies under the name `IsEnabled()` chosen per object. Give the second a
+   descriptive name and show both everywhere?
+2. `virtual void Draw(bool) = 0` is pure only in the FEMenu owner. Make it pure everywhere?
+3. Record order: keep the hook macros, or replace them by per-object include lists?
+4. View types for globals (ruling 2026-11-08 allows them when SYM stays exact, e.g. `extern int
+   GameSetup_gData[650]`). They are the data-side equivalent of the class views removed in phase 4-B. Keep the
+   ruling, or move to real types and accept the extra records?
+5. Phase 10 touches matched function bodies under the BYTE+SYM+SLD gate. Confirm it is in scope for this plan.
 
 ## Progress log
 

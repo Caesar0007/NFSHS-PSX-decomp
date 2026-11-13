@@ -35,6 +35,24 @@ def count():
         c['opaque_storage_views'] += len(re.findall(r'char _storage\[', s))
         c['asm_label_aliases'] += len(re.findall(r'\)\s*(?:__asm__|asm)\("', s))
         c['enum_macro_fakes'] += len(re.findall(r'^#define t[A-Z]\w* (?:int|short|char)\b', s, re.M))
+        c['variadic_only_prototypes'] += len(re.findall(r'\w\s*\(\s*\.\.\.\s*\)\s*;', s))
+        c['device_exact_only'] += s.count('DEVICE (exact-only)')
+        c['sym_codegen_carriers'] += s.count('SYM-CODEGEN-CARRIER')
+        c['typeof_uses'] += s.count('__typeof__')
+        if p.suffix in ('.cpp', '.c'):
+            c['goto_statements'] += len(re.findall(r'\bgoto\s+\w+;', s))
+            c['volatile_uses'] += len(re.findall(r'\bvolatile\b', s))
+            c['decompiler_names'] += len(re.findall(r'\b(?:param_\d+|local_[0-9a-f]+|[a-z]+Var\d+|in_\w+|unaff_\w+)\b', s))
+        if p.suffix in ('.h', '.inc'):
+            for m in re.finditer(r'^\s*#\s*(?:if|ifdef|ifndef|elif)\b(.*)$', s, re.M):
+                l = m.group(1)
+                if re.match(r'\s*!?(?:defined\()?\w+_H_?\)?\s*$', l):
+                    continue
+                c['header_conditionals_all'] += 1
+                if re.search(r'SURFACE|METHODS|INLINES|_INLINE\b', l):
+                    c['header_conditionals_member_visibility'] += 1
+                elif re.search(r'OMIT|_NO_', l) and not re.search(r'HOOK|_PASS|TYPE_PART', l):
+                    c['header_conditionals_omit_type'] += 1
         if p.suffix in ('.h', '.inc'):
             c['per_object_conditionals'] += len(COND.findall(s)) - len([g for g in GUARD.findall(s) if COND.search(g)])
             for n in CLASS.findall(s):

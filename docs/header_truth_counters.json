@@ -2,10 +2,20 @@
  "asm_label_aliases": 39,
  "classes_defined_more_than_once": 12,
  "codegen_views": 1,
+ "decompiler_names": 410,
+ "device_exact_only": 138,
  "enum_macro_fakes": 0,
  "fake_inferred_ops": 0,
+ "goto_statements": 245,
+ "header_conditionals_all": 628,
+ "header_conditionals_member_visibility": 116,
+ "header_conditionals_omit_type": 93,
  "inferred_markers": 7,
  "link_stripped_rows_non_sdk": 139,
  "opaque_storage_views": 0,
- "per_object_conditionals": 143
+ "per_object_conditionals": 143,
+ "sym_codegen_carriers": 175,
+ "typeof_uses": 22,
+ "variadic_only_prototypes": 129,
+ "volatile_uses": 270
 }

@@ -6,9 +6,7 @@
 #include "../../game/common/color_types.h"   /* ScreenDisplay frontend graph, but not ScreenDisplay's owner class/view. */
 #endif
 #define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
-#define NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
 #include "screendisplay_types.h"
-#undef NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
 #undef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 
 /* ScreenMemcard retains the input-key enum without the foreign player enum.

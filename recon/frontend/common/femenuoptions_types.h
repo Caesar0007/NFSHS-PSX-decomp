@@ -24,14 +24,14 @@ struct tMenu;
 #include "shared/tMenuCommand.h"
 #include "../../link_stripped.h"
 /* physadr: the complete SDK type (retail size 4) */
-#define NFS4_FEMENUOPTIONS_SURFACE
+
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE   /* tScreenControllerConfig `this` pair in the slider ProcessInput */
-#define NFS4_FE_CORE_MENUITEM_SETENABLED   /* tMenuItem::Enable()/Disable() -- retail's tMenuItem `this` pairs */
+
 #define NFS4_FE_LIST_RANGE_INLINE   /* tListIterator range accessors -- retail's tListIterator `this` pairs */
 #include "screencontroller_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
-#undef NFS4_FEMENUOPTIONS_SURFACE
+
 /* Replace ScreenController's narrow foreign views with the records and exact
  * member slices required by FeMenuOptions. */
 #undef tFEApplication

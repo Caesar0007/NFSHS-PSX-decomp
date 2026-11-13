@@ -5,7 +5,7 @@
 /* Front.obj retains the FEMenuDefs shared graph, but not FEMenuDefs' three owner records or its pointer-only screen views. */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "front_types.h"   /* retail Front: Force_tGlobal + tScreenControllerConfig + tRecordBuffer after the color graph */
 #define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "front_processing_type.h"   /* retail: tFront_ProcessingType right after tfrontEnd */
-#define NFS4_FRONT_SURFACE
+
 #define NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
 #define NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
 #define NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
@@ -260,6 +260,6 @@ struct tCarInLineup {
 
 
 
-#undef NFS4_FRONT_SURFACE
+
 #endif
 #endif

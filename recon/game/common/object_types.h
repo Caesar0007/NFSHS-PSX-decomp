@@ -1,4 +1,3 @@
-#define NFS4_GROUP_COUNT_SETTER_INLINE   /* color_types.h: Group::SetNumElements inline (object.cpp uses it) */
 #if !defined(NFS4_GAME_COMMON_OBJECT_TYPES_H)   /* first pass; object.obj's exact source-visible type surface reconstructed from SYM */
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */

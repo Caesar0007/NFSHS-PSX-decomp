@@ -52,9 +52,7 @@ struct tMenu; struct tDrawShapeExtended;
 #endif
 #include "fedialog.h"
 #ifdef NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS   /* owner records right after the early dialogs (retail screentracks/screenpinkslips/screenmain: tFEApplication after tDialogYesNo) */
-#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_EARLY_DIALOGS
 #include NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS
-#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_EARLY_DIALOGS
 #endif
 #endif
 #ifdef NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* retail (pinkslips/tracks): color.obj graph before the car/track graph */

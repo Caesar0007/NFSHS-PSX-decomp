@@ -21,9 +21,7 @@ struct tMenuCommand;
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE   /* ScreenMemcard supplies the exact shared frontend graph.  Exclude its memory-card, saved-game, and song records while retaining FE3d. */
 #define NFS4_SCREENMEMCARD_CONTROLLER_SURFACE
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-#define NFS4_SCREENDISPLAY_CONTROLLER_METHODS
 #include "screenmemcard_types.h"
-#undef NFS4_SCREENDISPLAY_CONTROLLER_METHODS
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_SCREENMEMCARD_CONTROLLER_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE

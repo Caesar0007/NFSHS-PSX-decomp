@@ -6,13 +6,7 @@
 #define NFS4_TU_FEMENUOPTIONS   /* owner identity: key object of the derived menu-item classes (FEMENUOPTIONS_KEY_STRIP) */
 #define NFS4_FE_NO_MENUITEM_INLINES   /* key TU of the menu-item family: in-class bodies would be emitted here (shared/tpdef_keys.h) */
 #include "../../lib/nfs4_new.h"
-#define NFS4_FE_CORE_MENUITEM_ISENABLED
-#define NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
-#define NFS4_FE_CORE_FEMENUOPTIONS_METHODS
 #include "femenuoptions.h"
-#undef NFS4_FE_CORE_FEMENUOPTIONS_METHODS
-#undef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
-#undef NFS4_FE_CORE_MENUITEM_ISENABLED
 
 
 

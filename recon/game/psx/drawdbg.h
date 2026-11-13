@@ -8,9 +8,7 @@
 #define _GAME_PSX_DRAWDBG_H_
 #define NFS4_CORE_HOOK_AFTER_DRMODE "game/psx/drawdbg_early.h"
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/kernpair.h"   /* retail: kernpair right after Draw_CarVertex */
-#define NFS4_GROUP_COUNT_SETTER_DECL_ONLY
 #include "../common/color_types.h"
-#undef NFS4_GROUP_COUNT_SETTER_DECL_ONLY
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"

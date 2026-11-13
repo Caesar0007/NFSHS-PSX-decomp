@@ -30,9 +30,7 @@ typedef struct matrixtdef MATRIX3DT;
 #endif
 #include "shared/Draw_tPixMap.h"
 #ifdef NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP   /* owner types right after Draw_tPixMap (r3dcar: Draw_tVertex) */
-#define NFS4_DRAW_LEAF_IN_HOOK
 #include NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP
-#undef NFS4_DRAW_LEAF_IN_HOOK
 #endif
 
 
@@ -53,9 +51,7 @@ typedef struct matrixtdef MATRIX3DT;
 #include "shared/Draw_PrimStruct.h"
 #include "shared/Draw_tCacheHeader.h"
 #ifdef NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER   /* owner types right after Draw_tCacheHeader (flare: Draw_FlareCache) */
-#define NFS4_DRAW_LEAF_IN_HOOK
 #include NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER
-#undef NFS4_DRAW_LEAF_IN_HOOK
 #endif
 
 

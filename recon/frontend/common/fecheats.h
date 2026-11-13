@@ -6,7 +6,6 @@
 #define NFS4_FE_TRACK_NO_PLAYER
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "fecheats_tracks_hook.h"   /* retail FECheats: tTrackClassType/tTrackInformation/tTrackManager right after tCarManager */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
-#define NFS4_TU_FECHEATS   /* owner identity (shared/tpdef_keys.h) */
 #include "fecheats_cheatcode.h"   /* retail: tCheatCode first */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail fecheats object: tListIterator, Indexed, Range */

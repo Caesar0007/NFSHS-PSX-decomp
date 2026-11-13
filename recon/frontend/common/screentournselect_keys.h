@@ -1,7 +1,6 @@
 #define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets (FESCR2) */
 /* screentournselect_keys.h -- ScreenTournSelect.obj type-order keys (tournselect surface only; included by
  * screentournselect_types.h inside its tournselect-only block). */
-#define NFS4_SCREENTOURNSELECT_OWNER_KEYS   /* tournselect-only marker (shared/tTournamentManager_inl.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */

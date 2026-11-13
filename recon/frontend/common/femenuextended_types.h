@@ -24,7 +24,6 @@ struct tMenu;
 #define NFS4_FE_CORE_CARS_LATE   /* retail FEMenuExtended: car tail after the color graph + tMenuNFS4 family */
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_LIST_NO_INDEXED   /* FEMenuExtended.obj: tListIterator + Range only */
-#define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 #include "../../link_stripped.h"   /* LINK_STRIPPED ctor copies below (FESCR2).  color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */

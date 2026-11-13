@@ -33,7 +33,6 @@ struct tMenu;
 #include "shared/POLY_F4.h"
 
 #define NFS4_FE_CORE_FEMENU_METHODS
-#define NFS4_FE_CORE_TMENU_KEY_TU   /* FEMenu.obj owns tMenu's virtuals */
 #include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes, then tMenu (NFS4_FE_CORE_TMENU_AFTER_ITEMS); no private copies (header-truth 4d) */
 
 

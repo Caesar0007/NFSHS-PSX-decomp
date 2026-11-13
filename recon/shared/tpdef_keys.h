@@ -21,11 +21,11 @@
 #define NFS4_TDN_tTierInfo tTierInfo
 #endif
 #if defined(NFS4_TU_FECREDITS) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H) || defined(NFS4_GAME_COMMON_NFS3_TYPES_H)
-#define NFS4_TD_tCredit
-#define NFS4_TDN_tCredit
+
+
 #else
-#define NFS4_TD_tCredit typedef
-#define NFS4_TDN_tCredit tCredit
+
+
 #endif
 #if defined(NFS4_TU_FEMENUEXTENDED) || defined(NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H)
 #define NFS4_TD_tMenuBlank

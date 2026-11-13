@@ -2,7 +2,6 @@
  *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar; 58 fns.
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
-#define NFS4_FE_CORE_SCREENCARSELECT_METHODS
 #include "screencarselect.h"
 
 /* Canonical PsyQ 4.3 LIBGPU.H:104. Retail SLD groups each rectangle setup

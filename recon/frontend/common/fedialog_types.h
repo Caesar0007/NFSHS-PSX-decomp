@@ -38,7 +38,7 @@ struct tMenuCommand;
 #else
 #include "shared/tMenuCommand.h"
 #endif
-#define NFS4_FE_CORE_FEDIALOG_METHODS
+
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #define NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
 #define NFS4_SCREENMEMCARD_FEDIALOG_ORDER   /* retail FEDialog memcard order (screenmemcard_types.h) */
@@ -46,7 +46,7 @@ struct tMenuCommand;
 #undef NFS4_SCREENMEMCARD_FEDIALOG_ORDER
 #undef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-#undef NFS4_FE_CORE_FEDIALOG_METHODS
+
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 #include "fedialog.h"
 #ifdef NFS4_FEDIALOG_DIRECT

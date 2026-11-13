@@ -4,11 +4,9 @@
 
 /* Retail inlines these members here; other key-function TUs must not emit out-of-line copies merely because they include the shared hierarchy. */
 /* (NONE_KEEP lifted: with the Speech graph present, retail Car_tObj no longer needs the AIState_None ctor record) */
-#define NFS4_AIH_BASICPERP_INLINE_SCOPE
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
 #include "aih_hierarchy_types.h"
-#undef NFS4_AIH_BASICPERP_INLINE_SCOPE
 
 enum forceFocus_t {
     FOCUS_NORMAL = 0,

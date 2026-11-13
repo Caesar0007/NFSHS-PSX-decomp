@@ -28,17 +28,9 @@ struct tMenu;
 
 #include "shared/tMenuCommand.h"
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
-#define NFS4_SCREENMEMCARD_FEAPP_METHODS
-#define NFS4_SCREENDISPLAY_FEAPP_METHODS
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-#define NFS4_FE_CORE_FEAPP_METHODS
-#define NFS4_FE_CORE_MENUITEM_SETENABLED   /* tMenuItem::Disable()/Enable() -- retail Redraw's item pairs */
 #include "screenmemcard_types.h"
-#undef NFS4_FE_CORE_MENUITEM_SETENABLED
-#undef NFS4_FE_CORE_FEAPP_METHODS
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-#undef NFS4_SCREENDISPLAY_FEAPP_METHODS
-#undef NFS4_SCREENMEMCARD_FEAPP_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
 #include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */

@@ -4,7 +4,6 @@
  *   TwoItemChoice}, + free MenuNFS4_DrawTextBox. Member defs; base ctors via init-lists; real virtuals.
  */
 #define NFS4_FEDIALOG_DIRECT
-#define NFS4_FE_CORE_FEDIALOG_ITEM_METHODS
 #include "fedialog_types.h"
 #include "fedialog_externs.h"
 

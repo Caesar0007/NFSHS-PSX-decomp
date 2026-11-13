@@ -267,6 +267,7 @@ Gate per function: BYTE + SYM + SLD, as today.
 | 2026-11-12 | db68d0bb7 | Phase 4-C.3:  /  removed (fe_menu_game_surface.h, nfs3_types.h, mmeffect_types.h); mpause_types.h uses the one definition. Macro-faked enum types: 0. Census unchanged | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | 7a756e5b7 | Phase 6a: sprintf declared in 12 spellings (27 of them ) -> the PsyQ 4.3 STDIO.H form everywhere; dead SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short) decl removed. All 1313 C++ prototypes audited compatible with retail mangled names | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | bec0e298d | Phase 6b: 20 PsyQ C functions declared in 2-4 different forms (many variadic) -> the exact PsyQ 4.3 prototype everywhere (116 declarations). Code identical in every object | 0 | 7 | 143 | 12 | 139 | 1662 |
+| 2026-11-12 | 16da27075 | Phase 6c: strcpy/strlen/strcmp/memcpy/memset/strcat/strncpy/strchr/rand/puts/InitGeom in the PsyQ 4.3 forms everywhere. Two sites depended on an unsigned strlen (audiomus.cpp, memcard.c): bound now unsigned at the call site | 0 | 7 | 143 | 12 | 139 | 1662 |
 
 ## Open mismatches (left unexplained on purpose)
 

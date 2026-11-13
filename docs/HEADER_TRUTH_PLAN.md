@@ -316,6 +316,7 @@ measured mismatch that cannot be explained is logged, never fitted.
 | 2026-11-12 | 7a756e5b7 | Phase 6a: sprintf declared in 12 spellings (27 of them ) -> the PsyQ 4.3 STDIO.H form everywhere; dead SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short) decl removed. All 1313 C++ prototypes audited compatible with retail mangled names | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | bec0e298d | Phase 6b: 20 PsyQ C functions declared in 2-4 different forms (many variadic) -> the exact PsyQ 4.3 prototype everywhere (116 declarations). Code identical in every object | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | 16da27075 | Phase 6c: strcpy/strlen/strcmp/memcpy/memset/strcat/strncpy/strchr/rand/puts/InitGeom in the PsyQ 4.3 forms everywhere. Two sites depended on an unsigned strlen (audiomus.cpp, memcard.c): bound now unsigned at the call site | 0 | 7 | 143 | 12 | 139 | 1662 |
+| 2026-11-12 | 62e1241f6 | Phase 8a: shared/fe_menu_game_surface.h no longer defines classes (includes felist_classes.h + fe_core_types.h); nfs3 tListIteratorIndexed copy removed; tMenuCommandType 15 copies -> shared/tMenuCommandType.h. Classes defined more than once: 0 real | 0 | 7 | 143 | 6 | 139 | 1662 |
 
 ## Open mismatches (left unexplained on purpose)
 

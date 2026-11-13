@@ -125,6 +125,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | bdbae86fe | Phase 4x: AIHigh_BTC_AIPerp = ONE definition; orphan shared/CarBank.h, LocationBank.h, CallSignBank.h (no includers) deleted | 0 | 7 | 143 | 15 | 139 | 1662 |
 | 2026-11-12 | 298af5835 | Phase 4-C.1: tMenuTextType / tMenuTextState = ONE enum definition each (shared/);  + constant macros removed from 11 headers; macro-faked enum count 28 -> 7; census unchanged | 0 | 7 | 143 | 12 | 139 | 1662 |
 | 2026-11-12 | 65f574ba1 | Phase 4-C.2: constant-macro fakes of the text enums removed from 6 headers; tCheatCode real enum in fetourn/screencarselect/fecars/fecredits; WordWrapFade (RECT&) and FECheat_*(tCheatCode) real prototypes. No asm-label aliases left in frontend headers | 0 | 7 | 143 | 12 | 139 | 1662 |
+| 2026-11-12 | db68d0bb7 | Phase 4-C.3:  /  removed (fe_menu_game_surface.h, nfs3_types.h, mmeffect_types.h); mpause_types.h uses the one definition. Macro-faked enum types: 0. Census unchanged | 0 | 7 | 143 | 12 | 139 | 1662 |
 
 ## Open mismatches (left unexplained on purpose)
 

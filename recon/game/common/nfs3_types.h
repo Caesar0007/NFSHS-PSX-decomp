@@ -316,7 +316,7 @@ enum tPersonalities {
 #include "shared/tCarLineup.h"
 #elif defined(NFS4_NFS3_FE_DONE) && !defined(NFS4_NFS3_LI_DONE)   /* fe_menu_game_surface.h hook 1 */
 #define NFS4_NFS3_LI_DONE
-struct tListIteratorIndexed : public tListIterator { char *fIndex; };
+
 #elif defined(NFS4_NFS3_LI_DONE) && !defined(NFS4_NFS3_SCR_DONE)   /* hook 2 (tPlayer/tInputKeyType are int inside the surface) */
 #define NFS4_NFS3_SCR_DONE
 

@@ -28,9 +28,10 @@ extern int               GameSetup_gData[];          /* owner word view, extent 
 #define DASHHUD_HUD_SPEED(index) (DASHHUD_CAR_ROW(index)->N.damage[139])
 #define DASHHUD_HUD_SPEED_MULT(index) (DASHHUD_CAR_ROW(index)->N.damage[140])
 extern int               Replay_ReplayMode;          /* replay.obj */
-extern int               Camera_gInfo[];             /* camera.obj */
-#define DASHHUD_CAMERA_ANCHOR(player) \
-    (*(BO_tNewtonObj **)((char *)Camera_gInfo + (player) * 272))
+#include "shared/camera_info.h"
+extern camera_info       Camera_gInfo[2];            /* camera.obj (real type; was an int view) */
+#define DASHHUD_CAMERA_ANCHOR(player) (Camera_gInfo[(player)].anchor)
+
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 /* sim.obj owns Sim_tSimGlobalVar (24 bytes), with INT gameTicks at +4.
  * Retail dashHUD.obj emits no body for that type. Keep the canonical

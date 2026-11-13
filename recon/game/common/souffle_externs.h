@@ -6,8 +6,10 @@
 /* real sizes (SYM: Sim_tSimGlobalVar 24 bytes, tReplayInterface 32 bytes): souffle.obj is a
  * -G8 object ("souffle" literal in retail .sdata) and both are accessed absolutely, which
  * only holds if their declared size exceeds 8. */
-extern int               simGlobal[6];             /* 0x8011e0ac */
-#define SOUFFLE_GAME_TICKS simGlobal[1]
+struct Sched_tSchedule;
+#include "shared/Sim_tSimGlobalVar.h"
+extern Sim_tSimGlobalVar simGlobal;   /* 0x8011e0ac (real type; was an int view) */
+#define SOUFFLE_GAME_TICKS simGlobal.gameTicks
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 extern int               Replay_ReplayInterface[8];
 #define SOUFFLE_REPLAY_SPEED Replay_ReplayInterface[1]

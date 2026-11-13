@@ -6,7 +6,7 @@
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 
-extern AIHigh_Traffic *highLevelAIObjs[];
+extern AIHigh_Base *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerTraffic;
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
 extern Car_tObj *Cars_gCopCarList[];

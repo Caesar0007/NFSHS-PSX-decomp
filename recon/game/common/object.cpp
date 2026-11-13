@@ -894,7 +894,7 @@ case 1:
         { AIHigh_Traffic *aicar;
 
           carObj = Cars_gTrafficCarList[i];
-          aicar = highLevelAIObjs[carObj->carIndex];
+          aicar = (AIHigh_Traffic *)highLevelAIObjs[carObj->carIndex];
 
 
 

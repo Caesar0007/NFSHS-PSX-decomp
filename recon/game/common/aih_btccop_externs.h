@@ -8,11 +8,12 @@
 
 extern "C" struct CARDINFO_def *MCRD_getcard(int);
 extern AICop_spikeBelt_t AICop_spikeBelt;
-extern void *AIDataRecord_TrackCurve;
+extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;
 int AIDataRecord_TrackCurve_Get(void *, int)
     asm("Get__25AIDataRecord_TrackCurve_ti");
 extern AIHigh_Base *highLevelAIObjs[];
-extern int AIHigh_CopGameType;   /* @0x8013c55c; retail owner emits no enum tag */
+#include "shared/AIHigh_CopGameType_t.h"
+extern AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c */
 #define COP_GAME_BTC_1HC 2
 #define COP_GAME_BTC_2HC 3
 #define COP_GAME_BTC_1HC1HP 4
@@ -35,7 +36,8 @@ extern int            Cars_gNumCars;
 extern int            gNumSlices;
 extern int   AIWorld_IsDriveableLane(int slice, int lane);
 extern int   AIWorld_IsDriveableLaneInSliceRange(int slice, int lookAhead, int rsControl, int dir);
-extern int AICop_gRoadBlockState; /* retail owner emits no enum tag */
+#include "shared/AICop_RoadBlockState.h"
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 #define kAICop_RoadBlockState_None 0
 #define kAICop_RoadBlockState_WaitingForPerp 1
 extern int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead);

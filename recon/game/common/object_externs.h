@@ -39,7 +39,7 @@ extern int                 gNumSlices;
 extern AnimDef             gAnimDefs[14];
 extern SaveSurface         *Track_gSaveSurface;
 extern Sim_tSimGlobalVar    simGlobal;
-extern AIHigh_Traffic     *highLevelAIObjs[];        /* per-car AI obj (accidentData_ @+0x20) */
+extern AIHigh_Base *highLevelAIObjs[];        /* per-car AI obj (accidentData_ @+0x20) */
 extern Car_tObj           *Cars_gTrafficCarList[];
 extern int                 Cars_gNumTrafficCars;
 extern Car_tObj           *Cars_gCopCarList[];

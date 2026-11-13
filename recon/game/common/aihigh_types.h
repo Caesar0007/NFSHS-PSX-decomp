@@ -74,12 +74,12 @@ typedef int CarLogic_tObservations[1][3];
 
 #elif !defined(NFS4_AIHIGH_WINGMAN_DONE)   /* second pass: aih_hierarchy_types.h NFS4_AIH_HIERARCHY_WINGMAN */
 #define NFS4_AIHIGH_WINGMAN_DONE
-enum AIHigh_CopGameType_t {
-    COP_GAME_NO = 0,
-    COP_GAME_PURSUIT = 1,
-    COP_GAME_BTC_1HC = 2,
-    COP_GAME_BTC_2HC = 3,
-    COP_GAME_BTC_1HC1HP = 4
-};
+#include "shared/AIHigh_CopGameType_t.h"   /* one AIHigh_CopGameType_t definition (header-truth 7a) */
+
+
+
+
+
+
 #include "shared/Wingman_Role.h"
 #endif

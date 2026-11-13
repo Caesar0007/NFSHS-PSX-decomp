@@ -36,11 +36,11 @@ enum crimeType {
 
 
 
-enum AICop_RoadBlockState {
-    kAICop_RoadBlockState_None = 0,
-    kAICop_RoadBlockState_WaitingForPerp = 1,
-    kAICop_RoadBlockState_PerpPassed = 2
-};
+#include "shared/AICop_RoadBlockState.h"   /* one AICop_RoadBlockState definition (header-truth 7a) */
+
+
+
+
 
 #include "shared/trigger_anyTrigger_t.h"
 #include "shared/trigger_simple_t.h"

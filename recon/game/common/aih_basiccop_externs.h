@@ -14,7 +14,8 @@ extern Trk_NewSlice  *BWorldSm_slices;
 extern int                 Object_customSliceNum;    /* 0x8013d2d4 */
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern int   Cars_topSpeedCap[22];              /* [carType] */
-extern int AICop_gRoadBlockState; /* retail owner emits no enum tag */
+#include "shared/AICop_RoadBlockState.h"
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 #define kAICop_RoadBlockState_None 0
 #define kAICop_RoadBlockState_PerpPassed 2
 extern int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint);

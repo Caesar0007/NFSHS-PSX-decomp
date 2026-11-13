@@ -925,7 +925,7 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 
   if (R3DCar_InMenu == 0) { recolor_flag = recolor_flag | 0x10;
   }
-  Texture_palCopy = (carObj->render).palCopy;
+  Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
 
 
   Texture_ResetPaletteSharing();
@@ -1144,7 +1144,7 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
 
   if (R3DCar_InMenu == 0) { recolor_flag = 0x18;
   }
-  Texture_palCopy = (carObj->render).palCopy;
+  Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
 
 
   Texture_ResetPaletteSharing();

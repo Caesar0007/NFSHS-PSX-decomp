@@ -7,7 +7,8 @@
 /* ---- harvested from sealed *_externs.h ---- */
 extern Draw_tPixMap *CarIO_carPixMap;
 extern int GameSetup_gData[650]; /* word view (2600 bytes): retail cario.obj records no GameSetup_tData (GAME15 / aicop_externs.h precedent) */
-extern void           *Texture_palCopy;         /* 0x8013db0c */
+struct Texture_pal8bit;
+extern Texture_pal8bit *Texture_palCopy;         /* 0x8013db0c */
 extern int             Texture_palNum;          /* 0x8013db10 */
 extern int R3DCar_InMenu;
   /* generic shape-data ptr (int, char, void ptr) */

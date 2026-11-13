@@ -22,8 +22,10 @@ extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
  * for unsized/six-word signed and unsized unsigned reference views alike.
  * This preserved legacy view is not a claim of a two-word original object.
  * Recover its address/allocation graph before replacing the declaration. */
-extern int simGlobal[2];
-#define STATS_GAME_TICKS simGlobal[1]
+struct Sched_tSchedule;
+#include "shared/Sim_tSimGlobalVar.h"
+extern Sim_tSimGlobalVar simGlobal;   /* 0x8011e0ac (real type; was an int view) */
+#define STATS_GAME_TICKS simGlobal.gameTicks
 /* Retail sim.obj records simVar as Sim_tSimSystemVar size28, with INT
  * endSimGame at +4; stats.obj emits no body for that type. An opaque
  * declaration plus word reference preserves both reads and writes and all

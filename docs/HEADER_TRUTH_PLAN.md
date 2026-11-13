@@ -209,7 +209,7 @@ the tree declares. 1022 agree. The exact remainder:
 Work, in this order:
 1. The 19 "other" views and the 4 scalars: declare the retail type, adjust the access expressions
    (`simGlobal[1]` -> `simGlobal.gameTicks`), sweep. Same nature as the class views removed in phase 4-B.
-2. `GameSetup_gData` (56): needs ruling 4. The views exist because most objects do not record `GameSetup_tData`.
+2. `GameSetup_gData` (55 view declarations): KEPT, see ruling 4 (revised). The other views are done (7a, 7b).
 3. The 16 unsized-array scalars are a code-generation lever: an unsized extern array is never addressed through
    `$gp`. Before touching them, find out why retail does not use `$gp` for these in those objects - if the same
    objects avoid `$gp` for all small data, the truth is a per-object `-G0` in the retail build, not 16 declarations.
@@ -260,9 +260,17 @@ Gate per function: BYTE + SYM + SLD, as today.
    classes that are instantiated must declare their override; copies that do not are fixed, not exempted.
 3. Record order: see phase 9 (measure it, replace hooks by real headers + per-object include lists, never keep a
    hook to win an inversion, pilot on the AI objects).
-4. Globals get their retail type everywhere. View declarations (`extern int GameSetup_gData[650]`, `simGlobal`
-   as `int[6]`, ...) are removed; the extra type records this produces in objects where retail has none are
-   logged as open mismatches. This supersedes the 2026-11-08 view-type allowance for this plan.
+4. Globals get their retail type wherever that adds no type record retail lacks (REVISED 2026-11-14 after
+   measurement). Done for 18 view declarations of 14 globals in phases 7a/7b at unchanged census. `GameSetup_gData`
+   is the exception and KEEPS its word views in the ~40 objects whose retail SYM has no `GameSetup_tData`:
+   - retail records the leaf types (`GameSetup_tCarData`, ...) in those objects but not `GameSetup_tData`, although
+     shared inline bodies (`AICop_PerpChaseInfo` ctor) read `numLaps` / `commMode` there;
+   - a used `extern GameSetup_tData GameSetup_gData` always records the type with this compiler; tried and measured
+     on aiinit: plain struct, member function declared, constructor, virtual, static member, inline body - the
+     record is emitted in every variant, so there is no debug-suppression explanation;
+   - the real type would therefore add records retail lacks, against the standing "SYM exact, no new records" rule,
+     and the owner approved exactly this view on 2026-11-08.
+   How the original source reached these fields without the struct is unknown (logged under Open mismatches).
 5. Function bodies (phase 10) are in scope, last, under the unchanged BYTE + SYM + SLD gate per function.
 
 Standing principle for every remaining choice: the source says what the original source most plausibly said; a
@@ -335,6 +343,7 @@ Phase 1 removals. Each is a retail type record our source no longer produces; re
 | AI objects | one more `AIHigh_BTC_Perp` (this-only body); aihigh.obj one more `AIHigh_Base` | count only |
 | aih_cop.obj | ours records 5 more `Car_tObj` than retail (aih_basicperp/aih_btcperp/aih_play: 1 more) | single SPEECH.H gives every AI object the same in-class Speaker defaults; retail difference unexplained (count only) |
 | audioclc/audiotrk/camera.obj | one `Trk_AnimateInst` each | count only |
+| `GameSetup_gData` word views | ~40 objects | retail has no `GameSetup_tData` there, yet reads its fields (even from shared inline bodies). No declaration form of the real type reproduces that; the original construct is unknown. Views kept (owner ruling 2026-11-08) |
 
 The four "gap" rows are the best candidates for real recovery: check NFS4-PC / NFS3 for a function at that position.
 | every frontend object (~45) | `tMenu` x16, `tMenuItem` x16 | FEMENU.H had about nine more in-class inline bodies than matched code calls; names unknown. Biggest single census item (+500) |

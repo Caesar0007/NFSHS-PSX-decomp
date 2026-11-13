@@ -98,7 +98,7 @@ extern AIPhysic_Config_t  AIPhysicConfig;              /* @0x8010dc74 */
 extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;
 extern int AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve_t *,int)
   asm("Get__25AIDataRecord_TrackCurve_ti");
-extern AIScript_tReactionDetails  AIPerson_ScriptData[]; /* flat view @0x8010da5c */
+extern AIScript_tReactionDetails  AIPerson_ScriptData[9][7]; /* @0x8010da5c */
 /* W62-A17: was `u_char [...]` (1-byte elements) -- WRONG.  It is a single 4-byte int:
    owner def aiinit.cpp `int AIInit_forceHumanHandBrake;` @0x8013c584, and every oracle
    access is a word op (AIInit_Reset1 `sw $zero,%gp_rel(...)`, Physics_RampCarControlValues

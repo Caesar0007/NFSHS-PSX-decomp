@@ -23,7 +23,7 @@ struct tMenu;
 
 #include "shared/tMenuCommand.h"
 #define NFS4_FE_CORE_CARS_LATE   /* retail FEMenu.obj: car tail last (fe_core_cars.h below) */
-#define NFS4_FE_CORE_FEMENU_METHODS inline bool IsEnabled() LINK_STRIPPED; inline tMenu *NewMenu() LINK_STRIPPED; /* owner-only interface declarations */
+#define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FEMenu: tTexture_ShapeInfo/kernpair after tScreen, not with the frontend core */
 #define NFS4_FELINES_KERNPAIR_LATE

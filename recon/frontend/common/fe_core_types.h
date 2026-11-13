@@ -64,6 +64,13 @@ struct tScreen;
 
 
 
+/* tMenuItem's key object (FEMenu) emits a standalone copy of every inline member; SLINK /strip removes them
+   (linkers/link_stripped.json). Everywhere else the attribute is empty. */
+#ifdef NFS4_TU_FEMENU
+#define TMENUITEM_KEY_STRIP LINK_STRIPPED
+#else
+#define TMENUITEM_KEY_STRIP
+#endif
 typedef struct tMenuItem {
     unsigned int fFlags, fTextDescription;
     short fSelFade;
@@ -74,66 +81,41 @@ typedef struct tMenuItem {
     virtual ~tMenuItem();
     virtual long DebounceKeys();
     virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
     virtual void Draw(bool) = 0;   /* retail slot = __pure_virtual (FEMenu.obj emits this table) */
-#else
-    virtual void Draw(bool);       /* layout-only on the other owner surfaces, whose derived copies do not all redeclare it */
-#endif
     virtual void Draw(int, int, bool);
     virtual void Draw(int, int, int, bool);
-#ifdef NFS4_TU_FEMENU   /* FEMenu (tMenuItem key TU): retail in-class virtual bodies at FEMENU.H:274/275, emitted at the TU end (anchor: FESCR2, coordinator-authorized 2026-11-09) */
 #line 274 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
     virtual void TransitionOff() { }
     virtual void TransitionOn() { }
-#line 89 "recon/frontend/common/fe_core_types.h"
-#else
-    virtual void TransitionOff();
-    virtual void TransitionOn();
-#endif
+#line 91 "recon/frontend/common/fe_core_types.h"
     virtual bool TransitionIsFinished();
     virtual void UpdateTransition(bool);
-#if defined(NFS4_FEMENUDEFS_SURFACE) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
-    // Inferred getter/setter spellings; no added storage or virtual slots.
-    inline unsigned int GetFlags() { return fFlags; }
-    inline void SetFlags(unsigned int flags) { fFlags = flags; }
-#endif
-#if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
-    inline void SetTextDescription(unsigned int text) {
-        fTextDescription = text;
-    }
-#endif
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    void UpdateSelFade(bool); NFS4_FE_CORE_FEMENU_METHODS
-#endif
-#if defined(NFS4_FE_CORE_MENUITEM_SETENABLED) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
-    inline void Disable() { fFlags |= 1; }
-    inline void Enable() { fFlags &= ~1; }
-#endif
-#if defined(NFS4_FE_CORE_FEDIALOG_ITEM_METHODS) || defined(NFS4_FE_CORE_TMENU_ALL_INLINES)
-    /* FEDialog only (tMenuItem's key TU FEMenu never sees these): retail tDialogHelp::CalculateDimensions records
-       one receiver-free inline pair at each item flag test (47, 49). IsEnabled = the femenu_externs.h spelling;
-       LeftRightFlag is ORIGINAL-NAME-UNRESOLVED. */
-#if defined(NFS4_FE_CORE_FEDIALOG_ITEM_METHODS) || !defined(NFS4_FE_CORE_MENUITEM_ISENABLED)   /* TMENU_ALL_INLINES: owner spelling wins */
-    inline bool IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
-#endif
-    inline unsigned int LeftRightFlag() { return fFlags & 0x400; }
-#endif
-#ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
-    inline bool IsEnabled() { return (fFlags & 1) == 0; }
-#ifdef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
-    /* ORIGINAL-NAME-UNRESOLVED: inferred bit-test accessor used for the
-       retail disabled-item pairs. No storage or virtual slot is added. */
-    inline bool IsDisabled() { return (fFlags & 1) != 0; }
-#endif
-    inline int ButtonImage() { return fButtonImage; }
-#endif
-
-
-
-
-
-NFS4_FEMENU_TMENUITEM_STRIPPED_DECLS } tMenuItem;
-NFS4_FEMENU_TMENUITEM_STRIPPED_DEFS /* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
+    void UpdateSelFade(bool);
+    /* Inline members: one set for every includer, defined right after the class. Names other than IsEnabled and
+       NewMenu are inferred spellings (retail records the bodies, not their names). */
+    inline bool IsEnabled() TMENUITEM_KEY_STRIP;
+    inline tMenu *NewMenu() TMENUITEM_KEY_STRIP;
+    inline unsigned int GetFlags() TMENUITEM_KEY_STRIP;
+    inline void SetFlags(unsigned int flags) TMENUITEM_KEY_STRIP;
+    inline void SetTextDescription(unsigned int text) TMENUITEM_KEY_STRIP;
+    inline void Disable() TMENUITEM_KEY_STRIP;
+    inline void Enable() TMENUITEM_KEY_STRIP;
+    inline unsigned int LeftRightFlag() TMENUITEM_KEY_STRIP;
+    inline bool IsActive() TMENUITEM_KEY_STRIP;      /* ORIGINAL-NAME-UNRESOLVED: second enabled test, `(fFlags & 1) == 0` */
+    inline bool IsDisabled() TMENUITEM_KEY_STRIP;    /* ORIGINAL-NAME-UNRESOLVED */
+    inline int ButtonImage() TMENUITEM_KEY_STRIP;
+} tMenuItem;
+inline bool tMenuItem::IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
+inline tMenu *tMenuItem::NewMenu() { return fNewMenu; }
+inline unsigned int tMenuItem::GetFlags() { return fFlags; }
+inline void tMenuItem::SetFlags(unsigned int flags) { fFlags = flags; }
+inline void tMenuItem::SetTextDescription(unsigned int text) { fTextDescription = text; }
+inline void tMenuItem::Disable() { fFlags |= 1; }
+inline void tMenuItem::Enable() { fFlags &= ~1; }
+inline unsigned int tMenuItem::LeftRightFlag() { return fFlags & 0x400; }
+inline bool tMenuItem::IsActive() { return (fFlags & 1) == 0; }
+inline bool tMenuItem::IsDisabled() { return (fFlags & 1) != 0; }
+inline int tMenuItem::ButtonImage() { return fButtonImage; }
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }
 typedef tMenuItem *tItemList[16];
 

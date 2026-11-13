@@ -135,7 +135,7 @@ NFS4_TD_tUserNameMenuItem struct tUserNameMenuItem : public tMenuItem {
         fCurrentColumn = 0;
     }
 #endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    /* full member declarations for every includer (Draw(bool) is pure in tMenuItem) */
     tUserNameMenuItem(unsigned int);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void Draw(bool);
@@ -143,7 +143,7 @@ NFS4_TD_tUserNameMenuItem struct tUserNameMenuItem : public tMenuItem {
     void TransitionOn();
     bool TransitionIsFinished();
     void UpdateTransition(bool);
-#endif
+    /* */
 #line 375 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.H"
 } NFS4_TDN_tUserNameMenuItem;
 #line 108 "recon/frontend/common/femenuoptions.h"

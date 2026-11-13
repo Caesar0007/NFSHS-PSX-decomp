@@ -1445,6 +1445,12 @@
    "function": "SetCallingMenu__15tScreenUserNameP12tOptionsMenu",
    "source": "recon/frontend/common/cls_tScreenUserName.h",
    "evidence": "Inline member called from femenudefs/feapp (retail inline pair there). Every includer sees the one class definition; this object is the class key object, so g++ 2.8 also emits an unreferenced standalone copy, placed in .text.strip and removed by SLINK /strip. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/screencontroller.cpp.o",
+   "function": "ResetShakeTimeOut__23tScreenControllerConfig",
+   "source": "recon/frontend/common/cls_tScreenControllerConfig.h",
+   "evidence": "Inline member used by the slider ProcessInput in femenuoptions (retail `this` pair there). Every includer sees the one class definition; this object is the class key object, so g++ 2.8 also emits an unreferenced standalone copy, placed in .text.strip and removed by SLINK /strip. Absent from the retail MAP."
   }
  ]
 }

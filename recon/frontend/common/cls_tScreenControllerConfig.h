@@ -27,9 +27,9 @@ struct tScreenControllerConfig : public tScreen {
     char fCurrentController;
     int player;
 
-#ifdef NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE
-    inline void ResetShakeTimeOut() { fResetShakeTimeOut = 1; }
-#endif
+
+    inline void ResetShakeTimeOut() TSCREENCONTROLLERCONFIG_KEY_STRIP;   /* key object: standalone copy goes to .text.strip (fe_core_types.h) */
+
     void ClearActuators();
     void SetActuators(int);
     void TurnOffShakers();
@@ -46,6 +46,6 @@ struct tScreenControllerConfig : public tScreen {
     int GetHelpText();
     tScreenControllerConfig();
 #line 177 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.H"
-};
+}; inline void tScreenControllerConfig::ResetShakeTimeOut() { fResetShakeTimeOut = 1; }
 #line 51 "recon/frontend/common/cls_tScreenControllerConfig.h"
 #endif

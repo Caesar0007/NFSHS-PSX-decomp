@@ -81,6 +81,11 @@ struct tScreen;
 #else
 #define TSCREENUSERNAME_KEY_STRIP
 #endif
+#ifdef NFS4_KEY_OBJECT_SCREENCONTROLLER
+#define TSCREENCONTROLLERCONFIG_KEY_STRIP LINK_STRIPPED
+#else
+#define TSCREENCONTROLLERCONFIG_KEY_STRIP
+#endif
 /* FEMenuOptions is the key object of the derived menu-item classes in femenuoptions.h: same rule. */
 #ifdef NFS4_TU_FEMENUOPTIONS
 #define FEMENUOPTIONS_KEY_STRIP LINK_STRIPPED
@@ -143,10 +148,10 @@ static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags 
 typedef tMenuItem *tItemList[16];
 
 struct tMenuItemInteractive : public tMenuItem {
-#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_MENUITEM_INLINES)   /* FESCR: declared virtual dtor keeps derived bodies from re-walking it */
+    /* declared for every includer */
     tMenuItemInteractive(unsigned int);
     ~tMenuItemInteractive();
-#endif
+
 };
 
 /* tMenu is defined in fe_core_tmenu.h.  FEMenu's owner surface places it AFTER its three item classes (retail table

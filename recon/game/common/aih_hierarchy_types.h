@@ -211,11 +211,11 @@ inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_B
 
 typedef struct AIHigh_Base {
     Car_tObj *carObj_;
-#ifndef NFS4_AIHIGH_OWNER   /* retail: CarObj + GetCarObj both re-emit Car_tObj in the AI objects; aihigh keeps the declaration (its retail Car_tObj count) */
+
     inline Car_tObj *GetCarObj() { return carObj_; }
-#else
-    Car_tObj *GetCarObj();
-#endif
+
+
+
     AIState_Base *state_;
     stateType_t stateType_;
     int schedulingOff_, lastTrafficTriggerCheckSlice_;

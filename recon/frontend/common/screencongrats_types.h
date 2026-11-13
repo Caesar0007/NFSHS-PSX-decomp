@@ -64,11 +64,11 @@ struct tScreenCongrats : public tScreen {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
     virtual void CalculatePrizes();
-#ifdef NFS4_TSCREENCONGRATS_OWNER
-    virtual void DrawCongratsMessage() = 0;
-#else
-    virtual void DrawCongratsMessage();   /* layout-only off the owner surface */
-#endif
+
+    virtual void DrawCongratsMessage() = 0;   /* retail slot 11 = __pure_virtual */
+
+
+
     virtual bool GetCar(tCarInfo &);
     tScreenCongratsMessage congratsMessage;
     tTrophyClass trophy;

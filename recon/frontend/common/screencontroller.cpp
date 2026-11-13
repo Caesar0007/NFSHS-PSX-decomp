@@ -1,6 +1,7 @@
 /* frontend/common/screencontroller.cpp  --  RECONSTRUCTED  (controller-config screen; C++ TU)
  *   8 MEMBER fns of tScreenController : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
+#define NFS4_KEY_OBJECT_SCREENCONTROLLER   /* this object defines tScreenControllerConfig's virtuals: its copy of the inline member goes to .text.strip */
 #include "../../lib/nfs4_new.h"
 #include "screencontroller.h"
 #include "screencontroller_externs.h"

@@ -1,6 +1,6 @@
 /* game/common/aih_btccop.cpp -- RECONSTRUCTED (Beat-the-Clock cop AI hierarchy; C++ TU)
  *   40 fns across 3 classes (AIHigh_BTC_Cop -> AIHigh_BTC_HumanCop; AIHigh_BTC_Wingman)
- *   + AIState_NonActive tail. Composition-modeled inheritance (_base_ members); manual _vf
+ *   + AIState_NonActive tail. Real C++ inheritance; real virtual
  *   vtable dispatch (8-byte __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs
  *   AIHigh_BTC_<C>_vtable. Faithful C++ (option A). NOT original; SYM-faithful, recompilable.
  *   vs disasm-v2.

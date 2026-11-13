@@ -1,7 +1,7 @@
 /* game/common/pausemenu.cpp -- RECONSTRUCTED (in-race pause-menu widget hierarchy; C++ TU)
  *   60 fns across 11 classes (tPListIterator[Indexed], tPMenuItem + NonInteractiveText/
  *   Interactive/LeftRightChoice/LeftRightSlider[Indexed]/GoToMenuButton/CommandButton, tPMenu)
- *   + 3 free text helpers. Member defs; manual _vf vtable dispatch; base-subobject _base_ routing. */
+ *   + 3 free text helpers. Member defs; virtual dispatch through compiler-built vtables; real base classes. */
 #define NFS4_TU_PAUSEMENU   /* owner key: tPMenu keep retail's C-style typedef form (2nd TPDEF at the definition) */
 #include "pausemenu_types.h"
 #include "pausemenu_externs.h"

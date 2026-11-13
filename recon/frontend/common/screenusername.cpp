@@ -1,5 +1,5 @@
 /* frontend/screens/screenusername.cpp  --  RECONSTRUCTED  (username-entry screen; C++ TU)
- *   6 MEMBER functions of class tScreenUserName (: tScreen via _base_tScreen + manual vtable).
+ *   6 MEMBER functions of class tScreenUserName (: public tScreen, real virtuals).
  *   Member-fn decls live in nfs4_types.h (non-virtual, ABI-neutral). Bodies: Ghidra decompiler.
  *   P866: GetShapeInfo filename references checked against SYM and the raw oracle. */
 #define NFS4_KEY_OBJECT_SCREENUSERNAME   /* this object defines the class's virtuals: in-class inline setters are left out here (cc1plus would emit standalone copies) */

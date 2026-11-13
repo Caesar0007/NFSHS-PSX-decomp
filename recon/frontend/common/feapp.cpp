@@ -1,6 +1,6 @@
 /* frontend/common/feapp.cpp -- RECONSTRUCTED (NFS4 FE application core; C++ TU)
  *   14 fns: tFEApplication ctor/dtor + dialog setup, FE main loop, video/movie cycling.
- *   Member defs; base ctors via init-lists; manual _vf vtable init.
+ *   Member defs; base ctors via init-lists; compiler-built vtables.
  */
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "../../lib/nfs4_new.h"

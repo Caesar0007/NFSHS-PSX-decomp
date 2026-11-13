@@ -1,5 +1,5 @@
 /* frontend/screens/screentournselect.cpp -- RECONSTRUCTED (tournament-select screen; C++ TU)
- *   9 member fns (incl ctor) of tScreenTournSelect (embeds tScreen base as _base_tScreen).
+ *   9 member fns (incl ctor) of tScreenTournSelect (: public tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screentournselect_types.h"

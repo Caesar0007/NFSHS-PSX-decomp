@@ -1,7 +1,7 @@
 /* game/common/aih_basicperp.cpp -- RECONSTRUCTED (base perp AI class; C++ TU)
  *   8 fns: AIHigh_BasicPerp base class (ctor/CheckForCrimes/CheckIfCaught/RemoveCloseCops/
- *   RemoveChaser/AddChaser/CheckChaserPosition/Clear). Composition-modeled inheritance
- *   (_base_AIHigh_Base); manual _vf vtable. Faithful C++ (option A). NOT original;
+ *   RemoveChaser/AddChaser/CheckChaserPosition/Clear). Real C++ inheritance
+ *   (AIHigh_Base); compiler-built vtables. Faithful C++ (option A). NOT original;
  *   SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"

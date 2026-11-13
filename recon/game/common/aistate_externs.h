@@ -2,7 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-/* ---- aistate.obj manual vtable symbols (cross-TU; g++ 2.7.2 _vt_<class>) ---- */
+/* ---- aistate.obj vtable symbols (compiler-emitted) (cross-TU; g++ 2.7.2 _vt_<class>) ---- */
 extern Car_tObj *Cars_gList[];
 
 /* ---- SS3.23 deleting-dtor free fns (SaveSurface/ObjectFinishedSignAnim pattern): the oracle

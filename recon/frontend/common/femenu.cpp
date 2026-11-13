@@ -2,7 +2,7 @@
  *   71 fns across 12 classes: tListIterator(+Indexed/DoubleIndexed/MultiPlayer/Range/
  *   RangeIndexed) list iterators; tMenuItem(+Interactive/LeftRightChoice/LeftRightSlider/
  *   GoToMenuButton) menu items; tMenu container; + free DrawSlider (GPU slider widget).
- *   Member defs; base ctors via member-init-lists; manual _vf vtable dispatch; ref params. */
+ *   Member defs; base ctors via member-init-lists; virtual dispatch through compiler-built vtables; ref params. */
 #define NFS4_FE_LIST_OWNER   /* FEMenu.obj: every tListIterator class; range-accessor copies LINK_STRIPPED */
 #include "femenu.h"
 

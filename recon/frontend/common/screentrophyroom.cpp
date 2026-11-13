@@ -1,5 +1,5 @@
 /* frontend/screens/screentrophyroom.cpp -- RECONSTRUCTED (trophy-room screen; C++ TU)
- *   9 member fns (incl ctor) of tScreenTrophyRoom (embeds tScreen base as _base_tScreen).
+ *   9 member fns (incl ctor) of tScreenTrophyRoom (: public tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screentrophyroom_types.h"

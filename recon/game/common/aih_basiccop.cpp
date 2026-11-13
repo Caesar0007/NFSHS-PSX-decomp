@@ -1,8 +1,8 @@
 /* game/common/aih_basiccop.cpp -- RECONSTRUCTED (base cop AI class + blockade helpers; C++ TU)
  *   8 fns: AIHigh_BasicCop base class (ctor/CheckSpikeBelt/ShouldIPerformCutOffBlock/
  *   SetupBlockadeElements/HandleBlockadeSpeech) + 3 free fns (Blockade_AddRoadFlare/
- *   Blockade_AddObject/PlacePointOnRoad). Composition-modeled inheritance (_base_AIHigh_Base);
- *   manual _vf vtable. Faithful C++ (option A). NOT original; SYM-faithful, recompilable. vs disasm-v2.
+ *   Blockade_AddObject/PlacePointOnRoad). Real C++ inheritance (AIHigh_Base);
+ *   compiler-built vtables. Faithful C++ (option A). NOT original; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
 #include "aih_basiccop_types.h"

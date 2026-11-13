@@ -1,5 +1,5 @@
 /* frontend/screens/screentrophyinfo.cpp -- RECONSTRUCTED (trophy-info screen; C++ TU)
- *   3 member fns of tScreenTrophyInfo (embeds tScreen base as _base_tScreen).
+ *   3 member fns of tScreenTrophyInfo (: public tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screentrophyinfo_types.h"

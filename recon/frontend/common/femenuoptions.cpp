@@ -1,7 +1,7 @@
 /* frontend/common/femenuoptions.cpp -- RECONSTRUCTED (options-menu widget hierarchy; C++ TU)
  *   83 fns across 16 classes (tOptionsMenu, tInsideBox family, tMenuItem sliders/choices/sliding
  *   menus, tUserNameMenuItem, tMemoryCardMenuItem) + 7 free helpers (flares, boxes, stick-range,
- *   cheat-check) + data. Member defs; deep tMenuItem/tMenu inheritance; manual _vf dispatch.
+ *   cheat-check) + data. Member defs; deep tMenuItem/tMenu inheritance; real virtual dispatch.
  */
 #define NFS4_FE_NO_MENUITEM_INLINES   /* key TU of the menu-item family: in-class bodies would be emitted here (shared/tpdef_keys.h) */
 #include "../../lib/nfs4_new.h"

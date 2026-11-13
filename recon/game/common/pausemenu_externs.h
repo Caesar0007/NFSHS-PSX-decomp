@@ -1,6 +1,6 @@
 /* pausemenu_externs.h -- extern decls for game/common/pausemenu.cpp (NFS4 in-race pause menu).
  *   Types (tPMenu*, tPListIterator*, tInputKeyType, tPMenuCommand, POLY_GT4, HudPmx_tShape) live in
- *   nfs4_types.h. This declares cross-TU globals/functions + this TU's manual vtable symbols.
+ *   nfs4_types.h. This declares cross-TU globals/functions + this TU's vtable symbols (compiler-emitted).
  *   gPause_CurrentY is STAT-owned by PauseMenu.obj -> defined file-static in the .cpp.
  */
 #ifndef PAUSEMENU_EXTERNS_H

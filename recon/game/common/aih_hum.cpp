@@ -1,7 +1,7 @@
 /* game/common/aih_hum.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
  *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
  *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
- *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
+ *   Real C++ inheritance; virtual dispatch through compiler-built vtables (8-byte
  *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */

@@ -1,5 +1,5 @@
 /* frontend/screens/screentracks.cpp -- RECONSTRUCTED (track-select screen; C++ TU)
- *   10 member fns of tScreenTrackSelect (embeds tScreen base as _base_tScreen).
+ *   10 member fns of tScreenTrackSelect (: public tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom regs resolved vs disasm.
  */
 #include "screentracks_types.h"

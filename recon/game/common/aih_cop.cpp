@@ -1,10 +1,10 @@
 /* game/common/aih_cop.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
  *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/ RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
- *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
+ *   Real C++ inheritance; virtual dispatch through compiler-built vtables (8-byte
  *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */
-#define NFS4_AISTATE_CHASE_COP_INLINES   /* aistate.h: AIState_Chase inline accessors (retail HighExecute inlined this records) */
+
 #include "../../lib/nfs4_new.h"
 #include "aih_cop_types.h"
 #include "aih_cop_externs.h"

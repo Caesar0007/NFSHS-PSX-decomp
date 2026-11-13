@@ -1,7 +1,7 @@
 /* frontend/common/fescreen.cpp -- RECONSTRUCTED (tScreen BASE class; C++ TU)
  *   27 methods of tScreen (the FE screen base): ctor/dtor, async shape (perm+swap) load/upload/
  *   free pipeline, screen-fade transitions, loading-text, and the virtual-dispatch entrypoints
- *   (Draw->DrawBackground/DrawForeground, Initialize/PreLoad->GetShapeInfo) via the manual _vf
+ *   (Draw->DrawBackground/DrawForeground, Initialize/PreLoad->GetShapeInfo) via real virtual
  *   vtable. tShapeInformation& ref params per mangled names. Phantoms (lost DrawShapeExtended
  *   coords, void DisplayLoadingText, PreLoad numSwapShapes/swapFileName coalescing) m2c-resolved.
  */

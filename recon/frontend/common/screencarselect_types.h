@@ -15,8 +15,8 @@
 
 
 
-#define tCheatCode int
-#define cheat_FinishedTournament 25
+#include "fecheats_cheatcode.h"   /* the real tCheatCode enum (was a macro fake; header-truth 4-C.2) */
+
 #define RaceType_Tournament 2
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

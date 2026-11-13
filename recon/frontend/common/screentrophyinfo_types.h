@@ -39,8 +39,8 @@ struct tMenu;
 #define byte unsigned char
 #define uint unsigned int
 
-#define textState_Hilighted 2
-#define textType_ScreenInfo 4
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+#include "shared/tMenuTextState.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
 #include "fetourn_manager_class.h"   /* class tTournamentManager: one definition (header-truth 4l) */
 
 

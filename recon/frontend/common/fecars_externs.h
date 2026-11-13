@@ -21,7 +21,7 @@ extern char  bigBuf[];                         /* 0x80010000  shared big load/sc
 
 /* FECars calls the external cheat API, but its owner graph does not contain
  * the foreign tCheatCode tag.  Preserve the retail linkage at that boundary. */
-#define cheat_AllCops 12
+#include "fecheats_cheatcode.h"   /* the real tCheatCode enum (was a macro fake; header-truth 4-C.2) */
 bool FECheat_IsCheatEnabled(int)
     __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 extern char *Paths_Paths[];

@@ -97,9 +97,9 @@ struct charactertbl;
 
 /* FEDialog uses these enum values as literals, but its retail owner emits no
  * completed tMenuTextType/tMenuTextState records. */
-#define textType_PopUpText 8
-#define textType_PopUpTitle 9
-#define textState_Selected 1
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+#include "shared/tMenuTextState.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+
 
 #endif
 #endif

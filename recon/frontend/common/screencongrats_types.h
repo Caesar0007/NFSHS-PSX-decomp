@@ -51,8 +51,8 @@ enum tScreenCongratsMessage {
 
 
 
-#define textType_PostGame 10
-#define textType_TrackRecords 11
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+
 
 struct tScreenCongrats : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

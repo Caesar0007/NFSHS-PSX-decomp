@@ -14,7 +14,7 @@
 #undef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 
 #define BOOL int
-#define textType_FlybyHelp 1
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
 #define RaceType_HotPursuit 1
 
 struct tMenuCommand;

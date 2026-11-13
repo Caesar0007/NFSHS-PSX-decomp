@@ -29,8 +29,8 @@ char *TextSys_Word(int);
 /* W58-A1: GetGarageCar / GetCarFromID / GetStockCar are tCarManager members -- the free
  * decls mangled to ..__FP11tCarManager.. phantoms that the link can never resolve. */
 void  tListIterator_dtor(tListIterator*);
-void  FECheat_ActivateBonus(int) asm("FECheat_ActivateBonus__F10tCheatCode");
-bool  FECheat_IsCheatEnabled(int) asm("FECheat_IsCheatEnabled__F10tCheatCode");
+void  FECheat_ActivateBonus(tCheatCode cheat);
+bool  FECheat_IsCheatEnabled(tCheatCode cheat);
 /* W58-A1 (08A phantom fix): SetCarAvailable / SetTrackAvailable / SetClassAvailable /
  * SetCarViewable / PurchaseCar / PurchaseUpgrade / GetNumOwnedCars are tCarManager /
  * tTrackManager MEMBERS (real symbols ..__11tCarManager.. / ..__13tTrackManager..).

@@ -139,8 +139,8 @@ void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
                            tMenuTextType textType)
   __asm__("FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType");
 void  FeAudio_AsyncPlaySpeech(int, int);
-bool FECheat_IsCheatEnabled(tCheatCode)
-  __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
+bool FECheat_IsCheatEnabled(tCheatCode);
+
 /* W58-A1: GetTrackByID / GetTrackToRace are tTrackManager / tTournamentManager members. */
 short LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);

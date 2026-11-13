@@ -379,7 +379,7 @@ void tScreenTournSelect::DrawBackground()
 
   r.x = 0x145; r.y = 0x2b; r.w = 0x13a; r.h = 10;
   frontEnd.tier != '\0' ?
-    FETextRender_WordWrapFade((int)this->fScreenFadeVal, menuDefs->iteratorSpecialEvent.TextValue((tPlayer)kPlayerBoth),&r,textState_Hilighted, textType_VideoWall) : FETextRender_WordWrapFade((int)this->fScreenFadeVal, menuDefs->iteratorTournament.TextValue((tPlayer)kPlayerBoth),&r,textState_Hilighted, textType_VideoWall);
+    FETextRender_WordWrapFade((int)this->fScreenFadeVal, menuDefs->iteratorSpecialEvent.TextValue((tPlayer)kPlayerBoth),r,textState_Hilighted, textType_VideoWall) : FETextRender_WordWrapFade((int)this->fScreenFadeVal, menuDefs->iteratorTournament.TextValue((tPlayer)kPlayerBoth),r,textState_Hilighted, textType_VideoWall);
   r.x = 0xaa;
   r.w = r.w + -10;
 

@@ -88,6 +88,6 @@ enum tScreenMainState {
 
 
 
-#define cheat_MyMomSaysImCool 21
+#include "fecheats_cheatcode.h"   /* the real tCheatCode enum (was a macro fake; header-truth 4-C.2) */
 
 #endif

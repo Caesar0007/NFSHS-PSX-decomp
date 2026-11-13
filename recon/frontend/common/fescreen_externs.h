@@ -24,8 +24,8 @@
 /* The retail owner retains neither menu-text enum tag.  Preserve the proven
  * call target through its linkage name while keeping those foreign tags out
  * of this TU's source graph. */
-#define textState_Selected 1
-#define textType_ScreenInfo 4
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+#include "shared/tMenuTextState.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
 
 /* ===== globals ===== */
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */

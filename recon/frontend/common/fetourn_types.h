@@ -28,7 +28,7 @@
 #define Tourn_RacersCount 6
 #define Tourn_TRN_HeaderSize 0x6
 #define Tourn_TRN_EntriesStart 0x7
-#define cheat_FinishedTournament 25
+#include "fecheats_cheatcode.h"   /* the real tCheatCode enum (was a macro fake; header-truth 4-C.2) */
 
 
 

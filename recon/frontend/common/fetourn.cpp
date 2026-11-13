@@ -729,7 +729,7 @@ short tTournamentManager::AdvanceToNextTrack()
         (this->fAwards).fCompletedTier = 0;
         this->fBestPlacement[(signed char)currentTourney->fTournamentID] = '\x01';
 
-        if (((int)(long)FECheat_IsCheatEnabled(this->fTier + cheat_FinishedTournament) ^ 1) != 0)
+        if (((int)(long)FECheat_IsCheatEnabled((tCheatCode)(this->fTier + cheat_FinishedTournament)) ^ 1) != 0)
         {
 
           currentTier = this->fDefinition->fTiers + this->fTier;
@@ -750,7 +750,7 @@ short tTournamentManager::AdvanceToNextTrack()
               numGarageCars = numGarageCars + 1;
             }
 
-            FECheat_ActivateBonus(this->fTier + cheat_FinishedTournament);
+            FECheat_ActivateBonus((tCheatCode)(this->fTier + cheat_FinishedTournament));
             (this->fAwards).fCompletedCar = (tCarModels)(this->fTier + cm_BonusCar1);
             carInfo = carManager.GetCarFromID((short)(this->fAwards).fCompletedCar);
             carManager.SetCarAvailable((tCarModels)(this->fAwards).fCompletedCar,true);
@@ -1020,7 +1020,7 @@ void tTournamentManager::UpdateAwardInformation()
   this->fMoney += (this->fAwards).fTournMoney;
 
   if (((this->fAwards).fActivateFlags & 2) != 0) {
-    FECheat_ActivateBonus((this->fAwards).fActivateCarClass);
+    FECheat_ActivateBonus((tCheatCode)(this->fAwards).fActivateCarClass);
   }
   if (((this->fAwards).fActivateFlags & 4) != 0) {
     carManager.SetCarAvailable((tCarModels)(this->fAwards).fActivateCar,true);
@@ -1032,7 +1032,7 @@ void tTournamentManager::UpdateAwardInformation()
     trackManager.SetClassAvailable((tTrackClassType)(this->fAwards).fActivateTrackClass,true);
   }
   if (((this->fAwards).fActivateFlags & 0x10) != 0) {
-    FECheat_ActivateBonus((this->fAwards).fActivateCheat);
+    FECheat_ActivateBonus((tCheatCode)(this->fAwards).fActivateCheat);
   }
   if (((this->fAwards).fAwardCar != 0) && ((this->fAwards).fAwardCarGarageFull == 0)) {
     

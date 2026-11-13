@@ -23,8 +23,8 @@
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS "screenpinkslips_feapp.h"   /* retail: tFEApplication right after the early dialogs */
 #include "screenpinkslips_types.h"
 #undef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-#define textState_Unselected 0
-#define textType_TrackRecords 11
+#include "shared/tMenuTextType.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
+#include "shared/tMenuTextState.h"   /* the real enum (was constant macros; header-truth 4-C.2) */
 #include "shared/POLY_FT4.h"
 typedef enum VIDEOSTATE {
     VIDEOSTATE_IDLE = 0,

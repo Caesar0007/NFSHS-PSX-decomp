@@ -2,10 +2,10 @@
    retail: right after tfrontEnd, before tActiveLine (screenpinkslips_before_activeline.h). */
 #ifndef NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_MENUTEXTSTATE_H
 #define NFS4_FRONTEND_COMMON_SCREENPINKSLIPS_MENUTEXTSTATE_H
-enum tMenuTextState {
-    textState_Unselected = 0,
-    textState_Selected = 1,
-    textState_Hilighted = 2,
-    textState_NumStates = 3
-};
+#include "shared/tMenuTextState.h"   /* one tMenuTextState definition (header-truth 4-C.1) */
+
+
+
+
+
 #endif

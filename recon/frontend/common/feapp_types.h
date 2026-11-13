@@ -40,11 +40,11 @@ enum tMenuCommandType {
 #undef NFS4_SCREENDISPLAY_FEAPP_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
-#define tMenuTextType int
-#define tMenuTextState int
-#define textType_FramedInfo 3
-#define textState_Selected 1
-#define textState_Hilighted 2
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
 #define PinkSlipsNoError 0

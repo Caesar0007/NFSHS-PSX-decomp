@@ -57,10 +57,10 @@
 
 /* The call ABI needs these enum identities only in the external symbol name;
  * drawshp.obj does not retain either completed enum definition. */
-#define tMenuTextState int
-#define tMenuTextType int
-#define textState_Selected 1
-#define textType_FramedInfo 3
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
 
 typedef kernpair KERN;
 typedef int (*getcode)();

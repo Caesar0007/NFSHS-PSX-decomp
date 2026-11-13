@@ -55,7 +55,7 @@
 #elif !defined(NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE)
 #if !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) || \
     defined(NFS4_SCREENPINKSLIPS_TRACKS_SURFACE)
-#define tMenuTextState int
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
 #else
 #include "screenpinkslips_menutextstate.h"   /* no-op when already emitted before tActiveLine */
 
@@ -65,13 +65,13 @@
 
 #endif
 #ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
-#define textState_Selected 1
-#define textState_Hilighted 2
+
+
 #endif
-#define tMenuTextType int
-#define textType_ScreenInfo 4
-#define textType_VideoWall 13
-#define textType_Default 14
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
 #endif
 #define kPlayerBoth -1
 

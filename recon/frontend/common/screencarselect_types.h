@@ -6,15 +6,15 @@
  * linked SYM emits no completed enum or typedef records for them. */
 #define BOOL int
 #define uchar unsigned char
-#define tMenuTextType int
-#define tMenuTextState int
-#define textState_Unselected 0
-#define textState_Selected 1
-#define textState_Hilighted 2
-#define textType_FramedInfo 3
-#define textType_ScreenInfo 4
-#define textType_PopUpText 8
-#define textType_Default 14
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
+
+
+
+
 #define tCheatCode int
 #define cheat_FinishedTournament 25
 #define RaceType_Tournament 2

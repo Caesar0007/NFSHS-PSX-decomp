@@ -51,8 +51,8 @@ typedef SVECTOR FE3d_zNormal;
 
 
 
-#define tMenuTextType int
-#define textType_TrackRecords 11
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
 #include "shared/FLARE_PIECE_DEF.h"
 
 

@@ -37,12 +37,12 @@ enum tMenuCommandType {
 #undef tFEApplication
 #undef tGlobalMenuDefs
 /* These enum tags are not retained by FeMenuOptions.obj. */
-#define tMenuTextState int
-#define textState_Unselected 0
-#define textState_Selected 1
-#define textState_Hilighted 2
-#define tMenuTextType int
-#define textType_Options 6
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
 #include "shared/DR_AREA.h"
 #include "shared/POLY_G4.h"
 #include "shared/AudioMus_tSongEntry.h"

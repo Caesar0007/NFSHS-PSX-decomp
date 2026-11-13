@@ -205,14 +205,14 @@ typedef tRecordBuffer tSaveRecords[187];
 
 /* These foreign enum tags are not retained by FEMenuExtended.obj.  Exact
  * linkage aliases in the extern header preserve their ABI spellings. */
-#define tMenuTextState int
-#define tMenuTextType int
-#define textState_Unselected 0
-#define textState_Selected 1
-#define textState_Hilighted 2
-#define textType_FlybyHelp 1
-#define textType_Options 6
-#define textType_PopUpTitle 9
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
+
+
+
 
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))

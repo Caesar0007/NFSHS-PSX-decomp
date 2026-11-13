@@ -17,13 +17,13 @@ struct tMenu;
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
 #include "fe_core_types.h"
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd (fe_core_cars.h) */
-#define tMenuTextState int
-#define tMenuTextType int
-#define textState_Unselected 0
-#define textState_Selected 1
-#define textState_Hilighted 2
-#define textType_ScreenInfo 4
-#define textType_TrackRecords 11
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
+
+
 #include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes (+ tMenu after them when keyed); no private copies (header-truth 4c) */
 
 

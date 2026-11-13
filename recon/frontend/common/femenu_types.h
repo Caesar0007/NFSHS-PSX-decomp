@@ -79,9 +79,9 @@ enum tMenuCommandType {
  * does not retain either foreign enum tag, so source-spelling macros plus the
  * exact linkage alias in femenu_externs.h preserve the call ABI without
  * inventing local type records. */
-#define tMenuTextState int
-#define tMenuTextType int
-#define textType_Options 6
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
 
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)

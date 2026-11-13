@@ -18,14 +18,14 @@
 #undef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 
 /* These source spellings are not completed enum tags in ScreenAudio.obj. */
-#define tMenuTextState int
-#define textState_Unselected 0
-#define textState_Selected 1
-#define textState_Hilighted 2
-#define tMenuTextType int
-#define textType_ScreenInfo 4
+#include "shared/tMenuTextState.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
+
+
+#include "shared/tMenuTextType.h"   /* the real enum (was a macro fake; header-truth 4-C.1) */
+
 /* Retail tMenuTextType enumerator; retain the owner surface's existing form. */
-#define textType_Options 6
+
 
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"

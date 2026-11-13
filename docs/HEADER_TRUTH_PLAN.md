@@ -252,16 +252,21 @@ Gate per function: BYTE + SYM + SLD, as today.
 
 **Phase 11 - recover unknown bodies** from the Open-mismatch table (FEMENU.H first), using NFS4-PC and line gaps.
 
-### Rulings needed
-1. `tMenuItem` has two different bodies under the name `IsEnabled()` chosen per object. Give the second a
-   descriptive name and show both everywhere?
-2. `virtual void Draw(bool) = 0` is pure only in the FEMenu owner. Make it pure everywhere?
-3. Record order: RULED 2026-11-14 - see phase 9 (measure, replace hooks by real headers + per-object include
-   lists, never keep a hook to win an inversion, pilot on the AI objects).
-4. View types for globals (ruling 2026-11-08 allows them when SYM stays exact, e.g. `extern int
-   GameSetup_gData[650]`). They are the data-side equivalent of the class views removed in phase 4-B. Keep the
-   ruling, or move to real types and accept the extra records?
-5. Phase 10 touches matched function bodies under the BYTE+SYM+SLD gate. Confirm it is in scope for this plan.
+### Rulings (decided 2026-11-14; the owner delegated them: "make a decision by yourself - what you think is right and correct")
+1. `tMenuItem::IsEnabled()` two bodies: ONE name per body. `IsEnabled()` keeps `(fFlags & 1) == 0`; the
+   `((fFlags ^ 1) & 1) != 0` body gets a descriptive second name and both are visible to every includer.
+   The second retail name is unknown and is logged as such.
+2. `virtual void Draw(bool) = 0` is pure for every includer (the retail vtable slot is `__pure_virtual`). Derived
+   classes that are instantiated must declare their override; copies that do not are fixed, not exempted.
+3. Record order: see phase 9 (measure it, replace hooks by real headers + per-object include lists, never keep a
+   hook to win an inversion, pilot on the AI objects).
+4. Globals get their retail type everywhere. View declarations (`extern int GameSetup_gData[650]`, `simGlobal`
+   as `int[6]`, ...) are removed; the extra type records this produces in objects where retail has none are
+   logged as open mismatches. This supersedes the 2026-11-08 view-type allowance for this plan.
+5. Function bodies (phase 10) are in scope, last, under the unchanged BYTE + SYM + SLD gate per function.
+
+Standing principle for every remaining choice: the source says what the original source most plausibly said; a
+measured mismatch that cannot be explained is logged, never fitted.
 
 ## Progress log
 

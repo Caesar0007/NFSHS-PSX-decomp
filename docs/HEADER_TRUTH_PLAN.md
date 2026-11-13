@@ -183,6 +183,14 @@ Work:
    belongs with phase 9 (record order). Until then: one `lib/psyq_protos.h` with the exact PsyQ 4.3 prototypes,
    included by the `*_externs.h` files in place of their private re-declarations.
 
+Status 2026-11-14: 6a (sprintf, 86 declarations), 6b (20 PsyQ functions, 116 declarations), 6c (libc group, 80
+declarations) landed. Observation from 6c: two unrelated places (audiomus.cpp `strlen(pattern) < 0x3d`,
+memcard.c `0x20 < strlen(title)`) are UNSIGNED compares in retail. With PsyQ's `int strlen()` the bound has to
+be written unsigned at the call site (done). If more such sites appear, the alternative reading is that these
+files saw an unsigned-returning strlen (compiler built-in or an EA header) - revisit then.
+Left in the C-linkage group: EA library functions (`SND*`, `PAD_*`, `padinit`, mdec helpers) which need the EA
+headers as authority, and `atoi` / `qsort`.
+
 Gate: bytes identical (a typed prototype changes argument promotion, so sweep every includer's assembly);
 counters `C_VARIADIC` 76 -> the five truthful names only, `C_CONFLICT` 33 -> 0.
 

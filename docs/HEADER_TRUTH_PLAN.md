@@ -122,6 +122,7 @@ re-baselined (head.json / slink_head.json).
 | 2026-11-12 | 7d8c13f8c | Phase 4-B.3: five more CodegenView stand-ins replaced by real classes (screencontroller/screenmemcard tFEApplication, fememcard tScreenMemcard, femenudefs tScreenMain incl. its SwapBackground asm alias, femenuoptions tScreenAudio). screencontroller.obj order inversions 0->10 (accepted) | 0 | 7 | 143 | 16 | 139 | 1662 |
 | 2026-11-12 | 1b1860944 | Phase 5a: counters tool tools/header_truth_counters.py + docs/header_truth_counters.json (--check fails on any rise); stale manual-vtable header comments fixed in 23 files; dead define removed | 0 | 7 | 143 | 16 | 139 | 1662 |
 | 2026-11-12 | d35f4d8fa | Phase 4-B.4: FEScreen_DFlip/DrawView and PSXFront_DFlip/DRender codegen views -> shared real types (one view left: FEMemcard_MemCardInfoCodegenView, no real definition in the tree yet) | 0 | 7 | 143 | 16 | 139 | 1662 |
+| 2026-11-12 | bdbae86fe | Phase 4x: AIHigh_BTC_AIPerp = ONE definition; orphan shared/CarBank.h, LocationBank.h, CallSignBank.h (no includers) deleted | 0 | 7 | 143 | 15 | 139 | 1662 |
 
 ## Open mismatches (left unexplained on purpose)
 

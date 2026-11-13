@@ -160,16 +160,31 @@ layout, 170 "inferred" notes. Cosmetic, but they misdescribe the code.
 
 ### Revised roadmap
 
-**Phase 6 - one prototype per function (highest value, mechanical, low risk).**
-1. Build `tools/prototype_audit.py`: for every C++ function the retail SYM gives a mangled name, and a mangled
-   name encodes the exact parameter types. Compare each prototype in the tree against it; report conflicts
-   between externs files and conflicts with the retail name. (C-linkage and PsyQ functions: compare against
-   the PsyQ 4.3 headers.)
-2. Create one module header per retail header name the SYM/SLD shows (e.g. `AIWORLD.H`, `FETEXTRENDER.H`),
-   holding the single prototype; every `*_externs.h` includes it instead of re-declaring.
-3. Fix call sites that only compiled because of a wrong prototype (int for pointer, missing arguments).
+**Phase 6 - prototypes (audited 2026-11-14 with `tools/prototype_audit.py`; scope is much smaller than estimated).**
+The tool demangles the 1388 C++ free functions of the retail link map and compares every prototype in the tree.
+Result:
+- C++ functions: 1313 declared in the tree, **all with a retail-compatible parameter list** except one
+  (`SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short)` in fememcard_externs.h: no such retail function).
+  The "96 conflicting signatures" of the first estimate are real retail overloads (5 functions, e.g.
+  `AIWorld_ApxSplineDistance` has four) plus the C-linkage group below. Nothing to do beyond that one case.
+- C-linkage functions (PsyQ, libc, EA library; the retail map has no types for them): 37 functions are declared
+  `(...)` in 76 places and 33 are declared in more than one form.
+  Important: PsyQ 4.3's own STRINGS.H / MEMORY.H declare `strcpy`, `strlen`, `strcmp`, `memcpy`, `memset` with an
+  EMPTY parameter list ("to avoid conflicting"), which g++ 2.8 treats as unprototyped inside `extern "C"`.
+  So `(...)` is the truthful spelling for those five; it is wrong for `sprintf` (PsyQ: `char *buffer, char *fmt,
+  ...`), `DrawSync(int)`, `SetSp(unsigned long)`, `GetClut`, `GetTPage`, `SetDrawMode`, `SetDrawArea`,
+  `SetSemiTrans`, `SetDefDispEnv`, `CdDiskReady`, the `SND*` and `PAD_*` functions.
 
-Gate: bytes identical; `variadic_only_prototypes` 129 -> 0; conflicting prototypes 96 -> 0.
+Work:
+1. Remove the `SavePinkSlipsCars` 3-argument declaration (call the member).
+2. C-linkage: the truthful form is to include the real PsyQ 4.3 headers (STRINGS.H, STDIO.H, LIBGPU.H, LIBAPI.H,
+   LIBGTE.H, LIBCD.H) and the EA library headers instead of re-declaring per object. The PsyQ headers also define
+   types (RECT, DISPENV, DR_MODE ...) that the tree currently carries as `shared/*.h` with order hooks, so this
+   belongs with phase 9 (record order). Until then: one `lib/psyq_protos.h` with the exact PsyQ 4.3 prototypes,
+   included by the `*_externs.h` files in place of their private re-declarations.
+
+Gate: bytes identical (a typed prototype changes argument promotion, so sweep every includer's assembly);
+counters `C_VARIADIC` 76 -> the five truthful names only, `C_CONFLICT` 33 -> 0.
 
 **Phase 7 - one type per global.** Same audit for `extern` data: the retail SYM records each global's type.
 Replace view arrays by the real type where the object records it; where retail records no type for that object

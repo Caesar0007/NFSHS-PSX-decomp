@@ -81,9 +81,14 @@ bytes 299819/299819, 0 masked, gdebug 0 FAILED, every including TU PASS, SLINK l
 Census/inversions are recorded, regressions caused by removing a fabrication are accepted and
 re-baselined (head.json / slink_head.json).
 
-## State after 2026-11-13 (read this first)
+## State after 2026-11-14 (read this first)
 
-Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, 0 build SKIP, 0 debug failures, linked SYM tree 2537 clean / 33 dirty (unchanged since the start), SLINK census 1662 (honest; was 436 with fabrications).
+Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, 0 build SKIP, 0 debug failures, linked SYM
+tree 2537 clean / 33 dirty (unchanged since the start), SLINK census 1331.
+
+Census history: 436 with the fabrications -> 1662 after they were removed (phases 1-4) -> 1331 after the classes
+were given ONE definition for every includer (phase 8). The single honest definition is measurably closer to retail
+than the per-object member subsets were: tMenuItem alone moved the census by -306.
 
 | Counter (`python tools/header_truth_counters.py`) | Start | Now |
 |---|---|---|
@@ -92,18 +97,31 @@ Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, 0 build
 | opaque `_storage` views | 3 | 0 |
 | `*CodegenView` stand-in types | 20 | 1 (fMemCardInfo_def: no real definition in the tree) |
 | macro-faked enum types (`#define tX int`) | 28 | 0 |
-| classes defined more than once | 94 | 12 counted, 6 real (below) |
-| asm-label aliases, all files | ~55 | 39 (none in frontend headers) |
-| per-object header conditionals | 176 | 143 |
-| stripped rows, non-SDK | 158 | 139 |
-| header conditionals, all kinds | (not measured) | 628 |
-| functions with conflicting prototypes | (not measured) | 96 |
-| `(...)`-only prototypes | (not measured) | 129 |
-| globals with conflicting types | (not measured) | 36 |
+| classes defined more than once | 94 | 6 counted, 0 real |
+| conditionals guarding class members | (116 by name) | 2 (`CAudioList::Elems`, `tUserNameMenuItem::SetUpP`) |
+| per-object header conditionals | 176 | 145 |
+| header conditionals, all kinds | 628 | 592 |
+| stripped rows, non-SDK | 158 | 154 (139 before phase 8; +15 = key-object copies of real inline members) |
+| view declarations of globals | 75 | 55 (all `GameSetup_gData`, kept - ruling 4) |
+| asm-label aliases, all files | ~55 | 39 |
 
-Done: phases 1, 2, 3, 4 (a-x), 4-B.1-4, 4-C.1-3, 5a.
+Done: phases 1, 2, 3, 4 (a-x), 4-B.1-4, 4-C.1-3, 5a, 6a-c, 7a-b, 8a-g.
 
-Open work: see "Deep analysis 2026-11-13 and revised roadmap" below.
+Rules that came out of phase 8 (apply them to every class from now on):
+1. One class body for every includer. Members are never selected per object.
+2. An inline member whose class has a key object (the object that defines its first non-inline virtual) is
+   declared with a `<CLASS>_KEY_STRIP` attribute that is `LINK_STRIPPED` only in that key object, and defined right
+   after the class. The key object's standalone copy gets a `linkers/link_stripped.json` row. This replaces every
+   "hide the member from the owner" block.
+3. A body that retail records in exactly one object is declared in the class and defined in that object's own
+   header (`tUserNameMenuItem::SetUserNameData` in femenudefs_externs.h).
+4. Pure virtuals are pure everywhere; a derived copy that lacked the override is corrected.
+
+Open work, in order: `SetUpP` (rule 3); phase 9 (record order - the remaining `*_SURFACE`, `OMIT`, `HOOK`, `LATE`
+conditionals in the private `*_types.h` files are all "which types does this object see, and in which sequence",
+i.e. phase 9 material, pilot on the AI objects); phase 10 (bodies); phase 11 (unknown bodies). Investigations
+left open: the 16 scalars declared as unsized arrays in psxfront/front/screencarselect (those objects are already
+`-G0`, so a per-object `-G` is not the explanation); EA-library prototypes.
 
 ## Deep analysis 2026-11-13 and revised roadmap
 
@@ -340,6 +358,9 @@ Phase 1 removals. Each is a retail type record our source no longer produces; re
 
 | Object | Retail record left unmatched | What is known |
 |---|---|---|
+| aihigh.obj | ours records 2 more `Car_tObj` than retail (1 before phase 8g) | `AIHigh_Base::GetCarObj()` is an inline body for every includer now; the owner used to see a declaration only, which was a fit |
+| front.obj | `tUserNameMenuItem` one record short (was one too many before phase 8d) | the class is one definition now; which body retail's Front.obj saw is unknown |
+| audedit.obj / audiotrk.obj | `CAudioList::Elems()` is still visible to audiotrk only | the owner object audedit does not know `AudioElem`, so the member cannot be in the class as that object sees it; retail form unknown |
 | hud.obj | `Car_tObj` (+ field walk) before Hud_BuildCdPlayer | HUD.CPP lines 795-800 owned by no retail function: a link-stripped function existed, name and body unknown |
 | copspeak.obj | `Car_tObj` between CopSpeak_StartUp and CopSpeak_Request | COPSPEAK.CPP 975-1027 gap: link-stripped function, unknown |
 | psxfront.obj | `Car_tObj shapetbl` before DoTitleScreen; `shapetbl` before FontUpsideDownBlit | PSXFRONT.CPP 98-141 and 1260-1338 gaps: two link-stripped functions, unknown |

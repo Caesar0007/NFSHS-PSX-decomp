@@ -34,10 +34,10 @@ struct tScreenMemcard : public tScreen {
     void SetEnablings();
     tScreenMemcard();
     void ReleaseIcons();
-#ifndef NFS4_KEY_OBJECT_SCREENMEMCARD
-    inline void SetMessage(int newMessage) { message = newMessage; }   /* called from femenudefs.cpp (retail inline pair) */
-#endif
+    inline void SetMessage(int newMessage) TSCREENMEMCARD_KEY_STRIP;   /* key object: standalone copy goes to .text.strip (fe_core_types.h) */
+
+
 #line 99 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.H"
-};
+}; inline void tScreenMemcard::SetMessage(int newMessage) { message = newMessage; }
 #line 43 "recon/frontend/common/cls_tScreenMemcard.h"
 #endif

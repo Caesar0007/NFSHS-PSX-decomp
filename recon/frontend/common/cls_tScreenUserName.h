@@ -7,10 +7,10 @@ struct tScreenUserName : public tScreen {
     void DrawBackground(); void Initialize();
     tOptionsMenu *callingMenu; short fTextFade; bool fInTransition; char fRowList[10][9];
     void DrawVerticalLine(short, short, short); void DrawHorizontalLine(short, short, short);
-#ifndef NFS4_KEY_OBJECT_SCREENUSERNAME
-    inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }   /* called from feapp.cpp / femenudefs.cpp (retail inline pair) */
-#endif
+    inline void SetCallingMenu(tOptionsMenu *m) TSCREENUSERNAME_KEY_STRIP;   /* key object: standalone copy goes to .text.strip (fe_core_types.h) */
+
+
 #line 97 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.H"
-};
+}; inline void tScreenUserName::SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
 #line 16 "recon/frontend/common/cls_tScreenUserName.h"
 #endif

@@ -1427,6 +1427,24 @@
    "function": "__25tMenuItemSlidingActivatedUissssb",
    "source": "recon/frontend/common/femenuoptions.h",
    "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/screenmemcard.cpp.o",
+   "function": "SetMessage__14tScreenMemcardi",
+   "source": "recon/frontend/common/cls_tScreenMemcard.h",
+   "evidence": "Inline member called from femenudefs/feapp (retail inline pair there). Every includer sees the one class definition; this object is the class key object, so g++ 2.8 also emits an unreferenced standalone copy, placed in .text.strip and removed by SLINK /strip. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/screenpost.cpp.o",
+   "function": "SetDrawMoney__26tScreenTournamentStandings",
+   "source": "recon/frontend/common/cls_tScreenTournamentStandings.h",
+   "evidence": "Inline member called from femenudefs/feapp (retail inline pair there). Every includer sees the one class definition; this object is the class key object, so g++ 2.8 also emits an unreferenced standalone copy, placed in .text.strip and removed by SLINK /strip. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/screenusername.cpp.o",
+   "function": "SetCallingMenu__15tScreenUserNameP12tOptionsMenu",
+   "source": "recon/frontend/common/cls_tScreenUserName.h",
+   "evidence": "Inline member called from femenudefs/feapp (retail inline pair there). Every includer sees the one class definition; this object is the class key object, so g++ 2.8 also emits an unreferenced standalone copy, placed in .text.strip and removed by SLINK /strip. Absent from the retail MAP."
   }
  ]
 }

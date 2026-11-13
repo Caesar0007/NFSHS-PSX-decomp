@@ -64,6 +64,23 @@ struct tScreen;
 
 
 
+#include "../../link_stripped.h"   /* LINK_STRIPPED for the key-object switches below */
+/* Screen classes with an inline member: their key objects (marker defined at the top of the .cpp) strip the copy. */
+#ifdef NFS4_KEY_OBJECT_SCREENMEMCARD
+#define TSCREENMEMCARD_KEY_STRIP LINK_STRIPPED
+#else
+#define TSCREENMEMCARD_KEY_STRIP
+#endif
+#ifdef NFS4_KEY_OBJECT_SCREENPOST
+#define TSCREENTOURNSTANDINGS_KEY_STRIP LINK_STRIPPED
+#else
+#define TSCREENTOURNSTANDINGS_KEY_STRIP
+#endif
+#ifdef NFS4_KEY_OBJECT_SCREENUSERNAME
+#define TSCREENUSERNAME_KEY_STRIP LINK_STRIPPED
+#else
+#define TSCREENUSERNAME_KEY_STRIP
+#endif
 /* FEMenuOptions is the key object of the derived menu-item classes in femenuoptions.h: same rule. */
 #ifdef NFS4_TU_FEMENUOPTIONS
 #define FEMENUOPTIONS_KEY_STRIP LINK_STRIPPED

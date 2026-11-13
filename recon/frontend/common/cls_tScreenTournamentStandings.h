@@ -13,11 +13,11 @@ struct tScreenTournamentStandings : public tScreen {
     bool gotmoney, gotbonus, gotbilled, fDrawMoney;
     bool fCountedDown, fStartCountdownNOW;
     int fCountSpeed;
-#ifndef NFS4_KEY_OBJECT_SCREENPOST
-    inline void SetDrawMoney() { fDrawMoney = 1; }   /* called from femenudefs.cpp (retail inline pair) */
-#endif
+    inline void SetDrawMoney() TSCREENTOURNSTANDINGS_KEY_STRIP;   /* key object: standalone copy goes to .text.strip (fe_core_types.h) */
+
+
     tScreenTournamentStandings();
 #line 64 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
-};
+}; inline void tScreenTournamentStandings::SetDrawMoney() { fDrawMoney = 1; }
 #line 23 "recon/frontend/common/cls_tScreenTournamentStandings.h"
 #endif

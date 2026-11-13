@@ -194,9 +194,26 @@ headers as authority, and `atoi` / `qsort`.
 Gate: bytes identical (a typed prototype changes argument promotion, so sweep every includer's assembly);
 counters `C_VARIADIC` 76 -> the five truthful names only, `C_CONFLICT` 33 -> 0.
 
-**Phase 7 - one type per global.** Same audit for `extern` data: the retail SYM records each global's type.
-Replace view arrays by the real type where the object records it; where retail records no type for that object
-the access expression has to change (see ruling question 4). Counter: globals with more than one type 36 -> 0.
+**Phase 7 - one type per global (audited 2026-11-14 with `tools/global_type_audit.py`).**
+The retail SYM records a type for 668 globals. The tool checked the 1139 `extern` declarations of the 377 globals
+the tree declares. 1022 agree. The exact remainder:
+
+| Finding | Declarations | Globals | What it is |
+|---|---|---|---|
+| VIEW: `GameSetup_gData` | 56 | 1 | declared as `int[650]` (38), `int[]` (8), `int[50][13]` (4), `int[325][2]` (4), `int[8]`, `int[244]` instead of `GameSetup_tData` |
+| VIEW: others | 19 | 15 | `simGlobal` as `int[6]`/`int[2]`; `Camera_gInfo`, `gCView`, `TrackSpec_gSpec`, `HudPmx_gHudNumberUV`, `BWorld_gChunkBuildList` as `int[]`; `Input_gSim`, `AICop_gRoadBlockState`, `AIHigh_CopGameType` as `int`; `Replay_ReplayInterface` as `int[8]`; `ginfo` as `char[256]`; `highLevelAIObjs` as `AIHigh_Traffic*[]`; three `void*`/`char*` for typed pointers |
+| SCALAR | 4 | 2 | `HudBustedOverlay`, `gNight_renderNight` declared `int`, retail `unsigned char` |
+| SHAPE: scalar declared as unsized array | 16 | 16 | `extern int inFrontEnd[]`, `Draw_gDoVSync[]`, `gFlip[]`, `gMaster*Level[]`, `R3DCar_InMenu[]`, ... (retail: plain `int`) |
+| SHAPE: wrong dimensions | 2 | 2 | `AIPerson_ScriptData[]` vs `[9][7]`, `Anim_gInstanceFromIndex[8]` vs `[32]` |
+
+Work, in this order:
+1. The 19 "other" views and the 4 scalars: declare the retail type, adjust the access expressions
+   (`simGlobal[1]` -> `simGlobal.gameTicks`), sweep. Same nature as the class views removed in phase 4-B.
+2. `GameSetup_gData` (56): needs ruling 4. The views exist because most objects do not record `GameSetup_tData`.
+3. The 16 unsized-array scalars are a code-generation lever: an unsized extern array is never addressed through
+   `$gp`. Before touching them, find out why retail does not use `$gp` for these in those objects - if the same
+   objects avoid `$gp` for all small data, the truth is a per-object `-G0` in the retail build, not 16 declarations.
+   Investigation item (compare `$gp` use per object in the retail image).
 
 **Phase 8 - finish the classes.**
 - Game-side menu header -> frontend headers (5 classes + `tListIteratorIndexed`).

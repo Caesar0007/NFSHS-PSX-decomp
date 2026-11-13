@@ -64,6 +64,12 @@ struct tScreen;
 
 
 
+/* FEMenuOptions is the key object of the derived menu-item classes in femenuoptions.h: same rule. */
+#ifdef NFS4_TU_FEMENUOPTIONS
+#define FEMENUOPTIONS_KEY_STRIP LINK_STRIPPED
+#else
+#define FEMENUOPTIONS_KEY_STRIP
+#endif
 /* tMenuItem's key object (FEMenu) emits a standalone copy of every inline member; SLINK /strip removes them
    (linkers/link_stripped.json). Everywhere else the attribute is empty. */
 #ifdef NFS4_TU_FEMENU

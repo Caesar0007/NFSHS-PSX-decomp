@@ -1379,6 +1379,54 @@
    "function": "ButtonImage__9tMenuItem",
    "source": "recon/frontend/common/fe_core_types.h",
    "evidence": "tMenuItem::ButtonImage -- inline member of the single tMenuItem definition (header-truth 8b). Its bodies are evidenced by the `this` record pairs in the femenuextended/femenuoptions Draw bodies; FEMenu.obj is the class key object, so g++ 2.8 emits this unreferenced standalone copy into .text.strip and SLINK /strip removes it; absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__35tInsideBoxControllerLeftRightSliderUiP13tListIterator",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__19tMemoryCardMenuItemUiP5tMenuPFR12tMenuCommand_v",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__27tMenuItemGoToMenuButtonFadeUiP5tMenuPFR12tMenuCommand_v",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__34tMenuItemControllerLeftRightChoiceUiP13tListIterator",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__29tMenuItemOnOffLeftRightChoiceUiP13tListIterator",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__31tMenuItemDisplayLeftRightChoiceUiP13tListIterator",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "IsActive__25tMenuItemSlidingActivated",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
+  },
+  {
+   "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+   "function": "__25tMenuItemSlidingActivatedUissssb",
+   "source": "recon/frontend/common/femenuoptions.h",
+   "evidence": "Inline member of a menu-item class whose single definition every includer sees (header-truth 8d); its body is used inline by femenudefs/feapp. FEMenuOptions.obj is the class key object, so g++ 2.8 also emits this unreferenced standalone copy; it goes to .text.strip and SLINK /strip removes it. Absent from the retail MAP."
   }
  ]
 }

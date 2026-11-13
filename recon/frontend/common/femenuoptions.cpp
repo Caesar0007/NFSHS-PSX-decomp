@@ -3,6 +3,7 @@
  *   menus, tUserNameMenuItem, tMemoryCardMenuItem) + 7 free helpers (flares, boxes, stick-range,
  *   cheat-check) + data. Member defs; deep tMenuItem/tMenu inheritance; real virtual dispatch.
  */
+#define NFS4_TU_FEMENUOPTIONS   /* owner identity: key object of the derived menu-item classes (FEMENUOPTIONS_KEY_STRIP) */
 #define NFS4_FE_NO_MENUITEM_INLINES   /* key TU of the menu-item family: in-class bodies would be emitted here (shared/tpdef_keys.h) */
 #include "../../lib/nfs4_new.h"
 #define NFS4_FE_CORE_MENUITEM_ISENABLED

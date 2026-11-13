@@ -1,7 +1,7 @@
 {
  "asm_label_aliases": 43,
  "classes_defined_more_than_once": 16,
- "codegen_views": 5,
+ "codegen_views": 1,
  "enum_macro_fakes": 28,
  "fake_inferred_ops": 0,
  "inferred_markers": 7,

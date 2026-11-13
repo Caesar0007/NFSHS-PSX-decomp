@@ -140,14 +140,14 @@ typedef unsigned int qfunc();
 
 
 
-struct PSXFront_DRenderCodegenView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"   /* the real DRender_tView / dflip (no codegen views; header-truth 4-B.4) */
+#include "shared/dflip.h"
 
-struct PSXFront_DFlipCodegenView {
-    DISPENV disp;
-    char *server;
-};
+
+
+
+
+
+
 
 #endif

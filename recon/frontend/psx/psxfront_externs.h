@@ -89,12 +89,12 @@ extern char *Paths_Paths[50];
 extern int R3DCar_InMenu[];
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
-extern PSXFront_DRenderCodegenView gCView;
+extern DRender_tView gCView;
 /* P885: native SYM56d925 is PTR STRUCT/dims0, matching FEScreen's scalar
  * owner. The old unsized-array workaround was not the original storage shape;
  * preserve the actual shape-array indexing through this one pointer cell. */
 extern tTexture_ShapeInfo *gCurrentShapes;
-extern PSXFront_DFlipCodegenView gEnviro[2];
+extern dflip gEnviro[2];
 extern int gFlip[];
 extern u_short gFontClut;
 extern int gMenuRotate[2];

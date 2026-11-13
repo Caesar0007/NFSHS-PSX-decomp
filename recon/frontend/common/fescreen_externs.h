@@ -7,19 +7,19 @@
  * instructions require their exact member shapes.  These private foreign-
  * symbol views are accepted by the canonical audit only at this owner and
  * only with their complete measured layouts. */
-struct FEScreen_DFlipCodegenView {
-    DISPENV disp;
-    char *server;
-};
+#include "shared/dflip.h"   /* the real dflip / Draw_tView (no codegen views; header-truth 4-B.4) */
+#include "shared/Draw_tView.h"
 
-struct FEScreen_DrawViewCodegenView {
-    int otsize, membudget;
-    DRAWENV drawenv[2];
-    u_long *ot[2];
-};
 
-#define dflip FEScreen_DFlipCodegenView
-#define Draw_tView FEScreen_DrawViewCodegenView
+
+
+
+
+
+
+
+
+
 
 /* The retail owner retains neither menu-text enum tag.  Preserve the proven
  * call target through its linkage name while keeping those foreign tags out

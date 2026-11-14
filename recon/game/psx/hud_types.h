@@ -12,7 +12,6 @@
 #define NFS4_COLOR_SCHED_AFTER_BWSM   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "../psx/hud_after_carvertex.h"   /* retail: FLARE_PIECE_DEF, HudPmx_tShape right after Draw_CarVertex */
 #include "psxcontroller_types.h"
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_HUD_EARLY_DONE)   /* second pass, from color_types.h */

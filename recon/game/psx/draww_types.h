@@ -5,7 +5,6 @@
 #define NFS4_GAME_PSX_DRAWW_TYPES_H
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* the standalone owner only */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
@@ -18,6 +17,18 @@
 #endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this header lists the parts of the common type graph itself (retail record order) */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "../common/draw_leaf_core.h"
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this header lists the draw leaf itself (retail record order) */
+#include "../common/draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "../common/draw_leaf_b_pixmap.h"
+#include "../common/draw_leaf_c_cache.h"
+#include "shared/Draw_DCache.h"   /* own types at this point */
+#include "../common/draw_leaf_d_carvertex.h"
+#ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld.obj: track object types right after Draw_CarVertex */
+#include "../common/bworld_after_carvertex.h"
+#endif
 #include "../common/color_p0_draw.h"
 #ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld.obj: Trk_SFX/Trk_SimObject after Trk_NewSimSlice */
 #include "../common/trk_sfx_simobject_late.h"

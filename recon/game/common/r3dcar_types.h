@@ -4,8 +4,6 @@
 #define NFS4_GMESETUP_HOOK_BEFORE_FE "r3dcar_types.h"   /* retail r3dcar.obj: forceFocus_t TCB EXEC DIRENTRY Skidmark_* right after Car_tObj */
 #define NFS4_TRANSFORMER_Z_HOOK "../game/common/r3dcar_types.h"   /* retail: Transformer_zScene right after Transformer_zOverlay */
 #define NFS4_DRAWC_R3DCAR_FF_EARLY
-#define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail r3dcar.obj: Draw_tVertex right after Draw_tPixMap (draw_leaf_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
 
 #define NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "../psx/drawc_types.h"

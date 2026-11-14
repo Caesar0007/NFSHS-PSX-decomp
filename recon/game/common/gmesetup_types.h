@@ -7,6 +7,24 @@
 
 #ifndef NFS4_GAME_COMMON_COLOR_TYPES_H   /* the parts of the common type graph, listed here: drawc.obj and hud.obj have their own types between them */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "draw_leaf_core.h"
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* the draw leaf, listed here: drawc/r3dcar, hud and psxcontroller have their own types in it */
+#include "draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "draw_leaf_b_pixmap.h"
+#if defined(NFS4_DRAWC_HOOKS) || defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)   /* drawc.obj, r3dcar.obj: Draw_tVertex right after Draw_tPixMap */
+#include "shared/Draw_tVertex.h"
+#endif
+#include "draw_leaf_c_cache.h"
+#include "draw_leaf_d_carvertex.h"
+#if defined(NFS4_DRAWC_HOOKS) || defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)   /* drawc.obj, r3dcar.obj: Draw_CarCache right after Draw_CarVertex */
+#include "shared/Draw_CarCache.h"
+#elif defined(NFS4_GAME_PSX_HUD_TYPES_H)   /* hud.obj: FLARE_PIECE_DEF, HudPmx_tShape */
+#include "../psx/hud_after_carvertex.h"
+#elif defined(NFS4_PSXCONTROLLER_HOOKS)   /* psxcontroller.obj: tTexture_ShapeInfo, kernpair */
+#include "../psx/psxcontroller_types.h"
+#endif
 #include "color_p0_draw.h"
 #include "color_p1_pregroup.h"
 #include "color_p2_group_trk.h"

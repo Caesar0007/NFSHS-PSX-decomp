@@ -1,7 +1,6 @@
 #if !defined(NFS4_GAME_COMMON_BWORLD_TYPES_H)   /* first pass; bworld.obj's exact source-visible type surface reconstructed from SYM */
 #define NFS4_GAME_COMMON_BWORLD_TYPES_H
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "bworld_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SFX   /* retail type order (game/common/color_types.h) */

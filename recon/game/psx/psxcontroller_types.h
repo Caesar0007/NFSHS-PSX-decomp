@@ -1,9 +1,8 @@
 /* psxcontroller.obj's exact source-visible type surface reconstructed from SYM. */
 #if !defined(NFS4_GAME_PSX_PSXCONTROLLER_TYPES_H)
 #define NFS4_GAME_PSX_PSXCONTROLLER_TYPES_H
-#ifndef NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX   /* psxcontroller.obj itself, not drawc/r3dcar/hud (they set their own draw-leaf hooks first) */
+#if !defined(NFS4_GAME_PSX_DRAWC_TYPES_H) && !defined(NFS4_GAME_PSX_HUD_TYPES_H)   /* psxcontroller.obj itself, not drawc/r3dcar/hud */
 #define NFS4_PADS_HOOK_BEFORE "gamesetup_leaf_types.h"   /* retail: GameSetup records right after CCOORD16, before the pads */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "../psx/psxcontroller_types.h"   /* retail: tTexture_ShapeInfo, kernpair right after Draw_CarVertex */
 #define NFS4_PSXCONTROLLER_HOOKS
 #endif
 

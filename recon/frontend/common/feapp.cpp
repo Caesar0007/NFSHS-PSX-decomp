@@ -54,11 +54,11 @@ tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer 
 
 
 
-inline tDialogHelp::tDialogHelp()
-{
-  variant = -1;
-  timeOutTicks = 0x578;
-}
+/* tDialogHelp(): defined in fedialog.h */
+
+
+
+
 
 /* tDialogMessageStringWithTimeout(): defined in fedialog.h */
 

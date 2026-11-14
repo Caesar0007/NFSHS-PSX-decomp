@@ -108,9 +108,9 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * for the variant mutation, not a caller pointer capture.
  * The widened value parameter is unretained in the supplied inline records. */
 /* (no #pragma: user ruling 2026-11-07) */
-inline void tDialogHelp::SetVariant(int variant) {
-    this->variant = variant;
-}
+/* tDialogHelp::SetVariant: defined in fedialog.h */
+
+
 
 /* ORIGINAL-NAME-UNRESOLVED: retail DrawHelpIcons records a record-less inline pair at its VertHelp test (line 160). */
 static inline short Menu_VerticalHelp(tMenu *menu) { return menu->VertHelp; }

@@ -53,13 +53,11 @@ struct tDialogHelp : public tDialogBase {
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
-    void AddItem(short, short); inline void SetVariant(int);
-    inline void CalculateDimensionsVirtual() NFS4_FEDIALOG_STRIP;
-    tDialogHelp();
+    void AddItem(short, short); inline void SetVariant(int) NFS4_FEDIALOG_STRIP;
+    tDialogHelp() NFS4_FEDIALOG_STRIP;
 #line 174 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 51 "recon/frontend/common/fedialog.h"
-inline void tDialogHelp::CalculateDimensionsVirtual() { CalculateDimensions(); }
 struct tDialogMessageString : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -93,6 +91,8 @@ inline tDialogBase *tDialogMessageString::SetString(int num) { string = TextSys_
 /* the two constructors every includer inlines (retail records their TPDEF runs in every including object: 8 tDialogBase TPDEFs each) */
 inline tDialogBase::tDialogBase() { currentlyOn = 0; reservedheight = 0; MaxH = 0; OffsetY = 0; OffsetX = 0; height = 0; width = 0; top = 0; left = 0; MaxW = 0x120; specificPlayer = -1; fDefault = 0; timeOutTicks = 0; }
 inline tDialogMessageString::tDialogMessageString() { Centerit = 0; fFullyOpen = 0; timeOutTicks = 0; fFadeText = 0x80; }
+inline tDialogHelp::tDialogHelp() { variant = -1; timeOutTicks = 0x578; }   /* after tDialogBase(): its base constructor must already be defined to be inlined */
+inline void tDialogHelp::SetVariant(int variant) { this->variant = variant; }
 #if 1
 
 #endif
@@ -127,11 +127,10 @@ struct tDialogInteractive : public tDialogMessageString {
  a compiler-synthesized ctor leaves that store out. */
     tDialogInteractive();
    /* defined inline in fedialog.cpp, after tDialogMessageString's inline ctor */
-    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
-    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
 #line 254 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 104 "recon/frontend/common/fedialog.h"
+inline tDialogInteractive::tDialogInteractive() { timeOutTicks = 0; fCurrentlyRunning = 0; }   /* explicit (not synthesized): derived constructors store this class's vtable on the way, as retail does */
 
 struct tDialogYesNo : public tDialogInteractive {
     /* overrides (retail vtable), declared on every owner surface */

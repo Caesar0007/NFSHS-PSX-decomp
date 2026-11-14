@@ -965,13 +965,13 @@ void tDialogYesNo::CalculateDimensions()
 
 
 /* explicit (not synthesized) so that derived constructors store this class's vtable on the way, as retail does */
-inline tDialogInteractive::tDialogInteractive()
-{
-  /* retail zeroes timeOutTicks THREE times in tDialogYesNo's ctor: once per inlined constructor level
-     (MessageString, Interactive, YesNo); the vtable stores between them keep gcc from folding the repeats */
-  timeOutTicks = 0;
-  fCurrentlyRunning = 0;   /* retail zeroes it (+156) BEFORE tDialogYesNo's vtable store: done at this class's level */
-}
+/* tDialogInteractive(): defined in fedialog.h */
+
+
+
+
+
+
 
 
 #line 765 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"

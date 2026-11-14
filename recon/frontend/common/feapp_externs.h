@@ -31,7 +31,7 @@ extern struct {
 } gPadinfo;
 extern char              bigBuf[];
 extern int               Cars_gNumRaceCars;
-extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync;
+extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync; static inline int FE_Ticks(void) { return ticks; }   /* retail MainLoop records a record-less inline pair at each tick read of the race-start wait (lines 369, 376); same helper as the other frontend objects */
 
 /* audio */
 void AudioCmn_PlayFESFX(int);

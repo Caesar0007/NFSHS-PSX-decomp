@@ -972,10 +972,10 @@ void tFEApplication::RunDemoVideo()
       /* SYM-CODEGEN-CARRIER: currentTicks -- P880 retires the global array
          view, but direct scalar assignment still changes the final load
          schedule; this remaining local/fence needs a separate source repair. */
-              /* SYM-INLINE-THIS: SetString */
-            /* SYM-CODEGEN-CARRIER: memcardDialog -- calling inline SetString
-               directly on NoInputMemCardDialog is count-exact FAIL 10 and
-               loses retail's $s0 receiver lifetime. */
+            /* 2026-11-15: the pink-slips save block uses the members directly (SetString(int) with retail's
+               tDialogMessageString `this`, IsFullyOpen, SetString(char *)), a `for` over the two players and a
+               single && guard; block records 298..341 are identical to retail.  The old FAIL 10 came from the
+               per-object SetString(int) copy that returned tDialogMessageString *. */
             /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT).  This guard used to read
                `if (cond) goto MainLoop_doBack;` -- it gated PASS 1123/1123
                (verify_asm is branch-target lenient) but BOTH of its branch words
@@ -1008,7 +1008,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 
 
-  this->PerformMenuInitialization(); demoLoopLastInputTick = ::ticks;
+  this->PerformMenuInitialization(); demoLoopLastInputTick = FE_Ticks();
 
 
   gFlip = 0;
@@ -1031,7 +1031,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
   this->SetMenu(0,newMenu);
   {
-  tMenuCommand command [2]; tInputKeyType keyVal [2]; do { tick = ::ticks;
+  tMenuCommand command [2]; tInputKeyType keyVal [2]; do { tick = FE_Ticks();
 
 
 
@@ -1085,7 +1085,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
           if (needToSetChildMenu) {
 
             this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->fChildMenu);
-            needToSetChildMenu = false; } } demoLoopLastInputTick = ::ticks;
+            needToSetChildMenu = false; } } demoLoopLastInputTick = FE_Ticks();
       } }
 
 
@@ -1300,31 +1300,31 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
 
 
             Init_Memcard(false,1);
-            {
-            tDialogMessageString *memcardDialog; int err; int player; err = PinkSlipsNoError;
+            
+            int err; int player; err = PinkSlipsNoError;
 
-            player = 0; do { if ((2 <= player) || (err != PinkSlipsNoError)) break; memcardDialog = (tDialogMessageString *)&FEApp->NoInputMemCardDialog; memcardDialog->SetString(TextSys_Word(player + 0x295));
+            for (player = 0; (player < 2) && (err == PinkSlipsNoError); player++) { FEApp->NoInputMemCardDialog.SetString(player + 0x295);
 
 
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
-              while (true) { if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+              while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {
 
                 FEApp->Redraw();
-              } err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)FrontEnd().pinkSlipsCar[player]);
+              } err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)frontEnd.pinkSlipsCar[player]);
 
 
 
 
-              if ((err != PinkSlipsNoError) && (player == 1)) {
-
+              if ((err != PinkSlipsNoError) && (player == 1))
+              {
                 sprintf(string,TextSys_Word(0x297),PlayerName(0),1);
 
 
-                (FEApp->NoInputMemCardDialog).string = string; SavePinkSlipsCarsWithErrorDialogs(0,1,-1);
+                FEApp->NoInputMemCardDialog.SetString(string); SavePinkSlipsCarsWithErrorDialogs(0,1,-1);
               }
 
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-              player++; } while (true);
+              }
 
             DeInit_Memcard();
 
@@ -1334,7 +1334,7 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
             this->UpdateMusic();
             AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
             continue; }
-            } }
+            }
           case 5:
           case 7:
 
@@ -1347,28 +1347,28 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
 
 
 
-            if (FrontEnd().raceType != RaceType_PinkSlips) {
+            if (frontEnd.raceType != RaceType_PinkSlips) {
 
-              if (FrontEnd().carListType == '\0') {
-                carManager.GetStockCar((u_short)(u_char)FrontEnd().playerCar[(u_char)this->fPlayer],carInfo) ;
+              if (frontEnd.carListType == '\0') {
+                carManager.GetStockCar((u_short)(u_char)frontEnd.playerCar[(u_char)this->fPlayer],carInfo) ;
               }
-              else { carManager.GetGarageCar((u_short)(u_char)FrontEnd().garageCar[(u_char)this->fPlayer],carInfo, (u_short)(u_char)this->fPlayer);
+              else { carManager.GetGarageCar((u_short)(u_char)frontEnd.garageCar[(u_char)this->fPlayer],carInfo, (u_short)(u_char)this->fPlayer);
               }
             }
             else {
-              carManager.GetPinkSlipsCar((u_short)(u_char)FrontEnd().pinkSlipsCar[(u_char)this->fPlayer], carInfo,(u_short)(u_char)this->fPlayer);
+              carManager.GetPinkSlipsCar((u_short)(u_char)frontEnd.pinkSlipsCar[(u_char)this->fPlayer], carInfo,(u_short)(u_char)this->fPlayer);
             }
 
             if (carInfo.fEnginePatch != 0) {
 
-              AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch); } ticks = ::ticks;
-            while (true) {
+              AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch); } ticks = FE_Ticks();
+            
 
 
 
 
 
-              if ((u_int)(::ticks - ticks) >= 0x100) break;
+            while (FE_Ticks() - ticks < 0x100) {
               FeAudio_systemtask(0);
             }
             ((int *)&GameSetup_gData)[9] = 0;
@@ -1379,7 +1379,7 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
 
 
             return kApp_Command_StartRace;
-            }
+            break; }
           case 8:
 
 
@@ -1389,16 +1389,16 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
             this->PerformMenuDestruction();
 
             return kApp_Command_StartReplay;
+
+
+
+
+
+
+
+          break;
           }
           }
-          ;
-
-
-
-
-
-
-
           }
         }
       }

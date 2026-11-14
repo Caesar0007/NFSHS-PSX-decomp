@@ -11,10 +11,10 @@
  "header_conditionals_member_visibility": 65,
  "header_conditionals_omit_type": 33,
  "inferred_markers": 7,
- "link_stripped_rows_non_sdk": 154,
+ "link_stripped_rows_non_sdk": 153,
  "opaque_storage_views": 0,
  "per_object_conditionals": 110,
- "sym_codegen_carriers": 168,
+ "sym_codegen_carriers": 165,
  "typeof_uses": 4,
  "variadic_only_prototypes": 77,
  "volatile_uses": 267

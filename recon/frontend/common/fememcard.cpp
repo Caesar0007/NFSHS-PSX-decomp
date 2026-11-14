@@ -695,12 +695,12 @@ bool SaveGame(short player)
 
 
       finished = true;
-      /* retail records a second empty record-less scope here (BLOCK 143..143 at +35c); its declaration is not recovered (no source invented) */
+      break;
 
 
 
 
-
+    default:
       break;
     }
   }
@@ -771,6 +771,11 @@ bool SaveGame(short player)
    lines (FRONT4); residual: the inline WarningDialog ctor is tagged with the preceding
    statement's line, retail line 0 (29 words). */
 
+  /* 2026-11-15 (BYTE+SYM+SLD exact: 374/374, tags 0, blocks 41/41): the dialogs use the inline members
+     (WarningDialog.SetPosition(0, 0x32) in the !PinkSlips block, FEApp->MemCardDialog.SetString(int) + Display());
+     pCI is declared in the switch body (retail records it at that depth), the two dialog guards are single
+     `WithDialogs && nomessage == 0` conditions (one test line, scope + block), every arm ends in `break;` (each
+     break leaves an empty block: retail has one per arm).  The dlgmsg / dialogText / dialogBase carriers are gone. */
 #line 588 "C:/nfs4/FRONTEND/COMMON/FEMEMCARD.CPP"
 short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
@@ -794,7 +799,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 
     if (PinkSlips == 0)
-    { WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32;
+    { WarningDialog.SetPosition(0, 0x32);
     }
     ((tDialogBase *)&WarningDialog)->Display();
     while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
@@ -835,9 +840,9 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 
 
-    switch(memCardResult) {
+    switch(memCardResult)
+    { CARDINFO_def *pCI;
     case 0x16:
-
 
 
 
@@ -880,22 +885,22 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
         SetPads();
       }
-      else {
-
-
-        result = 1; if (WithDialogs != 0) { if (nomessage == 0) {
-
+      else
+      {
+        result = 1;
+        if ((WithDialogs != 0) && (nomessage == 0))
+          {
             ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-            ((tDialogBase *)&FEApp->MemCardDialog)->Hide(); tDialogMessageString *dlgmsg = &FEApp->MemCardDialog; /* SYM-CODEGEN-CARRIER: receiver held across TextSys_Word (s0) */ char *dialogText = TextSys_Word(player + 0x329); /* SYM-CODEGEN-CARRIER: result kept while the Display receiver forms */
+            ((tDialogBase *)&FEApp->MemCardDialog)->Hide(); FEApp->MemCardDialog.SetString(player + 0x329);
 
-            tDialogBase *dialogBase = (tDialogBase *)&FEApp->MemCardDialog; /* SYM-CODEGEN-CARRIER: retail load/store order */ dlgmsg->SetString(dialogText); /* SYM-INLINE-THIS: SetString */ dialogBase->Display();
+            FEApp->MemCardDialog.Display();
           }
-        }
+        
 
 
 
-
-      } finished = true; break;
+      } finished = true;
+      break;
     case 2:
     case 3:
     case 7:
@@ -903,11 +908,11 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
     case 0xb:
     case 0x10:
     case 0x17:
-      {
+      
 
 
 
-        CARDINFO_def *pCI = MCRD_getcard(player * 4 + 1);
+        pCI = MCRD_getcard(player * 4 + 1);
 
 
         ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
@@ -936,9 +941,9 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
             returnmessage = 0x329;
           }
         }
-      }
-
+      
       finished = true;
+      break;
     }
   }
 
@@ -960,17 +965,17 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   } while ((returnmessage != 0x28d) && (count < 3));
 
 
-  if (WithDialogs != 0) { if (nomessage == 0) {
-
+  if ((WithDialogs != 0) && (nomessage == 0))
+    {
       ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
       ((tDialogBase *)&FEApp->MemCardDialog)->Hide();
-      tDialogMessageString *dlgmsg = &FEApp->MemCardDialog; /* the three carriers above repeat here */ char *dialogText = TextSys_Word(returnmessage + player);
-      tDialogBase *dialogBase = (tDialogBase *)&FEApp->MemCardDialog; dlgmsg->SetString(dialogText); /* SYM-INLINE-THIS: SetString */ dialogBase->Display();
+      FEApp->MemCardDialog.SetString(returnmessage + player);
+      FEApp->MemCardDialog.Display();
       while (!FEApp->MemCardDialog.IsFullyOpen()) {
         FEApp->Redraw();
       } FEApp->Redraw();
     }
-  }
+  
 
 
 

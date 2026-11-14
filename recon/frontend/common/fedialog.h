@@ -99,6 +99,7 @@ struct tDialogMessageStringWithTimeout : public tDialogMessageString {
 #line 215 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 80 "recon/frontend/common/fedialog.h"
+inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout() { timeOutTicks = 0x480; }   /* one definition for every includer (retail: 3 WithTimeout / 7 MessageString TPDEFs everywhere) */
 
 struct tDialogBackUpOnly : public tDialogMessageString {
     /* overrides (retail vtable), declared on every owner surface */
@@ -137,7 +138,6 @@ struct tDialogYesNo : public tDialogInteractive {
     void Draw();
     int yesnowords[2];
     tDialogYesNo();
-    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yes, int no, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
     inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yes, int no, short defaultValue) NFS4_FEDIALOG_STRIP;
 
 
@@ -150,12 +150,6 @@ struct tDialogYesNo : public tDialogInteractive {
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 127 "recon/frontend/common/fedialog.h"
-
-inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yes, int no, short defaultValue, short player) {
-    yesnowords[0] = yes; yesnowords[1] = no;
-    fDefault = defaultValue; specificPlayer = player;
-    return NFS4_FEDIALOG_SETCHOICES_RET; }
-
 
 inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yes, int no, short defaultValue) {
     yesnowords[0] = yes; yesnowords[1] = no;

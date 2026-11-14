@@ -36,10 +36,10 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * owner-header visibility here is inferred from retained type declarations,
  * not claimed as the unique original include graph. */
 /* (no #pragma: user ruling 2026-11-07) */
-inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
-{
-  timeOutTicks = 0x480;
-}
+/* tDialogMessageStringWithTimeout(): defined in fedialog.h */
+
+
+
 
 /* Existing word-ID overload; exact original signature remains unretained.
  * Its implicit MessageString receiver spans the real word lookup. */

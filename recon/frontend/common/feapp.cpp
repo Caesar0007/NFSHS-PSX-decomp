@@ -60,10 +60,10 @@ inline tDialogHelp::tDialogHelp()
   timeOutTicks = 0x578;
 }
 
-inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
-{
-  timeOutTicks = 0x480;
-}
+/* tDialogMessageStringWithTimeout(): defined in fedialog.h */
+
+
+
 
 
 

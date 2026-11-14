@@ -13,9 +13,6 @@
 #define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_FT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/drawc_types.h"   /* retail drawc.obj: Skidmark_*, DrawC_tEnvMap, GameSetup, Udff right after tSaveSurface */
-#define NFS4_COLOR_HOOK_AFTER_BO "../psx/drawc_types.h"   /* retail: forceFocus_t right after BO_tNewtonObj */
-#define NFS4_COLOR_HOOK_AFTER_CAR "../psx/drawc_types.h"   /* retail: FLARE_PIECE_DEF, BW_tContext, kernpair right after Car_tObj */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail: Draw_tVertex right after Draw_tPixMap */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES

@@ -5,7 +5,38 @@
 #define NFS4_PADS_HOOK_AFTER "gmesetup_types.h"
 #endif
 
-#include "color_types.h"
+#ifndef NFS4_GAME_COMMON_COLOR_TYPES_H   /* the parts of the common type graph, listed here: drawc.obj and hud.obj have their own types between them */
+#define NFS4_GAME_COMMON_COLOR_TYPES_H
+#include "color_p0_draw.h"
+#include "color_p1_pregroup.h"
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#include "color_p4_save.h"
+#ifdef NFS4_DRAWC_HOOKS   /* drawc.obj: Skidmark_*, DrawC_tEnvMap, GameSetup, Udff right after tSaveSurface */
+#define NFS4_COLOR_IN_HOOK3
+#include "../psx/drawc_types.h"
+#undef NFS4_COLOR_IN_HOOK3
+#endif
+#include "color_p5_bwsm.h"
+#include "color_p6_bo.h"
+#ifdef NFS4_DRAWC_HOOKS   /* drawc.obj: forceFocus_t right after BO_tNewtonObj */
+#define NFS4_COLOR_IN_HOOK
+#include "../psx/drawc_types.h"
+#undef NFS4_COLOR_IN_HOOK
+#endif
+#include "color_p7_sched.h"
+#include "color_p8_car.h"
+#if defined(NFS4_DRAWC_HOOKS)   /* drawc.obj: FLARE_PIECE_DEF, BW_tContext, kernpair right after Car_tObj */
+#define NFS4_COLOR_IN_HOOK2
+#include "../psx/drawc_types.h"
+#undef NFS4_COLOR_IN_HOOK2
+#elif defined(NFS4_GAME_PSX_HUD_TYPES_H)   /* hud.obj: forceFocus/AIDataRecord/kernpair/AudioMus right after Car_tObj */
+#define NFS4_COLOR_IN_HOOK2
+#include "../psx/hud_types.h"
+#undef NFS4_COLOR_IN_HOOK2
+#endif
+#include "color_p9_tail.h"
+#endif
 
 #ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 #include "shared/FEI_tList.h"

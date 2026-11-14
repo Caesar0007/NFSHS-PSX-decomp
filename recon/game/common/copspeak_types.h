@@ -5,7 +5,7 @@
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (audiocmn_types.h) */
 #define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (audiocmn_types.h) */
 #define NFS4_COPSPEAK_KERNPAIR_AFTER_TEX
-#define NFS4_COLOR_HOOK_AFTER_CAR "copspeak_types.h"   /* retail: BW_tContext/AudioMus/SND* right after Car_tObj (second pass below) */
+#define NFS4_AFTER_CAR_COPSPEAK   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #endif
 #define NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #ifndef NFS4_COPSPEAK_KEEP_FORCE_FOCUS

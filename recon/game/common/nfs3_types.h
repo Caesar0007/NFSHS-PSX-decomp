@@ -2,7 +2,7 @@
 #define NFS4_GAME_COMMON_NFS3_TYPES_H   /* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
 #define NFS4_PADS_HOOK_AFTER "nfs3_types.h"   /* retail nfs3.obj: scheduler + GameSetup records right after PAD_COMMON */
 #define NFS4_PADS_HOOK_BEFORE "nfs3_types.h"   /* retail: tNfsSystemInfo right after CCOORD16, before the pads */
-#define NFS4_COLOR_HOOK_AFTER_CAR "nfs3_types.h"   /* retail: forceFocus_t, BW_tContext right after Car_tObj */
+#define NFS4_AFTER_CAR_NFS3   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #define NFS4_AUDIOCMN_HOOK_BEFORE_FE "nfs3_types.h"   /* retail: Speech classes, tTexture_ShapeInfo, kernpair before the frontend block */
 #define NFS4_AUDIOCLC_LATE_KERNEL
 #define NFS4_AUDIOCMN_KERNEL_LATER

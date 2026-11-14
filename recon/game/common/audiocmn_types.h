@@ -5,7 +5,7 @@
 #define NFS4_CORE_SND_FIRST   /* retail: SND* structs ahead of the core (nfs4_types.h) */
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (below) */
 #define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (below) */
-#define NFS4_COLOR_HOOK_AFTER_CAR "audiocmn_types.h"   /* retail: SndBnk_t/Channels_t/s_type/AudioMus right after Car_tObj (pass below) */
+#define NFS4_AFTER_CAR_AUDIOCMN   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES

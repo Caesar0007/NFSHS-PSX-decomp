@@ -7,9 +7,34 @@
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
-#define NFS4_COLOR_HOOK_AFTER_CAR "audioclc_types.h"   /* retail audioclc.obj: SceneElem, SceneSortedElem right after Car_tObj (second pass below) */
+#define NFS4_AFTER_CAR_AUDIOCLC   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #endif
-#include "color_types.h"
+#ifndef NFS4_GAME_COMMON_COLOR_TYPES_H   /* the parts of the common type graph; the object being compiled has its own types right after Car_tObj */
+#define NFS4_GAME_COMMON_COLOR_TYPES_H
+#include "color_p0_draw.h"
+#include "color_p1_pregroup.h"
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#include "color_p4_save.h"
+#include "color_p5_bwsm.h"
+#include "color_p6_bo.h"
+#include "color_p7_sched.h"
+#include "color_p8_car.h"
+#define NFS4_COLOR_IN_HOOK2
+#if defined(NFS4_AFTER_CAR_AUDIOCLC)
+#include "audioclc_types.h"
+#elif defined(NFS4_AFTER_CAR_AUDIOCMN)
+#include "audiocmn_types.h"
+#elif defined(NFS4_AFTER_CAR_COPSPEAK)
+#include "copspeak_types.h"
+#elif defined(NFS4_AFTER_CAR_CARS)
+#include "cars_types.h"
+#elif defined(NFS4_AFTER_CAR_NFS3)
+#include "nfs3_types.h"
+#endif
+#undef NFS4_COLOR_IN_HOOK2
+#include "color_p9_tail.h"
+#endif
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 /* The completed s_type enum is absent from audioclc.obj; it survives only in

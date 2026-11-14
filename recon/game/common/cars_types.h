@@ -13,7 +13,7 @@
 /* camera_info + forceFocus_t: the copspeak path omits camera_info and views forceFocus_t as int; retail cars.obj records
    forceFocus_t as its LAST type (after Speaker) -> both are defined in the tail block below */
 #define NFS4_COLOR_OMIT_UDFF_HANDLE
-#define NFS4_COLOR_HOOK_AFTER_CAR "cars_types.h"   /* retail: physics/AIDataRecord/anim/object types right after Car_tObj (second pass below) */
+#define NFS4_AFTER_CAR_CARS   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #include "copspeak_types.h"
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_CARS_EARLY_DONE)   /* second pass, from color_types.h */

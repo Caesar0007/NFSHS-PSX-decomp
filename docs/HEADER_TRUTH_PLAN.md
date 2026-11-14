@@ -136,9 +136,10 @@ Method (proven on the AI objects in 9a, gate-identical every time):
 Every object's token stream is unchanged by construction, so bytes, census and inversions cannot move; the gate
 confirms it each time.
 
-Done (9a-9i): the AI hierarchy header, `color_types.h` (8 of 9 hooks) and `draw_leaf_types.h` (all 4 hooks) are
-plain part lists. Computed includes tree-wide: 53 at the start of phase 9, 42 now; hook definitions
-(`#define NFS4_*HOOK* "file"`): 109.
+Done (9a-9l): the AI hierarchy header, `color_types.h` (8 of 9 hooks), `draw_leaf_types.h` (all 4), the pad header
+(both), the root `nfs4_types.h` (3 of 4) and `shared/Transformer_z.h` are plain part lists. Computed includes
+tree-wide: 53 at the start of phase 9, 36 now; hook definitions (`#define NFS4_*HOOK* "file"`): 120 -> 79.
+Every game-side shared aggregator is hook-free except for hooks whose only users are frontend headers.
 
 Fast check used for every step: `tools/psyq_pipe/ichk.sh <tu...>` recompiles on the debug lane and compares the
 preprocessed source with a snapshot of a gate-passed state. Identical token stream = identical bytes, records and
@@ -157,10 +158,9 @@ Pitfalls met:
 Left, in this order:
 | Item | Users | Note |
 |---|---|---|
-| pad hooks `NFS4_PADS_HOOK_AFTER` / `_BEFORE` | 17 headers (anim, chunk, clock, gmesetup, input, minfront, nfs3, physics, replay, simqueue, sim, track, draw, loading, overlays, psxcontroller) | the pad header is reached from draw_leaf_a_pads.h and from game_common_min_types.h; read both before cutting |
-| core hooks in nfs4_types.h (`NFS4_CORE_HOOK_AFTER_CD`, `_BEFORE_CD`, `_AFTER_DRMODE`, `_AFTER_PADS`) | device, drawdbg, ... | root aggregator; same method |
+| `NFS4_CORE_HOOK_AFTER_CD` (nfs4_types.h) | screenpinkslips_keys.h, screentracks_types.h | goes with the frontend work |
 | `NFS4_COLOR_HOOK_AFTER_CAR` | femenuoptions.h, screencontroller_keys.h, psxfront.h | last color_types.h hook; goes with the frontend work |
-| chunk_types.h (3), audiocmn_types.h (3), gmesetup_types.h (1), aihigh.h (1), Transformer_z.h (1), fe_menu_game_surface.h (2) | few users each | |
+| single-owner hooks: chunk_types.h `NFS4_CHUNK_HOOK` x3 (track), audiocmn_types.h x3 + fe_menu_game_surface.h x2 (nfs3), gmesetup_types.h `HOOK_BEFORE_FE` (r3dcar), aihigh.h `BLOCKADE_HEAD` (aih_btcperp) | one object each | the host is another object's types header: solved when that object gets its own list |
 | frontend: screendisplay_types.h (11), fe_core_cars.h (4), screencarselect (3), screendisplay_carblock_iters.h (2), fe_core_types.h, fe_track_types.h, screencongrats_tt.h, femenuoptions.h | the screen objects | largest remaining block |
 | self-include second passes (`#include "<own>_types.h"` under an IN marker) | audedit, collide, scene, audiotrk, draww, bworld, object, night, render, textureprocess, drawc, hud, cars, nfs3, copspeak, audiocmn, audioclc, psxcontroller, screentrophyroom | turn each branch into a small plain header (`<obj>_after_bo.h`) |
 | multi-user branches created in 9d-9i (night/render, draww/bworld, sim/object, gmesetup chain, audioclc chain) | 5 shared types headers | disappear when each object gets its own list instead of including another object's types header |

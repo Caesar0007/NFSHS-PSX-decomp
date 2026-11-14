@@ -123,6 +123,72 @@ i.e. phase 9 material, pilot on the AI objects); phase 10 (bodies); phase 11 (un
 left open: the 16 scalars declared as unsized arrays in psxfront/front/screencarselect (those objects are already
 `-G0`, so a per-object `-G` is not the explanation); EA-library prototypes.
 
+## State after 2026-11-15 - the dirty SYM-tree functions and the dialog header
+
+Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, linked SYM tree 2545 clean / 25 dirty
+(was 2537 / 33), SLINK census 1085 (was 1331). Header conditionals 388, per-object 110, 166 of 172 objects flattened.
+
+The 33 functions whose debug tree differed from retail were taken one by one, re-measuring every old receipt (most
+were written before the SYM lane existed). Clean now: Front_Menu, Front_EnableLocalSpeech,
+tScreenCarSelectTwoPlayer::DrawBackground, tInsideBoxTwoWaySlider::Calibrate, GetPSXPadValue, Confirm,
+SavePinkSlipsCarsWithErrorDialogs, LoadGame. SaveGame is down to its two `do { } while (0)` tail scopes.
+
+What the fixes were (each is a source form retail's records dictate, none is a device):
+
+| Retail record | Source form |
+|---|---|
+| a block holding one parameter record + one empty inner block | inline member with that parameter (`tTournamentManager::AddMoney(long extraMoney)`) |
+| record-less inline pair + a `li` tagged with a header line | header inline returning a constant |
+| root block end before the last statement | single-exit function (`if (..) { .. } return result;`) |
+| `bltz / slti / ==` chain on a byte | `switch` on the char member |
+| zero-address 3-nest + a compare constant tagged on a blank line | an EMPTY `if (inline-cond) { }` |
+| block begin one line later than ours | `{` on its own line |
+| a register pointer with no record, computed on a line with no other code | an UNUSED local initialised from the global there; cse keeps its address |
+| per-case temporaries in different registers, result variable in `$2` | `var = expr | 1; break;` per case, `default:` assignments, one `return var;` |
+| an empty block in a case arm | `break;` (two = `break; default: break;`) |
+| if-scope + block, both tests on one line | `if (A && B)` + `{` on the next line |
+| a local recorded at switch-body depth | declared in the switch body before the first case |
+| word lookup tagged on the declaration line, store later | the setter call sits on the declaration line (inline code takes the previous note) |
+
+Tools added for this (kept outside the repo, `C:\Temp`): `sib.py` / `sibg.py` (measure source variants of one function
+on a sibling copy: bytes, SLD tags, blocks, locals; the gate tree is never edited while a gate runs), `tpcount.py`
+(per-object TPDEF count of one class, optionally under a temporary header patch), `prio.py` (global-allocation
+priorities from a `-dl -dg` dump), `dirty_list.py`.
+
+### The dialog header (FEDIALOG.H) - composition found by measurement
+
+The census is an inline-BODY counter: every inline body re-requests its `this`, parameter and return classes. Retail
+has the same count in every includer of a header, so a per-object copy of a body (constructors in four `.cpp` files,
+`SetString(int)` in five `*_externs.h` files) is wrong by construction, and an object that was "exact" through such a
+copy was compensating for something else. `tpcount.py` gave the weight of each body; the one composition that gives
+retail's numbers in every includer (tDialogBase 8, tDialogMessageString 7, WithTimeout 3) and agrees with every retail
+record is:
+
+| Body | Evidence |
+|---|---|
+| `tDialogBase()`, `tDialogMessageString()`, `tDialogInteractive()`, `tDialogHelp()`, `tDialogMessageStringWithTimeout()` inline, one definition | nested constructor `this` chains in `__12tDialogYesNo` and `__14tFEApplication` |
+| `bool tDialogMessageString::IsFullyOpen()` | `this` tagged tDialogMessageString at the guard in `tDialogYesNo::ProcessInput` |
+| `tDialogBase *SetPosition(int, int)` | record-less pairs with two stores (Confirm, SaveGame, SavePinkSlips); chained with SetSpecificPlayer; `short` parameters route the second store through `this` |
+| `tDialogBase *SetString(int num)` | parameter record `num` (Confirm); MenuExtended_SellCar passes the same pointer on to Display |
+| `void SetString(char *mess)` | `this` + `mess` records (MenuExtended_AwardPinkSlipsCar) |
+| `SetChoices(int yes, int no, short)` only | parameter record `yes`; the 4-argument form had no caller left |
+| `tDialogHelp::SetVariant(int)` | `this` pair in `tFEApplication::DisplayHelp` |
+
+Removed as unevidenced: the 3-argument `SetPosition`, `Text_PlayerName`, `Dialog_SetString`, the 4-argument
+`SetChoices`, the unused `CalculateDimensionsVirtual` / `ProcessInputVirtual` wrappers. A constructor body must be
+defined after its base constructor (otherwise the base is called out of line).
+
+Left open on purpose: tDialogHelp is 2 short and tDialogInteractive 1 short in every includer (bodies unknown);
+SaveGame's tail (natural source = identical block tree, but `player`/`returnvalue` swap `$s5/$s6`: priorities .04831
+vs .04908); retail keeps line notes inside compiler-generated constructors/destructors (4 SLD tags in SaveGame,
+destructor block lines in SavePinkSlips).
+
+Remaining dirty functions (25): allocator/carrier cases in DRAWW, DRAWC, AIH_COP, SPEECH, SIM, FLARE; MainLoop
+(94 of retail's 140 block records: many inline pairs still spelled as raw member access); the two DrawForeground;
+Collide_TestObjectVertices and tScreenCarSelect::DrawForeground (retail has empty nested scopes whose declarations
+are not recoverable); AnimKeyPoints; Hud_BuildTach; tDialogHelp::Draw; Redraw; RaceStatistics; Paths_StartUp;
+tUserNameMenuItem::ProcessInput; R3DCar_InsertCarFacetMenu; DrawController.
+
 ## Phase 9 status (2026-11-14) - how the order hooks are being removed
 
 Method (proven on the AI objects in 9a, gate-identical every time):
@@ -496,3 +562,7 @@ The four "gap" rows are the best candidates for real recovery: check NFS4-PC / N
 | draww.obj | one more `Trk_AnimateInst` than retail since 4g | AnimScript inline dtor visible there; unexplained |
 | ai, aih_basiccop, anim, bworld, bworldsm, chunk, track .obj | one more `Group` than retail since 4n | retail has Group's third inline body (SetNumElements) only in object.obj / draww.obj; where retail really defined it is unknown - not restored by a per-object switch |
 | feapp, screenaudio, screencarselect, screenmain, screenmemcard, screenpinkslips, screenpost .obj | +1 each of `tUserNameMenuItem`, `tTrackManager`, `tTrackInformation` since 4-B.2; screenaudio.obj 7 order inversions | they now see the real tGlobalMenuDefs instead of a padded partial view; retail does not record those member types there - how retail's objects referenced menuDefs members without them is unknown |
+| every dialog includer | `tDialogHelp` 2 short, `tDialogInteractive` 1 short (fedialog.obj: 10 of 12 and 6 of 7) | the unused `CalculateDimensionsVirtual` / `ProcessInputVirtual` wrappers that padded these counts were removed (no call site, no record); the real bodies are unknown |
+| feapp, femenudefs, front, screencongrats .obj | one `tMenuCommand` short since the wrapper removal | the removed `ProcessInputVirtual(tPlayer, tInputKeyType &, tMenuCommand &)` carried it; count only |
+| fememcard.obj SaveGame | two `do { } while (0)` scopes at the tail | natural source gives retail's block tree but swaps `player`/`returnvalue` (`$s5/$s6`, priorities .04831 vs .04908); player needs a live range 4 insns shorter or one more reference |
+| any object with a local of a class with compiler-generated members | SLD: retail keeps the line notes inside synthesized constructors/destructors (`Set SLD linenum to 412` before the vptr store in SaveGame; destructor blocks numbered 1) | ours drops them: the notes' file is the `#line` name, not the main input file name |

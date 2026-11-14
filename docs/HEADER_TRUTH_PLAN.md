@@ -168,21 +168,46 @@ Left, in this order:
 Counter note: the explicit branches raised `header_conditionals_all` from 581 to 597 and `per_object_conditionals`
 from 145 to 152 during 9d-9i. They replace hidden computed includes one for one and fall away with the last row.
 
-### Frontend block: flatten by trace (design, 2026-11-14)
-`frontend/common/screendisplay_types.h` is a script of the whole frontend graph: 535 lines, about 30 order switches,
-11 hooks, re-entered for a second pass. ~35 screen objects steer it. Cutting it by hand object by object is slow.
-Measured: making the list-iterator header the default include after tCarManager / tTrackManager (what 33 of 37 hook
-definitions ask for) changes 18 objects - retail really has two groups, so the hooks cannot simply be folded away.
+### Flattening (done for 158 of 172 C++ objects, 9m-9r)
+The remaining order machinery is removed by generating each object's include list instead of cutting by hand.
 
-Planned method: the debug-lane `.i` of an object already records, in its `# line "file"` markers, the exact sequence
-of header regions that contribute tokens. So:
-1. move every block of inline definitions that still lives inside an aggregator into its own plain header (the
-   aggregators then contain only includes and conditionals);
-2. for one object, read the include sequence from its `.i` and write it out as that object's explicit list;
-3. check with `ichk.sh` (identical preprocessed source), gate once per batch;
-4. when no object uses an aggregator's switches any more, the aggregator is a plain default list or is deleted.
-Content switches (a region that exists only under a switch, e.g. `NFS4_CORE_FULL`) become separate small headers
-that the list names or omits. Prototype on one screen object first (screenmain), then the rest by script.
+Tools (`tools/psyq_pipe/`):
+- `flatten.py <tu.cpp> <header> --auto --prune --write` - a partial preprocessor. It runs the object's whole macro
+  state like cpp, and rewrites the chosen header as what it amounts to for this object: every *pure aggregator*
+  reached from it (a file holding only directives, comments and forward declarations) is expanded in place and its
+  conditionals are resolved and dropped; every other include stays an `#include` line; `#define` / `#undef` /
+  `#line` and the header's own text are kept.
+- `flatten_all.py [--redo] <tu...>` - picks each object's first header that only this object includes, flattens it,
+  and keeps the result only when `ichk.sh` reports an identical preprocessed source (restores it otherwise).
+- `purify.py <header> --apply` - moves each run of definitions out of a switch/list header into a leaf header, so
+  the header becomes a pure aggregator the flattener can expand.
+- `prune_defs.py` / `prune_all.py` - remove `#define NFS4_*` lines and repeated includes from a flattened header
+  when the cpp output does not change.
+- `collapse_dead.py --apply` - resolves conditionals whose names nothing defines any more.
+- `dead_tests.py`, `ichk.sh` - reports / the identical-preprocessed-source check.
+
+State after 9r (every step gate-passed, bytes 299819, census 1331, inversions unchanged):
+| Counter | Start of phase 9 | Now |
+|---|---|---|
+| header conditionals, all kinds | 628 | 401 |
+| per-object header conditionals | 143 | 113 |
+| omit-type conditionals | 93 | 41 |
+| computed includes (`#include NFS4_...`) | 53 | 24 |
+| objects with an explicit, switch-free entry header | 0 | 158 |
+| orphaned key / piece headers deleted | - | 18 |
+
+Left:
+- 5 objects whose flattened header is not yet identical on re-run (screentrackrecords, screentrophyroom,
+  aih_btcperp, aidatarecord, mpause) and 9 objects whose first include is a shared header (femenudefs,
+  femenuextended, femenuoptions, front, speech, aiscript, fastrand, new, paths) - these need an entry header of
+  their own.
+- The leaf headers created by `purify.py` have generic names (`<part>_dN.h`); rename them after what they hold.
+- Include runs that many objects share (the PsyQ core, the pad records, the draw leaf) are spelled out in every
+  list; factor each run that is identical in many objects into one plain named list header (no conditionals).
+- The `Car_tObj` typedef-form selector in color_p8_car.h and the other content switches inside leaf headers.
+- The switch-driven aggregators themselves (screendisplay_types.h 36 conditionals, audioclc_types.h 26,
+  screenmemcard_types.h 23, shared/tpdef_keys.h 20, gmesetup_types.h 15, ...) can be deleted once no object or
+  C file includes them.
 
 ## Deep analysis 2026-11-13 and revised roadmap
 

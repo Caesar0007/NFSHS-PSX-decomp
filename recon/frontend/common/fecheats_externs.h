@@ -43,11 +43,11 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* Existing word-ID overload; exact original signature remains unretained.
  * Its implicit MessageString receiver spans the real word lookup. */
-inline tDialogMessageString *tDialogMessageString::SetString(int num)   /* retail Confirm records the parameter: REG $18 num */
-{
-  string = TextSys_Word(num);
-  return this;
-}
+/* tDialogMessageString::SetString(int): defined in fedialog.h */
+
+
+
+
 
 static inline void FECheat_AddMoney(long money)
 {

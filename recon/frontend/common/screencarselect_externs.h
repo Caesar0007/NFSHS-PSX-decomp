@@ -266,10 +266,10 @@ static inline long GetTicks(void) { return (long)::ticks[0]; }
 
 
 
-inline tDialogMessageString *tDialogMessageString::SetString(int word)
-{
-  string = TextSys_Word(word);
-  return this;
-}
+/* tDialogMessageString::SetString(int): defined in fedialog.h */
+
+
+
+
 
 #endif

@@ -751,6 +751,12 @@
    "evidence": "tDialogMessageString::SetString(char *) (NFS4_FEDIALOG_STRIP, owner NFS4_FEDIALOG_DIRECT) (0xc B), inline in recon/frontend/common/fedialog.h. FEDialog.obj is now compiled with retail's PsyQ 4.4 CC1PLPSX (2.8.1-sn) without -fno-implement-inlines -- the compiler that makes the dialog classes's synthesized destructors global as in the retail SYM (SYMLANE L4 / LANE2 M1) -- and, owning the class key function, emits this standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (P6 Route C 2026-11-07: slink removed exactly the 29 newly tagged copies, retail-kept 0, NFS4.EXE and FRONT.BIN byte-identical to the retail disc files; receipt build/tmp/v/P6_state.md); absent from the retail MAP."
   },
   {
+   "object": "build/recon/frontend/common/fedialog.cpp.o",
+   "function": "SetString__20tDialogMessageStringi",
+   "source": "recon/frontend/common/fedialog.h",
+   "evidence": "tDialogMessageString::SetString(int) (NFS4_FEDIALOG_STRIP, owner NFS4_FEDIALOG_DIRECT), one definition for every includer since 2026-11-15 (retail parameter record `num`; the five per-object copies are removed), inline in recon/frontend/common/fedialog.h. FEDialog.obj is now compiled with retail's PsyQ 4.4 CC1PLPSX (2.8.1-sn) without -fno-implement-inlines -- the compiler that makes the dialog classes's synthesized destructors global as in the retail SYM (SYMLANE L4 / LANE2 M1) -- and, owning the class key function, emits this standalone copy; nothing references it. Original SLINK Beta3 /strip removes it (P6 Route C 2026-11-07: slink removed exactly the 29 newly tagged copies, retail-kept 0, NFS4.EXE and FRONT.BIN byte-identical to the retail disc files; receipt build/tmp/v/P6_state.md); absent from the retail MAP."
+  },
+  {
    "object": "build/recon/frontend/common/femenuoptions.cpp.o",
    "function": "__14tInsideBoxMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vs",
    "source": "recon/frontend/common/screendisplay_types.h",

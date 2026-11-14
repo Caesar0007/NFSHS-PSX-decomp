@@ -783,14 +783,14 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 {
   tMemCardData memCardData;
   char memorycardbuffer [256];
-  short cardNum; bool finished; int result; int memCardResult; int count; int returnmessage;
+  short cardNum;
    /* Pass the actual short cardNum; call conversions supply its signed value. */
 
   CURRENTPLAYER = player;
 
   CURRENTLYUSINGMEMCARD = 1;
   cardNum = player * 4 | 1;
-  tDialogNoInputMessage WarningDialog; MCRDFILE_def memCardFile;
+  tDialogNoInputMessage WarningDialog; MCRDFILE_def memCardFile; bool finished; int result; int memCardResult; int count; int returnmessage;
 
 
 
@@ -1415,7 +1415,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 
 
-        retry = ((tDialogInteractive *)RetryCancelDialog.SetString(string))->Run();
+        RetryCancelDialog.SetString(string); retry = RetryCancelDialog.Run();
 
         ((tDialogBase *)&WillLoseCarMessage)->Hide();
       }

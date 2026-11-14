@@ -10,7 +10,7 @@ extern tFEApplication *FEApp;
 extern tPlayer        gMenu_SubMenuPlayer;   /* SYM 563d74: scalar ENUM tPlayer */
 
 /* ===== text / audio / app ===== */
-int   TextSys_Word(int id);
+char *TextSys_Word(int id);
 int   TextSys_WordX(int id);
 int   TextSys_WordY(int id);
 void  FETextRender_Title(short word);

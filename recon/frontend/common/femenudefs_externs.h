@@ -127,10 +127,10 @@ inline void tUserNameMenuItem::SetUserNameData(short player, char *data) { fPlay
 static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
 
 /* header inline (retail SLD records the caller's line for its block pair) */
-inline tDialogMessageString *tDialogMessageString::SetString(int word)
-{
-  string = TextSys_Word(word);
-  return this;
-}
+/* tDialogMessageString::SetString(int): defined in fedialog.h */
+
+
+
+
 
 #endif

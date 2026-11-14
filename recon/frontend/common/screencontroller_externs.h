@@ -51,9 +51,9 @@ static inline int TextDefinitionColor(int type, int column)
 static inline bool DialogIdle(tDialogInteractive *dialog) { return dialog->fCurrentlyRunning == 0; }
 static inline int FE_Ticks(void) { return ticks; }
 static inline void Menu_SetVerticalHelp(tMenu *menu, short help) { menu->VertHelp = help; }
-inline tDialogMessageString *tDialogMessageString::SetString(int word)
-{
-  string = TextSys_Word(word);
-  return this;
-}
+/* tDialogMessageString::SetString(int): defined in fedialog.h */
+
+
+
+
 #endif

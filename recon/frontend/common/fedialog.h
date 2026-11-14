@@ -28,6 +28,7 @@ struct tDialogBase : public tScreen {
     static void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();
     inline bool IsVisible() NFS4_FEDIALOG_STRIP;
+
     inline void SetSpecificPlayer(short) NFS4_FEDIALOG_STRIP;   /* FRONT26: defined for every includer (retail class-region TPDEFs) */
     /* 2-argument form (OffsetX/OffsetY stores only): retail Confirm / SaveGame / SavePinkSlipsCarsWithErrorDialogs
        record it as a record-less inline pair after SetString; screencarselect chains it with SetSpecificPlayer. */
@@ -65,13 +66,13 @@ struct tDialogMessageString : public tDialogBase {
     void Draw();
     char *string;
     bool Centerit;
-    inline tDialogMessageString *SetString(char *mess) NFS4_FEDIALOG_STRIP;
+    inline void SetString(char *mess) NFS4_FEDIALOG_STRIP; inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
 #ifdef NFS4_FEMENUDEFS_SURFACE
     /* Inferred word-ID overload: retail SaveGame holds this across the word
        lookup. The operation/receiver are verified; literal original signature
        and cross-owner visibility are not uniquely recovered. */
 #endif
-    inline tDialogMessageString *SetString(int);
+    inline tDialogBase *SetString(int num) NFS4_FEDIALOG_STRIP;
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
     /* ORIGINAL-SIGNATURE-UNRESOLVED: owner-local inferred display overloads;
      * their actual expansions are validated against retail receiver scopes. */
@@ -82,17 +83,18 @@ struct tDialogMessageString : public tDialogBase {
 #if 1   /* FRONT26: every includer (retail class-region MS TPDEFs); was DIRECT || FULLYOPEN_SURFACE */
     /* ORIGINAL-NAME-UNRESOLVED: retail tDialogYesNo::ProcessInput records an inline pair with a
        tDialogMessageString `this` REG at its fFullyOpen guard (xori;bnez). */
-    inline bool IsFullyOpen() NFS4_FEDIALOG_STRIP;
 #endif
 #line 204 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 76 "recon/frontend/common/fedialog.h"
-inline tDialogMessageString *tDialogMessageString::SetString(char *mess) { string = mess; return this; }
+inline void tDialogMessageString::SetString(char *mess) { string = mess; } inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
+char *TextSys_Word(int);
+inline tDialogBase *tDialogMessageString::SetString(int num) { string = TextSys_Word(num); return this; }   /* retail Confirm records the parameter: REG $18 num */
 /* the two constructors every includer inlines (retail records their TPDEF runs in every including object: 8 tDialogBase TPDEFs each) */
 inline tDialogBase::tDialogBase() { currentlyOn = 0; reservedheight = 0; MaxH = 0; OffsetY = 0; OffsetX = 0; height = 0; width = 0; top = 0; left = 0; MaxW = 0x120; specificPlayer = -1; fDefault = 0; timeOutTicks = 0; }
 inline tDialogMessageString::tDialogMessageString() { Centerit = 0; fFullyOpen = 0; timeOutTicks = 0; fFadeText = 0x80; }
 #if 1
-inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
+
 #endif
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
     tDialogMessageStringWithTimeout();

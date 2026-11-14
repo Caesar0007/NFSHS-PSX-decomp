@@ -329,11 +329,11 @@ int AskTheUserToSaveTheGame(void)
   if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
 
 
-    tDialogYesNo YesNoDialog; int answer; tDialogYesNo *const dialog = Dialog_AsYesNo(YesNoDialog.SetString(TextSys_Word(0x331)));
+    tDialogYesNo YesNoDialog; int answer; YesNoDialog.SetString(0x331);
 
 
 
-    dialog->yesnowords[0] = 0x321; dialog->yesnowords[1] = 0x322; dialog->fDefault = 0; answer = (short)((tDialogInteractive *)dialog)->Run();
+    YesNoDialog.SetChoices(0x321, 0x322, 0); answer = YesNoDialog.Run();
 
 
 
@@ -2051,7 +2051,7 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
   fWinner = screenPinkSlipCongrats->Winner(); sprintf(string,TextSys_Word(0x29a),PlayerName(fWinner),fWinner + 1);
 
-  FEApp->NoInputMemCardDialog.SetString(string)->tDialogBase::Display();
+  FEApp->NoInputMemCardDialog.SetString(string); FEApp->NoInputMemCardDialog.tDialogBase::Display();
 
   while (!Dialog_FullyOpen(&FEApp->NoInputMemCardDialog)) {
     FEApp->Redraw();

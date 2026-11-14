@@ -84,7 +84,7 @@ int StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *);
 int Stattool_GetAllDefaultRecords(tRecordBuffer *, bool);
 int Stattool_ReturnRecordLapTime(short);
 int TextSys_UnloadWords(void);
-int TextSys_Word(int);
+char *TextSys_Word(int);
 int __builtin_new(...);
 int s_lower(char *);
 

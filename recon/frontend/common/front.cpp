@@ -1189,7 +1189,7 @@ int Front_Menu(tFront_ProcessingType role)
 
 
 { int result; int one;
-  result = kApp_Command_StartRace; tScreen::fSuppressLoadingText = 1; one = 1;
+  result = kApp_Command_StartRace; tScreen::fSuppressLoadingText = 1; one = Front_One();
 
 
 
@@ -1218,7 +1218,7 @@ int Front_Menu(tFront_ProcessingType role)
 
   if (((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) && (tournamentManager.GetMoney() < one))
   {
-    { long extraMoney = carManager.CheapestCarStockPrice() + one; tournamentManager.fMoney = tournamentManager.GetMoney() + extraMoney; }
+    tournamentManager.AddMoney(carManager.CheapestCarStockPrice() + one);
   }
 
   switch (role)
@@ -2771,11 +2771,13 @@ static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
    Hot Pursuit when the track language differs from the frontend language and
    is one of the locally supported languages.
 
-   [Locals 2026-08-16] Retail SYM restores the BOOL result in $s1 and the
-   stack-local trackInfo. A post-GetTrack const language alias now preserves
-   the separate signed tests without an extra debug local (PASS 35/35).
-   The function scope still ends at +0x78 rather than retail +0x74;
-   Front_BuildStream remains PASS 1000/1000. */
+   [2026-11-14] Single exit + switch. Retail ends the root scope at +0x74, BEFORE the final
+   `move v0,s1`: the scheduler moves the scope-end note to the head of the function's last
+   basic block, which only happens when no early `return` puts a return label after it - so
+   the race-type test wraps the body. The `bltz / slti 3 / == 6` chain on an lbu-loaded byte
+   is gcc's case tree for `switch (fLanguage) { case 0: case 1: case 2: case 6: }` (the low
+   bound test is emitted for the promoted int index); no alias local is needed. Bytes 35/35,
+   line tags 35/35, blocks and locals (result $s1, trackInfo) as retail. */
 
 #line 2266 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 bool Front_EnableLocalSpeech(void)
@@ -2785,20 +2787,20 @@ bool Front_EnableLocalSpeech(void)
   bool result;
   tTrackInformation trackInfo;
   result = false;
-  if (frontEnd.raceType != RaceType_HotPursuit)
-    return false;
-  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
+  if (frontEnd.raceType == RaceType_HotPursuit) {
 
-  const int lang = trackInfo.fLanguage; if (lang != (byte)frontEnd.language)
-    if ((0 <= lang) &&
-       (lang < 3 || lang == 6))
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
 
+    if (trackInfo.fLanguage != (byte)frontEnd.language)
 
+      switch (trackInfo.fLanguage) {
+      case 0:
+      case 1:
+      case 2:
+      case 6:
 
-
-
-      result = true;
-
+        result = true; }
+  }
 
 
 

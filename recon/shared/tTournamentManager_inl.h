@@ -35,6 +35,9 @@
     long GetMoney() { return fMoney; }
 
     void SubtractMoney(long amount) { (u_long &)fMoney -= (u_long)amount; }
+    /* EVIDENCE: retail Front_Menu (FRONT.CPP 961) records an inline block whose parameter record is `extraMoney` (LONG, $2)
+       with one empty inner block. The parameter name is retail's; the member name is descriptive. */
+    void AddMoney(long extraMoney) { fMoney += extraMoney; }
 
 
 

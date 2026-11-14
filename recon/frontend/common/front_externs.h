@@ -185,4 +185,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* Header inline (retail tags its code at the caller line, not at a definition line in FRONT.CPP). */
 static inline int FE_Ticks(void) { return ticks; }
 
+/* ORIGINAL-NAME-UNRESOLVED: retail Front_Menu records a record-less inline pair at its first statement line and tags
+   the `li 1` with the header line - a header inline whose value is the shared constant 1 (2026-11-14). */
+static inline int Front_One(void) { return 1; }
 #endif

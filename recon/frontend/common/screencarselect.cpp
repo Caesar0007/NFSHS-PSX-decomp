@@ -1985,9 +1985,9 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
  * captures. Real carInfo.fCarID replaces the signed-ID union alias. Repricing
  * loading after the complete upload rewrite also removes that capture with
  * zero branch divergence; older jump-graph necessity claims were basin-specific.
- * All local/type/home/depth tuples match. Three empty zero-address scopes from
- * the retail prefix remain unidentified; do not manufacture a no-op producer.
- * Complete SLD/original getter and expression spelling remain unsealed. */
+ * All local/type/home/depth tuples match. 2026-11-14: the three zero-address
+ * scopes are an EMPTY `if (FEApp->CurrentPlayer() == kPlayerTwo) { }` on retail line 1755 (its `li 1` is tagged there);
+ * with the braces of five ifs/else on their own lines tags are 342/342 and blocks 46/46 (SYM tree clean). */
   /* [SYM] 8c decl order: r, carInfo, carY, drenv, daprim, temp */
 #line 1741 "C:/nfs4/FRONTEND/COMMON/SCREENCARSELECT.CPP"
 void tScreenCarSelectTwoPlayer::DrawBackground()
@@ -2007,7 +2007,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   daprim = (DR_AREA *)Render_gPacketPtr; ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)daprim + 0xc; ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
 
-
+  if (FEApp->CurrentPlayer() == kPlayerTwo) { }
 
 
   r.x = 0x122;
@@ -2017,8 +2017,8 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   } r.w = 200;
   r.h = 0xc;
 
-  if (this->GetCar(carInfo) != 0) {
-
+  if (this->GetCar(carInfo) != 0)
+  {
     r.y = 0x14;
     if (FEApp->CurrentPlayer() == kPlayerTwo) {
 
@@ -2031,17 +2031,17 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
 
     this->UpdateVideoWall(carInfo);
-    if (gCarObj[FEApp->CurrentPlayer()]->async_handle != 0) {
-
+    if (gCarObj[FEApp->CurrentPlayer()]->async_handle != 0)
+    {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = FE_Ticks();
     }
 
 
-    if (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) {
+    if (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0)
+    {
       if (((this->fBrightness[0] == this->fDestBrightness[0]) &&
            (this->fBrightness[0] == 0)) &&
-
           (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
 
         this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
@@ -2053,8 +2053,8 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     showRoomFlag = 0;
     DrawCar(carInfo,0x116,carY,1.7,-9.9,(char)this->fBrightness[0],false, this->fCameraRotation,FEApp->CurrentPlayer());
   }
-  else {
-
+  else
+  {
     carInfo.fCarID = -1;
     this->UpdateVideoWall(carInfo);
 
@@ -2066,9 +2066,9 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   this->IsShapeFileLoaded(this->fSwapShapes);
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
      (this->fVideoWall[0].TransitionDirection() != -1)) &&
-     (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
+     (gCarObj[FEApp->CurrentPlayer()]->async_handle == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0]))
+  {
     this->tScreen::UploadShapes(this->fSwapShapes,0,
-
                                FEApp->CurrentPlayer() == kPlayerTwo ? 0x41 : 0,5,0);
     this->fVideoWall[0].TurnOn();
     if (this->fDestBrightness[0] == this->fBrightness[0]) {

@@ -1,27 +1,19 @@
 /* copspeak.obj's exact source-visible delta over the shared AudioCmn graph. */
 #if !defined(NFS4_GAME_COMMON_COPSPEAK_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_COPSPEAK_TYPES_H
-#ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (audiocmn_types.h) */
 #define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (audiocmn_types.h) */
 #define NFS4_COPSPEAK_KERNPAIR_AFTER_TEX
 #define NFS4_AFTER_CAR_COPSPEAK   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
-#endif
 #define NFS4_AUDIOCLC_OMIT_SCENE_TYPES
-#ifndef NFS4_COPSPEAK_KEEP_FORCE_FOCUS
 #define NFS4_AUDIOCLC_OMIT_FORCE_FOCUS
 #define NFS4_COPSPEAK_DEFINED_OMIT_FORCE_FOCUS
-#endif
-#ifndef NFS4_COPSPEAK_KEEP_CAMERA_VIEW
 #define NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
 #define NFS4_COPSPEAK_DEFINED_OMIT_CAMERA_VIEW
-#endif
 #define NFS4_AUDIOCLC_OMIT_CARLOGIC_OBSERVATIONS
 #define NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
-#ifndef NFS4_COPSPEAK_KEEP_SAVE_RECORDS
 #define NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
 #define NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
-#endif
 #include "audiocmn_types.h"
 #ifdef NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
 #undef NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
@@ -59,13 +51,9 @@
     defined(NFS4_COPSPEAK_KEEP_BW_CONTEXT)
 #include "shared/BW_tContext.h"
 #endif
-#ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 #include "shared/SNDSTREAMSTATUS.h"
-#endif
 #include "copspeak_types_d1.h"
 #include "speech_class.h"   /* NFS3.CPP constructs Speech and its undefined Speaker */
-#ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES   /* retail: the bank types after the Speech classes */
 #include "copspeak_types_d2.h"
-#endif
 
 #endif

@@ -132,11 +132,6 @@
 
 
 
-#ifdef NFS4_FE_CORE_CARS_HOOK_AFTER_PERSONALITIES   /* owner hook: right after tPersonalities */
-#define NFS4_FE_CORE_CARS_IN_HOOK
-#include NFS4_FE_CORE_CARS_HOOK_AFTER_PERSONALITIES
-#undef NFS4_FE_CORE_CARS_IN_HOOK
-#endif
 #ifdef NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities, before tfrontEnd */
 #include "shared/tCarLineup.h"
 #endif

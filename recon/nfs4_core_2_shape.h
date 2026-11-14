@@ -1,19 +1,12 @@
 /* root type graph, part 2 of 5 (cut from nfs4_types.h at its order hooks) */
 #ifndef NFS4_CORE_2_SHAPE_H
 #define NFS4_CORE_2_SHAPE_H
-#ifndef NFS4_PSYQ_DDV_TYPES   /* (continued) */
 #ifdef NFS4_CORE_FULL   /* (continued) */
 #ifdef NFS4_PRIM_DR_TWIN
 #include "nfs4_core_2_shape_d1.h"
 #endif
-#ifdef NFS4_PRIM_DR_STP
-#include "nfs4_core_2_shape_d2.h"
-#endif
 #ifdef NFS4_PRIM_DR_AREA
 #include "shared/DR_AREA.h"
-#endif
-#ifdef NFS4_PRIM_DR_OFFSET
-#include "shared/DR_OFFSET.h"
 #endif
 #endif
 
@@ -28,5 +21,4 @@
 #define NFS4_HAVE_MATRIX3DT
 #endif
 #endif
-#endif   /* (block continues in the next part) */
 #endif

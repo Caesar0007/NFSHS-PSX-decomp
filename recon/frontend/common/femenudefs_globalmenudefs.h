@@ -2,7 +2,6 @@
  * after tVideo (femenudefs_after_video.h); femenudefs_types.h includes it in place (no-op then). */
 #ifndef NFS4_FRONTEND_COMMON_FEMENUDEFS_GLOBALMENUDEFS_H
 #define NFS4_FRONTEND_COMMON_FEMENUDEFS_GLOBALMENUDEFS_H
-#ifndef NFS4_FEMENUDEFS_NO_GLOBALMENUDEFS
 struct tGlobalMenuDefs {
     tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace, itemMainTwoPlayerRace, itemMainTrophyRoom, itemMainOptions;
     tMenuNFS4 menuMain;
@@ -163,5 +162,4 @@ struct tGlobalMenuDefs {
     tGlobalMenuDefs();
     ~tGlobalMenuDefs();
 };
-#endif
 #endif

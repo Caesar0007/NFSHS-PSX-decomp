@@ -5,10 +5,4 @@
 #include "draw_leaf_types.h"
 #undef NFS4_CORE_CCOORD16
 #include "shared/CCOORD16.h"
-#ifdef NFS4_COLOR_GROUP_LATE   /* retail: the track quad types and RelCoord16 ahead of Group (owner first header) */
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
-#endif
 #endif

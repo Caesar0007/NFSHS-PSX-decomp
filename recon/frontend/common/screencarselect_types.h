@@ -28,9 +28,9 @@ typedef int FEMATRIX[4][4];
 
 #define NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 #include "fedialog_types.h"
-#ifdef NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL   /* retail: MANAGERTASK in the memcard graph (after CARDINFO_def; nearest owner site) */
-#include "mcrd_managertask.h"
-#endif
+
+
+
 #undef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 
 

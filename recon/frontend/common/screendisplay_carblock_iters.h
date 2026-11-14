@@ -50,7 +50,4 @@ struct tListIteratorTrack : public tListIteratorIndexed {
     short TextValue(tPlayer); void Increment(tPlayer); void Decrement(tPlayer);
     bool ValidTrack(char);
 };
-#ifdef NFS4_SCREENDISPLAY_ITERS_TRACK_CHAIN
-#include NFS4_SCREENDISPLAY_ITERS_TRACK_CHAIN
-#endif
 #endif

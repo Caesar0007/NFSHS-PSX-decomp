@@ -137,14 +137,14 @@ struct tDialogYesNo : public tDialogInteractive {
     tDialogYesNo();
     inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
     inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue) NFS4_FEDIALOG_STRIP;
-#ifdef NFS4_FEDIALOG_MEMCARD_CONFIRM_SURFACE
-    /* ORIGINAL-NAME-UNRESOLVED: retail fememcard Confirm__Fii records a receiver-free inline pair with param `yes`
-       (REG $20) at its yes-word setup. Only the TU defining this surface macro sees it (no out-of-line copy). */
-    inline tDialogYesNo *SetYes(int yes) {
-        yesnowords[0] = yes;
-        return this;
-    }
-#endif
+
+
+
+
+
+
+
+
 #line 275 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 127 "recon/frontend/common/fedialog.h"

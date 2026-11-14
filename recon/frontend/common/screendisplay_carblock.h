@@ -24,11 +24,6 @@
 #define NFS4_SCREENDISPLAY_CB_TRACKS 0
 #endif
 #if NFS4_SCREENDISPLAY_CB_CARS && NFS4_SCREENDISPLAY_CB_TRACKS
-#ifdef NFS4_SCREENDISPLAY_TRACKS_BEFORE_CARS   /* sub-key: track/tournament records ahead of the car tail */
-#define NFS4_FE_TRACK_NO_PLAYER
-#include "fe_tournament_types.h"
-#undef NFS4_FE_TRACK_NO_PLAYER
-#endif
 #endif
 #if NFS4_SCREENDISPLAY_CB_CARS
 #include "fe_core_cars.h"

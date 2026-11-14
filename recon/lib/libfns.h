@@ -25,7 +25,6 @@ extern "C" {
  *  PsyQ SDK functions -- libgpu / libgte / libetc / libapi / libpad.
  *  Gated OFF under ccpsx (real PsyQ headers provide these).
  * ===================================================================== */
-#ifndef NFS4_PSYQ_HEADERS
 /* ---- libgpu (graphics) ---- */
 int ClearImage(RECT *rect, unsigned char r, unsigned char g, unsigned char b);   /* (RECT *rect, u_char r, u_char g, u_char b) */
 u_long * ClearOTagR(...);   /* (u_long *ot, int n) */
@@ -77,7 +76,6 @@ void PadSetAct(int port, unsigned char *table, int len); /* PsyQ 4.3 <libpad.h> 
 int PadSetActAlign(int port, unsigned char *table);       /* PsyQ 4.3 <libpad.h> */
 int PadSetMainMode(int port, int offs, int lock); /* PsyQ 4.3 <libpad.h> */
 void PadStartCom(void);                           /* PsyQ 4.3 <libpad.h> */
-#endif /* !NFS4_PSYQ_HEADERS */
 
 /* =====================================================================
  *  EA eaclib / syslib  +  libc  +  libgcc soft-float -- ALWAYS declared.

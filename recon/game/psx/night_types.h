@@ -6,13 +6,11 @@
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
-#ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES   /* the standalone owner only */
 #define NFS4_NIGHT_SKID_LATE   /* retail: the Skidmark types after CWorldColor */
 #define NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
-#endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this header lists the parts of the common type graph itself (retail record order) */
 #include "../common/color_p0_draw.h"
@@ -23,11 +21,7 @@
 #include "../common/color_p5_bwsm.h"
 #include "../common/color_p6_bo.h"
 #define NFS4_COLOR_IN_HOOK   /* the types retail records right after the BO types: night.obj forceFocus_t, render.obj its own run */
-#ifdef NFS4_NIGHT_OMIT_PRIVATE_TYPES
-#include "../common/render_types.h"   /* included from render_types.h: its NFS4_COLOR_IN_HOOK branch */
-#else
 #include "../psx/night_types.h"   /* this header again: its NFS4_COLOR_IN_HOOK branch */
-#endif
 #undef NFS4_COLOR_IN_HOOK
 #include "../common/color_p7_sched.h"
 #include "../common/color_p8_car.h"
@@ -81,7 +75,6 @@
 #ifndef NFS4_NIGHT_SKID_LATE
 #include "shared/Skidmark_Chunk.h"
 #endif
-#ifndef NFS4_NIGHT_RENDER_LATE   /* render.obj: forceFocus_t via the BO hook, C*Spec late, no CTrackSpec (render_types.h) */
 #ifndef NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER
 #include "shared/forceFocus_t.h"
 
@@ -113,7 +106,6 @@
 
 
 #include "shared/CTrackSpec.h"
-#endif
 
 
 
@@ -164,9 +156,7 @@
 
 
 
-#ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES
 #include "night_types_d1.h"
-#endif
 
 #include "night_types_d2.h"
 

@@ -47,9 +47,7 @@
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
-#ifndef NFS4_SCREENMEMCARD_MCRD_EXTERNAL   /* owner places these itself (screencarselect) */
 #include "shared/DIRENTRY.h"
-#endif
 #ifdef NFS4_SCREENMEMCARD_FEDIALOG_ORDER   /* retail FEDialog: PRODUCTLOC, MANAGERTASK right after DIRENTRY */
 #include "mcrd_productloc.h"
 #include "mcrd_managertask.h"
@@ -67,9 +65,7 @@
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-#if !defined(NFS4_SCREENMEMCARD_MCRD_EXTERNAL) && !defined(NFS4_SCREENMEMCARD_RECBUF_EXTERNAL)   /* owner places it itself (screencarselect) */
 #include "mcrd_recordbuffer.h"
-#endif
 
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \

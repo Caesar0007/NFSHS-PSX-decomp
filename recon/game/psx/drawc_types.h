@@ -7,7 +7,6 @@
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
-#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES   /* the standalone owner only */
 #define NFS4_DRVIEW_STRUCT_ONLY   /* retail: one TPDEF DRender_tView (shared/DRender_tView.h) */
 #define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
@@ -16,7 +15,6 @@
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
 #define NFS4_DRAWC_R3DCAR_FF_EARLY
 #define NFS4_DRAWC_HOOKS
-#endif
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "psxcontroller_types.h"
 #undef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
@@ -28,7 +26,6 @@
 
 
 
-#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 /* POLY_FT3: declared by nfs4_types.h right after DISPENV (NFS4_PRIM_POLY_FT3, retail libgpu.h order) */
 
 
@@ -43,7 +40,6 @@
 
 
 
-#endif
 #include "shared/POLY_GT4.h"
 
 
@@ -51,13 +47,11 @@
 
 
 
-#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/BW_tContext.h"
 
 
 
 
-#endif
 #include "shared/Draw_SubdivStruct.h"
 #include "shared/Track_tArtresource.h"
 
@@ -73,9 +67,7 @@
 
 
 #endif
-#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/FLARE_PIECE_DEF.h"
-#endif
 #include "shared/Sched_tSchedule.h"
 
 
@@ -107,9 +99,7 @@
 
 
 
-#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/DrawC_tEnvMap.h"
-#endif
 #elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWC_BO_DONE)   /* second pass, color_types.h AFTER_BO */
 #define NFS4_DRAWC_BO_DONE
 #include "shared/forceFocus_t.h"

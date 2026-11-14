@@ -9,10 +9,8 @@
 #endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
-#ifndef NFS4_AUDIOCMN_KEEP_INPUT_DEVICE_CALL
 #define NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
 #define NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
-#endif
 #include "audioclc_types.h"
 
 #ifdef NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
@@ -32,22 +30,18 @@
 #define NFS4_AUDIOCMN_TAIL_DONE
 
 
-#ifndef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #include "shared/SNDPLAYOPTS.h"
 
 
 
 
 
-#endif
 
-#ifndef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #include "shared/AudioMus_tSongEntry.h"
 
 
 
 
-#endif
 
 #if !defined(NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST) && defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES)   /* audiocmn itself: after tfrontEnd (below) */
 #include "shared/CopSpeak_tRequest.h"

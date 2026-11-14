@@ -2,10 +2,7 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENTRACKS_TYPES_H
 #define NFS4_FLAT_SCREENTRACKS_TYPES_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets (TPDEF x16 per frontend object; FESCR) */
-#define NFS4_FRONTEND_COMMON_SCREENTRACKS_TYPES_H   /* Owner-specific type surface for ScreenTracks.obj. */
 #define NFS4_SCREENTRACKS_OWNER   /* screentracks.h: this object owns tScreenTrackSelect (inline copies LINK_STRIPPED) */
-#define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_BEFORE_CARS   /* color.obj graph right before the car/track graph */
 #define NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
@@ -18,7 +15,6 @@
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs after tActiveLine, before the color graph */
 #define NFS4_SCREENDISPLAY_DIALOGS_NO_DSE   /* retail ScreenTracks records no tDrawShapeExtended */
 #define NFS4_SCREENDISPLAY_HOOK_BEFORE_ACTIVELINE "fe_core_cars.h"   /* retail: car tail right before tActiveLine (menu items before it) */
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* retail: tActiveLine, tShapeInformation, tScreen consecutive */

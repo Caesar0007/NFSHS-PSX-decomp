@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_DEVICE_EXTERNS_H
 #define NFS4_FLAT_DEVICE_EXTERNS_H
-#define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #include "game/psx/device_types.h"
 extern void trap(int);  /* Ghidra builtin = MIPS `break` (gcc div-by-zero 0x1C00 / INT_MIN/-1 overflow 0x1800 guard) */

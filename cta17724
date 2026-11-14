@@ -1,0 +1,5390 @@
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_0_kernel_d1.h"
+	.def	size_t;	.scl	13;	.type	0xe;	.endef
+	.def	u_char;	.scl	13;	.type	0xc;	.endef
+	.def	u_short;	.scl	13;	.type	0xd;	.endef
+	.def	u_int;	.scl	13;	.type	0xe;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/u_long.h"
+	.def	u_long;	.scl	13;	.type	0xf;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_0_kernel_d2.h"
+	.def	ushort;	.scl	13;	.type	0xd;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_0_kernel_d3.h"
+	.def	_physadr;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	r;	.val	0;	.scl	8;	.dim	1;	.size	4;	.type	0x34;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	_physadr;	.size	4;	.endef
+	.def	_physadr;	.scl	13;	.tag	_physadr;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_0_kernel_d4.h"
+	.def	physadr;	.scl	13;	.tag	_physadr;	.size	4;	.type	0x18;	.endef
+	.def	daddr_t;	.scl	13;	.type	0x5;	.endef
+	.def	caddr_t;	.scl	13;	.type	0x12;	.endef
+	.def	qaddr_t;	.scl	13;	.type	0x15;	.endef
+	.def	ino_t;	.scl	13;	.type	0xf;	.endef
+	.def	swblk_t;	.scl	13;	.type	0x5;	.endef
+	.def	time_t;	.scl	13;	.type	0x5;	.endef
+	.def	dev_t;	.scl	13;	.type	0x3;	.endef
+	.def	off_t;	.scl	13;	.type	0x5;	.endef
+	.def	uid_t;	.scl	13;	.type	0xd;	.endef
+	.def	gid_t;	.scl	13;	.type	0xd;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/MATRIX.h"
+	.def	._0;	.scl	10;	.type	0x8;	.size	32;	.endef
+	.def	m;	.val	0;	.scl	8;	.dim	3,3;	.size	18;	.type	0xf3;	.endef
+	.def	t;	.val	20;	.scl	8;	.dim	3;	.size	12;	.type	0x35;	.endef
+	.def	.eos;	.val	32;	.scl	102;	.tag	._0;	.size	32;	.endef
+	.def	MATRIX;	.scl	13;	.tag	._0;	.size	32;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_1_gpu_d1.h"
+	.def	._1;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	vx;	.val	0;	.scl	8;	.type	0x5;	.endef
+	.def	vy;	.val	4;	.scl	8;	.type	0x5;	.endef
+	.def	vz;	.val	8;	.scl	8;	.type	0x5;	.endef
+	.def	pad;	.val	12;	.scl	8;	.type	0x5;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	._1;	.size	16;	.endef
+	.def	VECTOR;	.scl	13;	.tag	._1;	.size	16;	.type	0x8;	.endef
+	.def	._2;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	vx;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	vy;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	vz;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	pad;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	._2;	.size	8;	.endef
+	.def	SVECTOR;	.scl	13;	.tag	._2;	.size	8;	.type	0x8;	.endef
+	.def	._3;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	r;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	g;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	b;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	cd;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	._3;	.size	4;	.endef
+	.def	CVECTOR;	.scl	13;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	._4;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	vx;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	vy;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	._4;	.size	4;	.endef
+	.def	DVECTOR;	.scl	13;	.tag	._4;	.size	4;	.type	0x8;	.endef
+	.def	._5;	.scl	10;	.type	0x8;	.size	24;	.endef
+	.def	v;	.val	0;	.scl	8;	.tag	._2;	.size	8;	.type	0x8;	.endef
+	.def	uv;	.val	8;	.scl	8;	.dim	2;	.size	2;	.type	0x3c;	.endef
+	.def	pad;	.val	10;	.scl	8;	.type	0xd;	.endef
+	.def	c;	.val	12;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	sxy;	.val	16;	.scl	8;	.tag	._4;	.size	4;	.type	0x8;	.endef
+	.def	sz;	.val	20;	.scl	8;	.type	0xf;	.endef
+	.def	.eos;	.val	24;	.scl	102;	.tag	._5;	.size	24;	.endef
+	.def	RVECTOR;	.scl	13;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	._6;	.scl	10;	.type	0x8;	.size	88;	.endef
+	.def	r01;	.val	0;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r12;	.val	24;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r20;	.val	48;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r0;	.val	72;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	r1;	.val	76;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	r2;	.val	80;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	rtn;	.val	84;	.scl	8;	.type	0x1f;	.endef
+	.def	.eos;	.val	88;	.scl	102;	.tag	._6;	.size	88;	.endef
+	.def	CRVECTOR3;	.scl	13;	.tag	._6;	.size	88;	.type	0x8;	.endef
+	.def	._7;	.scl	10;	.type	0x8;	.size	140;	.endef
+	.def	r01;	.val	0;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r02;	.val	24;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r31;	.val	48;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r32;	.val	72;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	rc;	.val	96;	.scl	8;	.tag	._5;	.size	24;	.type	0x8;	.endef
+	.def	r0;	.val	120;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	r1;	.val	124;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	r2;	.val	128;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	r3;	.val	132;	.scl	8;	.tag	._5;	.size	24;	.type	0x18;	.endef
+	.def	rtn;	.val	136;	.scl	8;	.type	0x1f;	.endef
+	.def	.eos;	.val	140;	.scl	102;	.tag	._7;	.size	140;	.endef
+	.def	CRVECTOR4;	.scl	13;	.tag	._7;	.size	140;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/RECT.h"
+	.def	._8;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	y;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	w;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	h;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	._8;	.size	8;	.endef
+	.def	RECT;	.scl	13;	.tag	._8;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_1_gpu_d2.h"
+	.def	._9;	.scl	10;	.type	0x8;	.size	64;	.endef
+	.def	tag;	.val	0;	.scl	8;	.type	0xf;	.endef
+	.def	code;	.val	4;	.scl	8;	.dim	15;	.size	60;	.type	0x3f;	.endef
+	.def	.eos;	.val	64;	.scl	102;	.tag	._9;	.size	64;	.endef
+	.def	DR_ENV;	.scl	13;	.tag	._9;	.size	64;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_1_gpu_d3.h"
+	.def	._10;	.scl	10;	.type	0x8;	.size	92;	.endef
+	.def	clip;	.val	0;	.scl	8;	.tag	._8;	.size	8;	.type	0x8;	.endef
+	.def	ofs;	.val	8;	.scl	8;	.dim	2;	.size	4;	.type	0x33;	.endef
+	.def	tw;	.val	12;	.scl	8;	.tag	._8;	.size	8;	.type	0x8;	.endef
+	.def	tpage;	.val	20;	.scl	8;	.type	0xd;	.endef
+	.def	dtd;	.val	22;	.scl	8;	.type	0xc;	.endef
+	.def	dfe;	.val	23;	.scl	8;	.type	0xc;	.endef
+	.def	isbg;	.val	24;	.scl	8;	.type	0xc;	.endef
+	.def	r0;	.val	25;	.scl	8;	.type	0xc;	.endef
+	.def	g0;	.val	26;	.scl	8;	.type	0xc;	.endef
+	.def	b0;	.val	27;	.scl	8;	.type	0xc;	.endef
+	.def	dr_env;	.val	28;	.scl	8;	.tag	._9;	.size	64;	.type	0x8;	.endef
+	.def	.eos;	.val	92;	.scl	102;	.tag	._10;	.size	92;	.endef
+	.def	DRAWENV;	.scl	13;	.tag	._10;	.size	92;	.type	0x8;	.endef
+	.def	._11;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	disp;	.val	0;	.scl	8;	.tag	._8;	.size	8;	.type	0x8;	.endef
+	.def	screen;	.val	8;	.scl	8;	.tag	._8;	.size	8;	.type	0x8;	.endef
+	.def	isinter;	.val	16;	.scl	8;	.type	0xc;	.endef
+	.def	isrgb24;	.val	17;	.scl	8;	.type	0xc;	.endef
+	.def	pad0;	.val	18;	.scl	8;	.type	0xc;	.endef
+	.def	pad1;	.val	19;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	._11;	.size	20;	.endef
+	.def	DISPENV;	.scl	13;	.tag	._11;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/DR_MODE.h"
+	.def	._12;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	tag;	.val	0;	.scl	8;	.type	0xf;	.endef
+	.def	code;	.val	4;	.scl	8;	.dim	2;	.size	8;	.type	0x3f;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	._12;	.size	12;	.endef
+	.def	DR_MODE;	.scl	13;	.tag	._12;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_2_shape_d3.h"
+	.def	shapetbl;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	type;	.val	0;	.scl	18;	.type	0xe;	.size	8;	.endef
+	.def	next;	.val	8;	.scl	18;	.type	0x4;	.size	24;	.endef
+	.def	width;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	height;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	centerx;	.val	8;	.scl	8;	.type	0x3;	.endef
+	.def	centery;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	shapex;	.val	96;	.scl	18;	.type	0x4;	.size	12;	.endef
+	.def	reserved;	.val	108;	.scl	18;	.type	0xe;	.size	1;	.endef
+	.def	twiddled;	.val	109;	.scl	18;	.type	0xe;	.size	1;	.endef
+	.def	transposed;	.val	110;	.scl	18;	.type	0xe;	.size	1;	.endef
+	.def	rotated;	.val	111;	.scl	18;	.type	0xe;	.size	1;	.endef
+	.def	shapey;	.val	112;	.scl	18;	.type	0x4;	.size	12;	.endef
+	.def	mipmaps;	.val	124;	.scl	18;	.type	0xe;	.size	4;	.endef
+	.def	data;	.val	16;	.scl	8;	.type	0x2;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	shapetbl;	.size	20;	.endef
+	.def	shapetbl;	.scl	13;	.tag	shapetbl;	.size	20;	.type	0x8;	.endef
+	.def	SHAPE;	.scl	13;	.tag	shapetbl;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/coorddef.h"
+	.def	coorddef;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	y;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	z;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	coorddef;	.size	12;	.endef
+	.def	coorddef;	.scl	13;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_2_shape_d4.h"
+	.def	LIBCOORD;	.scl	13;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/matrixtdef.h"
+	.def	matrixtdef;	.scl	10;	.type	0x8;	.size	36;	.endef
+	.def	m;	.val	0;	.scl	8;	.dim	9;	.size	36;	.type	0x34;	.endef
+	.def	.eos;	.val	36;	.scl	102;	.tag	matrixtdef;	.size	36;	.endef
+	.def	matrixtdef;	.scl	13;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_2_shape_d5.h"
+	.def	MATRIX3DT;	.scl	13;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_3_cd_d1.h"
+	.def	cdstreamstruct;	.scl	10;	.type	0x8;	.size	152;	.endef
+	.def	id;	.val	0;	.scl	8;	.type	0x5;	.endef
+	.def	start;	.val	4;	.scl	8;	.type	0x12;	.endef
+	.def	end;	.val	8;	.scl	8;	.type	0x12;	.endef
+	.def	write;	.val	12;	.scl	8;	.type	0x12;	.endef
+	.def	header;	.val	16;	.scl	8;	.type	0x12;	.endef
+	.def	get;	.val	20;	.scl	8;	.type	0x12;	.endef
+	.def	release;	.val	24;	.scl	8;	.type	0x12;	.endef
+	.def	handle;	.val	28;	.scl	8;	.type	0x4;	.endef
+	.def	state;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	control;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	status;	.val	40;	.scl	8;	.type	0x4;	.endef
+	.def	abort;	.val	44;	.scl	8;	.type	0x4;	.endef
+	.def	datahascrc;	.val	48;	.scl	8;	.type	0x4;	.endef
+	.def	crcerrors;	.val	52;	.scl	8;	.type	0x4;	.endef
+	.def	crcretries;	.val	56;	.scl	8;	.type	0x4;	.endef
+	.def	buffersize;	.val	60;	.scl	8;	.type	0x4;	.endef
+	.def	blocksize;	.val	64;	.scl	8;	.type	0x5;	.endef
+	.def	readsize;	.val	68;	.scl	8;	.type	0x4;	.endef
+	.def	chunksize;	.val	72;	.scl	8;	.type	0x4;	.endef
+	.def	relocationsize;	.val	76;	.scl	8;	.type	0x4;	.endef
+	.def	fileoffset;	.val	80;	.scl	8;	.type	0x5;	.endef
+	.def	fileend;	.val	84;	.scl	8;	.type	0x4;	.endef
+	.def	filesize;	.val	88;	.scl	8;	.type	0x5;	.endef
+	.def	dataoffset;	.val	92;	.scl	8;	.type	0x4;	.endef
+	.def	seekposition;	.val	96;	.scl	8;	.type	0x4;	.endef
+	.def	seekoffset;	.val	100;	.scl	8;	.type	0x4;	.endef
+	.def	idtype;	.val	104;	.scl	8;	.type	0x4;	.endef
+	.def	idmask;	.val	108;	.scl	8;	.type	0x4;	.endef
+	.def	nextstream;	.val	112;	.scl	8;	.tag	cdstreamstruct;	.size	152;	.type	0x18;	.endef
+	.def	emptyblock;	.val	116;	.scl	8;	.type	0x11;	.endef
+	.def	head;	.val	120;	.scl	8;	.type	0x11;	.endef
+	.def	tail;	.val	124;	.scl	8;	.type	0x11;	.endef
+	.def	block;	.val	128;	.scl	8;	.type	0x11;	.endef
+	.def	timer;	.val	132;	.scl	8;	.type	0x4;	.endef
+	.def	blocktime;	.val	136;	.scl	8;	.type	0x4;	.endef
+	.def	streamfull;	.val	140;	.scl	8;	.type	0x4;	.endef
+	.def	getable;	.val	144;	.scl	8;	.type	0x4;	.endef
+	.def	releaseable;	.val	148;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	152;	.scl	102;	.tag	cdstreamstruct;	.size	152;	.endef
+	.def	cdstreamstruct;	.scl	13;	.tag	cdstreamstruct;	.size	152;	.type	0x8;	.endef
+	.def	CDSTREAM;	.scl	13;	.tag	cdstreamstruct;	.size	152;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/linedef.h"
+	.def	linedef;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	start;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	end;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	colour;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	thickness;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	linedef;	.size	16;	.endef
+	.def	linedef;	.scl	13;	.tag	linedef;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_4_tail_d1.h"
+	.def	LINE;	.scl	13;	.tag	linedef;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/SHAPETABLEENTRY.h"
+	.def	SHAPETABLEENTRY;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	id;	.val	0;	.scl	8;	.dim	4;	.size	4;	.type	0x32;	.endef
+	.def	offset;	.val	4;	.scl	8;	.type	0x5;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	SHAPETABLEENTRY;	.size	8;	.endef
+	.def	SHAPETABLEENTRY;	.scl	13;	.tag	SHAPETABLEENTRY;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PCOORD16.h"
+	.def	PCOORD16;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	y;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	z;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	p;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	PCOORD16;	.size	8;	.endef
+	.def	PCOORD16;	.scl	13;	.tag	PCOORD16;	.size	8;	.type	0x8;	.endef
+	.def	PCOORD16;	.scl	13;	.tag	PCOORD16;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/COORD16.h"
+	.def	COORD16;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	y;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	z;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	COORD16;	.size	6;	.endef
+	.def	COORD16;	.scl	13;	.tag	COORD16;	.size	6;	.type	0x8;	.endef
+	.def	COORD16;	.scl	13;	.tag	COORD16;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CCOORD16.h"
+	.def	CCOORD16;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	y;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	z;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	light;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	CCOORD16;	.size	8;	.endef
+	.def	CCOORD16;	.scl	13;	.tag	CCOORD16;	.size	8;	.type	0x8;	.endef
+	.def	CCOORD16;	.scl	13;	.tag	CCOORD16;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_4_tail_d3.h"
+	.def	wchar_t;	.scl	13;	.type	0xc;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_4_tail_d5.h"
+	.def	VOIDFN;	.scl	13;	.type	0x91;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/nfs4_core_4_tail_d6.h"
+	.def	FILEOP;	.scl	13;	.type	0x4;	.endef
+	.def	FILE_CALLBACK;	.scl	13;	.type	0x21;	.endef
+	.def	FILE_ATOM;	.scl	13;	.type	0x24;	.endef
+	.def	THREADPROC;	.scl	13;	.type	0x21;	.endef
+	.def	THREAD2PROC;	.scl	13;	.type	0x21;	.endef
+	.def	SYSTEMTASK;	.scl	13;	.type	0x24;	.endef
+	.def	THREAD;	.scl	13;	.type	0x4;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PAD_PSX.h"
+	.def	PAD_PSX;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	state;	.val	0;	.scl	8;	.type	0xd;	.endef
+	.def	unused;	.val	2;	.scl	8;	.dim	2;	.size	4;	.type	0x3d;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	PAD_PSX;	.size	6;	.endef
+	.def	PAD_PSX;	.scl	13;	.tag	PAD_PSX;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PAD_NEGCON.h"
+	.def	PAD_NEGCON;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	state;	.val	0;	.scl	18;	.type	0xc;	.size	4;	.endef
+	.def	start;	.val	4;	.scl	18;	.type	0xc;	.size	4;	.endef
+	.def	buttonAB;	.val	8;	.scl	18;	.type	0xc;	.size	4;	.endef
+	.def	rightshift;	.val	12;	.scl	18;	.type	0xc;	.size	4;	.endef
+	.def	twist;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	buttonI;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	buttonII;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	leftshift;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	PAD_NEGCON;	.size	6;	.endef
+	.def	PAD_NEGCON;	.scl	13;	.tag	PAD_NEGCON;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PAD_ANALOG.h"
+	.def	PAD_ANALOG;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	state;	.val	0;	.scl	8;	.type	0xd;	.endef
+	.def	rightx;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	righty;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	leftx;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	lefty;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	PAD_ANALOG;	.size	6;	.endef
+	.def	PAD_ANALOG;	.scl	13;	.tag	PAD_ANALOG;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PAD_MOUSE.h"
+	.def	PAD_MOUSE;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	unused;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	state;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	horizontalvalue;	.val	2;	.scl	8;	.type	0x2;	.endef
+	.def	verticalvalue;	.val	3;	.scl	8;	.type	0x2;	.endef
+	.def	unused2;	.val	4;	.scl	8;	.dim	2;	.size	2;	.type	0x3c;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	PAD_MOUSE;	.size	6;	.endef
+	.def	PAD_MOUSE;	.scl	13;	.tag	PAD_MOUSE;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/PAD_COMMON.h"
+	.def	._13;	.scl	12;	.type	0x9;	.size	6;	.endef
+	.def	standard;	.val	0;	.scl	11;	.tag	PAD_PSX;	.size	6;	.type	0x8;	.endef
+	.def	negcon;	.val	0;	.scl	11;	.tag	PAD_NEGCON;	.size	6;	.type	0x8;	.endef
+	.def	mouse;	.val	0;	.scl	11;	.tag	PAD_MOUSE;	.size	6;	.type	0x8;	.endef
+	.def	analog;	.val	0;	.scl	11;	.tag	PAD_ANALOG;	.size	6;	.type	0x8;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	._13;	.size	6;	.endef
+	.def	PAD_COMMON;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	nopad;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	ID;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	data;	.val	2;	.scl	8;	.tag	._13;	.size	6;	.type	0x9;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	PAD_COMMON;	.size	8;	.endef
+	.def	PAD_COMMON;	.scl	13;	.tag	PAD_COMMON;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/group_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/simplemem_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/game_common_min_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/simplemem_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/memstd.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_types.h"
+	.file	1 "C:/Temp/n4g/recon/shared/u_long.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_types.h"
+	.file	1 "C:/Temp/n4g/recon/shared/RECT.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_types.h"
+	.file	1 "C:/Temp/n4g/recon/shared/matrixtdef.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/memstd.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/simplemem_types.h"
+	.def	SimpleMem;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	heap;	.val	0;	.scl	8;	.type	0x11;	.endef
+	.def	freeMem;	.val	4;	.scl	8;	.type	0x11;	.endef
+	.def	freeMemSize;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	SimpleMem;	.size	12;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/group_types.h"
+	.def	SerializedGroup;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	m_type;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	m_length;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	dummy;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	m_num_elements;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	SerializedGroup;	.size	16;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Group.h"
+	.def	Group;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	m_num_elements;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	Group;	.size	4;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/group_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/pads_tail.h"
+	.def	._14;	.scl	10;	.type	0x8;	.size	2;	.endef
+	.def	bActive;	.val	0;	.scl	8;	.type	0x2;	.endef
+	.def	time;	.val	1;	.scl	8;	.type	0x2;	.endef
+	.def	.eos;	.val	2;	.scl	102;	.tag	._14;	.size	2;	.endef
+	.def	va_list;	.scl	13;	.type	0x11;	.endef
+	.def	INTFN;	.scl	13;	.type	0x24;	.endef
+	.def	MVI;	.scl	13;	.type	0x1;	.endef
+	.def	EACHOOKCALLBACKFUNC;	.scl	13;	.type	0x24;	.endef
+	.def	arg_t;	.scl	13;	.type	0x4;	.endef
+	.def	boolean;	.scl	13;	.type	0x4;	.endef
+	.def	fixed88;	.scl	13;	.type	0x4;	.endef
+	.def	fixed824;	.scl	13;	.type	0x4;	.endef
+	.def	fixed248;	.scl	13;	.type	0x4;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/game_common_min_core.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/pads_records.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/group_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/pads_tail.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_core.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_a_pads.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/game_common_pads_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_a_pads.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_b_pixmap.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Draw_tPixMap.h"
+	.def	Draw_tPixMap;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	u0;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	v0;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	clut;	.val	2;	.scl	8;	.type	0xd;	.endef
+	.def	u1;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	v1;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	tpage;	.val	6;	.scl	8;	.type	0xd;	.endef
+	.def	u2;	.val	8;	.scl	8;	.type	0xc;	.endef
+	.def	v2;	.val	9;	.scl	8;	.type	0xc;	.endef
+	.def	pad2;	.val	10;	.scl	8;	.type	0xd;	.endef
+	.def	u3;	.val	12;	.scl	8;	.type	0xc;	.endef
+	.def	v3;	.val	13;	.scl	8;	.type	0xc;	.endef
+	.def	flag;	.val	14;	.scl	8;	.type	0xd;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	Draw_tPixMap;	.size	16;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_b_pixmap.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_c_cache.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/DRender_tCalcView.h"
+	.def	DRender_tCalcView;	.scl	10;	.type	0x8;	.size	132;	.endef
+	.def	translation;	.val	0;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	mrotation;	.val	12;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	translationInv;	.val	48;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	mrotationInv;	.val	60;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	mrotationInvRaw;	.val	96;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	.eos;	.val	132;	.scl	102;	.tag	DRender_tCalcView;	.size	132;	.endef
+	.def	DRender_tCalcView;	.scl	13;	.tag	DRender_tCalcView;	.size	132;	.type	0x8;	.endef
+	.def	DRender_tCalcView;	.scl	13;	.tag	DRender_tCalcView;	.size	132;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_c_cache.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Draw_SVertex.h"
+	.def	Draw_SVertex;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	vx;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	vy;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	vz;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	u;	.val	6;	.scl	8;	.type	0xc;	.endef
+	.def	v;	.val	7;	.scl	8;	.type	0xc;	.endef
+	.def	dvx;	.val	8;	.scl	8;	.type	0x3;	.endef
+	.def	dvy;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	r;	.val	12;	.scl	8;	.type	0xc;	.endef
+	.def	g;	.val	13;	.scl	8;	.type	0xc;	.endef
+	.def	b;	.val	14;	.scl	8;	.type	0xc;	.endef
+	.def	a;	.val	15;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	Draw_SVertex;	.size	16;	.endef
+	.def	Draw_SVertex;	.scl	13;	.tag	Draw_SVertex;	.size	16;	.type	0x8;	.endef
+	.def	Draw_SVertex;	.scl	13;	.tag	Draw_SVertex;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_c_cache.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Draw_PrimStruct.h"
+	.def	Draw_PrimStruct;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	LastPrim;	.val	0;	.scl	8;	.type	0x1f;	.endef
+	.def	PrimPtr;	.val	4;	.scl	8;	.type	0x12;	.endef
+	.def	MPrimPtr;	.val	8;	.scl	8;	.type	0x12;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	Draw_PrimStruct;	.size	12;	.endef
+	.def	Draw_PrimStruct;	.scl	13;	.tag	Draw_PrimStruct;	.size	12;	.type	0x8;	.endef
+	.def	Draw_PrimStruct;	.scl	13;	.tag	Draw_PrimStruct;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_c_cache.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Draw_tCacheHeader.h"
+	.def	Draw_tCacheHeader;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	cprim;	.val	0;	.scl	8;	.tag	Draw_PrimStruct;	.size	12;	.type	0x8;	.endef
+	.def	mirror;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	clipW;	.val	16;	.scl	8;	.type	0x3;	.endef
+	.def	clipH;	.val	18;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	Draw_tCacheHeader;	.size	20;	.endef
+	.def	Draw_tCacheHeader;	.scl	13;	.tag	Draw_tCacheHeader;	.size	20;	.type	0x8;	.endef
+	.def	Draw_tCacheHeader;	.scl	13;	.tag	Draw_tCacheHeader;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_c_cache.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_d_carvertex.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Draw_CarVertex.h"
+	.def	Draw_CarVertex;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	vt;	.val	0;	.scl	8;	.tag	COORD16;	.size	6;	.type	0x8;	.endef
+	.def	u;	.val	6;	.scl	8;	.type	0x2;	.endef
+	.def	v;	.val	7;	.scl	8;	.type	0x2;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	Draw_CarVertex;	.size	8;	.endef
+	.def	Draw_CarVertex;	.scl	13;	.tag	Draw_CarVertex;	.size	8;	.type	0x8;	.endef
+	.def	Draw_CarVertex;	.scl	13;	.tag	Draw_CarVertex;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_d_carvertex.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/draw_leaf_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_ObjectDef.h"
+	.def	Trk_ObjectDef;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	id;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	vertexCount;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	quadCount;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	Trk_ObjectDef;	.size	4;	.endef
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_SimpleInst.h"
+	.def	Trk_SimpleInst;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	size;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	type;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	objectIndex;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	zoffset;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	flags;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	pad;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	x;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	y;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	z;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	Trk_SimpleInst;	.size	20;	.endef
+	.def	Trk_SimpleInst;	.scl	13;	.tag	Trk_SimpleInst;	.size	20;	.type	0x8;	.endef
+	.def	Trk_SimpleInst;	.scl	13;	.tag	Trk_SimpleInst;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_CollideBoomInst.h"
+	.def	Trk_CollideBoomInst;	.scl	10;	.type	0x8;	.size	36;	.endef
+	.def	size;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	type;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	objectIndex;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	zoffset;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	flags;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	pad;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	x;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	y;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	z;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	qx;	.val	20;	.scl	8;	.type	0x3;	.endef
+	.def	qy;	.val	22;	.scl	8;	.type	0x3;	.endef
+	.def	qz;	.val	24;	.scl	8;	.type	0x3;	.endef
+	.def	qw;	.val	26;	.scl	8;	.type	0x3;	.endef
+	.def	sx;	.val	28;	.scl	8;	.type	0x3;	.endef
+	.def	sy;	.val	30;	.scl	8;	.type	0x3;	.endef
+	.def	sz;	.val	32;	.scl	8;	.type	0x3;	.endef
+	.def	simIndex;	.val	34;	.scl	8;	.type	0xc;	.endef
+	.def	boomIndex;	.val	35;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	36;	.scl	102;	.tag	Trk_CollideBoomInst;	.size	36;	.endef
+	.def	Trk_CollideBoomInst;	.scl	13;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x8;	.endef
+	.def	Trk_CollideBoomInst;	.scl	13;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_AnimateInst.h"
+	.def	Trk_AnimateInst;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	size;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	type;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	objectIndex;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	zoffset;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	flags;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	pad;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	count;	.val	8;	.scl	8;	.type	0x3;	.endef
+	.def	interval;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	Trk_AnimateInst;	.size	12;	.endef
+	.def	Trk_AnimateInst;	.scl	13;	.tag	Trk_AnimateInst;	.size	12;	.type	0x8;	.endef
+	.def	Trk_AnimateInst;	.scl	13;	.tag	Trk_AnimateInst;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_Quad.h"
+	.def	Trk_Quad;	.scl	10;	.type	0x8;	.size	6;	.endef
+	.def	material;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	aPoints;	.val	2;	.scl	8;	.dim	4;	.size	4;	.type	0x3c;	.endef
+	.def	.eos;	.val	6;	.scl	102;	.tag	Trk_Quad;	.size	6;	.endef
+	.def	Trk_Quad;	.scl	13;	.tag	Trk_Quad;	.size	6;	.type	0x8;	.endef
+	.def	Trk_Quad;	.scl	13;	.tag	Trk_Quad;	.size	6;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_NewStrip.h"
+	.def	Trk_NewStrip;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	topVert;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	botVert;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	quadCount;	.val	2;	.scl	8;	.type	0x2;	.endef
+	.def	size;	.val	3;	.scl	8;	.type	0x2;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	Trk_NewStrip;	.size	4;	.endef
+	.def	Trk_NewStrip;	.scl	13;	.tag	Trk_NewStrip;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_NewSimQuad.h"
+	.def	Trk_NewSimQuad;	.scl	10;	.type	0x8;	.size	1;	.endef
+	.def	surface;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	1;	.scl	102;	.tag	Trk_NewSimQuad;	.size	1;	.endef
+	.def	Trk_NewSimQuad;	.scl	13;	.tag	Trk_NewSimQuad;	.size	1;	.type	0x8;	.endef
+	.def	Trk_NewSimQuad;	.scl	13;	.tag	Trk_NewSimQuad;	.size	1;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_NewSimSlice.h"
+	.def	Trk_NewSimSlice;	.scl	10;	.type	0x8;	.size	5;	.endef
+	.def	stripIndex;	.val	0;	.scl	8;	.type	0xc;	.endef
+	.def	quadCount;	.val	1;	.scl	8;	.type	0xc;	.endef
+	.def	simquadIndex;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	simquadCount;	.val	3;	.scl	8;	.type	0xc;	.endef
+	.def	simquadStartIndex;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	5;	.scl	102;	.tag	Trk_NewSimSlice;	.size	5;	.endef
+	.def	Trk_NewSimSlice;	.scl	13;	.tag	Trk_NewSimSlice;	.size	5;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Trk_SimObject.h"
+	.def	Trk_SimObject;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	point;	.val	0;	.scl	8;	.dim	3;	.size	12;	.type	0x34;	.endef
+	.def	radius;	.val	12;	.scl	8;	.type	0x3;	.endef
+	.def	serialNum;	.val	14;	.scl	8;	.type	0x3;	.endef
+	.def	topCRAP;	.val	16;	.scl	8;	.type	0xc;	.endef
+	.def	bottomCRAP;	.val	17;	.scl	8;	.type	0xc;	.endef
+	.def	instIndex;	.val	18;	.scl	8;	.type	0xc;	.endef
+	.def	type;	.val	19;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	Trk_SimObject;	.size	20;	.endef
+	.def	Trk_SimObject;	.scl	13;	.tag	Trk_SimObject;	.size	20;	.type	0x8;	.endef
+	.def	Trk_SimObject;	.scl	13;	.tag	Trk_SimObject;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/RelCoord16.h"
+	.def	._15;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	x;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	z;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	._15;	.size	4;	.endef
+	.def	RelCoord16;	.scl	13;	.tag	._15;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Chunk.h"
+	.def	Chunk;	.scl	10;	.type	0x8;	.size	112;	.endef
+	.def	boundPts;	.val	0;	.scl	8;	.tag	._15;	.dim	4;	.size	16;	.type	0x38;	.endef
+	.def	chunkboundPts;	.val	16;	.scl	8;	.tag	._15;	.dim	4;	.size	16;	.type	0x38;	.endef
+	.def	quadCounts;	.val	32;	.scl	8;	.dim	6;	.size	6;	.type	0x3c;	.endef
+	.def	pad;	.val	38;	.scl	8;	.dim	2;	.size	2;	.type	0x3c;	.endef
+	.def	renderQuads;	.val	40;	.scl	8;	.tag	Trk_Quad;	.dim	4;	.size	16;	.type	0x78;	.endef
+	.def	stripBuf;	.val	56;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	lorezstripBuf;	.val	60;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	objInstanceBuf;	.val	64;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	objSpecialInstanceBuf;	.val	68;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	simSliceBuf;	.val	72;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	simQuadBuf;	.val	76;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	simObjBuf;	.val	80;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	sfxBuf;	.val	84;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	lineBuf;	.val	88;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	objVertexBuf;	.val	92;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	objQuadBuf;	.val	96;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	objQuadInstanceBuf;	.val	100;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	firstSimSliceInd;	.val	104;	.scl	8;	.type	0x3;	.endef
+	.def	chunkInd;	.val	106;	.scl	8;	.type	0x3;	.endef
+	.def	vertexBuf;	.val	108;	.scl	8;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	.eos;	.val	112;	.scl	102;	.tag	Chunk;	.size	112;	.endef
+	.def	Chunk;	.scl	13;	.tag	Chunk;	.size	112;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Track_tArtresource.h"
+	.def	._16;	.scl	10;	.type	0x8;	.size	24;	.endef
+	.def	id;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	shapeFile;	.val	4;	.scl	8;	.type	0x12;	.endef
+	.def	shapeCount;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	pPmx;	.val	12;	.scl	8;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	pmxCount;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	basePmxCount;	.val	20;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	24;	.scl	102;	.tag	._16;	.size	24;	.endef
+	.def	Track_tArtresource;	.scl	13;	.tag	._16;	.size	24;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Track_tMaterial.h"
+	.def	._17;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	flag;	.val	0;	.scl	8;	.type	0x2;	.endef
+	.def	mipmap_offset;	.val	1;	.scl	8;	.type	0x2;	.endef
+	.def	pmxIndex;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	._17;	.size	4;	.endef
+	.def	Track_tMaterial;	.scl	13;	.tag	._17;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/tSaveSurface.h"
+	.def	tSaveSurface;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	fSimQuad;	.val	0;	.scl	8;	.tag	Trk_NewSimQuad;	.size	1;	.type	0x18;	.endef
+	.def	fSurface;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	tSaveSurface;	.size	8;	.endef
+	.def	tSaveSurface;	.scl	13;	.tag	tSaveSurface;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/gamesetup_leaf_types.h"
+	.def	GameSetup_tCarData;	.scl	10;	.type	0x8;	.size	180;	.endef
+	.def	carType;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	carClass;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	Transmission;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	Colour;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	ColourSV;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	ColourChange;	.val	20;	.scl	8;	.type	0x4;	.endef
+	.def	RampSteering;	.val	24;	.scl	8;	.type	0x4;	.endef
+	.def	RampGas;	.val	28;	.scl	8;	.type	0x4;	.endef
+	.def	RampBrake;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	BrakeBias;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	GearRatio;	.val	40;	.scl	8;	.type	0x4;	.endef
+	.def	SteeringQuickness;	.val	44;	.scl	8;	.type	0x4;	.endef
+	.def	Traction;	.val	48;	.scl	8;	.type	0x4;	.endef
+	.def	BrakeAssist;	.val	52;	.scl	8;	.type	0x4;	.endef
+	.def	TireType;	.val	56;	.scl	8;	.type	0x4;	.endef
+	.def	EngineMods;	.val	60;	.scl	8;	.type	0x4;	.endef
+	.def	WeightTransfer;	.val	64;	.scl	8;	.type	0x4;	.endef
+	.def	GroundEffects;	.val	68;	.scl	8;	.type	0x4;	.endef
+	.def	ABS;	.val	72;	.scl	8;	.type	0x4;	.endef
+	.def	Bestline;	.val	76;	.scl	8;	.type	0x4;	.endef
+	.def	Personality;	.val	80;	.scl	8;	.type	0x4;	.endef
+	.def	StartingPos;	.val	84;	.scl	8;	.type	0x4;	.endef
+	.def	carNameIndex;	.val	88;	.scl	8;	.type	0x4;	.endef
+	.def	driver;	.val	92;	.scl	8;	.dim	8;	.size	8;	.type	0x32;	.endef
+	.def	pad;	.val	100;	.scl	8;	.type	0x4;	.endef
+	.def	license;	.val	104;	.scl	8;	.dim	8;	.size	8;	.type	0x32;	.endef
+	.def	HudSpeed;	.val	112;	.scl	8;	.type	0x4;	.endef
+	.def	HudSpeedMult;	.val	116;	.scl	8;	.type	0x4;	.endef
+	.def	HudTach;	.val	120;	.scl	8;	.type	0x4;	.endef
+	.def	HudMap;	.val	124;	.scl	8;	.type	0x4;	.endef
+	.def	HudOpponentID;	.val	128;	.scl	8;	.type	0x4;	.endef
+	.def	HudTime;	.val	132;	.scl	8;	.type	0x4;	.endef
+	.def	HudLapnum;	.val	136;	.scl	8;	.type	0x4;	.endef
+	.def	HudPosition;	.val	140;	.scl	8;	.type	0x4;	.endef
+	.def	HudMirror;	.val	144;	.scl	8;	.type	0x4;	.endef
+	.def	HudColour;	.val	148;	.scl	8;	.type	0x4;	.endef
+	.def	HudTachColour;	.val	152;	.scl	8;	.type	0x4;	.endef
+	.def	SpeechColour;	.val	156;	.scl	8;	.type	0x4;	.endef
+	.def	Country;	.val	160;	.scl	8;	.type	0x4;	.endef
+	.def	Camera;	.val	164;	.scl	8;	.dim	4;	.size	16;	.type	0x34;	.endef
+	.def	.eos;	.val	180;	.scl	102;	.tag	GameSetup_tCarData;	.size	180;	.endef
+	.def	GameSetup_tCarData;	.scl	13;	.tag	GameSetup_tCarData;	.size	180;	.type	0x8;	.endef
+	.def	GameSetup_tCarData;	.scl	13;	.tag	GameSetup_tCarData;	.size	180;	.type	0x8;	.endef
+	.def	GameSetup_tUserSetting;	.scl	10;	.type	0x8;	.size	204;	.endef
+	.def	language;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	display;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	bestlap;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	audioMode;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	musicLevel;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	sfxLevel;	.val	20;	.scl	8;	.type	0x4;	.endef
+	.def	engineLevel;	.val	24;	.scl	8;	.type	0x4;	.endef
+	.def	speechLevel;	.val	28;	.scl	8;	.type	0x4;	.endef
+	.def	ambientLevel;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	interactive;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	numplaylistsongs;	.val	40;	.scl	8;	.type	0x4;	.endef
+	.def	playlist;	.val	44;	.scl	8;	.dim	40;	.size	160;	.type	0x34;	.endef
+	.def	.eos;	.val	204;	.scl	102;	.tag	GameSetup_tUserSetting;	.size	204;	.endef
+	.def	GameSetup_tUserSetting;	.scl	13;	.tag	GameSetup_tUserSetting;	.size	204;	.type	0x8;	.endef
+	.def	GameSetup_tUserSetting;	.scl	13;	.tag	GameSetup_tUserSetting;	.size	204;	.type	0x8;	.endef
+	.def	GameSetup_tPerpData;	.scl	10;	.type	0x8;	.size	52;	.endef
+	.def	CarType;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	Colour;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	SpeechColour;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	HudColour;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	Personality;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	TimeLimit;	.val	20;	.scl	8;	.type	0x4;	.endef
+	.def	WingmanTime;	.val	24;	.scl	8;	.type	0x4;	.endef
+	.def	SpikeBeltTime;	.val	28;	.scl	8;	.type	0x4;	.endef
+	.def	BlockadeCopTime;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	Distance;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	SpeedFactor;	.val	40;	.scl	8;	.type	0x4;	.endef
+	.def	WeightFactor;	.val	44;	.scl	8;	.type	0x4;	.endef
+	.def	GlueFactor;	.val	48;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	52;	.scl	102;	.tag	GameSetup_tPerpData;	.size	52;	.endef
+	.def	GameSetup_tPerpData;	.scl	13;	.tag	GameSetup_tPerpData;	.size	52;	.type	0x8;	.endef
+	.def	GameSetup_tPerpData;	.scl	13;	.tag	GameSetup_tPerpData;	.size	52;	.type	0x8;	.endef
+	.def	GameSetup_tControllerData;	.scl	10;	.type	0x8;	.size	88;	.endef
+	.def	controllerConfig;	.val	0;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	deadSpot;	.val	8;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	steeringRange;	.val	16;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	IImaxRange;	.val	24;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	ImaxRange;	.val	32;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	J1MIN;	.val	40;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	J1MAX;	.val	48;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	J2MIN;	.val	56;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	J2MAX;	.val	64;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	shockMode;	.val	72;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	shockImpact;	.val	80;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	.eos;	.val	88;	.scl	102;	.tag	GameSetup_tControllerData;	.size	88;	.endef
+	.def	GameSetup_tControllerData;	.scl	13;	.tag	GameSetup_tControllerData;	.size	88;	.type	0x8;	.endef
+	.def	GameSetup_tControllerData;	.scl	13;	.tag	GameSetup_tControllerData;	.size	88;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.def	Sched_tFunctionPt;	.scl	13;	.type	0x91;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Sched_tFunctionSchedule.h"
+	.def	Sched_tFunctionSchedule;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	priority;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	function;	.val	4;	.scl	8;	.type	0x91;	.endef
+	.def	var1;	.val	8;	.scl	8;	.type	0x11;	.endef
+	.def	var2;	.val	12;	.scl	8;	.type	0x11;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	Sched_tFunctionSchedule;	.size	16;	.endef
+	.def	Sched_tFunctionSchedule;	.scl	13;	.tag	Sched_tFunctionSchedule;	.size	16;	.type	0x8;	.endef
+	.def	Sched_tFunctionSchedule;	.scl	13;	.tag	Sched_tFunctionSchedule;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Sched_tSchedule.h"
+	.def	Sched_tSchedule;	.scl	10;	.type	0x8;	.size	24;	.endef
+	.def	maxNumFunctions;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	numFunctions;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	func;	.val	8;	.scl	8;	.tag	Sched_tFunctionSchedule;	.dim	1;	.size	16;	.type	0x38;	.endef
+	.def	.eos;	.val	24;	.scl	102;	.tag	Sched_tSchedule;	.size	24;	.endef
+	.def	Sched_tSchedule;	.scl	13;	.tag	Sched_tSchedule;	.size	24;	.type	0x8;	.endef
+	.def	Sched_tSchedule;	.scl	13;	.tag	Sched_tSchedule;	.size	24;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/AnimScript.h"
+	.def	AnimScript;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	baseTicks;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	baseFrame;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	flags;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	numParts;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	inst;	.val	16;	.scl	8;	.tag	Trk_AnimateInst;	.size	12;	.type	0x58;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	AnimScript;	.size	20;	.endef
+	.def	AnimScript;	.scl	13;	.tag	AnimScript;	.size	20;	.type	0x8;	.endef
+	.def	AnimScript;	.scl	13;	.tag	AnimScript;	.size	20;	.type	0x8;	.endef
+	.def	Trk_AnimateInst;	.scl	13;	.tag	Trk_AnimateInst;	.size	12;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/BWorldSm_Pos.h"
+	.def	BWorldSm_Pos;	.scl	10;	.type	0x8;	.size	132;	.endef
+	.def	slice;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	stripQuadInd;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	simRotFlag;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	quadPts;	.val	8;	.scl	8;	.tag	coorddef;	.dim	4;	.size	48;	.type	0x38;	.endef
+	.def	quadPts16;	.val	56;	.scl	8;	.tag	CCOORD16;	.dim	4;	.size	32;	.type	0x38;	.endef
+	.def	sliceChanged;	.val	88;	.scl	8;	.type	0x2;	.endef
+	.def	quadChanged;	.val	89;	.scl	8;	.type	0x2;	.endef
+	.def	offEdge;	.val	90;	.scl	8;	.type	0x2;	.endef
+	.def	triangleFlag;	.val	91;	.scl	8;	.type	0x2;	.endef
+	.def	normal;	.val	92;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	forward;	.val	104;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	quad;	.val	116;	.scl	8;	.type	0x2;	.endef
+	.def	chunk;	.val	117;	.scl	8;	.type	0xc;	.endef
+	.def	lastRezRequested;	.val	118;	.scl	8;	.type	0x2;	.endef
+	.def	rez;	.val	119;	.scl	8;	.type	0x2;	.endef
+	.def	simQuad;	.val	120;	.scl	8;	.tag	Trk_NewSimQuad;	.size	1;	.type	0x18;	.endef
+	.def	strip;	.val	124;	.scl	8;	.tag	Trk_NewStrip;	.size	4;	.type	0x18;	.endef
+	.def	simSlice;	.val	128;	.scl	8;	.tag	Trk_NewSimSlice;	.size	5;	.type	0x18;	.endef
+	.def	.eos;	.val	132;	.scl	102;	.tag	BWorldSm_Pos;	.size	132;	.endef
+	.def	BWorldSm_Pos;	.scl	13;	.tag	BWorldSm_Pos;	.size	132;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/BO_tNewtonCollisionInfo.h"
+	.def	BO_tNewtonCollisionInfo;	.scl	10;	.type	0x8;	.size	48;	.endef
+	.def	collided;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	impulse;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	otherObj;	.val	8;	.scl	8;	.tag	BO_tNewtonObj;	.size	0;	.type	0x18;	.endef
+	.def	sfxType;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	disableCollisionTimer;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	collisionPoint;	.val	20;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	lastCollision;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	lastOtherObj;	.val	36;	.scl	8;	.tag	BO_tNewtonObj;	.size	0;	.type	0x18;	.endef
+	.def	lastImpulse;	.val	40;	.scl	8;	.type	0x4;	.endef
+	.def	lastTime;	.val	44;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	48;	.scl	102;	.tag	BO_tNewtonCollisionInfo;	.size	48;	.endef
+	.def	BO_tNewtonCollisionInfo;	.scl	13;	.tag	BO_tNewtonCollisionInfo;	.size	48;	.type	0x8;	.endef
+	.def	BO_tNewtonCollisionInfo;	.scl	13;	.tag	BO_tNewtonCollisionInfo;	.size	48;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/BO_tNewtonObj.h"
+	.def	BO_tNewtonObj;	.scl	10;	.type	0x8;	.size	576;	.endef
+	.def	objID;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	oldSlice;	.val	4;	.scl	8;	.type	0xd;	.endef
+	.def	totalSlice;	.val	6;	.scl	8;	.type	0xd;	.endef
+	.def	simRoadInfo;	.val	8;	.scl	8;	.tag	BWorldSm_Pos;	.size	132;	.type	0x8;	.endef
+	.def	distToPlayer;	.val	140;	.scl	8;	.type	0x4;	.endef
+	.def	simOptz;	.val	144;	.scl	8;	.type	0xc;	.endef
+	.def	active;	.val	145;	.scl	8;	.type	0xc;	.endef
+	.def	reOrthoCounter;	.val	146;	.scl	8;	.type	0xc;	.endef
+	.def	gravityMult;	.val	148;	.scl	8;	.type	0x4;	.endef
+	.def	cumulatedRot;	.val	152;	.scl	8;	.type	0x4;	.endef
+	.def	lastUpdated;	.val	156;	.scl	8;	.type	0x4;	.endef
+	.def	position;	.val	160;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	linearVel;	.val	172;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	mass;	.val	184;	.scl	8;	.type	0x4;	.endef
+	.def	massInv;	.val	188;	.scl	8;	.type	0x4;	.endef
+	.def	speedXZ;	.val	192;	.scl	8;	.type	0x4;	.endef
+	.def	xRelRoadCenter;	.val	196;	.scl	8;	.type	0x4;	.endef
+	.def	positionXZ;	.val	200;	.scl	8;	.type	0x3;	.endef
+	.def	eIndexEnvMap;	.val	202;	.scl	8;	.type	0x3;	.endef
+	.def	eIndexShadow;	.val	204;	.scl	8;	.type	0x3;	.endef
+	.def	wheelRot;	.val	208;	.scl	8;	.dim	2;	.size	8;	.type	0x34;	.endef
+	.def	wheelFrontX;	.val	216;	.scl	8;	.type	0x4;	.endef
+	.def	wheelFrontZ;	.val	220;	.scl	8;	.type	0x4;	.endef
+	.def	wheelBackX;	.val	224;	.scl	8;	.type	0x4;	.endef
+	.def	wheelBackZ;	.val	228;	.scl	8;	.type	0x4;	.endef
+	.def	wheelWidthF;	.val	232;	.scl	8;	.type	0x4;	.endef
+	.def	wheelWidthB;	.val	236;	.scl	8;	.type	0x4;	.endef
+	.def	orientMat;	.val	240;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	angularVel;	.val	276;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	moInertia;	.val	288;	.scl	8;	.type	0x4;	.endef
+	.def	moInertiaInv;	.val	292;	.scl	8;	.type	0x4;	.endef
+	.def	orientationToGround;	.val	296;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	dimension;	.val	308;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	dimensionRadius;	.val	320;	.scl	8;	.type	0x4;	.endef
+	.def	roadMatrix;	.val	324;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	roadCenterPoint;	.val	360;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	roadGravityModifier;	.val	372;	.scl	8;	.type	0x4;	.endef
+	.def	roadYaw;	.val	376;	.scl	8;	.type	0x4;	.endef
+	.def	flightTime;	.val	380;	.scl	8;	.type	0xd;	.endef
+	.def	deadTimer;	.val	382;	.scl	8;	.type	0xd;	.endef
+	.def	groundElevation;	.val	384;	.scl	8;	.type	0x4;	.endef
+	.def	groundVel;	.val	388;	.scl	8;	.type	0x4;	.endef
+	.def	objAltitude;	.val	392;	.scl	8;	.type	0x4;	.endef
+	.def	collision;	.val	396;	.scl	8;	.tag	BO_tNewtonCollisionInfo;	.size	48;	.type	0x8;	.endef
+	.def	groundSurfaceType;	.val	444;	.scl	8;	.type	0x4;	.endef
+	.def	driveSurfaceType;	.val	448;	.scl	8;	.type	0x4;	.endef
+	.def	shadowMat;	.val	452;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	shadowCoord;	.val	488;	.scl	8;	.tag	coorddef;	.dim	4;	.size	48;	.type	0x38;	.endef
+	.def	damage;	.val	536;	.scl	8;	.dim	10;	.size	40;	.type	0x34;	.endef
+	.def	.eos;	.val	576;	.scl	102;	.tag	BO_tNewtonObj;	.size	576;	.endef
+	.def	BO_tNewtonObj;	.scl	13;	.tag	BO_tNewtonObj;	.size	576;	.type	0x8;	.endef
+	.def	BO_tNewtonObj;	.scl	13;	.tag	BO_tNewtonObj;	.size	576;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/SceneElem.h"
+	.def	._18;	.scl	10;	.type	0x8;	.size	92;	.endef
+	.def	type;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	size;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	committed;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	visible;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	cp;	.val	16;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	height;	.val	28;	.scl	8;	.type	0x4;	.endef
+	.def	orient;	.val	32;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	subType;	.val	68;	.scl	8;	.type	0x4;	.endef
+	.def	subTypeIndex;	.val	72;	.scl	8;	.type	0x4;	.endef
+	.def	scalar1;	.val	76;	.scl	8;	.type	0x4;	.endef
+	.def	scalar2;	.val	80;	.scl	8;	.type	0x4;	.endef
+	.def	scalar3;	.val	84;	.scl	8;	.type	0x4;	.endef
+	.def	scalar4;	.val	88;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	92;	.scl	102;	.tag	._18;	.size	92;	.endef
+	.def	SceneElem;	.scl	13;	.tag	._18;	.size	92;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/SceneSortedElem.h"
+	.def	SceneSortedElem;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	slice_;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	se;	.val	4;	.scl	8;	.tag	._18;	.size	92;	.type	0x18;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	SceneSortedElem;	.size	8;	.endef
+	.def	SceneSortedElem;	.scl	13;	.tag	SceneSortedElem;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/AnimDef.h"
+	.def	._19;	.scl	10;	.type	0x8;	.size	20;	.endef
+	.def	type;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	numPieces;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	objDefIndex;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	baseAnim;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	animIndex;	.val	16;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	20;	.scl	102;	.tag	._19;	.size	20;	.endef
+	.def	AnimDef;	.scl	13;	.tag	._19;	.size	20;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/object_anim_classes.h"
+	.def	ObjectAnim;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	.vf;	.val	0;	.scl	8;	.tag	__vtbl_ptr_type;	.dim	3;	.size	4;	.type	0xd8;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	ObjectAnim;	.size	4;	.endef
+	.def	ObjectAnim;	.scl	13;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectAnim;	.scl	13;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectAnim;	.scl	13;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectAnim;	.scl	13;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectFinishedMultiAnim;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	ObjectAnim;	.val	0;	.scl	8;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	ObjectFinishedMultiAnim;	.size	4;	.endef
+	.def	ObjectFinishedMultiAnim;	.scl	13;	.tag	ObjectFinishedMultiAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectFinishedMultiAnim;	.scl	13;	.tag	ObjectFinishedMultiAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectFinishedMultiAnim;	.scl	13;	.tag	ObjectFinishedMultiAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectFinishedMultiAnim;	.scl	13;	.tag	ObjectFinishedMultiAnim;	.size	4;	.type	0x8;	.endef
+	.def	ObjectMultiAnim;	.scl	10;	.type	0x8;	.size	48;	.endef
+	.def	ObjectAnim;	.val	0;	.scl	8;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	impactVel;	.val	4;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	simObj;	.val	16;	.scl	8;	.tag	Trk_SimObject;	.size	20;	.type	0x18;	.endef
+	.def	objCollideInstance;	.val	20;	.scl	8;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x18;	.endef
+	.def	objDef;	.val	24;	.scl	8;	.tag	Trk_ObjectDef;	.size	4;	.type	0x18;	.endef
+	.def	animParms;	.val	28;	.scl	8;	.tag	._19;	.size	20;	.type	0x18;	.endef
+	.def	objectAngle;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	impactAngle;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	script;	.val	40;	.scl	8;	.tag	AnimScript;	.size	20;	.type	0x18;	.endef
+	.def	finishedAnim;	.val	44;	.scl	8;	.tag	ObjectFinishedMultiAnim;	.size	4;	.type	0x18;	.endef
+	.def	.eos;	.val	48;	.scl	102;	.tag	ObjectMultiAnim;	.size	48;	.endef
+	.def	ObjectMultiAnim;	.scl	13;	.tag	ObjectMultiAnim;	.size	48;	.type	0x8;	.endef
+	.def	ObjectMultiAnim;	.scl	13;	.tag	ObjectMultiAnim;	.size	48;	.type	0x8;	.endef
+	.def	coorddef;	.scl	13;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	Trk_SimObject;	.scl	13;	.tag	Trk_SimObject;	.size	20;	.type	0x8;	.endef
+	.def	Trk_CollideBoomInst;	.scl	13;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x8;	.endef
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.def	ObjectFinishedSignAnim;	.scl	10;	.type	0x8;	.size	48;	.endef
+	.def	ObjectAnim;	.val	0;	.scl	8;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	finalMatrix;	.val	4;	.scl	8;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	objDef;	.val	40;	.scl	8;	.tag	Trk_ObjectDef;	.size	4;	.type	0x18;	.endef
+	.def	objCollideInstance;	.val	44;	.scl	8;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x18;	.endef
+	.def	.eos;	.val	48;	.scl	102;	.tag	ObjectFinishedSignAnim;	.size	48;	.endef
+	.def	ObjectFinishedSignAnim;	.scl	13;	.tag	ObjectFinishedSignAnim;	.size	48;	.type	0x8;	.endef
+	.def	ObjectFinishedSignAnim;	.scl	13;	.tag	ObjectFinishedSignAnim;	.size	48;	.type	0x8;	.endef
+	.def	matrixtdef;	.scl	13;	.tag	matrixtdef;	.size	36;	.type	0x8;	.endef
+	.def	ObjectFinishedSignAnim;	.scl	13;	.tag	ObjectFinishedSignAnim;	.size	48;	.type	0x8;	.endef
+	.def	ObjectFinishedSignAnim;	.scl	13;	.tag	ObjectFinishedSignAnim;	.size	48;	.type	0x8;	.endef
+	.def	ObjectSignAnim;	.scl	10;	.type	0x8;	.size	48;	.endef
+	.def	ObjectAnim;	.val	0;	.scl	8;	.tag	ObjectAnim;	.size	4;	.type	0x8;	.endef
+	.def	impactVel;	.val	4;	.scl	8;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	simObj;	.val	16;	.scl	8;	.tag	Trk_SimObject;	.size	20;	.type	0x18;	.endef
+	.def	objCollideInstance;	.val	20;	.scl	8;	.tag	Trk_CollideBoomInst;	.size	36;	.type	0x18;	.endef
+	.def	objDef;	.val	24;	.scl	8;	.tag	Trk_ObjectDef;	.size	4;	.type	0x18;	.endef
+	.def	animParms;	.val	28;	.scl	8;	.tag	._19;	.size	20;	.type	0x18;	.endef
+	.def	objectAngle;	.val	32;	.scl	8;	.type	0x4;	.endef
+	.def	impactAngle;	.val	36;	.scl	8;	.type	0x4;	.endef
+	.def	script;	.val	40;	.scl	8;	.tag	AnimScript;	.size	20;	.type	0x18;	.endef
+	.def	finishedAnim;	.val	44;	.scl	8;	.tag	ObjectFinishedSignAnim;	.size	48;	.type	0x18;	.endef
+	.def	.eos;	.val	48;	.scl	102;	.tag	ObjectSignAnim;	.size	48;	.endef
+	.def	ObjectSignAnim;	.scl	13;	.tag	ObjectSignAnim;	.size	48;	.type	0x8;	.endef
+	.def	ObjectSignAnim;	.scl	13;	.tag	ObjectSignAnim;	.size	48;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/game/common/chunk_types.h"
+	.def	Trk_Chunk;	.scl	13;	.type	0x1;	.endef
+	.def	lpTrk_Chunk;	.scl	13;	.type	0x11;	.endef
+	.def	tPA32;	.scl	13;	.dim	32;	.size	4;	.type	0xd3;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CHorizonSpec.h"
+	.def	CHorizonSpec;	.scl	10;	.type	0x8;	.size	48;	.endef
+	.def	mirror;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	angle;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	yoffset;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	height;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	frontColor;	.val	16;	.scl	8;	.tag	._3;	.dim	2;	.size	8;	.type	0x38;	.endef
+	.def	backColor;	.val	24;	.scl	8;	.tag	._3;	.dim	2;	.size	8;	.type	0x38;	.endef
+	.def	ringPMX;	.val	32;	.scl	8;	.dim	16;	.size	16;	.type	0x32;	.endef
+	.def	.eos;	.val	48;	.scl	102;	.tag	CHorizonSpec;	.size	48;	.endef
+	.def	CHorizonSpec;	.scl	13;	.tag	CHorizonSpec;	.size	48;	.type	0x8;	.endef
+	.def	CHorizonSpec;	.scl	13;	.tag	CHorizonSpec;	.size	48;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CSkySpec.h"
+	.def	CSkySpec;	.scl	10;	.type	0x8;	.size	148;	.endef
+	.def	type;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	flags;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	frontcolors;	.val	8;	.scl	8;	.tag	._3;	.dim	5;	.size	20;	.type	0x38;	.endef
+	.def	backcolors;	.val	28;	.scl	8;	.tag	._3;	.dim	5;	.size	20;	.type	0x38;	.endef
+	.def	clearcolor;	.val	48;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	sunAngleInSky;	.val	52;	.scl	8;	.type	0x4;	.endef
+	.def	sunHeightInSky;	.val	56;	.scl	8;	.type	0x4;	.endef
+	.def	moonAngleInSky;	.val	60;	.scl	8;	.type	0x4;	.endef
+	.def	moonHeightInSky;	.val	64;	.scl	8;	.type	0x4;	.endef
+	.def	numStars;	.val	68;	.scl	8;	.type	0x4;	.endef
+	.def	starAngleLow;	.val	72;	.scl	8;	.type	0x4;	.endef
+	.def	starAngleHigh;	.val	76;	.scl	8;	.type	0x4;	.endef
+	.def	starBrightMin;	.val	80;	.scl	8;	.type	0x4;	.endef
+	.def	starBrightMax;	.val	84;	.scl	8;	.type	0x4;	.endef
+	.def	starBaseColor;	.val	88;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	starRandomSeed;	.val	92;	.scl	8;	.type	0x4;	.endef
+	.def	sunBeamColor;	.val	96;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	sunHaloColor;	.val	100;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	yoffset;	.val	104;	.scl	8;	.type	0x4;	.endef
+	.def	cloudIndices;	.val	108;	.scl	8;	.dim	5,4;	.size	20;	.type	0xf2;	.endef
+	.def	ringAngles;	.val	128;	.scl	8;	.dim	5;	.size	20;	.type	0x34;	.endef
+	.def	.eos;	.val	148;	.scl	102;	.tag	CSkySpec;	.size	148;	.endef
+	.def	CSkySpec;	.scl	13;	.tag	CSkySpec;	.size	148;	.type	0x8;	.endef
+	.def	CSkySpec;	.scl	13;	.tag	CSkySpec;	.size	148;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CNightSpec.h"
+	.def	CNightSpec;	.scl	10;	.type	0x8;	.size	4;	.endef
+	.def	nightcolor;	.val	0;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	.eos;	.val	4;	.scl	102;	.tag	CNightSpec;	.size	4;	.endef
+	.def	CNightSpec;	.scl	13;	.tag	CNightSpec;	.size	4;	.type	0x8;	.endef
+	.def	CNightSpec;	.scl	13;	.tag	CNightSpec;	.size	4;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CWeatherSpec.h"
+	.def	CWeatherSpec;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	type;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	intensity_limit;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	CWeatherSpec;	.size	8;	.endef
+	.def	CWeatherSpec;	.scl	13;	.tag	CWeatherSpec;	.size	8;	.type	0x8;	.endef
+	.def	CWeatherSpec;	.scl	13;	.tag	CWeatherSpec;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CFogSpec.h"
+	.def	CFogSpec;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	contrast;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	color;	.val	4;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	start;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	dist2base;	.val	12;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	CFogSpec;	.size	16;	.endef
+	.def	CFogSpec;	.scl	13;	.tag	CFogSpec;	.size	16;	.type	0x8;	.endef
+	.def	CFogSpec;	.scl	13;	.tag	CFogSpec;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CDepthCueSpec.h"
+	.def	CDepthCueSpec;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	color;	.val	0;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	distance;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	CDepthCueSpec;	.size	8;	.endef
+	.def	CDepthCueSpec;	.scl	13;	.tag	CDepthCueSpec;	.size	8;	.type	0x8;	.endef
+	.def	CDepthCueSpec;	.scl	13;	.tag	CDepthCueSpec;	.size	8;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CWorldColor.h"
+	.def	CWorldColor;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	contrast;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	contrast_color;	.val	4;	.scl	8;	.tag	._3;	.size	4;	.type	0x8;	.endef
+	.def	worldR;	.val	8;	.scl	8;	.type	0x3;	.endef
+	.def	worldG;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	worldB;	.val	12;	.scl	8;	.type	0x3;	.endef
+	.def	type;	.val	14;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	CWorldColor;	.size	16;	.endef
+	.def	CWorldColor;	.scl	13;	.tag	CWorldColor;	.size	16;	.type	0x8;	.endef
+	.def	CWorldColor;	.scl	13;	.tag	CWorldColor;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/TCB.h"
+	.def	TCB;	.scl	10;	.type	0x8;	.size	192;	.endef
+	.def	status;	.val	0;	.scl	8;	.type	0x5;	.endef
+	.def	mode;	.val	4;	.scl	8;	.type	0x5;	.endef
+	.def	reg;	.val	8;	.scl	8;	.dim	40;	.size	160;	.type	0x3f;	.endef
+	.def	system;	.val	168;	.scl	8;	.dim	6;	.size	24;	.type	0x35;	.endef
+	.def	.eos;	.val	192;	.scl	102;	.tag	TCB;	.size	192;	.endef
+	.def	TCB;	.scl	13;	.tag	TCB;	.size	192;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/EXEC.h"
+	.def	EXEC;	.scl	10;	.type	0x8;	.size	60;	.endef
+	.def	pc0;	.val	0;	.scl	8;	.type	0xf;	.endef
+	.def	gp0;	.val	4;	.scl	8;	.type	0xf;	.endef
+	.def	t_addr;	.val	8;	.scl	8;	.type	0xf;	.endef
+	.def	t_size;	.val	12;	.scl	8;	.type	0xf;	.endef
+	.def	d_addr;	.val	16;	.scl	8;	.type	0xf;	.endef
+	.def	d_size;	.val	20;	.scl	8;	.type	0xf;	.endef
+	.def	b_addr;	.val	24;	.scl	8;	.type	0xf;	.endef
+	.def	b_size;	.val	28;	.scl	8;	.type	0xf;	.endef
+	.def	s_addr;	.val	32;	.scl	8;	.type	0xf;	.endef
+	.def	s_size;	.val	36;	.scl	8;	.type	0xf;	.endef
+	.def	sp;	.val	40;	.scl	8;	.type	0xf;	.endef
+	.def	fp;	.val	44;	.scl	8;	.type	0xf;	.endef
+	.def	gp;	.val	48;	.scl	8;	.type	0xf;	.endef
+	.def	ret;	.val	52;	.scl	8;	.type	0xf;	.endef
+	.def	base;	.val	56;	.scl	8;	.type	0xf;	.endef
+	.def	.eos;	.val	60;	.scl	102;	.tag	EXEC;	.size	60;	.endef
+	.def	EXEC;	.scl	13;	.tag	EXEC;	.size	60;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/DIRENTRY.h"
+	.def	DIRENTRY;	.scl	10;	.type	0x8;	.size	40;	.endef
+	.def	name;	.val	0;	.scl	8;	.dim	20;	.size	20;	.type	0x32;	.endef
+	.def	attr;	.val	20;	.scl	8;	.type	0x5;	.endef
+	.def	size;	.val	24;	.scl	8;	.type	0x5;	.endef
+	.def	next;	.val	28;	.scl	8;	.tag	DIRENTRY;	.size	40;	.type	0x18;	.endef
+	.def	head;	.val	32;	.scl	8;	.type	0x5;	.endef
+	.def	system;	.val	36;	.scl	8;	.dim	4;	.size	4;	.type	0x32;	.endef
+	.def	.eos;	.val	40;	.scl	102;	.tag	DIRENTRY;	.size	40;	.endef
+	.def	DIRENTRY;	.scl	13;	.tag	DIRENTRY;	.size	40;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/BW_tContext.h"
+	.def	._20;	.scl	10;	.type	0x8;	.size	156;	.endef
+	.def	client;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	slicePos;	.val	4;	.scl	8;	.tag	BWorldSm_Pos;	.size	132;	.type	0x8;	.endef
+	.def	currentChunk;	.val	136;	.scl	8;	.type	0x4;	.endef
+	.def	chunkFarZClipSq;	.val	140;	.scl	8;	.type	0x4;	.endef
+	.def	polyFarZClipSq;	.val	144;	.scl	8;	.type	0x4;	.endef
+	.def	lowDetailDistSq;	.val	148;	.scl	8;	.type	0x4;	.endef
+	.def	lineFarZClipSq;	.val	152;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	156;	.scl	102;	.tag	._20;	.size	156;	.endef
+	.def	BW_tContext;	.scl	13;	.tag	._20;	.size	156;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.def	Track_MipMap;	.scl	10;	.type	0x8;	.size	12;	.endef
+	.def	code;	.val	0;	.scl	8;	.dim	2;	.size	4;	.type	0x3d;	.endef
+	.def	shapeParentIndex;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	mipMapIndex;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	.eos;	.val	12;	.scl	102;	.tag	Track_MipMap;	.size	12;	.endef
+	.def	Track_MipMap;	.scl	13;	.tag	Track_MipMap;	.size	12;	.type	0x8;	.endef
+	.def	Track_MultiPalette;	.scl	10;	.type	0x8;	.size	8;	.endef
+	.def	charcode;	.val	0;	.scl	8;	.dim	2;	.size	2;	.type	0x3c;	.endef
+	.def	palnum;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	origshapeindex;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	actualshapeindex;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	.eos;	.val	8;	.scl	102;	.tag	Track_MultiPalette;	.size	8;	.endef
+	.def	Track_MultiPalette;	.scl	13;	.tag	Track_MultiPalette;	.size	8;	.type	0x8;	.endef
+	.def	Track_tMaterialController;	.scl	10;	.type	0x8;	.size	16;	.endef
+	.def	type;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	textureMax;	.val	2;	.scl	8;	.type	0xc;	.endef
+	.def	pad;	.val	3;	.scl	8;	.type	0x2;	.endef
+	.def	uv0;	.val	4;	.scl	8;	.type	0xc;	.endef
+	.def	uv1;	.val	5;	.scl	8;	.type	0xc;	.endef
+	.def	uv2;	.val	6;	.scl	8;	.type	0xc;	.endef
+	.def	uv3;	.val	7;	.scl	8;	.type	0xc;	.endef
+	.def	textureCount;	.val	8;	.scl	8;	.type	0x2;	.endef
+	.def	interval;	.val	9;	.scl	8;	.type	0xc;	.endef
+	.def	pmxIndex;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	matPtr;	.val	12;	.scl	8;	.tag	._17;	.size	4;	.type	0x18;	.endef
+	.def	.eos;	.val	16;	.scl	102;	.tag	Track_tMaterialController;	.size	16;	.endef
+	.def	Track_tMaterialController;	.scl	13;	.tag	Track_tMaterialController;	.size	16;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/CTrackSpec.h"
+	.def	CTrackSpec;	.scl	10;	.type	0x8;	.size	264;	.endef
+	.def	fogstate;	.val	0;	.scl	8;	.type	0x3;	.endef
+	.def	weatherstate;	.val	2;	.scl	8;	.type	0x3;	.endef
+	.def	horizonstate;	.val	4;	.scl	8;	.type	0x3;	.endef
+	.def	skystate;	.val	6;	.scl	8;	.type	0x3;	.endef
+	.def	nightstate;	.val	8;	.scl	8;	.type	0x3;	.endef
+	.def	depthcuestate;	.val	10;	.scl	8;	.type	0x3;	.endef
+	.def	worldcolorstate;	.val	12;	.scl	8;	.type	0x3;	.endef
+	.def	pad0;	.val	14;	.scl	8;	.type	0x3;	.endef
+	.def	fogspec;	.val	16;	.scl	8;	.tag	CFogSpec;	.size	16;	.type	0x8;	.endef
+	.def	weatherspec;	.val	32;	.scl	8;	.tag	CWeatherSpec;	.size	8;	.type	0x8;	.endef
+	.def	horizonspec;	.val	40;	.scl	8;	.tag	CHorizonSpec;	.size	48;	.type	0x8;	.endef
+	.def	skyspec;	.val	88;	.scl	8;	.tag	CSkySpec;	.size	148;	.type	0x8;	.endef
+	.def	nightspec;	.val	236;	.scl	8;	.tag	CNightSpec;	.size	4;	.type	0x8;	.endef
+	.def	depthcuespec;	.val	240;	.scl	8;	.tag	CDepthCueSpec;	.size	8;	.type	0x8;	.endef
+	.def	worldcolorspec;	.val	248;	.scl	8;	.tag	CWorldColor;	.size	16;	.type	0x8;	.endef
+	.def	.eos;	.val	264;	.scl	102;	.tag	CTrackSpec;	.size	264;	.endef
+	.def	CTrackSpec;	.scl	13;	.tag	CTrackSpec;	.size	264;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/shared/Sim_tSimGlobalVar.h"
+	.def	Sim_tSimGlobalVar;	.scl	10;	.type	0x8;	.size	24;	.endef
+	.def	gameStarted;	.val	0;	.scl	8;	.type	0x4;	.endef
+	.def	gameTicks;	.val	4;	.scl	8;	.type	0x4;	.endef
+	.def	time32Hz;	.val	8;	.scl	8;	.type	0x4;	.endef
+	.def	schedule64Hz;	.val	12;	.scl	8;	.tag	Sched_tSchedule;	.size	24;	.type	0x18;	.endef
+	.def	schedule32Hz;	.val	16;	.scl	8;	.tag	Sched_tSchedule;	.size	24;	.type	0x18;	.endef
+	.def	schedule32Hz2;	.val	20;	.scl	8;	.tag	Sched_tSchedule;	.size	24;	.type	0x18;	.endef
+	.def	.eos;	.val	24;	.scl	102;	.tag	Sim_tSimGlobalVar;	.size	24;	.endef
+	.def	Sim_tSimGlobalVar;	.scl	13;	.tag	Sim_tSimGlobalVar;	.size	24;	.type	0x8;	.endef
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_types.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track.cpp"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_externs.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/fixdsqrt.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_externs.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/cluttype.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/fastmovf.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/loadshp.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/locatshp.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/movf.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/primate.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/shpclut.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/shpdepth.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/shpsubs.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/shptype.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/vramfxya.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/eac_shape.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_externs.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon/eaclib/psx/eacpsxz/nsync.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track_externs.h"
+	.file	1 "C:\\\\Temp\\\\n4g\\\\recon\\\\game\\\\common\\\\track.cpp"
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Chunk;	.scl	13;	.tag	Chunk;	.size	112;	.type	0x8;	.endef
+	.def	Trk_Quad;	.scl	13;	.tag	Trk_Quad;	.size	6;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	Track_tMaterialController;	.scl	13;	.tag	Track_tMaterialController;	.size	16;	.type	0x8;	.endef
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.def	Track_MipMap;	.scl	13;	.tag	Track_MipMap;	.size	12;	.type	0x8;	.endef
+	.def	Track_MultiPalette;	.scl	13;	.tag	Track_MultiPalette;	.size	8;	.type	0x8;	.endef
+	.def	SimpleMem;	.scl	13;	.tag	SimpleMem;	.size	12;	.type	0x8;	.endef
+	.def	Track_SetTrackNumber__Fi;	.val	Track_SetTrackNumber__Fi;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 95
+LM1:
+	.file	1 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+	.loc	1 95
+LM2:
+	.ent	Track_SetTrackNumber__Fi
+Track_SetTrackNumber__Fi:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	.def	tracknum;	.val	4;	.scl	17;	.type	0x4;	.endef
+$Lb0:
+	.begin	$Lb0	1
+
+	.loc	1 96
+LM3:
+$Le1:
+	.bend	$Le1	2
+	andi	$4,$4,0x000f
+	sw	$4,gtrackNumber
+	j	$31
+
+	.loc	1 96
+LM4:
+	.end	Track_SetTrackNumber__Fi
+	.def	Track_MakeTrackPathName__FPc;	.val	Track_MakeTrackPathName__FPc;	.scl	2;	.type	0x62;	.endef
+	.text
+
+	.loc	1 103
+LM5:
+
+	.loc	1 103
+LM6:
+	.ent	Track_MakeTrackPathName__FPc
+Track_MakeTrackPathName__FPc:
+	.frame	$sp,32,$31		# vars= 0, regs= 2/0, args= 24, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	.def	ext;	.val	4;	.scl	17;	.type	0x12;	.endef
+$Lb2:
+	.begin	$Lb2	1
+	.def	strspc;	.val	strspc.42;	.scl	3;	.dim	64;	.size	64;	.type	0x32;	.endef
+$Le3:
+	.bend	$Le3	1
+	subu	$sp,$sp,32
+	sw	$16,24($sp)
+
+	.loc	1 108
+LM7:
+	lui	$16,%hi(strspc.42) # high
+	addiu	$16,$16,%lo(strspc.42) # low
+	lui	$5,%hi($LC1) # high
+	lui	$2,%hi(Paths_Paths+24) # high
+	sw	$4,16($sp)
+	move	$4,$16
+	lw	$7,gtrackNumber
+	lw	$6,%lo(Paths_Paths+24)($2)
+
+	.loc	1 103
+LM8:
+	sw	$31,28($sp)
+
+	.loc	1 108
+LM9:
+	.set	noreorder
+	.set	nomacro
+	jal	sprintf
+	addiu	$5,$5,%lo($LC1) # low
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 110
+LM10:
+	move	$2,$16
+	lw	$31,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 110
+LM11:
+	.end	Track_MakeTrackPathName__FPc
+	.def	Track_MakeTrackDataPathName__FPc;	.val	Track_MakeTrackDataPathName__FPc;	.scl	2;	.type	0x62;	.endef
+	.text
+
+	.loc	1 114
+LM12:
+
+	.loc	1 114
+LM13:
+	.ent	Track_MakeTrackDataPathName__FPc
+Track_MakeTrackDataPathName__FPc:
+	.frame	$sp,32,$31		# vars= 0, regs= 2/0, args= 24, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	.def	ext;	.val	4;	.scl	17;	.type	0x12;	.endef
+$Lb4:
+	.begin	$Lb4	1
+	.def	strspc;	.val	strspc.45;	.scl	3;	.dim	64;	.size	64;	.type	0x32;	.endef
+$Le5:
+	.bend	$Le5	1
+	subu	$sp,$sp,32
+	sw	$16,24($sp)
+
+	.loc	1 119
+LM14:
+	lui	$16,%hi(strspc.45) # high
+	addiu	$16,$16,%lo(strspc.45) # low
+	lui	$5,%hi($LC1) # high
+	lui	$2,%hi(Paths_Paths+32) # high
+	sw	$4,16($sp)
+	move	$4,$16
+	lw	$7,gtrackNumber
+	lw	$6,%lo(Paths_Paths+32)($2)
+
+	.loc	1 114
+LM15:
+	sw	$31,28($sp)
+
+	.loc	1 119
+LM16:
+	.set	noreorder
+	.set	nomacro
+	jal	sprintf
+	addiu	$5,$5,%lo($LC1) # low
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 121
+LM17:
+	move	$2,$16
+	lw	$31,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 121
+LM18:
+	.end	Track_MakeTrackDataPathName__FPc
+	.def	AllocArtResource__FP18Track_tArtresourcei;	.val	AllocArtResource__FP18Track_tArtresourcei;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 142
+LM19:
+
+	.loc	1 142
+LM20:
+	.ent	AllocArtResource__FP18Track_tArtresourcei
+AllocArtResource__FP18Track_tArtresourcei:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	.def	artRes;	.val	16;	.scl	17;	.tag	._16;	.size	24;	.type	0x18;	.endef
+	.def	numPmx;	.val	5;	.scl	17;	.type	0x4;	.endef
+$Lb6:
+	.begin	$Lb6	1
+$Le7:
+	.bend	$Le7	1
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+
+	.loc	1 143
+LM21:
+	li	$2,-1			# 0xffffffff
+
+	.loc	1 148
+LM22:
+	sll	$4,$5,4
+
+	.loc	1 142
+LM23:
+	sw	$31,20($sp)
+
+	.loc	1 143
+LM24:
+	sw	$2,0($16)
+
+	.loc	1 148
+LM25:
+	.set	noreorder
+	.set	nomacro
+	jal	BWAllocMem__Fl
+	sw	$0,20($16)
+	.set	macro
+	.set	reorder
+
+	sw	$2,12($16)
+
+	.loc	1 150
+LM26:
+	sw	$0,8($16)
+
+	.loc	1 151
+LM27:
+	sw	$0,4($16)
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 151
+LM28:
+	.end	AllocArtResource__FP18Track_tArtresourcei
+	.def	InitArtResources__Fv;	.val	InitArtResources__Fv;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 155
+LM29:
+
+	.loc	1 155
+LM30:
+	.ent	InitArtResources__Fv
+InitArtResources__Fv:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+$Lb8:
+	.begin	$Lb8	1
+$Le9:
+	.bend	$Le9	1
+	subu	$sp,$sp,24
+
+	.loc	1 156
+LM31:
+	lui	$4,%hi(gInitialArt) # high
+	addiu	$4,$4,%lo(gInitialArt) # low
+
+	.loc	1 155
+LM32:
+	sw	$31,16($sp)
+
+	.loc	1 156
+LM33:
+	.set	noreorder
+	.set	nomacro
+	jal	AllocArtResource__FP18Track_tArtresourcei
+	li	$5,850			# 0x00000352
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 165
+LM34:
+	.set	noreorder
+	.set	nomacro
+	jal	BWAllocMem__Fl
+	li	$4,3400			# 0x00000d48
+	.set	macro
+	.set	reorder
+
+	lw	$31,16($sp)
+	sw	$2,Track_materials
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 165
+LM35:
+	.end	InitArtResources__Fv
+	.def	DeInitArtResources__Fv;	.val	DeInitArtResources__Fv;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 176
+LM36:
+
+	.loc	1 176
+LM37:
+	.ent	DeInitArtResources__Fv
+DeInitArtResources__Fv:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+$Lb10:
+	.begin	$Lb10	1
+$Le11:
+	.bend	$Le11	1
+	subu	$sp,$sp,24
+
+	.loc	1 180
+LM38:
+	lui	$2,%hi(gInitialArt+12) # high
+
+	.loc	1 176
+LM39:
+	sw	$31,16($sp)
+
+	.loc	1 192
+LM40:
+	.set	noreorder
+	.set	nomacro
+	jal	Chunk_DeInit__Fv
+	sw	$0,%lo(gInitialArt+12)($2)
+	.set	macro
+	.set	reorder
+
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 192
+LM41:
+	.end	DeInitArtResources__Fv
+	.def	shapetbl;	.scl	13;	.tag	shapetbl;	.size	20;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii;	.val	LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 225
+LM42:
+
+	.loc	1 225
+LM43:
+	.ent	LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii
+LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii:
+	.frame	$sp,88,$31		# vars= 16, regs= 10/0, args= 32, extra= 0
+	.mask	0xc0ff0000,-4
+	.fmask	0x00000000,0
+	.def	shapefile;	.val	22;	.scl	17;	.type	0x12;	.endef
+	.def	pmxList;	.val	5;	.scl	17;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	loadFlags;	.val	8;	.scl	9;	.type	0x4;	.endef
+	.def	x;	.val	30;	.scl	17;	.type	0x4;	.endef
+	.def	y;	.val	16;	.scl	9;	.type	0x4;	.endef
+$Lb12:
+	.begin	$Lb12	1
+	.def	i;	.val	16;	.scl	4;	.type	0x4;	.endef
+	.def	shape;	.val	17;	.scl	4;	.tag	shapetbl;	.size	20;	.type	0x18;	.endef
+	.def	pPmx;	.val	20;	.scl	4;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	recolor_flag;	.val	23;	.scl	4;	.type	0x4;	.endef
+	.def	cluttype;	.val	21;	.scl	4;	.type	0x4;	.endef
+	.def	mipmapcounter;	.val	19;	.scl	4;	.type	0x4;	.endef
+$Lb13:
+	.begin	$Lb13	1
+
+	.loc	1 238
+LM44:
+	lui	$2,%hi(TrackSpec_gSpec) # high
+	lh	$2,%lo(TrackSpec_gSpec)($2)
+
+	.loc	1 225
+LM45:
+	subu	$sp,$sp,88
+	sw	$22,72($sp)
+	move	$22,$4
+	sw	$20,64($sp)
+
+	.loc	1 228
+LM46:
+	move	$20,$5
+
+	.loc	1 225
+LM47:
+	sw	$21,68($sp)
+
+	.loc	1 235
+LM48:
+	li	$21,-1			# 0xffffffff
+
+	.loc	1 225
+LM49:
+	sw	$fp,80($sp)
+	move	$fp,$7
+	sw	$23,76($sp)
+
+	.loc	1 231
+LM50:
+	move	$23,$0
+
+	.loc	1 225
+LM51:
+	sw	$31,84($sp)
+	sw	$19,60($sp)
+	sw	$18,56($sp)
+	sw	$17,52($sp)
+	sw	$16,48($sp)
+
+	.loc	1 236
+LM52:
+	sw	$0,gTempMipMapInfo
+
+	.loc	1 225
+LM53:
+
+	.loc	1 238
+LM54:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L89
+	sw	$6,96($sp)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 239
+LM55:
+$Lb14:
+	.begin	$Lb14	15
+
+	.loc	1 240
+LM56:
+$Lb15:
+	.begin	$Lb15	16
+	.def	cnt;	.val	4;	.scl	4;	.type	0x4;	.endef
+	li	$21,-3			# 0xfffffffd
+
+	.loc	1 242
+LM57:
+	lui	$4,%hi($LC2) # high
+	addiu	$4,$4,%lo($LC2) # low
+	li	$5,384			# 0x00000180
+	.set	noreorder
+	.set	nomacro
+	jal	reservememadr
+	li	$6,16			# 0x00000010
+	.set	macro
+	.set	reorder
+
+	sw	$2,gTempMipMapInfo
+
+	.loc	1 244
+LM58:
+	move	$4,$23
+	li	$5,-1			# 0xffffffff
+	move	$3,$23
+$L93:
+	lw	$2,gTempMipMapInfo
+	addu	$4,$4,1
+	addu	$2,$3,$2
+	sw	$5,0($2)
+	slt	$2,$4,32
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L93
+	addu	$3,$3,12
+	.set	macro
+	.set	reorder
+
+$Le16:
+	.bend	$Le16	20
+$Le17:
+	.bend	$Le17	20
+$L89:
+$Le18:
+	.bend	$Le18	20
+
+	.loc	1 248
+LM59:
+$Lb19:
+	.begin	$Lb19	24
+	.def	pcnt;	.val	3;	.scl	4;	.type	0x4;	.endef
+	lui	$4,%hi($LC3) # high
+	addiu	$4,$4,%lo($LC3) # low
+	li	$5,1024			# 0x00000400
+	.set	noreorder
+	.set	nomacro
+	jal	reservememadr
+	li	$6,16			# 0x00000010
+	.set	macro
+	.set	reorder
+
+	sw	$2,gTempMultiPalInfo
+
+	.loc	1 250
+LM60:
+	li	$4,-1			# 0xffffffff
+	li	$3,127			# 0x0000007f
+	addu	$2,$2,1016
+$L98:
+	sh	$4,2($2)
+	addu	$3,$3,-1
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L98
+	addu	$2,$2,-8
+	.set	macro
+	.set	reorder
+
+$Le20:
+	.bend	$Le20	26
+
+	.loc	1 252
+LM61:
+$Lb21:
+	.begin	$Lb21	28
+	.set	noreorder
+	.set	nomacro
+	jal	DrawSync
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 255
+LM62:
+	move	$19,$0
+
+	.loc	1 260
+LM63:
+	move	$16,$19
+	move	$18,$19
+$L100:
+$Lb22:
+	.begin	$Lb22	36
+	.def	name;	.val	-56;	.scl	1;	.dim	4;	.size	4;	.type	0x32;	.endef
+	.def	tempclut;	.val	7;	.scl	4;	.type	0x4;	.endef
+	.set	noreorder
+	.set	nomacro
+	jal	shapecount
+	move	$4,$22
+	.set	macro
+	.set	reorder
+
+	slt	$2,$16,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L101
+	move	$4,$22
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 263
+LM64:
+	.set	noreorder
+	.set	nomacro
+	jal	shapepointer
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$17,$2
+
+	.loc	1 264
+LM65:
+	.set	noreorder
+	.set	nomacro
+	beq	$17,$0,$L102
+	move	$4,$22
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 268
+LM66:
+	move	$5,$16
+	.set	noreorder
+	.set	nomacro
+	jal	shapename
+	addu	$6,$sp,32
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 272
+LM67:
+	slt	$2,$16,12
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L106
+	move	$7,$21
+	.set	macro
+	.set	reorder
+
+	lbu	$2,0($17)
+	li	$3,1			# 0x00000001
+	andi	$2,$2,0x0003
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$3,$L106
+	li	$2,35			# 0x00000023
+	.set	macro
+	.set	reorder
+
+	lbu	$3,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L128
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+$L106:
+
+	.loc	1 273
+LM68:
+	li	$7,-1			# 0xffffffff
+
+	.loc	1 275
+LM69:
+$Lb23:
+	.begin	$Lb23	51
+	move	$4,$0
+$L128:
+	lw	$9,96($sp)
+	move	$5,$17
+	sw	$7,20($sp)
+	sw	$7,24($sp)
+	move	$7,$fp
+	sw	$20,28($sp)
+	or	$6,$9,$23
+	lw	$9,104($sp)
+	ori	$6,$6,0x0002
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap
+	sw	$9,16($sp)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 278
+LM70:
+	lbu	$3,32($sp)
+	li	$2,33			# 0x00000021
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L129
+	lui	$2,%hi(TrackSpec_gSpec) # high
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 279
+LM71:
+$Lb24:
+	.begin	$Lb24	55
+	.def	palnum;	.val	2;	.scl	4;	.type	0x4;	.endef
+
+	.loc	1 282
+LM72:
+$Lb25:
+	.begin	$Lb25	58
+
+	.loc	1 285
+LM73:
+	addu	$4,$sp,35
+
+	.loc	1 282
+LM74:
+	lw	$2,gTempMultiPalInfo
+	lbu	$3,33($sp)
+	addu	$2,$18,$2
+	sb	$3,0($2)
+
+	.loc	1 283
+LM75:
+	lw	$2,gTempMultiPalInfo
+	lbu	$3,34($sp)
+	addu	$2,$18,$2
+
+	.loc	1 285
+LM76:
+	.set	noreorder
+	.set	nomacro
+	jal	atoi
+	sb	$3,1($2)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 286
+LM77:
+	lw	$4,gTempMultiPalInfo
+	#nop
+	addu	$3,$18,$4
+	sh	$2,2($3)
+
+	.loc	1 292
+LM78:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L108
+	sh	$16,6($3)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 293
+LM79:
+$Lb26:
+	.begin	$Lb26	69
+
+	.loc	1 295
+LM80:
+$Lb27:
+	.begin	$Lb27	71
+	.def	j;	.val	5;	.scl	4;	.type	0x4;	.endef
+	move	$5,$0
+	move	$8,$4
+	lbu	$7,33($sp)
+	lbu	$6,34($sp)
+$L112:
+
+	.loc	1 298
+LM81:
+	move	$3,$4
+	lbu	$2,0($3)
+	#nop
+	bne	$2,$7,$L111
+	lbu	$2,1($3)
+	#nop
+	bne	$2,$6,$L111
+	lh	$2,2($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L126
+	addu	$2,$18,$8
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 304
+LM82:
+$L111:
+	addu	$5,$5,1
+	slt	$2,$5,128
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L112
+	addu	$4,$4,8
+	.set	macro
+	.set	reorder
+
+$Le28:
+	.bend	$Le28	80
+$Le29:
+	.bend	$Le29	80
+	.set	noreorder
+	.set	nomacro
+	j	$L107
+	addu	$18,$18,8
+	.set	macro
+	.set	reorder
+
+$L126:
+
+	.loc	1 301
+LM83:
+	lhu	$3,4($4)
+
+	.loc	1 302
+LM84:
+	.set	noreorder
+	.set	nomacro
+	j	$L115
+	sh	$3,4($2)
+	.set	macro
+	.set	reorder
+
+$L108:
+
+	.loc	1 306
+LM85:
+	sh	$16,4($3)
+$L115:
+$Le30:
+	.bend	$Le30	82
+
+	.loc	1 308
+LM86:
+	addu	$18,$18,8
+$Le31:
+	.bend	$Le31	84
+$L107:
+$Le32:
+	.bend	$Le32	84
+
+	.loc	1 322
+LM87:
+$Lb33:
+	.begin	$Lb33	98
+	lui	$2,%hi(TrackSpec_gSpec) # high
+$L129:
+	lh	$2,%lo(TrackSpec_gSpec)($2)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L116
+	li	$2,90			# 0x0000005a
+	.set	macro
+	.set	reorder
+
+	lbu	$3,32($sp)
+	#nop
+	bne	$3,$2,$L116
+
+	.loc	1 323
+LM88:
+$Lb34:
+	.begin	$Lb34	99
+	.def	icode;	.val	-48;	.scl	1;	.dim	2;	.size	4;	.type	0x33;	.endef
+
+	.loc	1 327
+LM89:
+$Lb35:
+	.begin	$Lb35	103
+
+	.loc	1 328
+LM90:
+	lbu	$2,35($sp)
+
+	.loc	1 327
+LM91:
+	lbu	$4,34($sp)
+
+	.loc	1 331
+LM92:
+	lbu	$3,33($sp)
+
+	.loc	1 328
+LM93:
+	sh	$2,42($sp)
+
+	.loc	1 331
+LM94:
+	li	$2,82			# 0x00000052
+
+	.loc	1 327
+LM95:
+
+	.loc	1 331
+LM96:
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L117
+	sh	$4,40($sp)
+	.set	macro
+	.set	reorder
+
+	lbu	$2,0($17)
+	li	$3,1			# 0x00000001
+	andi	$2,$2,0x0003
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$3,$L117
+	sll	$2,$19,$3
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 335
+LM97:
+	addu	$2,$2,$19
+	lw	$3,gTempMipMapInfo
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sh	$4,0($2)
+
+	.loc	1 336
+LM98:
+	lbu	$3,35($sp)
+
+	.loc	1 339
+LM99:
+	addu	$19,$19,1
+
+	.loc	1 337
+LM100:
+	sw	$16,4($2)
+
+	.loc	1 338
+LM101:
+	sw	$16,8($2)
+
+	.loc	1 336
+LM102:
+
+	.loc	1 339
+LM103:
+	.set	noreorder
+	.set	nomacro
+	j	$L116
+	sh	$3,2($2)
+	.set	macro
+	.set	reorder
+
+$L127:
+
+	.loc	1 353
+LM104:
+	.set	noreorder
+	.set	nomacro
+	j	$L116
+	sw	$16,8($3)
+	.set	macro
+	.set	reorder
+
+$L117:
+
+	.loc	1 343
+LM105:
+$Lb36:
+	.begin	$Lb36	119
+$Lb37:
+	.begin	$Lb37	119
+	lbu	$3,33($sp)
+	li	$2,90			# 0x0000005a
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L116
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 344
+LM106:
+$Lb38:
+	.begin	$Lb38	120
+
+	.loc	1 346
+LM107:
+$Lb39:
+	.begin	$Lb39	122
+	.def	j;	.val	4;	.scl	4;	.type	0x4;	.endef
+	lh	$6,40($sp)
+	lh	$5,42($sp)
+	lw	$3,gTempMipMapInfo
+$L123:
+
+	.loc	1 349
+LM108:
+	lhu	$2,0($3)
+	#nop
+	bne	$6,$2,$L122
+	lhu	$2,2($3)
+	#nop
+	beq	$5,$2,$L127
+
+	.loc	1 355
+LM109:
+$L122:
+	addu	$4,$4,1
+	slt	$2,$4,32
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L123
+	addu	$3,$3,12
+	.set	macro
+	.set	reorder
+
+$Le40:
+	.bend	$Le40	131
+$Le41:
+	.bend	$Le41	131
+$Le42:
+	.bend	$Le42	131
+$Le43:
+	.bend	$Le43	131
+$Le44:
+	.bend	$Le44	131
+$Le45:
+	.bend	$Le45	131
+$L116:
+$Le46:
+	.bend	$Le46	131
+
+	.loc	1 358
+LM110:
+	addu	$20,$20,16
+$Le47:
+	.bend	$Le47	134
+
+	.loc	1 359
+LM111:
+$L102:
+	.set	noreorder
+	.set	nomacro
+	j	$L100
+	addu	$16,$16,1
+	.set	macro
+	.set	reorder
+
+$L101:
+$Le48:
+	.bend	$Le48	135
+$Le49:
+	.bend	$Le49	135
+	lw	$31,84($sp)
+	lw	$fp,80($sp)
+	lw	$23,76($sp)
+	lw	$22,72($sp)
+	lw	$21,68($sp)
+	lw	$20,64($sp)
+	lw	$19,60($sp)
+	lw	$18,56($sp)
+	lw	$17,52($sp)
+	lw	$16,48($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,88
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 359
+LM112:
+	.end	LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii
+	.def	shapetbl;	.scl	13;	.tag	shapetbl;	.size	20;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii;	.val	LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 375
+LM113:
+
+	.loc	1 375
+LM114:
+	.ent	LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii
+LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii:
+	.frame	$sp,64,$31		# vars= 0, regs= 8/0, args= 32, extra= 0
+	.mask	0x807f0000,-4
+	.fmask	0x00000000,0
+	.def	shapefile;	.val	19;	.scl	17;	.type	0x12;	.endef
+	.def	pmxList;	.val	5;	.scl	17;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	x;	.val	22;	.scl	17;	.type	0x4;	.endef
+	.def	y;	.val	21;	.scl	17;	.type	0x4;	.endef
+$Lb50:
+	.begin	$Lb50	1
+	.def	i;	.val	16;	.scl	4;	.type	0x4;	.endef
+	.def	shape;	.val	2;	.scl	4;	.tag	shapetbl;	.size	20;	.type	0x18;	.endef
+	.def	pPmx;	.val	17;	.scl	4;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	recolor_flag;	.val	20;	.scl	4;	.type	0x4;	.endef
+	subu	$sp,$sp,64
+	sw	$19,44($sp)
+	move	$19,$4
+	sw	$22,56($sp)
+	move	$22,$6
+	sw	$21,52($sp)
+	move	$21,$7
+	sw	$17,36($sp)
+
+	.loc	1 378
+LM115:
+	move	$17,$5
+
+	.loc	1 375
+LM116:
+	sw	$20,48($sp)
+
+	.loc	1 381
+LM117:
+	move	$20,$0
+
+	.loc	1 375
+LM118:
+	sw	$16,32($sp)
+
+	.loc	1 387
+LM119:
+	move	$16,$20
+
+	.loc	1 375
+LM120:
+	sw	$18,40($sp)
+
+	.loc	1 387
+LM121:
+	li	$18,-1			# 0xffffffff
+
+	.loc	1 375
+LM122:
+	sw	$31,60($sp)
+
+	.loc	1 387
+LM123:
+$L131:
+	.set	noreorder
+	.set	nomacro
+	jal	shapecount
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+	slt	$2,$16,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L132
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 389
+LM124:
+	.set	noreorder
+	.set	nomacro
+	jal	shapepointer
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 390
+LM125:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L133
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 392
+LM126:
+	move	$5,$2
+	ori	$6,$20,0x0042
+	move	$7,$22
+	sw	$21,16($sp)
+	sw	$18,20($sp)
+	sw	$18,24($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap
+	sw	$17,28($sp)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 393
+LM127:
+	addu	$17,$17,16
+
+	.loc	1 394
+LM128:
+$L133:
+	.set	noreorder
+	.set	nomacro
+	j	$L131
+	addu	$16,$16,1
+	.set	macro
+	.set	reorder
+
+$L132:
+$Le51:
+	.bend	$Le51	20
+	lw	$31,60($sp)
+	lw	$22,56($sp)
+	lw	$21,52($sp)
+	lw	$20,48($sp)
+	lw	$19,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,64
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 394
+LM129:
+	.end	LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii
+	.def	TexturesLoadInitial__Fv;	.val	TexturesLoadInitial__Fv;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 405
+LM130:
+
+	.loc	1 405
+LM131:
+	.ent	TexturesLoadInitial__Fv
+TexturesLoadInitial__Fv:
+	.frame	$sp,32,$31		# vars= 0, regs= 2/0, args= 24, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+$Lb52:
+	.begin	$Lb52	1
+	.def	success;	.val	2;	.scl	4;	.type	0x4;	.endef
+	subu	$sp,$sp,32
+
+	.loc	1 410
+LM132:
+	lui	$2,%hi(GameSetup_gData) # high
+	addiu	$3,$2,%lo(GameSetup_gData) # low
+
+	.loc	1 405
+LM133:
+	sw	$31,28($sp)
+	sw	$16,24($sp)
+
+	.loc	1 410
+LM134:
+	lw	$2,84($3)
+	#nop
+	beq	$2,$0,$L137
+	lw	$2,72($3)
+	#nop
+	beq	$2,$0,$L138
+
+	.loc	1 411
+LM135:
+	lui	$4,%hi($LC4) # high
+	.set	noreorder
+	.set	nomacro
+	j	$L149
+	addiu	$4,$4,%lo($LC4) # low
+	.set	macro
+	.set	reorder
+
+$L138:
+
+	.loc	1 413
+LM136:
+	lui	$4,%hi($LC5) # high
+	.set	noreorder
+	.set	nomacro
+	j	$L149
+	addiu	$4,$4,%lo($LC5) # low
+	.set	macro
+	.set	reorder
+
+$L137:
+
+	.loc	1 414
+LM137:
+	lw	$2,72($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L141
+	lui	$4,%hi($LC6) # high
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 415
+LM138:
+	.set	noreorder
+	.set	nomacro
+	j	$L149
+	addiu	$4,$4,%lo($LC6) # low
+	.set	macro
+	.set	reorder
+
+$L141:
+
+	.loc	1 417
+LM139:
+	lui	$4,%hi($LC7) # high
+	addiu	$4,$4,%lo($LC7) # low
+$L149:
+	jal	Track_MakeTrackPathName__FPc
+	move	$4,$2
+	.set	noreorder
+	.set	nomacro
+	jal	loadshapeadr
+	move	$5,$0
+	.set	macro
+	.set	reorder
+
+	lui	$3,%hi(gInitialArt+4) # high
+
+	.loc	1 419
+LM140:
+$Lb53:
+	.begin	$Lb53	15
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L147
+	sw	$2,%lo(gInitialArt+4)($3)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 420
+LM141:
+$Lb54:
+	.begin	$Lb54	16
+
+	.loc	1 422
+LM142:
+$Lb55:
+	.begin	$Lb55	18
+$Le56:
+	.bend	$Le56	18
+$Le57:
+	.bend	$Le57	18
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_ResetPaletteSharing__Fv
+	lui	$16,%hi(gInitialArt) # high
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 424
+LM143:
+	addiu	$16,$16,%lo(gInitialArt) # low
+	lw	$4,4($16)
+	jal	shapecount
+
+	.loc	1 426
+LM144:
+	li	$6,64			# 0x00000040
+	lw	$4,4($16)
+	lw	$5,12($16)
+	li	$7,256			# 0x00000100
+
+	.loc	1 424
+LM145:
+	sw	$2,8($16)
+
+	.loc	1 426
+LM146:
+	.set	noreorder
+	.set	nomacro
+	jal	LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii
+	sw	$0,16($sp)
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 431
+LM147:
+	lw	$2,8($16)
+	lw	$3,12($16)
+	lw	$4,gSpikeBeltPixmap
+	sll	$2,$2,4
+	addu	$2,$2,$3
+	lwl	$8,3($4)
+	lwr	$8,0($4)
+	lwl	$9,7($4)
+	lwr	$9,4($4)
+	lwl	$10,11($4)
+	lwr	$10,8($4)
+	lwl	$11,15($4)
+	lwr	$11,12($4)
+	swl	$8,3($2)
+	swr	$8,0($2)
+	swl	$9,7($2)
+	swr	$9,4($2)
+	swl	$10,11($2)
+	swr	$10,8($2)
+	swl	$11,15($2)
+	swr	$11,12($2)
+
+	.loc	1 432
+LM148:
+	lw	$2,8($16)
+
+	.loc	1 438
+LM149:
+	lw	$4,4($16)
+
+	.loc	1 432
+LM150:
+	addu	$2,$2,1
+	sw	$2,8($16)
+
+	.loc	1 436
+LM151:
+	sw	$2,16($16)
+
+	.loc	1 438
+LM152:
+	.set	noreorder
+	.set	nomacro
+	jal	purgememadr
+	sw	$2,20($16)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L144
+	lui	$2,%hi(gInitialArt+12) # high
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 443
+LM153:
+$L147:
+	j	$L147
+$L144:
+$Le58:
+	.bend	$Le58	39
+
+	.loc	1 448
+LM154:
+$Lb59:
+	.begin	$Lb59	44
+	.def	tmpShapes;	.val	16;	.scl	4;	.type	0x12;	.endef
+	lw	$4,%lo(gInitialArt+12)($2)
+	jal	Hrz_GetHorizonPixMap__FP12Draw_tPixMap
+
+	.loc	1 455
+LM155:
+	lui	$4,%hi($LC8) # high
+	.set	noreorder
+	.set	nomacro
+	jal	Track_MakeTrackPathName__FPc
+	addiu	$4,$4,%lo($LC8) # low
+	.set	macro
+	.set	reorder
+
+	move	$4,$2
+	.set	noreorder
+	.set	nomacro
+	jal	loadshapeadr
+	move	$5,$0
+	.set	macro
+	.set	reorder
+
+	move	$16,$2
+	beq	$16,$0,$L148
+
+	.loc	1 461
+LM156:
+	jal	Texture_ResetPaletteSharing__Fv
+
+	.loc	1 463
+LM157:
+	move	$4,$16
+	lui	$5,%hi(Track_gReflectionMaps) # high
+	addiu	$5,$5,%lo(Track_gReflectionMaps) # low
+	li	$6,992			# 0x000003e0
+	.set	noreorder
+	.set	nomacro
+	jal	LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii
+	move	$7,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 465
+LM158:
+	.set	noreorder
+	.set	nomacro
+	jal	purgememadr
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L148:
+$Le60:
+	.bend	$Le60	61
+$Le61:
+	.bend	$Le61	61
+	lw	$31,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 465
+LM159:
+	.end	TexturesLoadInitial__Fv
+	.def	Track_tMaterialController;	.scl	13;	.tag	Track_tMaterialController;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Track_AnimateTextures__Fv;	.val	Track_AnimateTextures__Fv;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 491
+LM160:
+
+	.loc	1 491
+LM161:
+	.ent	Track_AnimateTextures__Fv
+Track_AnimateTextures__Fv:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+$Lb62:
+	.begin	$Lb62	1
+	.def	controlPtr;	.val	7;	.scl	4;	.tag	Track_tMaterialController;	.size	16;	.type	0x18;	.endef
+	.def	controlCount;	.val	8;	.scl	4;	.type	0x4;	.endef
+
+	.loc	1 495
+LM162:
+	li	$12,-1			# 0xffffffff
+	li	$11,128			# 0x00000080
+	lui	$2,%hi(simGlobal) # high
+	addiu	$9,$2,%lo(simGlobal) # low
+	lui	$2,%hi(gInitialArt) # high
+	addiu	$10,$2,%lo(gInitialArt) # low
+
+	.loc	1 492
+LM163:
+	lw	$7,Track_gMatController
+
+	.loc	1 493
+LM164:
+	lw	$8,Track_gControllerCount
+
+	.loc	1 495
+LM165:
+	addu	$6,$7,10
+$L151:
+$Lb63:
+	.begin	$Lb63	5
+	addu	$8,$8,-1
+	beq	$8,$12,$L157
+
+	.loc	1 497
+LM166:
+$Lb64:
+	.begin	$Lb64	7
+	lh	$3,0($7)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$11,$L154
+	li	$2,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 498
+LM167:
+$Lb65:
+	.begin	$Lb65	8
+	.def	pmx;	.val	4;	.scl	4;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+
+	.loc	1 499
+LM168:
+$Le66:
+	.bend	$Le66	9
+	lbu	$3,-1($6)
+	lw	$2,4($9)
+	#nop
+	div	$2,$2,$3
+	lbu	$3,-8($6)
+	#nop
+	rem	$5,$2,$3
+
+	.loc	1 500
+LM169:
+	lw	$2,2($6)
+	lw	$4,12($10)
+	lh	$3,2($2)
+
+	.loc	1 502
+LM170:
+	lbu	$2,-6($6)
+
+	.loc	1 500
+LM171:
+	sll	$3,$3,4
+	addu	$4,$4,$3
+
+	.loc	1 502
+LM172:
+	addu	$2,$2,$5
+	sb	$2,1($4)
+
+	.loc	1 503
+LM173:
+	lbu	$2,-5($6)
+	#nop
+	addu	$2,$2,$5
+	sb	$2,5($4)
+
+	.loc	1 504
+LM174:
+	lbu	$2,-4($6)
+	#nop
+	addu	$2,$2,$5
+	sb	$2,9($4)
+
+	.loc	1 505
+LM175:
+	lbu	$2,-3($6)
+	#nop
+	addu	$2,$2,$5
+	.set	noreorder
+	.set	nomacro
+	j	$L155
+	sb	$2,13($4)
+	.set	macro
+	.set	reorder
+
+$L154:
+
+	.loc	1 508
+LM176:
+$Lb67:
+	.begin	$Lb67	18
+$Lb68:
+	.begin	$Lb68	18
+	bne	$3,$2,$L155
+
+	.loc	1 509
+LM177:
+$Lb69:
+	.begin	$Lb69	19
+
+	.loc	1 511
+LM178:
+	lbu	$3,-1($6)
+	lw	$2,4($9)
+	#nop
+	div	$2,$2,$3
+	lbu	$3,-2($6)
+	#nop
+	rem	$4,$2,$3
+
+	.loc	1 513
+LM179:
+	lhu	$2,0($6)
+	lw	$3,2($6)
+	addu	$2,$2,$4
+	sh	$2,2($3)
+$Le70:
+	.bend	$Le70	23
+$Le71:
+	.bend	$Le71	23
+$Le72:
+	.bend	$Le72	23
+$L155:
+$Le73:
+	.bend	$Le73	23
+
+	.loc	1 517
+LM180:
+$Le74:
+	.bend	$Le74	27
+	addu	$6,$6,16
+	.set	noreorder
+	.set	nomacro
+	j	$L151
+	addu	$7,$7,16
+	.set	macro
+	.set	reorder
+
+$Le75:
+	.bend	$Le75	27
+$L157:
+	j	$31
+
+	.loc	1 517
+LM181:
+	.end	Track_AnimateTextures__Fv
+	.def	Track_GetProperMultiPalShapeIndex__Fii;	.val	Track_GetProperMultiPalShapeIndex__Fii;	.scl	2;	.type	0x24;	.endef
+	.text
+
+	.loc	1 525
+LM182:
+
+	.loc	1 525
+LM183:
+	.ent	Track_GetProperMultiPalShapeIndex__Fii
+Track_GetProperMultiPalShapeIndex__Fii:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	.def	shapeindex;	.val	4;	.scl	17;	.type	0x4;	.endef
+	.def	paletteindex;	.val	5;	.scl	17;	.type	0x4;	.endef
+$Lb76:
+	.begin	$Lb76	1
+
+	.loc	1 527
+LM184:
+$Lb77:
+	.begin	$Lb77	3
+	.def	t;	.val	6;	.scl	4;	.type	0x4;	.endef
+	move	$6,$0
+	lw	$3,gTempMultiPalInfo
+$L162:
+
+	.loc	1 529
+LM185:
+	lh	$2,4($3)
+	#nop
+	bne	$2,$4,$L161
+	lh	$2,2($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$5,$L166
+	addu	$6,$6,1
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 530
+LM186:
+	lh	$2,6($3)
+	j	$31
+
+	.loc	1 531
+LM187:
+$L161:
+	addu	$6,$6,1
+$L166:
+	slt	$2,$6,128
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L162
+	addu	$3,$3,8
+	.set	macro
+	.set	reorder
+
+$Le78:
+	.bend	$Le78	7
+
+	.loc	1 532
+LM188:
+$Le79:
+	.bend	$Le79	8
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$4
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 532
+LM189:
+	.end	Track_GetProperMultiPalShapeIndex__Fii
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1;	.val	Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 538
+LM190:
+
+	.loc	1 538
+LM191:
+	.ent	Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1
+Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1:
+	.frame	$sp,104,$31		# vars= 64, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	.def	uvFlag;	.val	18;	.scl	17;	.type	0x4;	.endef
+	.def	inputPmx;	.val	5;	.scl	17;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+	.def	outputPmx;	.val	19;	.scl	17;	.tag	Draw_tPixMap;	.size	16;	.type	0x18;	.endef
+$Lb80:
+	.begin	$Lb80	1
+	.def	pmxProcessCount;	.val	17;	.scl	4;	.type	0x4;	.endef
+	.def	newPmx;	.val	-88;	.scl	1;	.tag	Draw_tPixMap;	.dim	4;	.size	64;	.type	0x38;	.endef
+	subu	$sp,$sp,104
+	sw	$18,88($sp)
+	move	$18,$4
+	sw	$17,84($sp)
+
+	.loc	1 540
+LM192:
+	move	$17,$0
+
+	.loc	1 538
+LM193:
+	sw	$19,92($sp)
+	move	$19,$6
+	sw	$16,80($sp)
+
+	.loc	1 546
+LM194:
+	andi	$2,$18,0x0010
+
+	.loc	1 538
+LM195:
+	sw	$31,96($sp)
+
+	.loc	1 544
+LM196:
+	lwl	$7,3($5)
+	lwr	$7,0($5)
+	lwl	$8,7($5)
+	lwr	$8,4($5)
+	lwl	$9,11($5)
+	lwr	$9,8($5)
+	lwl	$10,15($5)
+	lwr	$10,12($5)
+	swl	$7,19($sp)
+	swr	$7,16($sp)
+	swl	$8,23($sp)
+	swr	$8,20($sp)
+	swl	$9,27($sp)
+	swr	$9,24($sp)
+	swl	$10,31($sp)
+	swr	$10,28($sp)
+
+	.loc	1 546
+LM197:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L168
+	addu	$16,$sp,16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 548
+LM198:
+	move	$4,$16
+	move	$5,$17
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_CloneUVPmx__FP12Draw_tPixMapiT0
+	addu	$6,$sp,32
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 549
+LM199:
+	li	$17,1			# 0x00000001
+$L168:
+
+	.loc	1 552
+LM200:
+	andi	$2,$18,0x0040
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L169
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 554
+LM201:
+	sll	$6,$17,4
+	addu	$4,$16,$6
+	addu	$6,$6,16
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_CloneUVPmx__FP12Draw_tPixMapiT0
+	addu	$6,$16,$6
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 555
+LM202:
+	addu	$17,$17,1
+$L169:
+
+	.loc	1 558
+LM203:
+	andi	$2,$18,0x000e
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L170
+	andi	$2,$18,0x0002
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 561
+LM204:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L171
+	sll	$6,$17,4
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 562
+LM205:
+	addu	$4,$16,$6
+	.set	noreorder
+	.set	nomacro
+	j	$L176
+	li	$5,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L171:
+
+	.loc	1 563
+LM206:
+	andi	$2,$18,0x0004
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L173
+	addu	$4,$16,$6
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 564
+LM207:
+	.set	noreorder
+	.set	nomacro
+	j	$L176
+	li	$5,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+$L173:
+
+	.loc	1 565
+LM208:
+	andi	$2,$18,0x0008
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L172
+	li	$5,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 566
+LM209:
+	sll	$6,$17,4
+	addu	$4,$16,$6
+$L176:
+	addu	$6,$6,16
+	.set	noreorder
+	.set	nomacro
+	jal	Texture_CloneUVPmx__FP12Draw_tPixMapiT0
+	addu	$6,$16,$6
+	.set	macro
+	.set	reorder
+
+$L172:
+
+	.loc	1 567
+LM210:
+	addu	$17,$17,1
+$L170:
+
+	.loc	1 571
+LM211:
+$Le81:
+	.bend	$Le81	34
+	sll	$3,$17,4
+	addu	$2,$sp,16
+	addu	$2,$2,$3
+	lwl	$7,3($2)
+	lwr	$7,0($2)
+	lwl	$8,7($2)
+	lwr	$8,4($2)
+	lwl	$9,11($2)
+	lwr	$9,8($2)
+	lwl	$10,15($2)
+	lwr	$10,12($2)
+	swl	$7,3($19)
+	swr	$7,0($19)
+	swl	$8,7($19)
+	swr	$8,4($19)
+	swl	$9,11($19)
+	swr	$9,8($19)
+	swl	$10,15($19)
+	swr	$10,12($19)
+	lw	$31,96($sp)
+	lw	$19,92($sp)
+	lw	$18,88($sp)
+	lw	$17,84($sp)
+	lw	$16,80($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,104
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 571
+LM212:
+	.end	Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Track_AssociateSingleMaterial__Fe;	.val	Track_AssociateSingleMaterial__Fe;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 577
+LM213:
+
+	.loc	1 577
+LM214:
+	.ent	Track_AssociateSingleMaterial__Fe
+Track_AssociateSingleMaterial__Fe:
+	.frame	$sp,16,$31		# vars= 16, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	subu	$sp,$sp,16
+$Lb82:
+	.begin	$Lb82	1
+
+	.loc	1 586
+LM215:
+$Lb83:
+	.begin	$Lb83	10
+$Lb84:
+	.begin	$Lb84	10
+
+	.loc	1 593
+LM216:
+$Lb85:
+	.begin	$Lb85	17
+
+	.loc	1 594
+LM217:
+$Lb86:
+	.begin	$Lb86	18
+	.def	originalPmx;	.val	-16;	.scl	1;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+
+	.loc	1 612
+LM218:
+$Le87:
+	.bend	$Le87	36
+
+	.loc	1 615
+LM219:
+$Lb88:
+	.begin	$Lb88	39
+
+	.loc	1 624
+LM220:
+$Le89:
+	.bend	$Le89	48
+$Le90:
+	.bend	$Le90	48
+$Le91:
+	.bend	$Le91	48
+
+	.loc	1 626
+LM221:
+$Le92:
+	.bend	$Le92	50
+$Le93:
+	.bend	$Le93	50
+	addu	$sp,$sp,16
+	j	$31
+
+	.loc	1 626
+LM222:
+	.end	Track_AssociateSingleMaterial__Fe
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	Draw_tPixMap;	.scl	13;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial;	.val	Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 688
+LM223:
+
+	.loc	1 688
+LM224:
+	.ent	Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial
+Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial:
+	.frame	$sp,56,$31		# vars= 16, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	.def	group;	.val	4;	.scl	17;	.tag	SerializedGroup;	.size	16;	.type	0x18;	.endef
+	.def	length;	.val	5;	.scl	17;	.type	0x4;	.endef
+	.def	matList;	.val	17;	.scl	17;	.tag	._17;	.size	4;	.type	0x18;	.endef
+$Lb94:
+	.begin	$Lb94	1
+$Lb95:
+	.begin	$Lb95	1
+	subu	$sp,$sp,56
+	sw	$17,36($sp)
+	move	$17,$6
+	sw	$31,48($sp)
+	sw	$19,44($sp)
+	sw	$18,40($sp)
+
+	.loc	1 691
+LM225:
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L188
+	sw	$16,32($sp)
+	.set	macro
+	.set	reorder
+
+$Lb96:
+	.begin	$Lb96	4
+	.def	matCount;	.val	16;	.scl	4;	.type	0x4;	.endef
+	.def	i;	.val	8;	.scl	4;	.type	0x4;	.endef
+	.def	controlIndex;	.val	10;	.scl	4;	.type	0x4;	.endef
+
+	.loc	1 707
+LM226:
+	lui	$2,%hi(gInitialArt) # high
+	addiu	$2,$2,%lo(gInitialArt) # low
+
+	.loc	1 713
+LM227:
+	move	$8,$0
+
+	.loc	1 707
+LM228:
+	lw	$3,20($2)
+
+	.loc	1 696
+LM229:
+	move	$16,$5
+
+	.loc	1 710
+LM230:
+	sw	$0,Track_gControllerCount
+
+	.loc	1 707
+LM231:
+
+	.loc	1 713
+LM232:
+	.set	noreorder
+	.set	nomacro
+	blez	$16,$L191
+	sw	$3,16($2)
+	.set	macro
+	.set	reorder
+
+$L193:
+
+	.loc	1 716
+LM233:
+	lw	$2,Track_gControllerCount
+
+	.loc	1 717
+LM234:
+	addu	$8,$8,1
+
+	.loc	1 716
+LM235:
+	addu	$2,$2,1
+	sw	$2,Track_gControllerCount
+
+	.loc	1 717
+LM236:
+	slt	$2,$8,$16
+	bne	$2,$0,$L193
+$L191:
+
+	.loc	1 723
+LM237:
+	lw	$4,Track_gControllerCount
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L216
+	move	$8,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 728
+LM238:
+	.set	noreorder
+	.set	nomacro
+	jal	BWAllocMem__Fl
+	sll	$4,$4,4
+	.set	macro
+	.set	reorder
+
+	sw	$2,Track_gMatController
+
+	.loc	1 733
+LM239:
+$Lb97:
+	.begin	$Lb97	46
+	move	$8,$0
+$L216:
+	move	$10,$8
+	lui	$14,%hi(TrackSpec_gSpec) # high
+	li	$13,-1			# 0xffffffff
+	lui	$2,%hi(gInitialArt) # high
+	addiu	$9,$2,%lo(gInitialArt) # low
+	sll	$11,$18,4
+	li	$12,1			# 0x00000001
+	move	$6,$17
+$L197:
+$Lb98:
+	.begin	$Lb98	46
+	slt	$2,$8,$16
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L198
+	sll	$2,$10,4
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 749
+LM240:
+$Lb99:
+	.begin	$Lb99	62
+
+	.loc	1 758
+LM241:
+$Lb100:
+	.begin	$Lb100	71
+$Lb101:
+	.begin	$Lb101	71
+$Lb102:
+	.begin	$Lb102	71
+$Le103:
+	.bend	$Le103	71
+$Le104:
+	.bend	$Le104	71
+$Le105:
+	.bend	$Le105	71
+$Le106:
+	.bend	$Le106	71
+$Lb107:
+	.begin	$Lb107	71
+	lw	$3,Track_gMatController
+	lhu	$4,2($6)
+	addu	$2,$2,$3
+	sh	$4,10($2)
+
+	.loc	1 760
+LM242:
+	sw	$6,12($2)
+
+	.loc	1 795
+LM243:
+	lh	$2,%lo(TrackSpec_gSpec)($14)
+
+	.loc	1 795
+LM244:
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L199
+	addu	$10,$10,1
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 796
+LM245:
+$Lb108:
+	.begin	$Lb108	109
+
+	.loc	1 798
+LM246:
+$Lb109:
+	.begin	$Lb109	111
+	.def	mm;	.val	7;	.scl	4;	.type	0x4;	.endef
+	move	$7,$0
+	move	$5,$6
+	move	$4,$7
+$L207:
+$Lb110:
+	.begin	$Lb110	111
+	slt	$2,$7,32
+	beq	$2,$0,$L199
+
+	.loc	1 801
+LM247:
+$Lb111:
+	.begin	$Lb111	114
+	lw	$2,gTempMipMapInfo
+	#nop
+	addu	$2,$4,$2
+	lw	$2,0($2)
+	#nop
+	beq	$2,$13,$L209
+
+	.loc	1 802
+LM248:
+$Lb112:
+	.begin	$Lb112	115
+
+	.loc	1 804
+LM249:
+$Lb113:
+	.begin	$Lb113	117
+
+	.loc	1 805
+LM250:
+$Lb114:
+	.begin	$Lb114	118
+
+	.loc	1 808
+LM251:
+$Lb115:
+	.begin	$Lb115	121
+$Lb116:
+	.begin	$Lb116	121
+	.def	originalPmx;	.val	-40;	.scl	1;	.tag	Draw_tPixMap;	.size	16;	.type	0x8;	.endef
+	.def	shapeIndex;	.val	18;	.scl	4;	.type	0x4;	.endef
+	lbu	$2,0($5)
+	#nop
+	ori	$2,$2,0x0008
+	sb	$2,0($5)
+
+	.loc	1 816
+LM252:
+	lw	$2,12($9)
+
+	.loc	1 820
+LM253:
+	lw	$3,16($9)
+
+	.loc	1 816
+LM254:
+	addu	$2,$11,$2
+
+	.loc	1 820
+LM255:
+	addu	$3,$3,1
+
+	.loc	1 816
+LM256:
+	lwl	$15,3($2)
+	lwr	$15,0($2)
+	lwl	$19,7($2)
+	lwr	$19,4($2)
+	lwl	$24,11($2)
+	lwr	$24,8($2)
+	lwl	$25,15($2)
+	lwr	$25,12($2)
+	swl	$15,19($sp)
+	swr	$15,16($sp)
+	swl	$19,23($sp)
+	swr	$19,20($sp)
+	swl	$24,27($sp)
+	swr	$24,24($sp)
+	swl	$25,31($sp)
+	swr	$25,28($sp)
+
+	.loc	1 820
+LM257:
+	sw	$3,16($9)
+
+	.loc	1 822
+LM258:
+	sb	$12,1($5)
+$Le117:
+	.bend	$Le117	135
+
+	.loc	1 825
+LM259:
+$Le118:
+	.bend	$Le118	138
+$Le119:
+	.bend	$Le119	138
+$Le120:
+	.bend	$Le120	138
+$Le121:
+	.bend	$Le121	138
+$Le122:
+	.bend	$Le122	138
+$Le123:
+	.bend	$Le123	138
+
+	.loc	1 830
+LM260:
+$L209:
+	addu	$4,$4,12
+	.set	noreorder
+	.set	nomacro
+	j	$L207
+	addu	$7,$7,1
+	.set	macro
+	.set	reorder
+
+$Le124:
+	.bend	$Le124	143
+$Le125:
+	.bend	$Le125	143
+$Le126:
+	.bend	$Le126	143
+$Le127:
+	.bend	$Le127	143
+
+	.loc	1 833
+LM261:
+$L199:
+	addu	$6,$6,4
+	.set	noreorder
+	.set	nomacro
+	j	$L197
+	addu	$8,$8,1
+	.set	macro
+	.set	reorder
+
+$L198:
+$Le128:
+	.bend	$Le128	146
+
+	.loc	1 836
+LM262:
+	lw	$4,gTempMipMapInfo
+	#nop
+	beq	$4,$0,$L215
+
+	.loc	1 837
+LM263:
+	jal	purgememadr
+$L215:
+
+	.loc	1 840
+LM264:
+	lw	$4,gTempMultiPalInfo
+	jal	purgememadr
+
+	.loc	1 847
+LM265:
+	lui	$2,%hi(gInitialArt) # high
+	addiu	$2,$2,%lo(gInitialArt) # low
+	lw	$3,8($2)
+
+	.loc	1 848
+LM266:
+	sw	$0,4($2)
+
+	.loc	1 847
+LM267:
+	sw	$3,16($2)
+$Le129:
+	.bend	$Le129	161
+$Le130:
+	.bend	$Le130	161
+$Le131:
+	.bend	$Le131	161
+$L188:
+	lw	$31,48($sp)
+	lw	$19,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,56
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 848
+LM268:
+	.end	Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial
+	.def	Trk_SimpleInst;	.scl	13;	.tag	Trk_SimpleInst;	.size	20;	.type	0x8;	.endef
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.def	CCOORD16;	.scl	13;	.tag	CCOORD16;	.size	8;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	ReduceObjectPrecision__FP5GroupT0i;	.val	ReduceObjectPrecision__FP5GroupT0i;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 963
+LM269:
+
+	.loc	1 963
+LM270:
+	.ent	ReduceObjectPrecision__FP5GroupT0i
+ReduceObjectPrecision__FP5GroupT0i:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	.def	instGroup;	.val	4;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	defGroup;	.val	5;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	bits;	.val	6;	.scl	17;	.type	0x4;	.endef
+$Lb132:
+	.begin	$Lb132	1
+	.def	count;	.val	11;	.scl	4;	.type	0x4;	.endef
+	.def	inst;	.val	10;	.scl	4;	.tag	Trk_SimpleInst;	.size	20;	.type	0x18;	.endef
+
+	.loc	1 965
+LM271:
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L227
+	addu	$10,$4,4
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 968
+LM272:
+$Lb133:
+	.begin	$Lb133	6
+	.def	this;	.val	4;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb134:
+	.begin	$Lb134	6
+$Le135:
+	.bend	$Le135	6
+$Le136:
+	.bend	$Le136	6
+
+	.loc	1 971
+LM273:
+	li	$12,-1			# 0xffffffff
+
+	.loc	1 968
+LM274:
+	lw	$11,0($4)
+
+	.loc	1 971
+LM275:
+	lw	$13,Track_gObjDefs
+$L220:
+$Lb137:
+	.begin	$Lb137	9
+	addu	$11,$11,-1
+	beq	$11,$12,$L227
+
+	.loc	1 973
+LM276:
+$Lb138:
+	.begin	$Lb138	11
+	beq	$5,$0,$L223
+
+	.loc	1 974
+LM277:
+$Lb139:
+	.begin	$Lb139	12
+	.def	objDef;	.val	2;	.scl	4;	.tag	Trk_ObjectDef;	.size	4;	.type	0x18;	.endef
+
+	.loc	1 976
+LM278:
+$Lb140:
+	.begin	$Lb140	14
+	.def	count;	.val	9;	.scl	4;	.type	0x4;	.endef
+	.def	pts;	.val	8;	.scl	4;	.tag	CCOORD16;	.size	8;	.type	0x18;	.endef
+	lh	$2,6($10)
+	#nop
+	sll	$2,$2,2
+	addu	$2,$2,$13
+	lw	$2,0($2)
+
+	.loc	1 983
+LM279:
+	#nop
+	addu	$8,$2,4
+
+	.loc	1 986
+LM280:
+	addu	$7,$2,8
+
+	.loc	1 984
+LM281:
+	lbu	$9,2($2)
+
+	.loc	1 986
+LM282:
+$L224:
+$Lb141:
+	.begin	$Lb141	24
+	addu	$9,$9,-1
+	beq	$9,$12,$L223
+
+	.loc	1 990
+LM283:
+$Le142:
+	.bend	$Le142	28
+	lh	$2,0($8)
+
+	.loc	1 991
+LM284:
+	lh	$3,-2($7)
+
+	.loc	1 992
+LM285:
+	lh	$4,0($7)
+
+	.loc	1 990
+LM286:
+	sra	$2,$2,$6
+
+	.loc	1 991
+LM287:
+	sra	$3,$3,$6
+
+	.loc	1 992
+LM288:
+	sra	$4,$4,$6
+
+	.loc	1 994
+LM289:
+	sh	$2,0($8)
+
+	.loc	1 995
+LM290:
+	sh	$3,-2($7)
+
+	.loc	1 996
+LM291:
+	sh	$4,0($7)
+
+	.loc	1 998
+LM292:
+	addu	$7,$7,8
+	.set	noreorder
+	.set	nomacro
+	j	$L224
+	addu	$8,$8,8
+	.set	macro
+	.set	reorder
+
+$Le143:
+	.bend	$Le143	36
+$Le144:
+	.bend	$Le144	36
+$L223:
+$Le145:
+	.bend	$Le145	36
+
+	.loc	1 1002
+LM293:
+$Le146:
+	.bend	$Le146	40
+	lh	$2,0($10)
+	.set	noreorder
+	.set	nomacro
+	j	$L220
+	addu	$10,$10,$2
+	.set	macro
+	.set	reorder
+
+$Le147:
+	.bend	$Le147	40
+
+	.loc	1 1004
+LM294:
+$L227:
+	j	$31
+
+	.loc	1 1004
+LM295:
+	.end	ReduceObjectPrecision__FP5GroupT0i
+	.def	Trk_SimpleInst;	.scl	13;	.tag	Trk_SimpleInst;	.size	20;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	InvalidatePersistentCollideBoomObjects__FP5GroupT0;	.val	InvalidatePersistentCollideBoomObjects__FP5GroupT0;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 1012
+LM296:
+
+	.loc	1 1012
+LM297:
+	.ent	InvalidatePersistentCollideBoomObjects__FP5GroupT0
+InvalidatePersistentCollideBoomObjects__FP5GroupT0:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	.def	instGroup;	.val	4;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	defGroup;	.val	5;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb148:
+	.begin	$Lb148	1
+	.def	count;	.val	5;	.scl	4;	.type	0x4;	.endef
+	.def	inst;	.val	4;	.scl	4;	.tag	Trk_SimpleInst;	.size	20;	.type	0x18;	.endef
+
+	.loc	1 1014
+LM298:
+	beq	$4,$0,$L237
+	.set	noreorder
+	.set	nomacro
+	beq	$5,$0,$L237
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1017
+LM299:
+$Lb149:
+	.begin	$Lb149	6
+	.def	this;	.val	4;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb150:
+	.begin	$Lb150	6
+$Le151:
+	.bend	$Le151	6
+$Le152:
+	.bend	$Le152	6
+	lw	$5,0($4)
+
+	.loc	1 1020
+LM300:
+	#nop
+	addu	$5,$5,-1
+	.set	noreorder
+	.set	nomacro
+	beq	$5,$2,$L237
+	addu	$4,$4,4
+	.set	macro
+	.set	reorder
+
+	move	$6,$2
+$L234:
+
+	.loc	1 1022
+LM301:
+	lh	$2,6($4)
+	lw	$3,Track_gObjDefs
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$2,0($2)
+	#nop
+	lh	$2,0($2)
+	#nop
+	beq	$2,$6,$L235
+
+	.loc	1 1023
+LM302:
+	sb	$0,2($4)
+$L235:
+
+	.loc	1 1024
+LM303:
+	lh	$2,0($4)
+	addu	$5,$5,-1
+	.set	noreorder
+	.set	nomacro
+	bne	$5,$6,$L234
+	addu	$4,$4,$2
+	.set	macro
+	.set	reorder
+
+$Le153:
+	.bend	$Le153	13
+
+	.loc	1 1026
+LM304:
+$L237:
+	j	$31
+
+	.loc	1 1026
+LM305:
+	.end	InvalidatePersistentCollideBoomObjects__FP5GroupT0
+	.def	Trk_ObjectDef;	.scl	13;	.tag	Trk_ObjectDef;	.size	4;	.type	0x8;	.endef
+	.def	CCOORD16;	.scl	13;	.tag	CCOORD16;	.size	8;	.type	0x8;	.endef
+	.def	coorddef;	.scl	13;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	Group;	.scl	13;	.tag	Group;	.size	4;	.type	0x8;	.endef
+	.def	CalcObjectBoundingSphere__FP5GroupT0;	.val	CalcObjectBoundingSphere__FP5GroupT0;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 1064
+LM306:
+
+	.loc	1 1064
+LM307:
+	.ent	CalcObjectBoundingSphere__FP5GroupT0
+CalcObjectBoundingSphere__FP5GroupT0:
+	.frame	$sp,24,$31		# vars= 16, regs= 1/0, args= 0, extra= 0
+	.mask	0x00010000,-8
+	.fmask	0x00000000,0
+	.def	defGroup;	.val	4;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+	.def	boundingSphereGroup;	.val	15;	.scl	17;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb154:
+	.begin	$Lb154	1
+	.def	objDef;	.val	6;	.scl	4;	.tag	Trk_ObjectDef;	.size	4;	.type	0x18;	.endef
+	.def	objCount;	.val	24;	.scl	4;	.type	0x4;	.endef
+$Lb155:
+	.begin	$Lb155	1
+$Lb156:
+	.begin	$Lb156	1
+$Le157:
+	.bend	$Le157	1
+$Le158:
+	.bend	$Le158	1
+$Lb159:
+	.begin	$Lb159	1
+	.def	i;	.val	13;	.scl	4;	.type	0x4;	.endef
+	subu	$sp,$sp,24
+	move	$15,$5
+
+	.loc	1 1072
+LM308:
+	move	$13,$0
+	li	$14,-1			# 0xffffffff
+
+	.loc	1 1064
+LM309:
+	sw	$16,16($sp)
+	lw	$24,0($4)
+
+	.loc	1 1072
+LM310:
+	lw	$12,Track_gObjDefs
+$L240:
+$Lb160:
+	.begin	$Lb160	9
+	.def	ptCount;	.val	7;	.scl	4;	.type	0x4;	.endef
+	.def	pts;	.val	8;	.scl	4;	.tag	CCOORD16;	.size	8;	.type	0x18;	.endef
+	.def	cp;	.val	-24;	.scl	1;	.tag	coorddef;	.size	12;	.type	0x8;	.endef
+	.def	radius;	.val	11;	.scl	4;	.type	0x4;	.endef
+	slt	$2,$13,$24
+	beq	$2,$0,$L238
+
+	.loc	1 1079
+LM311:
+	lw	$6,0($12)
+
+	.loc	1 1084
+LM312:
+	#nop
+	lbu	$7,2($6)
+
+	.loc	1 1083
+LM313:
+	addu	$8,$6,4
+
+	.loc	1 1085
+LM314:
+	sw	$0,8($sp)
+	sw	$0,4($sp)
+
+	.loc	1 1087
+LM315:
+	addu	$7,$7,-1
+	.set	noreorder
+	.set	nomacro
+	beq	$7,$14,$L245
+	sw	$0,0($sp)
+	.set	macro
+	.set	reorder
+
+	li	$5,-1			# 0xffffffff
+	addu	$4,$6,8
+$L246:
+
+	.loc	1 1089
+LM316:
+	lh	$3,0($8)
+	lw	$2,0($sp)
+
+	.loc	1 1093
+LM317:
+	addu	$8,$8,8
+
+	.loc	1 1089
+LM318:
+	addu	$2,$2,$3
+	sw	$2,0($sp)
+
+	.loc	1 1090
+LM319:
+	lh	$3,-2($4)
+	lw	$2,4($sp)
+
+	.loc	1 1093
+LM320:
+	addu	$7,$7,-1
+
+	.loc	1 1090
+LM321:
+	addu	$2,$2,$3
+	sw	$2,4($sp)
+
+	.loc	1 1091
+LM322:
+	lh	$3,0($4)
+	lw	$2,8($sp)
+
+	.loc	1 1093
+LM323:
+	addu	$4,$4,8
+
+	.loc	1 1091
+LM324:
+	addu	$2,$2,$3
+
+	.loc	1 1093
+LM325:
+	.set	noreorder
+	.set	nomacro
+	bne	$7,$5,$L246
+	sw	$2,8($sp)
+	.set	macro
+	.set	reorder
+
+$L245:
+
+	.loc	1 1095
+LM326:
+$Lb161:
+	.begin	$Lb161	32
+	lbu	$2,2($6)
+	lw	$5,0($sp)
+	#nop
+	div	$5,$5,$2
+
+	.loc	1 1096
+LM327:
+	lw	$4,4($sp)
+
+	.loc	1 1095
+LM328:
+	sw	$5,0($sp)
+
+	.loc	1 1096
+LM329:
+	lbu	$2,2($6)
+	#nop
+	div	$4,$4,$2
+
+	.loc	1 1097
+LM330:
+	lw	$3,8($sp)
+
+	.loc	1 1096
+LM331:
+	sw	$4,4($sp)
+
+	.loc	1 1097
+LM332:
+	lbu	$2,2($6)
+	#nop
+	div	$3,$3,$2
+
+	.loc	1 1102
+LM333:
+	addu	$8,$6,4
+
+	.loc	1 1104
+LM334:
+	move	$11,$0
+
+	.loc	1 1105
+LM335:
+	addu	$9,$6,8
+
+	.loc	1 1097
+LM336:
+	sw	$3,8($sp)
+
+	.loc	1 1103
+LM337:
+	lbu	$7,2($6)
+
+	.loc	1 1105
+LM338:
+$L248:
+$Lb162:
+	.begin	$Lb162	42
+	.def	diff;	.val	6;	.scl	4;	.type	0x4;	.endef
+	addu	$7,$7,-1
+	beq	$7,$14,$L249
+
+	.loc	1 1107
+LM339:
+	lh	$2,0($8)
+	#nop
+	subu	$2,$5,$2
+	sra	$2,$2,6
+	mult	$2,$2
+	lh	$2,-2($9)
+	mflo	$10
+	#nop
+	subu	$2,$4,$2
+	sra	$2,$2,6
+	mult	$2,$2
+	lh	$2,0($9)
+	mflo	$6
+	#nop
+	subu	$2,$3,$2
+	sra	$2,$2,6
+	mult	$2,$2
+	addu	$2,$10,$6
+	mflo	$16
+	#nop
+	#nop
+	addu	$6,$2,$16
+
+	.loc	1 1108
+LM340:
+	slt	$2,$11,$6
+	beq	$2,$0,$L251
+
+	.loc	1 1109
+LM341:
+	move	$11,$6
+$L251:
+
+	.loc	1 1111
+LM342:
+$Le163:
+	.bend	$Le163	48
+	addu	$9,$9,8
+	.set	noreorder
+	.set	nomacro
+	j	$L248
+	addu	$8,$8,8
+	.set	macro
+	.set	reorder
+
+$L249:
+$Le164:
+	.bend	$Le164	48
+
+	.loc	1 1123
+LM343:
+$Le165:
+	.bend	$Le165	60
+
+	.loc	1 1125
+LM344:
+	addu	$12,$12,4
+
+	.loc	1 1123
+LM345:
+	lw	$2,0($15)
+
+	.loc	1 1125
+LM346:
+	addu	$13,$13,1
+
+	.loc	1 1123
+LM347:
+	addu	$2,$2,1
+
+	.loc	1 1125
+LM348:
+	.set	noreorder
+	.set	nomacro
+	j	$L240
+	sw	$2,0($15)
+	.set	macro
+	.set	reorder
+
+$Le166:
+	.bend	$Le166	62
+$Le167:
+	.bend	$Le167	62
+$L238:
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1125
+LM349:
+	.end	CalcObjectBoundingSphere__FP5GroupT0
+	.def	CalcObjDefPtrs__Fv;	.val	CalcObjDefPtrs__Fv;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 1179
+LM350:
+
+	.loc	1 1179
+LM351:
+	.ent	CalcObjDefPtrs__Fv
+CalcObjDefPtrs__Fv:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+$Lb168:
+	.begin	$Lb168	1
+$Lb169:
+	.begin	$Lb169	1
+	.def	this;	.val	3;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb170:
+	.begin	$Lb170	1
+$Le171:
+	.bend	$Le171	1
+$Le172:
+	.bend	$Le172	1
+$Lb173:
+	.begin	$Lb173	1
+	.def	this;	.val	2;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb174:
+	.begin	$Lb174	1
+$Le175:
+	.bend	$Le175	1
+$Le176:
+	.bend	$Le176	1
+$Lb177:
+	.begin	$Lb177	1
+	.def	i;	.val	5;	.scl	4;	.type	0x4;	.endef
+
+	.loc	1 1185
+LM352:
+	li	$5,1			# 0x00000001
+	lw	$2,gPersistObjDef
+	lw	$3,gObjDefOffsetsGroup
+	move	$6,$2
+	addu	$4,$3,8
+	addu	$2,$6,4
+
+	.loc	1 1184
+LM353:
+	sw	$2,4($3)
+
+	.loc	1 1185
+LM354:
+$L255:
+$Lb178:
+	.begin	$Lb178	7
+$Lb179:
+	.begin	$Lb179	7
+	.def	this;	.val	6;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb180:
+	.begin	$Lb180	7
+$Le181:
+	.bend	$Le181	7
+$Le182:
+	.bend	$Le182	7
+	lw	$2,0($6)
+	#nop
+	slt	$2,$5,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L256
+	addu	$5,$5,1
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1186
+LM355:
+$Le183:
+	.bend	$Le183	8
+	lw	$2,-4($4)
+	lw	$3,0($4)
+	#nop
+	addu	$2,$2,$3
+	sw	$2,0($4)
+	.set	noreorder
+	.set	nomacro
+	j	$L255
+	addu	$4,$4,4
+	.set	macro
+	.set	reorder
+
+$L256:
+$Le184:
+	.bend	$Le184	8
+$Lb185:
+	.begin	$Lb185	8
+	.def	this;	.val	2;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb186:
+	.begin	$Lb186	8
+$Le187:
+	.bend	$Le187	8
+$Le188:
+	.bend	$Le188	8
+$Le189:
+	.bend	$Le189	8
+	lw	$2,gObjDefOffsetsGroup
+	#nop
+	addu	$2,$2,4
+
+	.loc	1 1188
+LM356:
+	sw	$2,Track_gObjDefs
+	j	$31
+
+	.loc	1 1188
+LM357:
+	.end	CalcObjDefPtrs__Fv
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	Track_InitPersistentData__FP15SerializedGroup;	.val	Track_InitPersistentData__FP15SerializedGroup;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 1212
+LM358:
+
+	.loc	1 1212
+LM359:
+	.ent	Track_InitPersistentData__FP15SerializedGroup
+Track_InitPersistentData__FP15SerializedGroup:
+	.frame	$fp,48,$31		# vars= 0, regs= 7/0, args= 16, extra= 0
+	.mask	0xc01f0000,-8
+	.fmask	0x00000000,0
+	.def	perGroup;	.val	18;	.scl	17;	.tag	SerializedGroup;	.size	16;	.type	0x18;	.endef
+$Lb190:
+	.begin	$Lb190	1
+	.def	persistentGroups;	.val	19;	.scl	4;	.tag	SerializedGroup;	.dim	0;	.size	4;	.type	0x1d8;	.endef
+	.def	count;	.val	18;	.scl	4;	.type	0x4;	.endef
+$Lb191:
+	.begin	$Lb191	1
+	.def	i;	.val	16;	.scl	4;	.type	0x4;	.endef
+	subu	$sp,$sp,48
+	sw	$fp,36($sp)
+	move	$fp,$sp
+	sw	$18,24($sp)
+	move	$18,$4
+	sw	$31,40($sp)
+	sw	$20,32($sp)
+	sw	$19,28($sp)
+	sw	$17,20($sp)
+	sw	$16,16($sp)
+	lw	$2,12($18)
+
+	.loc	1 1220
+LM360:
+	move	$16,$0
+
+	.loc	1 1217
+LM361:
+	sw	$0,gObjDefOffsetsGroup
+
+	.loc	1 1212
+LM362:
+	sll	$2,$2,5
+	srl	$2,$2,3
+	addu	$2,$2,7
+	srl	$2,$2,3
+	sll	$2,$2,3
+	subu	$sp,$sp,$2
+
+	.loc	1 1220
+LM363:
+	lw	$2,12($18)
+
+	.loc	1 1212
+LM364:
+
+	.loc	1 1220
+LM365:
+	#nop
+	.set	noreorder
+	.set	nomacro
+	blez	$2,$L263
+	addu	$19,$sp,16
+	.set	macro
+	.set	reorder
+
+	move	$17,$19
+$L265:
+
+	.loc	1 1221
+LM366:
+	move	$4,$18
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupNum__15SerializedGroupi
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	sw	$2,0($17)
+	lw	$2,12($18)
+	addu	$16,$16,1
+	slt	$2,$16,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L265
+	addu	$17,$17,4
+	.set	macro
+	.set	reorder
+
+$L263:
+$Le192:
+	.bend	$Le192	10
+
+	.loc	1 1223
+LM367:
+$Lb193:
+	.begin	$Lb193	12
+	.def	i;	.val	17;	.scl	4;	.type	0x4;	.endef
+	move	$4,$18
+	li	$5,8			# 0x00000008
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupType__15SerializedGroupii
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1225
+LM368:
+	lw	$18,12($18)
+
+	.loc	1 1229
+LM369:
+	move	$17,$0
+	lui	$2,%hi($L282) # high
+	addiu	$20,$2,%lo($L282) # low
+	move	$16,$19
+$L267:
+$Lb194:
+	.begin	$Lb194	18
+	slt	$2,$17,$18
+	beq	$2,$0,$L268
+
+	.loc	1 1231
+LM370:
+$Lb195:
+	.begin	$Lb195	20
+	lw	$2,0($16)
+	#nop
+	lw	$2,0($2)
+	#nop
+	addu	$3,$2,-2
+	sltu	$2,$3,37
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L269
+	sll	$2,$3,2
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,$20
+	lw	$2,0($2)
+	#nop
+	j	$2
+	.rdata
+	.align	3
+$L282:
+	.word	$L272
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L276
+	.word	$L277
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L274
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L269
+	.word	$L275
+	.word	$L269
+	.word	$L279
+	.text
+
+	.loc	1 1232
+LM371:
+$Lb196:
+	.begin	$Lb196	21
+$L272:
+
+	.loc	1 1234
+LM372:
+$Lb197:
+	.begin	$Lb197	23
+$Lb198:
+	.begin	$Lb198	23
+	.def	this;	.val	4;	.scl	4;	.tag	SerializedGroup;	.size	16;	.type	0x18;	.endef
+$Lb199:
+	.begin	$Lb199	23
+$Le200:
+	.bend	$Le200	23
+$Le201:
+	.bend	$Le201	23
+$Le202:
+	.bend	$Le202	23
+$Lb203:
+	.begin	$Lb203	23
+$Le204:
+	.bend	$Le204	23
+	lw	$4,0($16)
+	#nop
+	lw	$5,4($4)
+
+	.loc	1 1236
+LM373:
+	lw	$6,Track_materials
+	.set	noreorder
+	.set	nomacro
+	jal	Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial
+	addu	$5,$5,-16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1244
+LM374:
+	.set	noreorder
+	.set	nomacro
+	j	$L286
+	addu	$16,$16,4
+	.set	macro
+	.set	reorder
+
+$L274:
+
+	.loc	1 1248
+LM375:
+$Lb205:
+	.begin	$Lb205	37
+$Le206:
+	.bend	$Le206	37
+	lw	$4,0($16)
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	BWorldSm_Init__FP5Group
+	move	$4,$2
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1251
+LM376:
+	.set	noreorder
+	.set	nomacro
+	j	$L286
+	addu	$16,$16,4
+	.set	macro
+	.set	reorder
+
+$L275:
+
+	.loc	1 1255
+LM377:
+$Lb207:
+	.begin	$Lb207	44
+$Le208:
+	.bend	$Le208	44
+	lw	$4,0($16)
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	sw	$2,gPersistMidgroundObjInst
+
+	.loc	1 1258
+LM378:
+	.set	noreorder
+	.set	nomacro
+	j	$L286
+	addu	$16,$16,4
+	.set	macro
+	.set	reorder
+
+$L276:
+
+	.loc	1 1262
+LM379:
+$Lb209:
+	.begin	$Lb209	51
+$Le210:
+	.bend	$Le210	51
+	lw	$4,0($16)
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	sw	$2,gPersistObjInst
+
+	.loc	1 1265
+LM380:
+	.set	noreorder
+	.set	nomacro
+	j	$L286
+	addu	$16,$16,4
+	.set	macro
+	.set	reorder
+
+$L277:
+
+	.loc	1 1268
+LM381:
+$Lb211:
+	.begin	$Lb211	57
+
+	.loc	1 1269
+LM382:
+$Lb212:
+	.begin	$Lb212	58
+$Lb213:
+	.begin	$Lb213	58
+$Le214:
+	.bend	$Le214	58
+$Le215:
+	.bend	$Le215	58
+$Le216:
+	.bend	$Le216	58
+$Lb217:
+	.begin	$Lb217	58
+$Le218:
+	.bend	$Le218	58
+	lw	$4,0($16)
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	sw	$2,gPersistObjDef
+
+	.loc	1 1272
+LM383:
+	.set	noreorder
+	.set	nomacro
+	j	$L286
+	addu	$16,$16,4
+	.set	macro
+	.set	reorder
+
+$L279:
+
+	.loc	1 1275
+LM384:
+$Lb219:
+	.begin	$Lb219	64
+
+	.loc	1 1276
+LM385:
+	lw	$4,0($16)
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	sw	$2,gObjDefOffsetsGroup
+$Lb220:
+	.begin	$Lb220	65
+$Lb221:
+	.begin	$Lb221	65
+$Le222:
+	.bend	$Le222	65
+$Le223:
+	.bend	$Le223	65
+
+	.loc	1 1277
+LM386:
+$Le224:
+	.bend	$Le224	66
+
+	.loc	1 1279
+LM387:
+$Lb225:
+	.begin	$Lb225	68
+$Le226:
+	.bend	$Le226	68
+
+	.loc	1 1283
+LM388:
+$Lb227:
+	.begin	$Lb227	72
+$Le228:
+	.bend	$Le228	72
+$Le229:
+	.bend	$Le229	72
+$Le230:
+	.bend	$Le230	72
+$Le231:
+	.bend	$Le231	72
+
+	.loc	1 1285
+LM389:
+$L269:
+	addu	$16,$16,4
+$L286:
+	.set	noreorder
+	.set	nomacro
+	j	$L267
+	addu	$17,$17,1
+	.set	macro
+	.set	reorder
+
+$L268:
+$Le232:
+	.bend	$Le232	74
+
+	.loc	1 1287
+LM390:
+	lw	$2,gObjDefOffsetsGroup
+	#nop
+	beq	$2,$0,$L284
+
+	.loc	1 1290
+LM391:
+	jal	CalcObjDefPtrs__Fv
+$L284:
+
+	.loc	1 1292
+LM392:
+$Le233:
+	.bend	$Le233	81
+	move	$sp,$fp
+	lw	$31,40($sp)
+	lw	$fp,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1292
+LM393:
+	.end	Track_InitPersistentData__FP15SerializedGroup
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	Chunk;	.scl	13;	.tag	Chunk;	.size	112;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	SerializedGroup;	.scl	13;	.tag	SerializedGroup;	.size	16;	.type	0x8;	.endef
+	.def	Track_Init__FPc;	.val	Track_Init__FPc;	.scl	2;	.type	0x21;	.endef
+	.text
+
+	.loc	1 1312
+LM394:
+
+	.loc	1 1312
+LM395:
+	.ent	Track_Init__FPc
+Track_Init__FPc:
+	.frame	$sp,168,$31		# vars= 128, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	.def	tempName;	.val	16;	.scl	17;	.type	0x12;	.endef
+$Lb234:
+	.begin	$Lb234	1
+	.def	trackName;	.val	-152;	.scl	1;	.dim	128;	.size	128;	.type	0x32;	.endef
+	.def	trackGroup;	.val	16;	.scl	4;	.tag	SerializedGroup;	.size	16;	.type	0x18;	.endef
+	.def	trackFileSize;	.val	18;	.scl	4;	.type	0x4;	.endef
+	.def	persistentGroup;	.val	16;	.scl	4;	.tag	SerializedGroup;	.size	16;	.type	0x18;	.endef
+$Lb235:
+	.begin	$Lb235	1
+	.def	size;	.val	17;	.scl	4;	.type	0x4;	.endef
+$Lb236:
+	.begin	$Lb236	1
+	subu	$sp,$sp,168
+	sw	$16,144($sp)
+	move	$16,$4
+
+	.loc	1 1319
+LM396:
+	addu	$4,$sp,16
+	lui	$5,%hi($LC9) # high
+	addiu	$5,$5,%lo($LC9) # low
+
+	.loc	1 1312
+LM397:
+	sw	$31,160($sp)
+	sw	$19,156($sp)
+	sw	$18,152($sp)
+	sw	$17,148($sp)
+
+	.loc	1 1317
+LM398:
+	sw	$0,Track_gObjDefs
+
+	.loc	1 1319
+LM399:
+	.set	noreorder
+	.set	nomacro
+	jal	sprintf
+	move	$6,$16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1320
+LM400:
+	.set	noreorder
+	.set	nomacro
+	jal	filesize
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1327
+LM401:
+	lui	$4,%hi($LC10) # high
+	addiu	$4,$4,%lo($LC10) # low
+	li	$5,1028			# 0x00000404
+	move	$6,$0
+
+	.loc	1 1327
+LM402:
+	.set	noreorder
+	.set	nomacro
+	jal	reservememadr
+	move	$18,$2
+	.set	macro
+	.set	reorder
+
+	sw	$2,Chunk_lightTable
+
+	.loc	1 1330
+LM403:
+	.set	noreorder
+	.set	nomacro
+	jal	TextureProcess_Init__Fv
+	li	$19,36992			# 0x00009080
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1331
+LM404:
+	.set	noreorder
+	.set	nomacro
+	jal	InitArtResources__Fv
+	addu	$17,$18,$19
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1332
+LM405:
+	jal	TexturesLoadInitial__Fv
+
+	.loc	1 1335
+LM406:
+	.set	noreorder
+	.set	nomacro
+	jal	__builtin_new
+	li	$4,12			# 0x0000000c
+	.set	macro
+	.set	reorder
+
+	lui	$4,%hi($LC11) # high
+	addiu	$4,$4,%lo($LC11) # low
+	move	$5,$17
+	move	$6,$0
+	.set	noreorder
+	.set	nomacro
+	jal	reservememadr
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	sw	$2,0($16)
+	move	$3,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$0,$L289
+	sw	$2,4($16)
+	.set	macro
+	.set	reorder
+
+	move	$17,$0
+$L289:
+$Le237:
+	.bend	$Le237	24
+$Le238:
+	.bend	$Le238	24
+$Lb239:
+	.begin	$Lb239	24
+$Lb240:
+	.begin	$Lb240	24
+$Le241:
+	.bend	$Le241	24
+$Le242:
+	.bend	$Le242	24
+$Lb243:
+	.begin	$Lb243	24
+$Lb244:
+	.begin	$Lb244	24
+$Le245:
+	.bend	$Le245	24
+$Le246:
+	.bend	$Le246	24
+
+	.loc	1 1339
+LM407:
+	move	$4,$16
+	sw	$17,8($4)
+
+	.loc	1 1335
+LM408:
+	sw	$4,Track_mem
+
+	.loc	1 1339
+LM409:
+	.set	noreorder
+	.set	nomacro
+	jal	FeignAlloc__9SimpleMemi
+	move	$5,$18
+	.set	macro
+	.set	reorder
+
+	addu	$4,$sp,16
+	.set	noreorder
+	.set	nomacro
+	jal	loadfileatadr
+	addu	$5,$2,$19
+	.set	macro
+	.set	reorder
+
+	move	$16,$2
+
+	.loc	1 1359
+LM410:
+	move	$4,$16
+	li	$5,32			# 0x00000020
+	lw	$6,Track_mem
+	.set	noreorder
+	.set	nomacro
+	jal	LocateCreateGroupType__15SerializedGroupiP9SimpleMemi
+	move	$7,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1363
+LM411:
+	move	$4,$16
+	li	$5,35			# 0x00000023
+	addu	$2,$2,4
+
+	.loc	1 1359
+LM412:
+	sw	$2,Chunk_chunkCenters
+
+	.loc	1 1363
+LM413:
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupType__15SerializedGroupii
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+	move	$5,$2
+
+	.loc	1 1365
+LM414:
+	lw	$4,Chunk_lightTable
+	addu	$3,$5,16
+	or	$2,$3,$4
+	andi	$2,$2,0x0003
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L293
+	addu	$2,$5,1040
+	.set	macro
+	.set	reorder
+
+$L295:
+	lwl	$8,3($3)
+	lwr	$8,0($3)
+	lwl	$9,7($3)
+	lwr	$9,4($3)
+	lwl	$10,11($3)
+	lwr	$10,8($3)
+	lwl	$11,15($3)
+	lwr	$11,12($3)
+	swl	$8,3($4)
+	swr	$8,0($4)
+	swl	$9,7($4)
+	swr	$9,4($4)
+	swl	$10,11($4)
+	swr	$10,8($4)
+	swl	$11,15($4)
+	swr	$11,12($4)
+	addu	$3,$3,16
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L295
+	addu	$4,$4,16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L318
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L293:
+$L296:
+	lw	$8,0($3)
+	lw	$9,4($3)
+	lw	$10,8($3)
+	lw	$11,12($3)
+	sw	$8,0($4)
+	sw	$9,4($4)
+	sw	$10,8($4)
+	sw	$11,12($4)
+	addu	$3,$3,16
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L296
+	addu	$4,$4,16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1367
+LM415:
+$Lb247:
+	.begin	$Lb247	56
+$Lb248:
+	.begin	$Lb248	56
+$Le249:
+	.bend	$Le249	56
+$Le250:
+	.bend	$Le250	56
+	move	$4,$16
+$L318:
+	li	$5,35			# 0x00000023
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupType__15SerializedGroupii
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+	lw	$2,4($2)
+	#nop
+	addu	$2,$2,-16
+	srl	$2,$2,2
+	sw	$2,Chunk_numLight
+
+	.loc	1 1383
+LM416:
+	jal	Chunk_Init__Fv
+
+	.loc	1 1386
+LM417:
+	move	$4,$16
+	li	$5,33			# 0x00000021
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupType__15SerializedGroupii
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1391
+LM418:
+	move	$4,$16
+	li	$5,29			# 0x0000001d
+	move	$6,$0
+
+	.loc	1 1391
+LM419:
+	.set	noreorder
+	.set	nomacro
+	jal	LocateGroupType__15SerializedGroupii
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1394
+LM420:
+$Lb251:
+	.begin	$Lb251	83
+$Lb252:
+	.begin	$Lb252	83
+$Lb253:
+	.begin	$Lb253	83
+$Lb254:
+	.begin	$Lb254	83
+$Le255:
+	.bend	$Le255	83
+$Le256:
+	.bend	$Le256	83
+
+	.loc	1 1429
+LM421:
+$Lb257:
+	.begin	$Lb257	118
+
+	.loc	1 1448
+LM422:
+$Le258:
+	.bend	$Le258	137
+
+	.loc	1 1453
+LM423:
+$Le259:
+	.bend	$Le259	142
+
+	.loc	1 1454
+LM424:
+$Le260:
+	.bend	$Le260	143
+
+	.loc	1 1457
+LM425:
+$Lb261:
+	.begin	$Lb261	146
+	.def	this;	.val	2;	.scl	4;	.tag	Group;	.size	4;	.type	0x18;	.endef
+$Lb262:
+	.begin	$Lb262	146
+$Le263:
+	.bend	$Le263	146
+$Le264:
+	.bend	$Le264	146
+$Le265:
+	.bend	$Le265	146
+	.set	noreorder
+	.set	nomacro
+	jal	Track_InitPersistentData__FP15SerializedGroup
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1459
+LM426:
+	lw	$4,Track_mem
+	jal	ResizeToFit__9SimpleMem
+
+	.loc	1 1460
+LM427:
+	lui	$4,%hi($LC12) # high
+	.set	noreorder
+	.set	nomacro
+	jal	Track_MakeTrackPathName__FPc
+	addiu	$4,$4,%lo($LC12) # low
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1464
+LM428:
+	lui	$4,%hi($LC13) # high
+	lw	$2,gPersistObjDef
+	addiu	$4,$4,%lo($LC13) # low
+	lw	$5,0($2)
+	move	$6,$0
+	sll	$5,$5,3
+	.set	noreorder
+	.set	nomacro
+	jal	reservememadr
+	ori	$5,$5,0x0004
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1465
+LM429:
+	lw	$4,gPersistObjDef
+	move	$5,$2
+
+	.loc	1 1464
+LM430:
+	sw	$5,gPersistObjDefBoundingSpheres
+
+	.loc	1 1465
+LM431:
+	jal	CalcObjectBoundingSphere__FP5GroupT0
+
+	.loc	1 1467
+LM432:
+	lw	$4,gPersistMidgroundObjInst
+	lw	$5,gPersistObjDef
+	.set	noreorder
+	.set	nomacro
+	jal	ReduceObjectPrecision__FP5GroupT0i
+	li	$6,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1469
+LM433:
+	lw	$4,gPersistObjInst
+	lw	$5,gPersistObjDef
+	jal	InvalidatePersistentCollideBoomObjects__FP5GroupT0
+
+	.loc	1 1475
+LM434:
+	jal	Track_LoadObjectKillData__Fv
+	lw	$31,160($sp)
+	lw	$19,156($sp)
+	lw	$18,152($sp)
+	lw	$17,148($sp)
+	lw	$16,144($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,168
+	.set	macro
+	.set	reorder
+
+
+	.loc	1 1475
+LM435:
+	.end	Track_Init__FPc

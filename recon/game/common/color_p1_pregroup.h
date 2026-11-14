@@ -8,7 +8,7 @@
 #include "gamesetup_leaf_types.h"
 #endif
 #if defined(NFS4_COLOR_SCHED_FIRST) && !defined(NFS4_COLOR_SCHED_DONE)   /* retail: scheduler types ahead of Group (owner first header; SCHED_DONE = an owner emitted them earlier) */
-typedef void (*Sched_tFunctionPt)(void *);
+#include "color_p1_pregroup_d1.h"
 #include "shared/Sched_tFunctionSchedule.h"
 #ifdef NFS4_COLOR_SCHED_SCHEDULE
 #include "shared/Sched_tSchedule.h"

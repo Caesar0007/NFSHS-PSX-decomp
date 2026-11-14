@@ -3,14 +3,9 @@
 #define NFS4_CORE_0_KERNEL_H
 /* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
  * filtering the private `_physadr` tag block itself. */
-typedef unsigned int size_t;
-/* retail records the unsigned shorthands here, after size_t: SYS/TYPES.H follows the graphics headers, whose
-   structs spell their fields with the plain unsigned types */
-typedef unsigned char  u_char;
-typedef unsigned short u_short;
-typedef unsigned int   u_int;
+#include "nfs4_core_0_kernel_d1.h"
 #include "shared/u_long.h"
-typedef unsigned short ushort;
+#include "nfs4_core_0_kernel_d2.h"
 #ifdef NFS4_CORE_FEMISSION_FIRST   /* retail FEMission.obj: mission records ahead of the core */
 #include "frontend/common/femission_first.h"
 #endif
@@ -18,22 +13,12 @@ typedef unsigned short ushort;
  * size 4 everywhere.  Its `_physadr` tag records are not in the SYM because
  * PSYLINK drops '_'-prefixed type records (an incomplete-tag variant for
  * three frontend owners was removed 2026-11-07: it gave physadr size 0). */
-struct _physadr { int r[1]; };
+#include "nfs4_core_0_kernel_d3.h"
 #if defined(NFS4_CORE_SPCH_FIRST) || defined(NFS4_CORE_SND_FIRST)   /* speech.obj / audiocmn.obj first-header structs ahead of the core (shared/spchnfs_first.h) */
 #include "shared/spchnfs_first.h"
 #endif
 
-typedef struct _physadr *physadr;
-typedef long daddr_t;
-typedef char *caddr_t;
-typedef long *qaddr_t;
-typedef u_long ino_t;
-typedef long swblk_t;
-typedef long time_t;
-typedef short dev_t;
-typedef long off_t;
-typedef u_short uid_t;
-typedef u_short gid_t;
+#include "nfs4_core_0_kernel_d4.h"
 
 /* Retail declaration order (round 11 TYPEONLY): a TU whose first include is the common-game graph
  * (game_common_min_types.h: NFS4_CORE_EA) or the draw-leaf graph (draw_leaf_types.h: NFS4_CORE_FULL) sees the

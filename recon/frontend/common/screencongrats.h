@@ -9,15 +9,12 @@
 #define NFS4_FE_CORE_CARS_CLASSTYPE
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup right after tPersonalities */
 #define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* list iterators right after their managers (set 18 route) */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_SCREENDISPLAY_COLOR_AFTER_CARS   /* retail: color.obj graph right after the car graph */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* car part at site 1 only */
 #define NFS4_SCREENDISPLAY_TRACKS_AFTER_COLOR   /* track part right after the color graph */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, kernpair after Draw_CarVertex */
 #define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
@@ -25,9 +22,31 @@
 #define NFS4_FELINES_KERNPAIR_LATE
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
 #define _FE_SCREENS_SCREENCONGRATS_H_   /* frontend/common/screencongrats.h - reconstructed decls for ScreenCongrats.obj (C++ TU) */
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#define NFS4_HAVE_MATRIX3DT
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #include "frontend/common/screencongrats_types.h"
 #include "frontend/common/screencongrats_externs.h"
 extern tScreenPinkSlipCongrats   *screenPinkSlipCongrats;

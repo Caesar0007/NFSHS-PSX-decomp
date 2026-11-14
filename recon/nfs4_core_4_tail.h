@@ -23,7 +23,7 @@
 #include "shared/PAD_COMMON.h"
 #endif
 #include "shared/linedef.h"
-typedef struct linedef LINE;
+#include "nfs4_core_4_tail_d1.h"
 #define NFS4_HAVE_LINE
 #include "shared/SHAPETABLEENTRY.h"
 #endif
@@ -46,23 +46,17 @@ typedef struct linedef LINE;
 #ifndef NFS4_PSYQ_DDV_TYPES
 #ifndef NFS4_EAC_OLD_TYPES
 #ifdef NFS4_PSYQ_WCHAR_TYPE
-typedef NFS4_PSYQ_WCHAR_TYPE wchar_t;
+#include "nfs4_core_4_tail_d2.h"
 #else
-typedef u_char wchar_t;
+#include "nfs4_core_4_tail_d3.h"
 #endif
 #else
-typedef unsigned char *MEMBLOCK;
+#include "nfs4_core_4_tail_d4.h"
 #endif
 
-typedef void (*VOIDFN)();
+#include "nfs4_core_4_tail_d5.h"
 #ifndef NFS4_EAC_OLD_TYPES
-typedef int FILEOP;
-typedef void FILE_CALLBACK();
-typedef int FILE_ATOM();
-typedef void THREADPROC();
-typedef void THREAD2PROC();
-typedef int SYSTEMTASK();
-typedef int THREAD;
+#include "nfs4_core_4_tail_d6.h"
 #endif
 #endif /* NFS4_PSYQ_DDV_TYPES */
 

@@ -2,37 +2,48 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENMAIN_TYPES_H
 #define NFS4_FLAT_SCREENMAIN_TYPES_H
-#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_FRONTEND_COMMON_SCREENMAIN_TYPES_H   /* Owner-specific type surface for ScreenMain.obj. */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenMain: frontend core before the MATRIX core (fe_core_types.h) */
-#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament graph after the menu family (screendisplay_carblock.h) */
-#define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "screenmain_types.h"   /* retail ScreenMain: TV .. tScreenMain, tFEApplication right after the dialogs */
-#define NFS4_PRIM_POLY_G4   /* retail: POLY_G4 right after DISPENV (nfs4_types.h) */
-#define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF   /* retail: core + draw leaf, then tTexture_ShapeInfo (screendisplay_types.h) */
 #define NFS4_FELINES_KERNPAIR_LATE   /* kernpair chained from screenmain_tv.h (after tTVConfig) */
-#define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "screenmain_tv.h"   /* retail: tTVState, tTVConfig, kernpair right after tScreen */
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "frontend/common/fe_input_enums.h"
 #undef NFS4_FE_INPUT_NO_PLAYER
-#define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* retail: frontend menu core before PCOORD16 .. Draw_* (phase 2 after tScreen) */
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
-#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament records after the tMenuNFS4 family */
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
-#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
 #include "frontend/common/fe_core_types.h"
 #include "frontend/common/screendisplay_menuitems.h"
 struct tMenu; struct tDrawShapeExtended;
-#undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/POLY_G4.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/Draw_SVertex.h"
@@ -48,11 +59,8 @@ struct tMenu; struct tDrawShapeExtended;
 #include "frontend/common/felines_kern.h"
 #include "shared/tDrawShapeExtended.h"
 #include "frontend/common/fedialog.h"
-#define NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
-#define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #include "frontend/common/screenmain_early.h"
 #include "frontend/common/feapp_class.h"
-#undef NFS4_SCREENDISPLAY_IN_HOOK_AFTER_COLOR
 #include "shared/tCarModels.h"
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"
@@ -70,7 +78,6 @@ struct tCarManager;
 #undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
 #include "frontend/common/femenuextended_classes.h"
 #include "frontend/common/femenuoptions_classes.h"
-#include "frontend/common/fe_core_types.h"
 #include "shared/tTrackClassType.h"
 #include "shared/tTrackInformation.h"
 struct tSaveTrackInfo;
@@ -78,7 +85,6 @@ struct tSaveTrackInfo;
 #define NFS4_FE_TRACK_IN_HOOK
 #include "frontend/common/screendisplay_carblock_iters.h"
 #undef NFS4_FE_TRACK_IN_HOOK
-#include "shared/tCarLineup.h"
 #include "shared/tTierInfo.h"
 #include "shared/tTourneyInfo.h"
 #include "shared/tTrackInfo.h"
@@ -87,15 +93,11 @@ struct tSaveTrackInfo;
 #include "shared/tCompetitor.h"
 #include "frontend/common/fetourn_manager_class.h"
 #include "frontend/common/felist_tournament_iter.h"
-#include "shared/tTVState.h"
-#include "shared/tTVConfig.h"
-#include "frontend/common/fedialog.h"
 #include "shared/tCredit.h"
 #include "shared/tVideoTransition.h"
 #include "shared/tVideo.h"
 struct SndBnk_t;
 struct SPEECHINFO;
-#undef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 #include "frontend/common/fe_player_types.h"
 struct tMenuCommand;
 #define uchar unsigned char
@@ -105,9 +107,6 @@ typedef long STREAMHANDLE;
 typedef long STREAMREQUESTID;
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
-#include "shared/POLY_G4.h"
-#include "shared/tDrawShapeExtended.h"
-#include "frontend/common/fedialog.h"
 #include "shared/tCreditManager.h"
 struct tVertex {
     short x, y;

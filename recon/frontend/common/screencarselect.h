@@ -2,15 +2,11 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENCARSELECT_H
 #define NFS4_FLAT_SCREENCARSELECT_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets (TPDEF x16 per frontend object; FESCR) */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
-#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define _FE_SCREENS_SCREENCARSELECT_H_
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
-#define NFS4_PRIM_DR_AREA   /* retail ScreenCarSelect: DR_AREA right after DR_MODE */
 #define NFS4_FE_CORE_CARS_SAVEINFO   /* retail: tSaveCarInfo after tOwnedCarInfo */
 #define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo/tSaveTournament inside the track/tournament graph */
 #define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
@@ -18,8 +14,6 @@
 #define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: car/track/tournament graph after the tMenuNFS4 family */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo/kernpair after the Draw_* records, not with the frontend core */
 #define NFS4_SCREENCARSELECT_TAIL_LATE   /* retail: AudioMus_tSongEntry after the color graph */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager (FRONTORD3 keys) */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "fe_track_types.h"   /* retail: track records right after tListIteratorCarColor */
@@ -27,13 +21,32 @@
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: kernpair after tShapeInformation */
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
-#define NFS4_FEDIALOG_FEAPP_DONE   /* ORDERG key: fedialog_types.h skips its default tFEApplication ... */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_EARLY_DIALOGS "screencarselect_feapp_hook.h"   /* ... and screendisplay_types.h emits it right after the early dialogs (retail: tFEApplication after tDialogYesNo) */
 #define NFS4_FE_CORE_CARS_HOOK_BEFORE_MANAGER "screencarselect_carstat.h"   /* retail: tCarStatType right after tCarNameLength (FRONTORD3 hook) */
-#define NFS4_SCREENMEMCARD_RECBUF_EXTERNAL   /* ORDERG key: tRecordBuffer/tSaveRecords placed below (retail: last tag, after Car_tObj) */
-#define NFS4_SCREENMEMCARD_MANAGERTASK_EXTERNAL   /* ORDERG key: MANAGERTASK placed by screencarselect_types.h after the memcard graph */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "shared/DR_AREA.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #include "frontend/common/screencarselect_types.h"
 #include "frontend/common/mcrd_recordbuffer.h"
 #include "frontend/common/screencarselect_externs.h"

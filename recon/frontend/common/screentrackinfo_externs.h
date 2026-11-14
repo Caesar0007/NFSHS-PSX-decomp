@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENTRACKINFO_EXTERNS_H
 #define NFS4_FLAT_SCREENTRACKINFO_EXTERNS_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* Owner-specific type surface for ScreenTrackInfo.obj. */
 extern "C" int sprintf(char *buffer, char *fmt, ...);
 extern tfrontEnd   frontEnd;
 extern "C" {

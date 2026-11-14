@@ -23,6 +23,7 @@ while '--agg' in args:
     aggs.append(args[i + 1])
     del args[i:i + 2]
 write = '--write' in args
+FLAT_GUARD = 'NFS4_FLAT_' + re.sub(r'\W', '_', os.path.basename(target)).upper()
 auto = '--auto' in args
 prune = '--prune' in args
 seen_text = []
@@ -224,7 +225,7 @@ def process(path, emit, depth=0):
         if d == 'define':
             mm = re.match(r'(\w+)(\([^)]*\))?\s*(.*)$', rest)
             macros[mm.group(1)] = mm.group(3) if not mm.group(2) else '(function-like)'
-            if emit and capturing[0]:
+            if emit and capturing[0] and mm.group(1) != FLAT_GUARD:
                 out.extend(orig)
             continue
         if d == 'undef':

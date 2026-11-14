@@ -2,15 +2,9 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENTROPHYINFO_TYPES_H
 #define NFS4_FLAT_SCREENTROPHYINFO_TYPES_H
-#define NFS4_FRONTEND_COMMON_SCREENTROPHYINFO_TYPES_H   /* Owner-specific type surface for ScreenTrophyInfo.obj. */
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: the full tMenu inline-member set (TPDEF tMenu x16 in every frontend object) */
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail ScreenTrophyInfo object: tListIterator, Indexed, Range */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: menu core (tMenuCommandType..tScreen) BEFORE the MATRIX core */
 #define NFS4_FE_CORE_CARS_LATE    /* cars after the screen records, then tracks, then color */
-#define NFS4_FE_TRACK_NO_PLAYER
 #define NFS4_CORE_CCOORD16   /* retail: CCOORD16 right after COORD16 */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: kernpair right after tScreenTrophyInfo */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
@@ -35,19 +29,16 @@ struct tMenu;
 #include "shared/tPersonalities.h"
 #include "shared/tCarLineup.h"
 #include "shared/tfrontEnd.h"
-#include "frontend/common/fe_core_types.h"
 #include "shared/tTrackClassType.h"
 #include "shared/tTrackInformation.h"
 struct tSaveTrackInfo;
 #include "shared/tTrackManager.h"
-#include "shared/tCarLineup.h"
 #include "shared/tTierInfo.h"
 #include "shared/tTourneyInfo.h"
 #include "shared/tTrackInfo.h"
 #include "shared/tTournamentDefinition.h"
 #include "shared/tAwardInformation.h"
 #include "shared/tCompetitor.h"
-#undef NFS4_FE_TRACK_NO_PLAYER
 #define byte unsigned char
 #define uint unsigned int
 #include "shared/tMenuTextType.h"
@@ -56,19 +47,19 @@ struct tSaveTrackInfo;
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #undef NFS4_CORE_CCOORD16
 #include "shared/CCOORD16.h"
-#include "game/common/color_p1_pregroup.h"
 #include "shared/Group.h"
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-#include "game/common/color_p3_trkobj.h"
+#include "shared/RelCoord16.h"
 #include "shared/tSaveSurface.h"
-#include "game/common/color_p5_bwsm.h"
+#include "shared/BWorldSm_Pos.h"
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
 #include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched.h"
+#include "game/common/color_p7_sched_d1.h"
+#include "shared/Sched_tFunctionSchedule.h"
 #include "game/common/color_p8_car.h"
 #include "game/common/color_p9_tail.h"
 #include "frontend/common/femenuextended_classes.h"

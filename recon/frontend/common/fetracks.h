@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FETRACKS_H
 #define NFS4_FLAT_FETRACKS_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail fetracks object: tListIterator, Indexed, Range */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
@@ -15,7 +14,6 @@
 struct tSaveTrackInfo;
 #include "shared/tTrackManager.h"
 #define uchar unsigned char
-#include "shared/tSaveTrackInfo.h"
 #define NFS4_SCREENDISPLAY_ITERS_TRACK
 #include "frontend/common/screendisplay_carblock_iters.h"
 #undef NFS4_SCREENDISPLAY_ITERS_TRACK

@@ -8,14 +8,7 @@
 #include "shared/SceneSortedElem.h"
 #endif
 /* The common hierarchy header retains this anonymous enum without a typedef.  (GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry.) */
-enum {
-    PERPMODE_CRUISE = 0,
-    PERPMODE_FAST = 1,
-    PERPMODE_MADECONTACT = 2,
-    PERPMODE_TEASE = 3,
-    PERPMODE_ESCAPE = 4,
-    PERPMODE_CHASEON = 5
-};
+#include "aih_hier_triggers_d1.h"
 #if !defined(NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES) && !defined(NFS4_AIDEBUG_AI_GRAPH_ONLY)   /* retail: BrakeInfo, the cop info, then ModelConfig (aidebug: AI classes only, retail aidebug.obj has no BrakeInfo/ModelConfig) */
 #include "shared/AIPhysic_BrakeInfo.h"   /* one AIPhysic_BrakeInfo definition (header-truth 4m) */
 #include "aicop_info_types.h"

@@ -2,20 +2,45 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FETOOLS_H
 #define NFS4_FLAT_FETOOLS_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
-#define NFS4_FE_CORE_GS_EARLY   /* retail: GameSetup before tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_LIST_NO_INDEXED   /* retail fetools object: tListIterator + Range only */
-#define NFS4_CORE_PADS_KERNEL_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_FE_CORE_CARS_LATE   /* retail FETools.obj: car tail after tShapeInformation (fetools_types.h end) */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton */
-#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
-#undef NFS4_CORE_CCOORD16
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/Draw_SVertex.h"
@@ -30,17 +55,12 @@
 #define NFS4_FECNTL_NO_RECORD_CARRIER
 #include "frontend/common/fecntl_types.h"
 #undef NFS4_FECNTL_NO_RECORD_CARRIER
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
 #include "frontend/common/screendisplay_menuitems.h"
 #include "shared/tActiveLine.h"
 #include "frontend/common/femenuextended_classes.h"
 #include "shared/tShapeInformation.h"
 struct tMenu;
 #include "frontend/common/fescreen.h"
-#include "shared/tActiveLine.h"
-#include "shared/tDrawShapeExtended.h"
 #include "shared/tCarModels.h"
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"

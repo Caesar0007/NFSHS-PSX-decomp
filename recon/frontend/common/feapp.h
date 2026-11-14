@@ -3,27 +3,42 @@
 #ifndef NFS4_FLAT_FEAPP_H
 #define NFS4_FLAT_FEAPP_H
 #define NFS4_TU_FEAPP   /* owner identity (shared/tpdef_keys.h) */
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* census: retail records every tMenu/tMenuItem inline member (fe_core_tmenu.h) */
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: list iterators right after tCarManager / tTrackManager */
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: tMenuNFS4/options family before the car/track graph (screendisplay_carblock.h) */
 #define NFS4_SCREENDISPLAY_DIALOGS_EARLY   /* retail: dialogs before the car/track graph (screendisplay_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 1 only; screendisplay_types.h emits PCOORD16 .. Draw_* after tScreen */
-#define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h); color.obj graph: feapp_after_video.h */
-#define NFS4_CORE_LINEDEF_LATE   /* retail: linedef, SHAPETABLEENTRY right after tScreen (nfs4_types.h / game_common_min_types.h skip them) */
 #define NFS4_SCREENDISPLAY_HOOK_BEFORE_LEAF2 "core_linedef_late.h"
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: tTexture_ShapeInfo after Draw_CarVertex, not with the frontend core */
 #define NFS4_SCREENDISPLAY_FELINES_AFTER_LEAF
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE   /* tActiveLine, tShapeInformation after tTexture_ShapeInfo */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: kernpair after tShapeInformation */
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#define NFS4_FRONTEND_COMMON_FEAPP_TYPES_H
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_TYPES_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "shared/DR_AREA.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#define NFS4_HAVE_MATRIX3DT
+#include "nfs4_core_3_cd_d1.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_COLOR "feapp_types.h"   /* retail FEApp: tAppCommand + tFEApplication right after the dialogs */
 #define NFS4_SCREENDISPLAY_HOOK_AFTER_VIDEO "feapp_after_video.h"   /* retail: color.obj graph, AudioMus, SND* after tVideo */
 #define NFS4_SCREENDISPLAY_ITERS_CARS_CHAIN "fe_track_types.h"   /* retail FEApp: the track graph right after the car iterators */
@@ -33,20 +48,16 @@
 #define NFS4_FE_TRACK_SAVEINFO   /* retail: tSaveTrackInfo / tSaveTournament inside the track graph */
 #include "frontend/common/fe_input_enums.h"
 struct tMenu;
-#define NFS4_TMENUCOMMANDTYPE_DEFINED
 #include "shared/tMenuCommandType.h"
 #include "shared/tMenuCommand.h"
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
-#define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #include "frontend/common/screenmemcard_types.h"
-#undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #include "shared/tMenuTextType.h"
 #include "shared/tMenuTextState.h"
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
 #define PinkSlipsNoError 0
-#include "shared/DR_AREA.h"
 #include "shared/SNDSYSCAP.h"
 #include "shared/SNDSYSSET.h"
 #include "shared/SNDSYSVEC.h"

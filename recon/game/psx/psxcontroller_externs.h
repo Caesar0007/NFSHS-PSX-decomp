@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_PSXCONTROLLER_EXTERNS_H
 #define NFS4_FLAT_PSXCONTROLLER_EXTERNS_H
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_GAME_PSX_PSXCONTROLLER_TYPES_H
 #define NFS4_PSXCONTROLLER_HOOKS

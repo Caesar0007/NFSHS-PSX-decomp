@@ -10,6 +10,6 @@
 
 #include "shared/matrixtdef.h"
 #ifndef NFS4_HAVE_MATRIX3DT
-typedef struct matrixtdef MATRIX3DT;
+#include "draw_leaf_core_d1.h"
 #endif
 #endif

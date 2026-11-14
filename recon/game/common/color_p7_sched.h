@@ -5,7 +5,7 @@
 #include "gamesetup_leaf_types.h"
 #endif
 #if !defined(NFS4_COLOR_SCHED_FIRST) && !defined(NFS4_COLOR_SCHED_AFTER_BWSM) && !defined(NFS4_COLOR_SCHED_DONE)
-typedef void (*Sched_tFunctionPt)(void *);
+#include "color_p7_sched_d1.h"
 #include "shared/Sched_tFunctionSchedule.h"
 #endif
 #ifdef NFS4_COLOR_SCHED_SCHEDULE   /* retail: Sched_tSchedule always right after Sched_tFunctionSchedule */

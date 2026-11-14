@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_MINFRONT_H
 #define NFS4_FLAT_MINFRONT_H
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #include "game/common/minfront_types.h"
 #include "game/common/minfront_externs.h"
 #endif

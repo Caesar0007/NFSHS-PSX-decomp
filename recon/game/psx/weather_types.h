@@ -2,15 +2,44 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_WEATHER_TYPES_H
 #define NFS4_FLAT_WEATHER_TYPES_H
-#define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_LINE_G2   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
-#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#include "game/common/draw_leaf_core.h"
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/POLY_F4.h"
+#include "shared/POLY_FT4.h"
+#include "shared/LINE_G2.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/DRender_tView.h"
@@ -19,11 +48,6 @@
 #include "shared/Draw_tCacheHeader.h"
 #include "shared/Draw_CarVertex.h"
 #include "game/common/gamesetup_leaf_types.h"
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#include "shared/CCOORD16.h"
-#include "shared/DRender_tView.h"
 #include "shared/Group.h"
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
@@ -60,9 +84,6 @@ typedef struct Weather_tSys {
 struct Weather_tSplatInfo { DVECTOR pos; int startTick; };
 #include "shared/CTrackSpec.h"
 #include "shared/Sim_tSimGlobalVar.h"
-#include "shared/POLY_F4.h"
-#include "shared/POLY_FT4.h"
-#include "shared/LINE_G2.h"
 #include "shared/camera_info.h"
 typedef kernpair KERN;
 typedef void Trk_Chunk;

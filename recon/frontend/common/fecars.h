@@ -2,8 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FECARS_H
 #define NFS4_FLAT_FECARS_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
-#define NFS4_TU_FECARS   /* owner identity (shared/tpdef_keys.h) */
 #define NFS4_CORE_PADS_EARLY   /* retail: controller pads before linedef (nfs4_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail fecars object: tListIterator, Indexed, Range */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
@@ -12,10 +10,7 @@
 #define NFS4_FE_CORE_CARS_CLASSTYPE
 #define NFS4_FE_CORE_CARS_LINEUP
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_OWNED "fecars_carlist.h"
-#define NFS4_FE_CORE_CARS_HOOK_MANAGER "fecars_manager.h"
 #define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "fecars_iters.h"
-#include "frontend/common/fe_core_types.h"
-#include "frontend/common/fe_player_types.h"
 #include "frontend/common/fe_core_types.h"
 #include "frontend/common/fe_player_types.h"
 #include "shared/tTrackClassType.h"

@@ -6,7 +6,7 @@
 #endif
 #include "shared/BWorldSm_Pos.h"
 #ifdef NFS4_COLOR_SCHED_AFTER_BWSM   /* retail hud.obj: scheduler types between BWorldSm_Pos and the BO types */
-typedef void (*Sched_tFunctionPt)(void *);
+#include "color_p5_bwsm_d1.h"
 #include "shared/Sched_tFunctionSchedule.h"
 #ifdef NFS4_COLOR_SCHED_SCHEDULE
 #include "shared/Sched_tSchedule.h"

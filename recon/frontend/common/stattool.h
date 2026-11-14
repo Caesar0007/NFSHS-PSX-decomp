@@ -2,18 +2,40 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_STATTOOL_H
 #define NFS4_FLAT_STATTOOL_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
-#define NFS4_FE_CORE_GS_EARLY   /* retail: GameSetup before tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail stattool object: tListIterator, Indexed, Range */
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#define NFS4_HAVE_MATRIX3DT
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
-#undef NFS4_CORE_CCOORD16
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "game/common/pads_tail.h"
 #include "game/common/gamesetup_leaf_types.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
@@ -22,38 +44,27 @@
 #include "shared/Draw_tCacheHeader.h"
 #include "shared/Draw_CarVertex.h"
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
-#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#undef NFS4_CORE_CCOORD16
-#include "shared/CCOORD16.h"
-#include "game/common/color_p1_pregroup.h"
 #include "shared/Group.h"
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-#include "game/common/color_p3_trkobj.h"
+#include "shared/RelCoord16.h"
 #include "shared/tSaveSurface.h"
-#include "game/common/color_p5_bwsm.h"
+#include "shared/BWorldSm_Pos.h"
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
 #include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched.h"
+#include "game/common/color_p7_sched_d1.h"
+#include "shared/Sched_tFunctionSchedule.h"
+#include "shared/Sched_tSchedule.h"
 #include "game/common/color_p8_car.h"
 #include "game/common/color_p9_tail.h"
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
 #include "shared/CARD_FILE_HEADER.h"
-#define NFS4_FRONTEND_COMMON_STATTOOL_TYPES_H   /* Owner-specific type surface for Stattool.obj. */
-#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "frontend/common/statchk_types.h"
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#include "shared/CARD_FILE_HEADER.h"
-#include "shared/Sched_tSchedule.h"
 #include "shared/tTrackInformation.h"
 #include "shared/tTrackManager.h"
 #include "frontend/common/stattool_externs.h"

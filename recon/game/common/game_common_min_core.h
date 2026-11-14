@@ -9,14 +9,14 @@
 
 
 #ifndef NFS4_HAVE_LIBCOORD
-typedef struct coorddef LIBCOORD;
+#include "game_common_min_core_d1.h"
 #endif
 
 #ifndef NFS4_CORE_LINEDEF_LATE   /* else: the owner emits linedef, LINE, SHAPETABLEENTRY later (nfs4_types.h key; FEMenuDefs) */
 #include "shared/linedef.h"
 #endif
 #if !defined(NFS4_HAVE_LINE) && !defined(NFS4_CORE_LINEDEF_LATE)
-typedef struct linedef LINE;
+#include "game_common_min_core_d2.h"
 #endif
 #ifndef NFS4_CORE_LINEDEF_LATE
 #include "shared/SHAPETABLEENTRY.h"

@@ -5,21 +5,41 @@
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 #define NFS4_FRONTEND_COMMON_SCREENUSERNAME_TYPES_H
-#define NFS4_SCREENDISPLAY_CARBLOCK_NO_ITERS   /* retail: tListIteratorCar/CarColor after tCarManager, tListIteratorTrack after tTrackManager */
-#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: the full tMenu/tMenuItem inline-member sets (TPDEF x16 in every frontend object) */
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo (INV-B fe_core_cars hook) */
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail: FE menu core BEFORE the MATRIX core, then FE3d, then ScreenDisplay graph */
 #define NFS4_FE_CORE_CARS_LATE
 #include "frontend/common/fe_core_types.h"
 #include "frontend/common/screendisplay_menuitems.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/Draw_SVertex.h"
@@ -30,22 +50,13 @@
 #include "shared/tActiveLine.h"
 #include "shared/tShapeInformation.h"
 #include "frontend/common/screenusername_screen.h"
-#define NFS4_SCREENDISPLAY_NO_OWNER_RECORDS   /* ScreenDisplay's shared graph, not its owner records */
-#define NFS4_SCREENDISPLAY_CARS_AFTER_MENUS   /* retail: menu family, tScreenUserName, then the car/track graph */
-#define NFS4_SCREENDISPLAY_OWNER_BEFORE_CARS "screenusername_types.h"   /* second pass below emits the owner class */
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track graph after the screen records (fe_core_cars.h below) */
-#include "frontend/common/fe_core_types.h"
-#include "frontend/common/screendisplay_menuitems.h"
 #include "frontend/common/felines_types.h"
-#include "shared/tShapeInformation.h"
 struct tMenu; struct tDrawShapeExtended;
 #include "frontend/common/fescreen.h"
-#undef NFS4_DRAW_LEAF_CORE_ONLY   /* draw_leaf phase 2 here: retail PCOORD16 .. Draw_* right after tScreen */
-#include "shared/tActiveLine.h"
 #undef NFS4_FE_CORE_CARS_LATE   /* Track/tournament records are retained without the foreign tPlayer enum or their member-method surfaces in this owner.  The track surface also owns the retail tListIteratorIndexed record used below. */
 #include "frontend/common/femenuextended_classes.h"
 #include "frontend/common/femenuoptions_classes.h"
-#define NFS4_SCREENUSERNAME_OWNER_DONE
 #include "frontend/common/cls_tScreenUserName.h"
 #include "shared/tCarModels.h"
 #include "shared/tCarInfo.h"
@@ -60,7 +71,6 @@ struct tMenu; struct tDrawShapeExtended;
 #include "shared/tPersonalities.h"
 #include "shared/tCarLineup.h"
 #include "shared/tfrontEnd.h"
-#include "frontend/common/fe_core_types.h"
 #include "shared/tTrackClassType.h"
 #include "shared/tTrackInformation.h"
 struct tSaveTrackInfo;
@@ -68,7 +78,6 @@ struct tSaveTrackInfo;
 #define NFS4_FE_TRACK_IN_HOOK
 #include "frontend/common/screendisplay_carblock_iters.h"
 #undef NFS4_FE_TRACK_IN_HOOK
-#include "shared/tCarLineup.h"
 #include "shared/tTierInfo.h"
 #include "shared/tTourneyInfo.h"
 #include "shared/tTrackInfo.h"

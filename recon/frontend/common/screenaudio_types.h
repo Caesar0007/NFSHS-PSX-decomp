@@ -2,28 +2,37 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_SCREENAUDIO_TYPES_H
 #define NFS4_FLAT_SCREENAUDIO_TYPES_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #define NFS4_FRONTEND_COMMON_SCREENAUDIO_TYPES_H   /* Owner-specific type surface for ScreenAudio.obj. */
-#define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* retail ScreenAudio: frontend menu core before PCOORD16/pads/Draw_* */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* Owner-specific type surface for ScreenTrackInfo.obj. */
-#define NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #define NFS4_FE_CORE_FELINES_LATE   /* retail ScreenTrackInfo: frontend core + menu items before the MATRIX core */
 #define NFS4_FE_CORE_CARS_LATE   /* retail: car/track/tournament records after tShapeInformation/tActiveLine */
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType right after tOwnedCarInfo (fe_core_cars.h) */
 #include "frontend/common/fe_core_types.h"
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd (fe_core_cars.h) */
 #include "shared/tMenuTextState.h"
 #include "shared/tMenuTextType.h"
 #include "frontend/common/screendisplay_menuitems.h"
-#undef NFS4_DRAW_LEAF_CORE_ONLY   /* ScreenAudio: draw_leaf phase 2 (PCOORD16 .. Draw_*) after the menu core */
 #define NFS4_FELINES_KERNPAIR_LATE   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, then kernpair */
 #include "frontend/common/felines_types.h"
 #include "shared/tActiveLine.h"
@@ -33,7 +42,6 @@
 #include "shared/AudioMus_tSongList.h"
 #include "frontend/common/screenaudio.h"
 #include "frontend/common/felines_kern.h"
-#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"   /* retail: tListIteratorCar/Color right after tCarManager */
 #include "shared/tCarModels.h"
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"
@@ -49,12 +57,10 @@
 #include "shared/tfrontEnd.h"
 #include "frontend/common/femenuextended_classes.h"
 #include "frontend/common/femenuoptions_classes.h"
-#include "frontend/common/fe_core_types.h"
 #include "shared/tTrackClassType.h"
 #include "shared/tTrackInformation.h"
 struct tSaveTrackInfo;
 #include "shared/tTrackManager.h"
-#include "shared/tCarLineup.h"
 #include "shared/tTierInfo.h"
 #include "shared/tTourneyInfo.h"
 #include "shared/tTrackInfo.h"
@@ -73,29 +79,23 @@ struct tSaveTrackInfo;
 #include "shared/tScreenMainState.h"
 #include "shared/tVideoTransition.h"
 #include "shared/tVideo.h"
-#undef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-#include "shared/tMenuTextState.h"
-#include "shared/tMenuTextType.h"
-#include "shared/AudioMus_tSongEntry.h"
-#include "shared/AudioMus_tSongList.h"
 struct tDrawShapeExtended;
-#include "frontend/common/screenaudio.h"
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #undef NFS4_CORE_CCOORD16
 #include "shared/CCOORD16.h"
-#include "game/common/color_p1_pregroup.h"
 #include "shared/Group.h"
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-#include "game/common/color_p3_trkobj.h"
+#include "shared/RelCoord16.h"
 #include "shared/tSaveSurface.h"
-#include "game/common/color_p5_bwsm.h"
+#include "shared/BWorldSm_Pos.h"
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
 #include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched.h"
+#include "game/common/color_p7_sched_d1.h"
+#include "shared/Sched_tFunctionSchedule.h"
 #include "game/common/color_p8_car.h"
 #include "game/common/color_p9_tail.h"
 #include "shared/SNDSYSCAP.h"

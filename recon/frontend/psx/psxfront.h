@@ -3,27 +3,52 @@
 #ifndef NFS4_FLAT_PSXFRONT_H
 #define NFS4_FLAT_PSXFRONT_H
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
 #define NFS4_FELINES_DSE_AFTER_TEXSHAPE   /* retail PSXFront: tDrawShapeExtended right after tTexture_ShapeInfo (felines_types.h) */
 #define NFS4_PSXFRONT_SCREEN_LATE   /* retail PSXFront: tShapeInformation right after Car_tObj (FRONTORD3 late-tScreen lever) */
 #define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/psx/psxfront_screen_late.h"
 #define NFS4_FE_LIST_NO_INDEXED   /* retail psxfront object: tListIterator + Range only */
-#define NFS4_CORE_PADS_KERNEL_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
-#define NFS4_PRIM_POLY_F4   /* retail PSXFront: POLY_F4 POLY_FT4 POLY_G4 POLY_GT4 right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_POLY_FT4
-#define NFS4_PRIM_POLY_G4
-#define NFS4_CORE_POLY_GT4
-#define NFS4_PRIM_DR_OFFSET   /* retail: DR_OFFSET right after DR_MODE */
-#define NFS4_CORE_AFTER_SHAPETABLE   /* retail: eacelement CdlLOC kernpair charactertbl after SHAPETABLEENTRY */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/POLY_F4.h"
+#include "shared/POLY_FT4.h"
+#include "shared/POLY_G4.h"
+#include "shared/POLY_GT4.h"
+#include "shared/DR_MODE.h"
+#include "shared/DR_OFFSET.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
+#include "shared/core_after_shapetable.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/Draw_SVertex.h"

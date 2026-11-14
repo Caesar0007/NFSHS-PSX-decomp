@@ -2,19 +2,35 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FEAUDIO_H
 #define NFS4_FLAT_FEAUDIO_H
-#define NFS4_FE_CORE_TMENU_ALL_INLINES   /* retail: full tMenu/tMenuItem inline-member sets */
-#define NFS4_FE_CORE_GS_EARLY   /* retail: GameSetup before tMenuCommandType (fe_core_types.h) */
 #define NFS4_FE_LIST_NO_RANGE_INDEXED   /* retail feaudio object: tListIterator, Indexed, Range */
-#define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_DRAW_LEAF_CORE_ONLY   /* retail Feaudio.obj: full core (MATRIX/DR_MODE/matrixtdef) first; draw leaf after the sound records */
 #define NFS4_FE_CORE_TMENUCOMMAND_EARLY   /* retail: tMenu forward copy right after tMenuCommandType (fe_core_types.h) */
-#define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
-#include "game/common/draw_leaf_core.h"
-#undef NFS4_DRAW_LEAF_CORE_ONLY
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#define NFS4_HAVE_MATRIX3DT
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
-#define NFS4_GAME_COMMON_PADS_TYPES_H
 #include "shared/PAD_PSX.h"
 #include "shared/PAD_NEGCON.h"
 #include "shared/PAD_ANALOG.h"

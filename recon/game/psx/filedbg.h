@@ -2,11 +2,20 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FILEDBG_H
 #define NFS4_FLAT_FILEDBG_H
-#include "nfs4_core_0_kernel.h"
-#include "nfs4_core_1_gpu.h"
-#include "nfs4_core_2_shape.h"
-#include "nfs4_core_3_cd.h"
-#include "nfs4_core_4_tail.h"
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
 #include "shared/coorddef.h"
 typedef struct coorddef LIBCOORD;
 #include "shared/linedef.h"

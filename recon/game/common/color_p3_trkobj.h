@@ -6,7 +6,7 @@
 #include "shared/Trk_SFX.h"
 #endif
 #ifdef NFS4_COLOR_TRK_LINE   /* retail draww: Trk_Line between Trk_NewSimSlice and Trk_SimObject (moved from draww_types.h) */
-typedef struct Trk_Line { u_char firstPoint, slice, type, quadIndex; } Trk_Line;
+#include "color_p3_trkobj_d1.h"
 #endif
 #include "shared/Trk_SimObject.h"
 #endif

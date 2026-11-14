@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FONT_OBJ_TYPES_H
 #define NFS4_FLAT_FONT_OBJ_TYPES_H
-#define NFS4_GAME_PSX_FONT_OBJ_TYPES_H
 #include "shared/kernpair.h"
 typedef struct kernpair kernpair;
 typedef struct kernpair KERN;
@@ -10,24 +9,27 @@ typedef struct kernpair KERN;
 typedef struct charactertbl charactertbl;
 typedef struct charactertbl FONTFILECHAR;
 typedef struct charactertbl charactertbl;
-#define NFS4_CORE_FULL   /* retail font.obj: MATRIX first, SPRT + DR_MODE right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_SPRT
-#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
-#include "nfs4_core_0_kernel.h"
-#include "nfs4_core_1_gpu.h"
-#include "nfs4_core_2_shape.h"
-#include "shared/coorddef.h"
-#include "shared/matrixtdef.h"
-#include "nfs4_core_3_cd.h"
-#include "nfs4_core_4_tail.h"
-#undef NFS4_CORE_FULL
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
 #include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
 #include "shared/SPRT.h"
 #include "shared/DR_MODE.h"
-typedef struct shapetbl shapetbl;
+#include "nfs4_core_2_shape_d3.h"
 #include "shared/coorddef.h"
-typedef struct coorddef LIBCOORD;
 #include "shared/matrixtdef.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+typedef struct shapetbl shapetbl;
+typedef struct coorddef LIBCOORD;
 typedef struct matrixtdef matrixtdef;
 typedef struct matrixtdef MATRIX3DT;
 typedef struct cdstreamstruct cdstreamstruct;

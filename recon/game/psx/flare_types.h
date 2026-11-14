@@ -2,24 +2,46 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_FLARE_TYPES_H
 #define NFS4_FLAT_FLARE_TYPES_H
-#define NFS4_GAME_PSX_FLARE_TYPES_H
-#define NFS4_PRIM_POLY_F4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_POLY_FT4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_POLY_G3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_PRIM_LINE_G2   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
-#define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
-#define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
-#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
-#include "game/common/draw_leaf_core.h"
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
+#include "nfs4_core_0_kernel_d1.h"
+#include "shared/u_long.h"
+#include "nfs4_core_0_kernel_d2.h"
+#include "nfs4_core_0_kernel_d3.h"
+#include "nfs4_core_0_kernel_d4.h"
+#include "shared/TCB.h"
+#include "shared/EXEC.h"
+#include "shared/DIRENTRY.h"
+#include "shared/PAD_PSX.h"
+#include "shared/PAD_NEGCON.h"
+#include "shared/PAD_ANALOG.h"
+#include "shared/PAD_MOUSE.h"
+#include "shared/PAD_COMMON.h"
+#include "shared/MATRIX.h"
+#include "nfs4_core_1_gpu_d1.h"
+#include "shared/RECT.h"
+#include "nfs4_core_1_gpu_d2.h"
+#include "nfs4_core_1_gpu_d3.h"
+#include "shared/POLY_F4.h"
+#include "shared/POLY_FT4.h"
+#include "shared/POLY_G3.h"
+#include "shared/POLY_G4.h"
+#include "shared/LINE_G2.h"
+#include "shared/DR_MODE.h"
+#include "nfs4_core_2_shape_d3.h"
+#include "shared/coorddef.h"
+#include "nfs4_core_2_shape_d4.h"
+#include "shared/matrixtdef.h"
+#include "nfs4_core_2_shape_d5.h"
+#include "nfs4_core_3_cd_d1.h"
+#include "shared/linedef.h"
+#include "nfs4_core_4_tail_d1.h"
+#include "shared/SHAPETABLEENTRY.h"
 #include "shared/PCOORD16.h"
 #include "shared/COORD16.h"
 #include "shared/CCOORD16.h"
-#undef NFS4_CORE_CCOORD16
+#include "nfs4_core_4_tail_d3.h"
+#include "nfs4_core_4_tail_d5.h"
+#include "nfs4_core_4_tail_d6.h"
+#include "game/common/pads_tail.h"
 #include "shared/Draw_tPixMap.h"
 #include "shared/DRender_tCalcView.h"
 #include "shared/DRender_tView.h"
@@ -28,33 +50,21 @@
 #include "shared/Draw_tCacheHeader.h"
 #include "shared/Draw_FlareCache.h"
 #include "shared/Draw_CarVertex.h"
-#define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
-#include "game/common/draw_leaf_core.h"
-#undef NFS4_CORE_CCOORD16
-#include "shared/CCOORD16.h"
 #include "shared/Trk_Quad.h"
 #include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
 #include "shared/Trk_NewSimSlice.h"
-#include "game/common/color_p1_pregroup.h"
+#include "shared/RelCoord16.h"
 #include "shared/Group.h"
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
-#include "game/common/color_p3_trkobj.h"
 #include "shared/tSaveSurface.h"
-#include "game/common/color_p5_bwsm.h"
+#include "shared/BWorldSm_Pos.h"
 struct BO_tNewtonObj;
 #include "shared/BO_tNewtonCollisionInfo.h"
 #include "shared/BO_tNewtonObj.h"
-#define NFS4_COLOR_IN_HOOK
-#define NFS4_FLARE_EARLY_DONE
 #include "shared/forceFocus_t.h"
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"
-#define NFS4_COLOR_SCHED_DONE   /* color_types.h: the scheduler types are already declared */
 #include "shared/FLARE_PIECE_DEF.h"
 #include "shared/FLARE_DEF.h"
 #include "shared/CHorizonSpec.h"
@@ -64,24 +74,10 @@ typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
 #include "shared/CWorldColor.h"
-#undef NFS4_COLOR_IN_HOOK
-#include "game/common/color_p7_sched.h"
 #include "game/common/color_p8_car.h"
 #include "game/common/color_p9_tail.h"
-#define NFS4_FLARE_TAIL_DONE
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
-#include "shared/TCB.h"
-#include "shared/EXEC.h"
-#include "shared/DIRENTRY.h"
-#include "shared/POLY_F4.h"
-#include "shared/POLY_FT4.h"
-#include "shared/POLY_G3.h"
-#include "shared/POLY_G4.h"
-#include "shared/LINE_G2.h"
-#include "shared/DRender_tView.h"
-#include "shared/Draw_FlareCache.h"
-#include "shared/Sched_tSchedule.h"
 #include "shared/Sim_tSimGlobalVar.h"
 typedef struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; } Flare_tInfo;
 #include "shared/CTrackSpec.h"

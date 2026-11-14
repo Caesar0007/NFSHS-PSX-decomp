@@ -41,30 +41,30 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */
 
-inline tDialogBase::tDialogBase()
-{
-  currentlyOn = 0;
-  reservedheight = 0;
-  MaxH = 0;
-  OffsetY = 0;
-  OffsetX = 0;
-  height = 0;
-  width = 0;
-  top = 0;
-  left = 0;
-  MaxW = 0x120;
-  specificPlayer = -1;
-  fDefault = 0;
-  timeOutTicks = 0;
-}
+/* tDialogBase() / tDialogMessageString(): defined inline in fedialog.h for every includer (2026-11-14) */
 
-inline tDialogMessageString::tDialogMessageString()
-{
-  Centerit = 0;
-  fFullyOpen = 0;
-  timeOutTicks = 0;
-  fFadeText = 0x80;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* P884: Stats_gTrackRecords uses the native tRecordBuffer[187] declaration. */
 
@@ -188,12 +188,11 @@ void BringThatBeatBack(void)
   /* Reliable SYM records `MyDialog`, `putbackon`, `ret`, nested setup roles
      `num`/`yes`, the inlined Hide receiver, and the later message-string
      receiver. Existing IsVisible now recovers the supplied base receiver;
-     the remaining captures below are not proved original or necessary:
-     SYM-CODEGEN-CARRIER: dialog
-     SYM-CODEGEN-CARRIER: dialogVtable
-     The noInputDialog caller pointer is removed, not renamed to this.
-     SYM-CODEGEN-CARRIER: messageDialog
-     SYM-CODEGEN-CARRIER: messageText */
+     2026-11-14 (BYTE+SYM+SLD exact: 109/109, tags 0, blocks 68/68): the setup is the inline members themselves --
+     MyDialog.SetString(Text) (retail parameter record `num`), MyDialog.SetChoices(yesText, 0x292, 0) (`yes`),
+     MyDialog.SetPosition(0, 10) in the language block, FEApp->MemCardDialog.SetString(CURRENTPLAYER + 0x32b)
+     (`this` $16).  frontEnd.language is read directly (FrontEnd() added a pair retail lacks).  The dialog /
+     dialogVtable / messageDialog / messageText carriers are removed. */
 #line 121 "C:/nfs4/FRONTEND/COMMON/FEMEMCARD.CPP"
 static int Confirm(int Text,int yesText)
 
@@ -201,23 +200,23 @@ static int Confirm(int Text,int yesText)
 {
   BringThatBeatBack();
 
-  tDialogYesNoMem MyDialog; bool putbackon; /* SYM: REG BOOL $s3 */ int ret; /* SYM: REG INT $s2 (reuses Text's reg) */ tDialogYesNoMem *dialog = &MyDialog; putbackon = false;
+  tDialogYesNoMem MyDialog; bool putbackon; int ret; putbackon = false;
 
     if (FEApp->NoInputMemCardDialog.IsVisible()) {
       /* SYM-INLINE-THIS: Hide */
       FEApp->NoInputMemCardDialog.Hide();
-      putbackon = true; } dialog->SetString(Text); dialog->yesnowords[1] = 0x292;
+      putbackon = true; } MyDialog.SetString(Text); MyDialog.SetChoices(yesText, 0x292, 0);
 
 
 
 
-    dialog->yesnowords[0] = yesText; dialog->fDefault = 0; if (FrontEnd().language == '\x03') {
-      dialog->OffsetX = 0; dialog->OffsetY = 10;
-    } ret = (int)(short)((tDialogInteractive *)dialog)->Run();
+    if (frontEnd.language == '\x03')
+    { MyDialog.SetPosition(0, 10);
+    } ret = MyDialog.Run();
 
   if (ret == -1)
-  { tDialogMessageString *messageDialog = &FEApp->MemCardDialog; char *messageText = TextSys_Word(CURRENTPLAYER + 0x32b);
-    messageDialog->SetString(messageText);
+  { FEApp->MemCardDialog.SetString(CURRENTPLAYER + 0x32b);
+
     ((tDialogBase *)&FEApp->MemCardDialog)->Display();
     while (!FEApp->MemCardDialog.IsFullyOpen()) {
       FEApp->Redraw();
@@ -520,13 +519,13 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
    source-only carriers whose private spellings are not uniquely recoverable. */
 
   /* [phantom-dtor drop] implicit ___7tScreen(&WarningDialog,2) at scope exit */
-    /* SYM-INLINE-THIS: SetString */
-    /* SYM-CODEGEN-CARRIER: displayDialog -- forming this before the inline
-       store gives retail's load/store order. */
-    /* SYM-CODEGEN-CARRIER: message -- preserves the call result while the
-       independent Display receiver is formed. */
-    /* SYM-CODEGEN-CARRIER: dlgmsg -- held across TextSys_Word as the nested
-       inline receiver in s0. */
+    /* 2026-11-14: the message dialog is FEApp->MemCardDialog.SetString(returnmessage + player) (the int overload,
+       retail `this` $16 pair) + .Display(); WarningDialog uses SetString(int) + SetPosition(0, 0x32); the card
+       status test is the MemCard_IsReady() inline; `card` is a function-scope local; the body from line 418 to
+       purgememadr is one plain scope (retail BLOCK 24..162).  dlgmsg / message / displayDialog are removed.
+       OPEN: with the natural tail (no do/while(0) scopes) the SYM block tree is IDENTICAL to retail (72/72) but the
+       s5/s6/s7 cluster below flips (FAIL 26); a loop region over retail's lines 162..178 replaces the inner scope
+       only (FAIL 12).  The two degenerate scopes therefore stay until the natural re-weighting is found. */
   /* MATCH (W85-M4, 2026-09-02): pure-C replacement for the removed
      `__asm__("" : : "r"(player))` read fence.  The three tail allocnos are a
      0.3%-wide priority cluster -- player refs=5/live=214 (0.04673),
@@ -571,12 +570,12 @@ bool SaveGame(short player)
       } }
   }
   tDialogNoInputMessage WarningDialog;
-  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; WarningDialog.SetString(player + 0x276);
+  short cardNum; MCRDFILE_def memCardFile; char *shapeFile; char shapeFileName [64]; bool finished; int event; bool returnvalue; int returnmessage; CARDINFO_def *card; WarningDialog.SetString(player + 0x276);
 
-  WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; ((tDialogBase *)&WarningDialog)->Display();
+  WarningDialog.SetPosition(0, 0x32); WarningDialog.Display();
   while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz -- see Confirm */
     FEApp->Redraw();
-  } finished = false; FEApp->Redraw();
+  } finished = false; FEApp->Redraw(); {
 
   cardNum = player * 4 + 1;
 
@@ -638,10 +637,10 @@ bool SaveGame(short player)
     systemtask(0);
     VSync(0);
 
-    switch(event) {
+    switch(event)
+    {
     case 0x16:
-
-      if (gMemCardInfo.bReady != 0) {
+      if (MemCard_IsReady() != 0) {
 
 
 
@@ -671,12 +670,12 @@ bool SaveGame(short player)
     case 0xb:
     case 0xd:
     case 0x17:
-      {
-        /* retail SaveGame preamble carries a CARDINFO_def TPDEF: the card pointer is a real local; its
-           single use as a load base is combined away (no SYM record), status stays in v1 via cse. */
+      
+        /* retail SaveGame preamble carries a CARDINFO_def TPDEF: the card pointer is a real local (function scope:
+           retail has no block here); its single use as a load base is combined away (no SYM record). */
 
 
-        CARDINFO_def *card = MCRD_getcard(player * 4 + 1);
+        card = MCRD_getcard(player * 4 + 1);
         returnmessage = 0x29d;
         if (card->status != -3) {
           returnmessage = 0x325;
@@ -687,16 +686,16 @@ bool SaveGame(short player)
             returnmessage = 0x32b;
           }
         }
-      }
+      
+      
+
+
+
+
+
+
       finished = true;
-
-
-
-
-
-
-
-
+      /* retail records a second empty record-less scope here (BLOCK 143..143 at +35c); its declaration is not recovered (no source invented) */
 
 
 
@@ -714,7 +713,7 @@ bool SaveGame(short player)
     VSync(0);
   }
 
-  purgememadr(shapeFile);
+  purgememadr(shapeFile); }
 
 
 
@@ -726,8 +725,8 @@ bool SaveGame(short player)
   if (nomessage == 0) do {
 
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-    tDialogMessageString *dlgmsg = &FEApp->MemCardDialog; char *message = TextSys_Word(returnmessage + player);
-    tDialogBase *displayDialog = (tDialogBase *)&FEApp->MemCardDialog; dlgmsg->SetString(message); displayDialog->Display();
+    FEApp->MemCardDialog.SetString(returnmessage + player);
+    FEApp->MemCardDialog.Display();
     while (!FEApp->MemCardDialog.IsFullyOpen()) {
       FEApp->Redraw();
     } FEApp->Redraw();
@@ -1334,6 +1333,14 @@ PinkSlipsErrorCode
      SYM records no `rc` or `dialog` caller locals: SetChoices reconstructs the
      one-line inline tDialogYesNo receiver at line 1105, and SetString restores
      the later inline tDialogMessageString receiver after sprintf. */
+  /* 2026-11-14 (bytes 219/219, tags 0, block tree 47/47 as retail): WarningDialog is a do-body local next to
+     `count` (retail records both in one block; the loop is `do { ... } while (err && retry)` + one `return err`),
+     its word lookup sits on the declaration line (retail tags the TextSys_Word call there; the temporary is
+     combined away), and the setup is SetString / SetPosition(int, int) as separate statements -- the chained form
+     and short parameters both flip the s3/s4 loop invariants.  RetryCancelDialog = SetChoices(yes, no, default) +
+     SetSpecificPlayer(player) (retail: one `this` pair + one record-less pair).  Supersedes the nested-block note
+     above.  OPEN (SLD only): retail numbers the synthesized destructor blocks 1 (line notes inside compiler-
+     generated members survive when the note file is the main input file); ours shows the caller line. */
 #line 1087 "C:/nfs4/FRONTEND/COMMON/FEMEMCARD.CPP"
 SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCarInGarageNumber)
 
@@ -1353,20 +1360,20 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 
   retry = 0;
-  RetryCancelDialog.SetChoices(0x291, 0x292, 1, player); do {
-
+  RetryCancelDialog.SetChoices(0x291, 0x292, 1); RetryCancelDialog.SetSpecificPlayer(player); do
+  {
 
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (!FEApp->NoInputMemCardDialog.IsFullyOpen()) {   /* xori;beqz */
       FEApp->Redraw();
-    } int count; count = 0; FEApp->Redraw(); { tDialogNoInputMessage WarningDialog; WarningDialog.string = TextSys_Word(player + 0x276);
+    } int count; count = 0; FEApp->Redraw(); tDialogNoInputMessage WarningDialog; char *warningText = TextSys_Word(player + 0x276);
 
 
 
 
 
 
-      WarningDialog.OffsetX = 0; WarningDialog.OffsetY = 0x32; ((tDialogBase *)&WarningDialog)->Display();
+      WarningDialog.SetString(warningText); WarningDialog.SetPosition(0, 0x32); WarningDialog.Display();
       while (!WarningDialog.IsFullyOpen()) {   /* xori;beqz */
         FEApp->Redraw();
       } FEApp->Redraw();
@@ -1387,15 +1394,15 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       FEApp->Redraw();
 
 
-      if (err != PinkSlipsNoError) {
-
+      if (err != PinkSlipsNoError)
+      {
         ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
 
         sprintf(string,TextSys_Word(textSysMemCardFail_Index[err] + player));
 
-        if (WillLoseCar != 0) {
-          sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),
-                  PlayerName(player)); WillLoseCarMessage.SetString(string2); WillLoseCarMessage.OffsetX = 0; WillLoseCarMessage.OffsetY = -0x3c;
+        if (WillLoseCar != 0)
+        { sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),
+                  PlayerName(player)); WillLoseCarMessage.SetString(string2); WillLoseCarMessage.SetPosition(0, -0x3c);
 
 
           WillLoseCarMessage.Display();
@@ -1407,11 +1414,11 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
         ((tDialogBase *)&WillLoseCarMessage)->Hide();
       }
-    }
 
-    if ((err == PinkSlipsNoError) || (retry == 0)) {
-      return err;
-    } } while( true ); }
+
+  } while ((err != PinkSlipsNoError) && (retry != 0));
+  return err;
+}
 
 
 

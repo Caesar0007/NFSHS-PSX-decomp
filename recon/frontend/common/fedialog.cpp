@@ -939,30 +939,30 @@ void tDialogYesNo::CalculateDimensions()
  * Supplying the definitions here lets the member-init chain inline them and reach
  * `__7tScreen`, exactly like retail; the store list below drops the copies that
  * are now emitted by the inlined bodies. */
-inline tDialogBase::tDialogBase()
-{
-  currentlyOn = 0;
-  reservedheight = 0;
-  MaxH = 0;
-  OffsetY = 0;
-  OffsetX = 0;
-  height = 0;
-  width = 0;
-  top = 0;
-  left = 0;
-  MaxW = 0x120;
-  specificPlayer = -1;
-  fDefault = 0;
-  timeOutTicks = 0;
-}
+/* tDialogBase() / tDialogMessageString(): defined inline in fedialog.h for every includer (2026-11-14) */
 
-inline tDialogMessageString::tDialogMessageString()
-{
-  Centerit = 0;
-  fFullyOpen = 0;
-  timeOutTicks = 0;
-  fFadeText = 0x80;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* explicit (not synthesized) so that derived constructors store this class's vtable on the way, as retail does */
 inline tDialogInteractive::tDialogInteractive()

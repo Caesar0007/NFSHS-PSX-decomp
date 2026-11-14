@@ -914,9 +914,9 @@
   },
   {
    "object": "build/recon/frontend/common/fedialog.cpp.o",
-   "function": "SetPosition__11tDialogBasess7tPlayer",
+   "function": "SetPosition__11tDialogBaseii",
    "source": "recon/frontend/common/fedialog.h",
-   "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (FRONT26 set AB2); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
+   "evidence": "Inline tDialogBase member defined after the class in recon/frontend/common/fedialog.h (2-argument form, one definition for every includer 2026-11-14; evidence: retail record-less inline pairs in Confirm / SaveGame / SavePinkSlipsCarsWithErrorDialogs); declared with NFS4_FEDIALOG_STRIP, so FEDialog.obj's unreferenced standalone copy is in .text.strip. Original SLINK /strip removes it (Route C 2026-11-07: NFS4.EXE + FRONT.BIN byte-identical); absent from the retail MAP."
   },
   {
    "object": "build/recon/game/common/speech.cpp.o",

@@ -29,30 +29,30 @@ typedef struct tPsyQPrimTag {
 u_long          gLargestUnused = 0;   /* @0x800514b8 */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 
-inline tDialogBase::tDialogBase()
-{
-  currentlyOn = 0;
-  reservedheight = 0;
-  MaxH = 0;
-  OffsetY = 0;
-  OffsetX = 0;
-  height = 0;
-  width = 0;
-  top = 0;
-  left = 0;
-  MaxW = 0x120;
-  specificPlayer = -1;
-  fDefault = 0;
-  timeOutTicks = 0;
-}
+/* tDialogBase() / tDialogMessageString(): defined inline in fedialog.h for every includer (2026-11-14) */
 
-inline tDialogMessageString::tDialogMessageString()
-{
-  Centerit = 0;
-  fFullyOpen = 0;
-  timeOutTicks = 0;
-  fFadeText = 0x80;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 inline tDialogHelp::tDialogHelp()
 {

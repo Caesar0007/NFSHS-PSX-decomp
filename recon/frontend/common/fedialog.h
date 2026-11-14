@@ -28,12 +28,11 @@ struct tDialogBase : public tScreen {
     static void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();
     inline bool IsVisible() NFS4_FEDIALOG_STRIP;
-    inline tDialogBase *SetPosition(short, short, tPlayer) NFS4_FEDIALOG_STRIP;
     inline void SetSpecificPlayer(short) NFS4_FEDIALOG_STRIP;   /* FRONT26: defined for every includer (retail class-region TPDEFs) */
-#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-    /* Inferred two-call position spelling; no original names survive. */
-    inline tDialogBase *SetPosition(short, short);
-#endif
+    /* 2-argument form (OffsetX/OffsetY stores only): retail Confirm / SaveGame / SavePinkSlipsCarsWithErrorDialogs
+       record it as a record-less inline pair after SetString; screencarselect chains it with SetSpecificPlayer. */
+    inline tDialogBase *SetPosition(int, int) NFS4_FEDIALOG_STRIP;   /* int parameters: measured on SavePinkSlipsCarsWithErrorDialogs (short parameters route the OffsetY store through `this`) */
+
 #ifdef NFS4_FEDIALOG_DIRECT   /* FEDialog.obj's link-stripped standalone SetChoices copies: pre-D1 shape kept (no retail bytes survive the strip) */
 #define NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo *
 #define NFS4_FEDIALOG_SETCHOICES_RET this
@@ -44,7 +43,7 @@ struct tDialogBase : public tScreen {
 #line 132 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.H"
 };
 #line 38 "recon/frontend/common/fedialog.h"
-inline bool tDialogBase::IsVisible() { return currentlyOn != 0; } inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player) { OffsetX = x; OffsetY = y; specificPlayer = (short)player; return this; } inline void tDialogBase::SetSpecificPlayer(short player) { specificPlayer = player; }
+inline bool tDialogBase::IsVisible() { return currentlyOn != 0; } inline void tDialogBase::SetSpecificPlayer(short player) { specificPlayer = player; } inline tDialogBase *tDialogBase::SetPosition(int x, int y) { OffsetX = x; OffsetY = y; return this; }
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -89,6 +88,9 @@ struct tDialogMessageString : public tDialogBase {
 };
 #line 76 "recon/frontend/common/fedialog.h"
 inline tDialogMessageString *tDialogMessageString::SetString(char *mess) { string = mess; return this; }
+/* the two constructors every includer inlines (retail records their TPDEF runs in every including object: 8 tDialogBase TPDEFs each) */
+inline tDialogBase::tDialogBase() { currentlyOn = 0; reservedheight = 0; MaxH = 0; OffsetY = 0; OffsetX = 0; height = 0; width = 0; top = 0; left = 0; MaxW = 0x120; specificPlayer = -1; fDefault = 0; timeOutTicks = 0; }
+inline tDialogMessageString::tDialogMessageString() { Centerit = 0; fFullyOpen = 0; timeOutTicks = 0; fFadeText = 0x80; }
 #if 1
 inline bool tDialogMessageString::IsFullyOpen() { return fFullyOpen == true; }
 #endif
@@ -135,8 +137,8 @@ struct tDialogYesNo : public tDialogInteractive {
     void Draw();
     int yesnowords[2];
     tDialogYesNo();
-    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
-    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yesWord, int noWord, short defaultValue) NFS4_FEDIALOG_STRIP;
+    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yes, int no, short defaultValue, short player) NFS4_FEDIALOG_STRIP;
+    inline NFS4_FEDIALOG_SETCHOICES_T SetChoices(int yes, int no, short defaultValue) NFS4_FEDIALOG_STRIP;
 
 
 
@@ -149,14 +151,14 @@ struct tDialogYesNo : public tDialogInteractive {
 };
 #line 127 "recon/frontend/common/fedialog.h"
 
-inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue, short player) {
-    yesnowords[0] = yesWord; yesnowords[1] = noWord;
+inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yes, int no, short defaultValue, short player) {
+    yesnowords[0] = yes; yesnowords[1] = no;
     fDefault = defaultValue; specificPlayer = player;
     return NFS4_FEDIALOG_SETCHOICES_RET; }
 
 
-inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yesWord, int noWord, short defaultValue) {
-    yesnowords[0] = yesWord; yesnowords[1] = noWord;
+inline NFS4_FEDIALOG_SETCHOICES_T tDialogYesNo::SetChoices(int yes, int no, short defaultValue) {
+    yesnowords[0] = yes; yesnowords[1] = no;
     fDefault = defaultValue;
     return NFS4_FEDIALOG_SETCHOICES_RET; }
 

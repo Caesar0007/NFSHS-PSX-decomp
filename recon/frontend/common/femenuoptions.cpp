@@ -2131,24 +2131,14 @@ char GetCurrentStickRange2(int player)
 
 
 /* ---- tInsideBoxTwoWaySlider::Calibrate  [FEMENUOPTIONS.CPP:1595-1678] SLD-VERIFIED ---- */
-/* 2026-10-12: three direct INT maximum-to-zero expressions remove the
-   case1 byte funnels and case2 analog-byte funnel at200/200. Direct FEApp
-   and screenControllerConfig argument reads also remove app/screen, without
-   changing the early retail load order or adding a producer/scope. The two
-   other byte funnels,minimum,padInfo/padBase still require source recovery;
-   failed trials below do not certify original objects or names. */
-
-      /* SOURCE-REVIEW-UNRESOLVED: minimum is not recorded. A direct bound-
-         first maximum17dif/201 and duplicated byte stores10dif/204 still
-         miss retail's shared10/comparison funnel; neither proves a local. */
-      /* SOURCE-REVIEW-UNRESOLVED: direct maximum moves the global base
-         into the range load-delay slot; it is not a source-object proof. */
-  /* MATCH: SYM declares GetCurrentStickRange{,2} as CHAR; their nonnegative
-     ABS/MAX expressions need no callee-side mask, and the caller's explicit
-     u_char cast yields the oracle's `andi a1,v0,255` after each jal. */
-  /* SOURCE-REVIEW-UNRESOLVED: padInfo/padBase are not retail locals. Direct
-     typed pad indexing210/200 and direct base expressions10dif/200 are
-     reverted; the original address producer still needs recovery. */
+/* 2026-10-12: three direct INT maximum-to-zero expressions remove the case1 byte funnels and the case2 analog-byte
+   funnel; direct FEApp and screenControllerConfig argument reads remove app/screen.
+   MATCH: SYM declares GetCurrentStickRange{,2} as CHAR; the caller's explicit u_char cast yields `andi a1,v0,255`.
+   2026-11-14 (BYTE+SYM+SLD exact, 200/200, locals range/player as retail): retail computes the pad address on line
+   1597 with no other code and records no pointer local.  That is an UNUSED local initialised from the pad there
+   (name not retained -> padType, ORIGINAL-NAME-UNRESOLVED): its dead load is deleted, cse keeps the address pseudo
+   ($17) for the direct `gPadinfo.buf[player * 4]` reads in every case.  padInfo/padBase removed.
+   SOURCE-REVIEW-UNRESOLVED: `minimum` is not recorded (bound-first maximum 17dif/201, duplicated byte stores 10dif/204). */
 #line 1592 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void tInsideBoxTwoWaySlider::Calibrate()
 
@@ -2156,23 +2146,23 @@ void tInsideBoxTwoWaySlider::Calibrate()
 {
   int range;
   int player;
-  u_char *padInfo; u_char *padBase; player = (u_char)FEApp->fInputPlayer;
+  player = (u_char)FEApp->fInputPlayer;
 
-  padBase = (u_char *)&gPadinfo; padInfo = padBase + player * 0x20;
+  u_char padType = gPadinfo.buf[player * 4].ID;
 
   fHelpText = screenControllerConfig[0]->GetHelpText();
   switch (this->fType) {
   case 0:
 
-    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
+    if (gPadinfo.buf[player * 4].ID == '#') {
 
-      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.twist;
+      range = gPadinfo.buf[player * 4].data.negcon.twist;
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
       if (range < (u_char)frontEnd.deadSpot[player] + 10) { range = (u_char)frontEnd.deadSpot[player] + 10;
       } frontEnd.steeringRange[player] = (char)range;
     }
 
-    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
+    else if ((gPadinfo.buf[player * 4].ID == 'S') || (gPadinfo.buf[player * 4].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange(player);
       if (range < (u_char)frontEnd.J1MIN[player] + 10) { range = (u_char)frontEnd.J1MIN[player] + 10;
@@ -2180,9 +2170,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.J1MAX[player] = (char)range;
     } break;
   case 1:
-    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
+    if (gPadinfo.buf[player * 4].ID == '#') {
 
-      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.twist;
+      range = gPadinfo.buf[player * 4].data.negcon.twist;
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
 
       if ((u_char)frontEnd.steeringRange[player] - 10 < range) { range = (u_char)frontEnd.steeringRange[player] - 10;
@@ -2190,7 +2180,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.deadSpot[player] = (char)range; }
 
 
-    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
+    else if ((gPadinfo.buf[player * 4].ID == 'S') || (gPadinfo.buf[player * 4].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange(player);
 
@@ -2200,14 +2190,14 @@ void tInsideBoxTwoWaySlider::Calibrate()
 
     break;
   case 2:
-    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
+    if (gPadinfo.buf[player * 4].ID == '#') {
 
-      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.buttonI;
+      range = gPadinfo.buf[player * 4].data.negcon.buttonI;
       range = (range < 0) ? 0 : range;
       frontEnd.ImaxRange[player] = (char)range;
     }
 
-    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
+    else if ((gPadinfo.buf[player * 4].ID == 'S') || (gPadinfo.buf[player * 4].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange2(player);
       if (range < (u_char)frontEnd.J2MIN[player] + 10) { range = (u_char)frontEnd.J2MIN[player] + 10;
@@ -2220,14 +2210,14 @@ void tInsideBoxTwoWaySlider::Calibrate()
   case 3:
 
 
-    if (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == '#') {
+    if (gPadinfo.buf[player * 4].ID == '#') {
 
-      range = ((__typeof__(gPadinfo) *)padInfo)->buf[0].data.negcon.buttonII;
+      range = gPadinfo.buf[player * 4].data.negcon.buttonII;
       range = (range < 10) ? 10 : range;
       frontEnd.IImaxRange[player] = (char)range;
     }
 
-    else if ((((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 'S') || (((__typeof__(gPadinfo) *)padInfo)->buf[0].ID == 's')) {
+    else if ((gPadinfo.buf[player * 4].ID == 'S') || (gPadinfo.buf[player * 4].ID == 's')) {
 
       range = (u_char)GetCurrentStickRange2(player);
       if ((u_char)frontEnd.J2MAX[player] - 10 < range) { range = (u_char)frontEnd.J2MAX[player] - 10;

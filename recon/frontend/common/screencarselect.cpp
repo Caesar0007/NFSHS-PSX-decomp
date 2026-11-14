@@ -2149,9 +2149,9 @@ void tScreenCarSelectTwoPlayer::SetDialog()
   int player = FEApp->CurrentPlayer();
   if (FEApp->waitingForOtherPlayer[player] != 0)
   {
-    int ok = (Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
-    /* DEVICE (exact-only): record-less dead decl; its note (DECL_SOURCE_LINE 4) tags the select, the initializer's inline expansions end with note 6 = retail SLD/blocks */
-      (sprintf(WaitingString,TextSys_Word(0x2a8),Text_PlayerName(1 - player)), WaitingString)), 0);
+    this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c)->SetSpecificPlayer(player);
+
+    sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player)); this->CarDialog.SetString(WaitingString);
 
     this->CarDialog.tDialogBase::Display();
   }

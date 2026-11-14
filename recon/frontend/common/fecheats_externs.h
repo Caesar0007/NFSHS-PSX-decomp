@@ -43,9 +43,9 @@ inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
 
 /* Existing word-ID overload; exact original signature remains unretained.
  * Its implicit MessageString receiver spans the real word lookup. */
-inline tDialogMessageString *tDialogMessageString::SetString(int word)
+inline tDialogMessageString *tDialogMessageString::SetString(int num)   /* retail Confirm records the parameter: REG $18 num */
 {
-  string = TextSys_Word(word);
+  string = TextSys_Word(num);
   return this;
 }
 

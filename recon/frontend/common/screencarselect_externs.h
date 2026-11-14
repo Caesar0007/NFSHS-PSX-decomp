@@ -203,9 +203,9 @@ static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 
 static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
 
-static inline char *Text_PlayerName(int p) { return PlayerName(p); } /* ORIGINAL-NAME-UNRESOLVED: retail SetDialog(TwoPlayer) has a record-less inline pair here whose code follows the line-6 word lookup */
+/* removed 2026-11-14: tScreenCarSelectTwoPlayer::SetDialog uses the real members (SetPosition, SetSpecificPlayer, SetString) */
 
-static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
+/* removed 2026-11-14: tScreenCarSelectTwoPlayer::SetDialog uses the real members (SetPosition, SetSpecificPlayer, SetString) */
 
 /* ORIGINAL-NAME-UNRESOLVED: same inferred readiness getter as FEMenuDefs.
  * Retail's receiver-free pair supplies its source ownership, not its name. */
@@ -247,12 +247,12 @@ static inline long GetTicks(void) { return (long)::ticks[0]; }
 
 
 
-inline tDialogBase *tDialogBase::SetPosition(short x, short y)
-{
-  OffsetX = x;
-  OffsetY = y;
-  return this;
-}
+/* tDialogBase::SetPosition(short, short) is defined in fedialog.h (one definition for every includer). */
+
+
+
+
+
 
 
 

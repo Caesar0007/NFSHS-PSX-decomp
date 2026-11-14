@@ -2,9 +2,6 @@
 #ifndef NFS4_GAME_COMMON_DRAW_LEAF_C_CACHE_H
 #define NFS4_GAME_COMMON_DRAW_LEAF_C_CACHE_H
 #include "shared/DRender_tCalcView.h"
-#ifdef NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (every includer) */
-#include "shared/DRender_tView.h"
-#endif
 
 
 

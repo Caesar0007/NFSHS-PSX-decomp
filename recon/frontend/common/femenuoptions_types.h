@@ -25,12 +25,12 @@ struct tMenu;
 #include "../../link_stripped.h"
 /* physadr: the complete SDK type (retail size 4) */
 
-#define NFS4_FE_CORE_FEMENU_METHODS
-#define NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE   /* tScreenControllerConfig `this` pair in the slider ProcessInput */
+
+
 
 #define NFS4_FE_LIST_RANGE_INLINE   /* tListIterator range accessors -- retail's tListIterator `this` pairs */
 #include "screencontroller_types.h"
-#undef NFS4_FE_CORE_FEMENU_METHODS
+
 
 /* Replace ScreenController's narrow foreign views with the records and exact
  * member slices required by FeMenuOptions. */

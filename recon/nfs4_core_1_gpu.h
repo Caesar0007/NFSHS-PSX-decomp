@@ -27,20 +27,11 @@
 #ifdef NFS4_PRIM_POLY_F4
 #include "shared/POLY_F4.h"
 #endif
-#ifdef NFS4_PRIM_POLY_FT3
-#include "nfs4_core_1_gpu_d5.h"
-#endif
 #ifdef NFS4_PRIM_POLY_FT4
 #include "shared/POLY_FT4.h"
 #endif
-#ifdef NFS4_PRIM_POLY_G3
-#include "shared/POLY_G3.h"
-#endif
 #ifdef NFS4_PRIM_POLY_G4
 #include "shared/POLY_G4.h"
-#endif
-#ifdef NFS4_PRIM_POLY_GT3
-#include "nfs4_core_1_gpu_d6.h"
 #endif
 #ifdef NFS4_CORE_POLY_GT4   /* headers that include shared/POLY_GT4.h: retail emits POLY_GT4 right after DISPENV in every object that records it */
 #include "shared/POLY_GT4.h"

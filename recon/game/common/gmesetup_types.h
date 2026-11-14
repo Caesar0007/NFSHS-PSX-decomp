@@ -25,9 +25,6 @@
 #include "draw_leaf_a_pads.h"
 #undef NFS4_CORE_CCOORD16
 #include "draw_leaf_b_pixmap.h"
-#if defined(NFS4_DRAWC_HOOKS) || defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)   /* drawc.obj, r3dcar.obj: Draw_tVertex right after Draw_tPixMap */
-#include "shared/Draw_tVertex.h"
-#endif
 #include "draw_leaf_c_cache.h"
 #include "draw_leaf_d_carvertex.h"
 #if defined(NFS4_DRAWC_HOOKS) || defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)   /* drawc.obj, r3dcar.obj: Draw_CarCache right after Draw_CarVertex */
@@ -42,18 +39,8 @@
 #include "color_p2_group_trk.h"
 #include "color_p3_trkobj.h"
 #include "color_p4_save.h"
-#ifdef NFS4_DRAWC_HOOKS   /* drawc.obj: Skidmark_*, DrawC_tEnvMap, GameSetup, Udff right after tSaveSurface */
-#define NFS4_COLOR_IN_HOOK3
-#include "../psx/drawc_types.h"
-#undef NFS4_COLOR_IN_HOOK3
-#endif
 #include "color_p5_bwsm.h"
 #include "color_p6_bo.h"
-#ifdef NFS4_DRAWC_HOOKS   /* drawc.obj: forceFocus_t right after BO_tNewtonObj */
-#define NFS4_COLOR_IN_HOOK
-#include "../psx/drawc_types.h"
-#undef NFS4_COLOR_IN_HOOK
-#endif
 #include "color_p7_sched.h"
 #include "color_p8_car.h"
 #if defined(NFS4_DRAWC_HOOKS)   /* drawc.obj: FLARE_PIECE_DEF, BW_tContext, kernpair right after Car_tObj */
@@ -283,9 +270,7 @@ struct tScreen;
 /* Some object owners retain the shared GameSetup graph but not this callback
  * typedef.  Narrow owner headers may suppress only this row while keeping the
  * remaining canonical surface unchanged. */
-#ifndef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #include "gmesetup_types_d2.h"
-#endif
 #include "gmesetup_types_d3.h"
 
 #elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_GMESETUP_PADS_DONE)

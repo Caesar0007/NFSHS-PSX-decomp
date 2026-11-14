@@ -2,9 +2,6 @@
 #ifndef NFS4_CORE_2_SHAPE_H
 #define NFS4_CORE_2_SHAPE_H
 #ifdef NFS4_CORE_FULL   /* (continued) */
-#ifdef NFS4_PRIM_DR_TWIN
-#include "nfs4_core_2_shape_d1.h"
-#endif
 #ifdef NFS4_PRIM_DR_AREA
 #include "shared/DR_AREA.h"
 #endif

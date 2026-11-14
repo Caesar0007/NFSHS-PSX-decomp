@@ -14,9 +14,6 @@
 
 #ifdef NFS4_COLOR_TRK_OBJ   /* retail: track object types right after Group (owner first header) */
 #include "shared/Trk_ObjectDef.h"
-#ifdef NFS4_COLOR_TRK_SIMPLE
-#include "shared/Trk_SimpleInst.h"
-#endif
 #include "shared/Trk_CollideBoomInst.h"
 #endif
 #if defined(NFS4_COLOR_TRK_OBJ) || defined(NFS4_COLOR_TRK_ANIM)

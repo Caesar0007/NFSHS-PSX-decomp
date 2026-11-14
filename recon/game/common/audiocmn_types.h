@@ -1,12 +1,10 @@
 /* audiocmn.obj's exact source-visible delta over the shared AudioClc graph. */
 #if !defined(NFS4_GAME_COMMON_AUDIOCMN_TYPES_H)   /* first pass */
 #define NFS4_GAME_COMMON_AUDIOCMN_TYPES_H
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* the standalone owner only */
 #define NFS4_CORE_SND_FIRST   /* retail: SND* structs ahead of the core (nfs4_types.h) */
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (below) */
 #define NFS4_AUDIOCLC_KERNPAIR_LATE   /* retail: kernpair after tTexture_ShapeInfo (below) */
 #define NFS4_AFTER_CAR_AUDIOCMN   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
-#endif
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #define NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
@@ -43,9 +41,6 @@
 
 
 
-#if !defined(NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST) && defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES)   /* audiocmn itself: after tfrontEnd (below) */
-#include "shared/CopSpeak_tRequest.h"
-#endif
 
 
 
@@ -202,9 +197,7 @@ struct tScreen;
 
 
 #include "shared/tfrontEnd.h"
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail audiocmn: CopSpeak_tRequest right after tfrontEnd */
 #include "shared/CopSpeak_tRequest.h"
-#endif
 #if defined(NFS4_AUDIOCLC_LATE_KERNEL) && !defined(NFS4_AUDIOCMN_KERNEL_LATER)   /* retail cars/audiocmn: the kernel/skidmark types right after tfrontEnd */
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -212,9 +205,7 @@ struct tScreen;
 #include "shared/Skidmark_Segment.h"
 #include "shared/Skidmark_Chunk.h"
 #endif
-#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail: after the kernel/skidmark types */
 #include "audiocmn_types_d3.h"
-#endif
 
 
 
@@ -240,10 +231,8 @@ struct tScreen;
 /* Header typedef rows retained by audiocmn.obj. The record-buffer body is a
  * compiler carrier for the public array typedef; the linked owner attributes
  * that completed tag elsewhere. */
-#ifndef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
 #include "shared/tRecordBuffer.h"
 #include "audiocmn_types_d4.h"
-#endif
 #include "audiocmn_types_d5.h"
 
 #endif

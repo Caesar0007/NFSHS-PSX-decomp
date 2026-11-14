@@ -23,16 +23,13 @@ struct tMenu;
 
 #include "shared/tMenuCommand.h"
 #define NFS4_FE_CORE_CARS_LATE   /* retail FEMenu.obj: car tail last (fe_core_cars.h below) */
-#define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
 #define NFS4_FE_CORE_FELINES_LATE   /* retail FEMenu: tTexture_ShapeInfo/kernpair after tScreen, not with the frontend core */
 #define NFS4_FELINES_KERNPAIR_LATE
 #include "fe_core_types.h"
-#undef NFS4_FE_CORE_FEMENU_METHODS
 
 #include "shared/POLY_F4.h"
 
-#define NFS4_FE_CORE_FEMENU_METHODS
 #include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes, then tMenu (NFS4_FE_CORE_TMENU_AFTER_ITEMS); no private copies (header-truth 4d) */
 
 
@@ -61,7 +58,6 @@ struct tMenu;
 
 
 
-#undef NFS4_FE_CORE_FEMENU_METHODS
 
 /* retail FEMenu.obj order: tMenu, then tScreen and the dialog family (tMenu::fScreen sees tScreen incomplete) */
 #include "felines_types.h"   /* retail: tTexture_ShapeInfo, tActiveLine, tShapeInformation, (tScreen), kernpair */

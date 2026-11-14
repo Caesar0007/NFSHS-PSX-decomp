@@ -22,10 +22,8 @@
 struct tMenu;
 #include "shared/tMenuCommand.h"
 #define NFS4_FE_CORE_CARS_LATE   /* retail FEMenuExtended: car tail after the color graph + tMenuNFS4 family */
-#define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_LIST_NO_INDEXED   /* FEMenuExtended.obj: tListIterator + Range only */
 #include "fe_core_types.h"
-#undef NFS4_FE_CORE_FEMENU_METHODS
 #include "../../link_stripped.h"   /* LINK_STRIPPED ctor copies below (FESCR2).  color_types.h (retail: the complete physics/AI/car graph) is included after the tMenuNFS4 family below. */
 #define NFS4_PRIM_DR_AREA   /* retail: DR_AREA right after DR_MODE (nfs4_types.h NFS4_PRIM_*) */
 #include "screendisplay_menuitems.h"   /* the shared FEMENU.H menu-item classes; no private copies (header-truth 4e) */

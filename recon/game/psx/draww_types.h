@@ -24,11 +24,11 @@
 #endif
 #if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_FF_HERE)) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / after FLARE_PIECE_DEF (bworld, below) */
 #define NFS4_DRAWW_EARLY_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 #endif
 #if defined(NFS4_COLOR_IN_HOOK3) && !defined(NFS4_DRAWW_SAVE_DONE)   /* third pass (owner), from color_types.h */
 #define NFS4_DRAWW_SAVE_DONE

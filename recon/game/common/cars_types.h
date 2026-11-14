@@ -79,7 +79,7 @@ struct Draw_DCache;
 #undef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #undef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 #undef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-enum forceFocus_t { FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2 };   /* retail cars.obj: forceFocus_t is the last type record, after Speaker */
+#include "shared/forceFocus_t.h"   /* retail cars.obj: forceFocus_t is the last type record, after Speaker */
 #include "shared/camera_info.h"   /* its forceFocus field keeps the enum referenced (SLINK) */
 
 typedef int CarLogic_tObservations[1][3];

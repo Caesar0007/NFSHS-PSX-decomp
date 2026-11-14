@@ -277,11 +277,11 @@ typedef void (*Sched_tFunctionPt)(void *);
 #include "gamesetup_leaf_types.h"
 #elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_NFS3_CAR_DONE)
 #define NFS4_NFS3_CAR_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 #define NFS4_FORCE_FOCUS_DONE
 #include "shared/BW_tContext.h"
 #elif defined(NFS4_NFS3_CAR_DONE) && !defined(NFS4_NFS3_FE_DONE)
@@ -300,17 +300,17 @@ typedef enum tCarClassType {
     cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
 } tCarClassType;
 #endif
-enum tCarNameLength {
-    cnl_Medium = 0, cnl_Short = 1, cnl_Long = 2
-};
+#include "shared/tCarNameLength.h"
+
+
 #elif defined(NFS4_AUDIOCMN_IN_CAR) && NFS4_AUDIOCMN_IN_CAR == 2
-enum tPersonalities {
-    kPersonalityNemesis = 0, kPersonalityBlurrr = 1,
-    kPersonalityZippy = 2, kPersonalityJetBoy = 3,
-    kPersonalityMenace = 4, kPersonalityCop1 = 5,
-    kPersonalityCop2 = 6, kPersonalityCop3 = 7,
-    kPersonalityTraffic = 8, kPersonalityNUM = 9
-};
+#include "shared/tPersonalities.h"
+
+
+
+
+
+
 #include "shared/tCarLineup.h"
 #elif defined(NFS4_NFS3_FE_DONE) && !defined(NFS4_NFS3_LI_DONE)   /* fe_menu_game_surface.h hook 1 */
 #define NFS4_NFS3_LI_DONE

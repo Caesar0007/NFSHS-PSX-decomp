@@ -4,10 +4,10 @@
 
 #include "game_common_min_types.h"
 
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
+#include "shared/Udff_tAccessType.h"
+
+
+
 
 #include "shared/Udff_tInfo.h"
 

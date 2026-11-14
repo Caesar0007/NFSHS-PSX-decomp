@@ -91,9 +91,9 @@ typedef int Input_tDeviceCall();
 
 #elif defined(NFS4_GMESETUP_IN_FE_HOOK) && !defined(NFS4_R3DCAR_FE_DONE)
 #define NFS4_R3DCAR_FE_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"

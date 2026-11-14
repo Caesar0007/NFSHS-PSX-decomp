@@ -16,11 +16,11 @@
 
 
 #include "shared/BW_tContext.h"
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 
 
 
@@ -120,11 +120,11 @@ enum forceFocus_t {
 
 
 
-enum AICop_RoadBlockState {
-    kAICop_RoadBlockState_None = 0,
-    kAICop_RoadBlockState_WaitingForPerp = 1,
-    kAICop_RoadBlockState_PerpPassed = 2
-};
+#include "shared/AICop_RoadBlockState.h"
+
+
+
+
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 

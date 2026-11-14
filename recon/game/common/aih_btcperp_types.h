@@ -7,11 +7,11 @@
 #include "aih_hierarchy_types.h"
 #include "shared/BW_tContext.h"
 
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 static inline void _btc_perp_dtor_ref(void *p) { ((AIHigh_BTC_Perp *)p)->~AIHigh_BTC_Perp(); }   /* DEVICE (exact-only): keeps the synthesized dtor's line-276 note; void* param so it adds no BTC_Perp TPDEF */

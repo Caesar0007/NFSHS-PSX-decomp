@@ -77,9 +77,9 @@ typedef u_char Night_tCopLightingTable[256][8];
 
 #include "shared/Skidmark_Chunk.h"
 #ifndef NFS4_DRAWC_R3DCAR_FF_EARLY   /* r3dcar.obj: forceFocus_t emitted earlier (r3dcar_types.h, before the frontend block) */
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #endif
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 #include "shared/FLARE_PIECE_DEF.h"
@@ -120,9 +120,9 @@ enum forceFocus_t {
 #endif
 #elif defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_DRAWC_BO_DONE)   /* second pass, color_types.h AFTER_BO */
 #define NFS4_DRAWC_BO_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_DRAWC_CAR_DONE)   /* AFTER_CAR */
 #define NFS4_DRAWC_CAR_DONE
 #include "shared/FLARE_PIECE_DEF.h"
@@ -134,10 +134,10 @@ enum forceFocus_t {
 #include "shared/Skidmark_Chunk.h"
 #include "shared/DrawC_tEnvMap.h"
 #include "../common/gamesetup_leaf_types.h"
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
+#include "shared/Udff_tAccessType.h"
+
+
+
 struct Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;
 #endif

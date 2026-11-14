@@ -129,10 +129,10 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 #ifndef NFS4_OWNER_DEFINES_UDFF_TYPES
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
+#include "shared/Udff_tAccessType.h"
+
+
+
 #ifdef NFS4_COLOR_OMIT_UDFF_HANDLE   /* retail cars.obj: Udff_tInfo complete, C-style typedef (two TPDEF), right after Udff_tAccessType; Udff_tHandle at the tail (cars_types.h) */
 #include "shared/Udff_tInfo.h"   /* one Udff_tInfo definition (header-truth 4w) */
 #else   /* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */

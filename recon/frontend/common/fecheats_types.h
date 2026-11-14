@@ -44,12 +44,12 @@
 #endif
 #if !defined(NFS4_FE_CORE_CARS_CLASSTYPE) && !defined(NFS4_TCARCLASSTYPE_DEFINED)   /* FEMemcard: tCarClassType from fe_core_cars.h instead */
 #define NFS4_TCARCLASSTYPE_DEFINED
-enum tCarClassType {
-    cct_Roadster = 0, cct_PonyCar = 1, cct_SaloonCar = 2,
-    cct_SportsCar = 3, cct_SuperCar = 4, cct_GTRCar = 5,
-    cct_BonusCar = 6, cct_CopCar = 7, cct_TrafficCar = 8,
-    cct_Helicopter = 9, cct_OpenClass = 10, cct_NumCarClasses = 11
-};
+#include "shared/tCarClassType.h"
+
+
+
+
+
 #endif
 
 /* FECheats retains the input enum but not the foreign tPlayer enum. */

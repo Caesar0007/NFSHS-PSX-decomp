@@ -67,9 +67,9 @@
 #endif
 #ifndef NFS4_NIGHT_RENDER_LATE   /* render.obj: forceFocus_t via the BO hook, C*Spec late, no CTrackSpec (render_types.h) */
 #ifndef NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #endif
 
 #include "shared/CHorizonSpec.h"
@@ -159,7 +159,7 @@ typedef u_char Night_tCopLightingTable[256][8];
 
 #elif defined(NFS4_COLOR_IN_HOOK) && defined(NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER) && !defined(NFS4_NIGHT_BO_DONE)   /* second pass: color_types.h AFTER_BO */
 #define NFS4_NIGHT_BO_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #endif

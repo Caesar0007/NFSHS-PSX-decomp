@@ -53,21 +53,21 @@ struct tMenu;
 
 
 
-enum tTVState {
-    tv_StateOff = 0,
-    tv_StateOn = 1,
-    tv_TransitionOn = 2,
-    tv_TransitionOff = 3
-};
+#include "shared/tTVState.h"
+
+
+
+
+
 #include "shared/tTVConfig.h"
 
-enum tScreenMainState {
-    kScreenMain_Off = 0,
-    kScreenMain_StaticImage = 1,
-    kScreenMain_DynamicImage = 2,
-    kScreenMain_WarningImage = 3,
-    kScreenMain_Credits = 4
-};
+#include "shared/tScreenMainState.h"
+
+
+
+
+
+
 
 #include "shared/tVideoTransition.h"
 #include "shared/tVideo.h"

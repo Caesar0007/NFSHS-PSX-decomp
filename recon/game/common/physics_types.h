@@ -31,10 +31,10 @@ typedef int Input_tDeviceCall();
 
 #elif defined(NFS4_TRANSFORMER_IN_HOOK) && !defined(NFS4_PHYSICS_TZ_DONE)   /* second pass: shared/Transformer_z.h */
 #define NFS4_PHYSICS_TZ_DONE
-typedef enum Udff_tAccessType {
-    UDFF_FILE = 0,
-    UDFF_MEMORY = 1
-} Udff_tAccessType;
+#include "shared/Udff_tAccessType.h"
+
+
+
 
 #include "shared/Udff_tInfo.h"
 

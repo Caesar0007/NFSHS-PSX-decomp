@@ -18,9 +18,9 @@
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_HUD_EARLY_DONE)   /* second pass, from color_types.h */
 #define NFS4_HUD_EARLY_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 #include "../common/aidatarecord_classes.h"   /* the AIDATARECORD.H record-class family: no private copies (header-truth 4i) */
 
 

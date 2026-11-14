@@ -85,11 +85,11 @@ struct BO_tNewtonObj;
 
 
 #include "shared/BO_tNewtonObj.h"
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"

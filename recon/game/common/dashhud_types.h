@@ -12,11 +12,11 @@
 
 
 
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 
 #include "shared/dashhud_info.h"
 

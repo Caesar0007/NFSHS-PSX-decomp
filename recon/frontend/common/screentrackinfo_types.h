@@ -65,7 +65,7 @@ struct tMenu;
 #include "fescreen.h"
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE   /* ScreenAudio keeps TV after the tournament records */
 #include "felines_kern.h"
-enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };   /* retail: TV after kernpair, before the cars */
+#include "shared/tTVState.h"   /* retail: TV after kernpair, before the cars */
 #include "shared/tTVConfig.h"
 #define NFS4_FE_TRACK_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"   /* retail: tListIteratorTrack right after tTrackManager */
 #else   /* ScreenAudio: retail AudioMus + tScreenAudio right after tShapeInformation/tActiveLine */
@@ -439,7 +439,7 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 #endif
 
 #ifdef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_TransitionOff = 3 };
+#include "shared/tTVState.h"
 #include "shared/tTVConfig.h"
 #endif
 
@@ -448,13 +448,13 @@ enum tTVState { tv_StateOff = 0, tv_StateOn = 1, tv_TransitionOn = 2, tv_Transit
 #include "fedialog.h"
 #include "shared/tCredit.h"
 
-enum tScreenMainState {
-    kScreenMain_Off = 0,
-    kScreenMain_StaticImage = 1,
-    kScreenMain_DynamicImage = 2,
-    kScreenMain_WarningImage = 3,
-    kScreenMain_Credits = 4
-};
+#include "shared/tScreenMainState.h"
+
+
+
+
+
+
 
 #include "shared/tVideoTransition.h"
 #include "shared/tVideo.h"

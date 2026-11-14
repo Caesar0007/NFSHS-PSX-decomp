@@ -7,12 +7,12 @@
 #include "shared/tTexture_ShapeInfo.h"
 
 
-enum tTVState {
-    tv_StateOff = 0,
-    tv_StateOn = 1,
-    tv_TransitionOn = 2,
-    tv_TransitionOff = 3
-};
+#include "shared/tTVState.h"
+
+
+
+
+
 
 #include "shared/tTVConfig.h"
 

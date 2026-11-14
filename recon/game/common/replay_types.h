@@ -56,11 +56,11 @@ typedef struct tControllerData {
 
 #include "shared/tReplayInterface.h"
 #include "shared/tReplayCameraModes.h"
-enum forceFocus_t {
-    FOCUS_NORMAL = 0,
-    FOCUS_AI = 1,
-    FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
+
+
 #include "shared/Camera_tCamSlot.h"   /* retail replay: forceFocus_t, Camera_tCamSlot right after tReplayCameraModes */
 
 typedef struct tReplayBuffer {

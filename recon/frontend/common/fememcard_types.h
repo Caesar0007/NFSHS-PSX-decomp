@@ -49,11 +49,11 @@ struct tMemCardData {
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
 
-typedef enum PRODUCTLOC {
-    N_AMERICA = 0,
-    JAPAN = 1,
-    EUROPE = 2
-} PRODUCTLOC;
+#include "shared/PRODUCTLOC.h"
+
+
+
+
 
 struct MCRDOPTS_def {
     PRODUCTLOC productLocation;
@@ -67,13 +67,13 @@ struct MCRDOPTS_def {
 #include "shared/CARDINFO_def.h"
 #include "shared/MCRDFILE_def.h"
 
-typedef enum MANAGERTASK {
-    NONE = 0,
-    LOAD_CARD = 1,
-    WRITE_FILE = 2,
-    LOAD_FILE = 3,
-    DELETE_FILE = 4
-} MANAGERTASK;
+#include "shared/MANAGERTASK.h"
+
+
+
+
+
+
 
 #include "shared/MCRDFILEHEADER_def.h"
 #include "shared/MCRDFILEINFO_def.h"

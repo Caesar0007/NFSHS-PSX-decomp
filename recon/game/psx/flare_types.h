@@ -18,9 +18,9 @@
 #endif
 #if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_FLARE_EARLY_DONE)   /* second pass, from color_types.h */
 #define NFS4_FLARE_EARLY_DONE
-enum forceFocus_t {
-    FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
-};
+#include "shared/forceFocus_t.h"
+
+
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"

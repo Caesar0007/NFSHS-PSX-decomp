@@ -10,7 +10,30 @@
 #endif
 #define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H   /* this object lists the hierarchy parts itself (retail record order) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#include "color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this header lists the parts of the common type graph itself (retail record order) */
+#include "color_p0_draw.h"
+#ifdef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* object.obj: Trk_SFX/Trk_SimObject after Trk_NewSimSlice */
+#include "trk_sfx_simobject_late.h"
+#endif
+#include "color_p1_pregroup.h"
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#ifdef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* object.obj: Chunk right after Group */
+#define NFS4_COLOR_IN_HOOK5
+#include "object_types.h"   /* included from object_types.h: its NFS4_COLOR_IN_HOOK5 branch */
+#undef NFS4_COLOR_IN_HOOK5
+#endif
+#include "color_p4_save.h"
+#include "color_p5_bwsm.h"
+#include "color_p6_bo.h"
+#ifdef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* object.obj: anim/object types right after the BO types */
+#define NFS4_COLOR_IN_HOOK
+#include "object_types.h"   /* included from object_types.h: its NFS4_COLOR_IN_HOOK branch */
+#undef NFS4_COLOR_IN_HOOK
+#endif
+#include "color_p7_sched.h"
+#include "color_p8_car.h"
+#include "color_p9_tail.h"
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* retail sim.obj: forceFocus_t, scene pair, AudioMus, BW_tContext right after Car_tObj */
 #include "shared/forceFocus_t.h"
 #include "shared/SceneElem.h"

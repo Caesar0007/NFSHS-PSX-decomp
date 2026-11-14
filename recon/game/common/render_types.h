@@ -7,7 +7,6 @@
 /* retail render.obj: forceFocus_t, BW_tContext, FLARE_PIECE_DEF right after BO_tNewtonObj (second pass through
  * color_types.h NFS4_COLOR_HOOK_AFTER_BO); SceneElem/SceneSortedElem/AudioMus_tSongEntry after the Skidmark types,
  * then the C*Spec block (night_types.h NFS4_NIGHT_RENDER_LATE skips its own copies). */
-#define NFS4_COLOR_HOOK_AFTER_BO "render_types.h"
 #define NFS4_NIGHT_RENDER_LATE
 #define NFS4_NIGHT_OMIT_PRIVATE_TYPES
 #include "../psx/night_types.h"

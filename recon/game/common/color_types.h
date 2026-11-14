@@ -4,17 +4,9 @@
    remaining order hooks: an object that defines one gets its own types at that point. They are being replaced
    by objects that list the parts themselves (docs/HEADER_TRUTH_PLAN.md, phase 9). */
 #include "color_p0_draw.h"
-#ifdef NFS4_COLOR_HOOK_GROUP_LATE_TRK   /* retail object/bworld: Trk_SFX/Trk_SimObject between Trk_NewSimSlice and RelCoord16 */
-#include NFS4_COLOR_HOOK_GROUP_LATE_TRK
-#endif
 #include "color_p1_pregroup.h"
 #include "color_p2_group_trk.h"
 #include "color_p3_trkobj.h"
-#ifdef NFS4_COLOR_HOOK_AFTER_RELCOORD   /* retail object/bworld/draww: the owner's Chunk right after RelCoord16/Group (owner pass) */
-#define NFS4_COLOR_IN_HOOK5
-#include NFS4_COLOR_HOOK_AFTER_RELCOORD
-#undef NFS4_COLOR_IN_HOOK5
-#endif
 #include "color_p4_save.h"
 #ifdef NFS4_COLOR_HOOK_AFTER_SAVE   /* retail skidmark.obj: the owner's TCB/EXEC/DIRENTRY/Skidmark block right after tSaveSurface */
 #define NFS4_COLOR_IN_HOOK3
@@ -29,9 +21,6 @@
 #undef NFS4_COLOR_IN_HOOK
 #endif
 #include "color_p7_sched.h"
-#ifdef NFS4_COLOR_HOOK_AFTER_SCHED   /* retail bworld: AnimScript between Sched_tSchedule and Transformer_zUV */
-#include NFS4_COLOR_HOOK_AFTER_SCHED
-#endif
 #include "color_p8_car.h"
 #ifdef NFS4_COLOR_HOOK_AFTER_CAR   /* retail hud: the owner's types right after Car_tObj (owner second pass) */
 #define NFS4_COLOR_IN_HOOK2

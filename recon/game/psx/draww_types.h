@@ -13,14 +13,42 @@
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_SIMPLE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_TRK_LINE   /* retail type order (game/common/color_types.h) */
-#define NFS4_COLOR_HOOK_AFTER_BO "../psx/draww_types.h"   /* retail: forceFocus_t right after the BO types (second pass below) */
-#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/draww_types.h"   /* retail: tBoundingSphere..Draw_tCtrlSkidmark right after tSaveSurface (third pass below) */
 #define NFS4_PRIM_POLY_GT3   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_DR_TWIN   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #endif
-#define NFS4_COLOR_HOOK_AFTER_RELCOORD "../psx/draww_types.h"   /* retail: Chunk right after RelCoord16 (owner) / Group (bworld) (pass below) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#include "../common/color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this header lists the parts of the common type graph itself (retail record order) */
+#include "../common/color_p0_draw.h"
+#ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld.obj: Trk_SFX/Trk_SimObject after Trk_NewSimSlice */
+#include "../common/trk_sfx_simobject_late.h"
+#endif
+#include "../common/color_p1_pregroup.h"
+#include "../common/color_p2_group_trk.h"
+#include "../common/color_p3_trkobj.h"
+#define NFS4_COLOR_IN_HOOK5   /* Chunk right after RelCoord16 (draww) / Group (bworld) */
+#include "../psx/draww_types.h"   /* this header again: its NFS4_COLOR_IN_HOOK5 branch */
+#undef NFS4_COLOR_IN_HOOK5
+#include "../common/color_p4_save.h"
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* draww.obj: tBoundingSphere..Draw_tCtrlSkidmark right after tSaveSurface */
+#define NFS4_COLOR_IN_HOOK3
+#include "../psx/draww_types.h"   /* this header again: its NFS4_COLOR_IN_HOOK3 branch */
+#undef NFS4_COLOR_IN_HOOK3
+#endif
+#include "../common/color_p5_bwsm.h"
+#include "../common/color_p6_bo.h"
+#define NFS4_COLOR_IN_HOOK   /* right after the BO types: draww.obj forceFocus_t, bworld.obj its BW_tContext run */
+#ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
+#include "../common/bworld_types.h"   /* included from bworld_types.h: its NFS4_COLOR_IN_HOOK branch */
+#else
+#include "../psx/draww_types.h"   /* this header again: its NFS4_COLOR_IN_HOOK branch */
+#endif
+#undef NFS4_COLOR_IN_HOOK
+#include "../common/color_p7_sched.h"
+#ifdef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* bworld.obj: AnimScript right after Sched_tSchedule */
+#include "shared/AnimScript.h"
+#endif
+#include "../common/color_p8_car.h"
+#include "../common/color_p9_tail.h"
 #endif
 #if (defined(NFS4_COLOR_IN_HOOK) || defined(NFS4_DRAWW_FF_HERE)) && !defined(NFS4_COLOR_IN_HOOK5) && !defined(NFS4_DRAWW_EARLY_DONE)   /* second pass (owner) / after FLARE_PIECE_DEF (bworld, below) */
 #define NFS4_DRAWW_EARLY_DONE

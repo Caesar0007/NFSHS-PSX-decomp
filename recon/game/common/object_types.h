@@ -4,11 +4,8 @@
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "object_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
-#define NFS4_COLOR_HOOK_GROUP_LATE_TRK "trk_sfx_simobject_late.h"   /* retail: Trk_SFX/Trk_SimObject after Trk_NewSimSlice */
 #define NFS4_AIHIGH_TRAFFIC_AFTER_HUMANCOP   /* aihigh.h: AIHigh_Traffic right after BTC_HumanCop (retail object.obj, AIHIGH.H 527/584) */
 #include "link_stripped.h"
-#define NFS4_COLOR_HOOK_AFTER_BO "object_types.h"   /* retail: anim/object types right after the BO types (second pass below) */
-#define NFS4_COLOR_HOOK_AFTER_RELCOORD "object_types.h"   /* retail: Chunk right after Group (pass below) */
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 #include "sim_types.h"
 #undef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES

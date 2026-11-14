@@ -9,14 +9,12 @@
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_CORE_CCOORD16   /* retail: MATRIX core, PCOORD16..pads, input enums, tMenuCommand*, FE menu core, Draw_* */
 #include "../../game/common/draw_leaf_core.h"
-#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
-#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
 #include "../../game/common/draw_leaf_a_pads.h"
 #include "../../frontend/common/screentrophyroom_types.h"   /* own types at this point */
 #include "../../game/common/draw_leaf_b_pixmap.h"
 #include "../../game/common/draw_leaf_c_cache.h"
 #include "../../game/common/draw_leaf_d_carvertex.h"
-#endif
 #include "../../game/common/draw_leaf_types.h"
 #include "felines_types.h"
 #include "shared/tActiveLine.h"

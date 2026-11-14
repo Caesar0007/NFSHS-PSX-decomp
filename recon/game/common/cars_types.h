@@ -2,7 +2,6 @@
 #define NFS4_GAME_COMMON_CARS_TYPES_H   /* cars.obj's exact source-visible delta over the shared CopSpeak graph. */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "cars_after_pads.h"   /* retail: GameSetup + scheduler right after the pads */
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
 #define NFS4_AUDIOCLC_LATE_KERNEL   /* retail: TCB..Skidmark right after tfrontEnd (audiocmn_types.h) */
@@ -14,6 +13,17 @@
    forceFocus_t as its LAST type (after Speaker) -> both are defined in the tail block below */
 #define NFS4_COLOR_OMIT_UDFF_HANDLE
 #define NFS4_AFTER_CAR_CARS   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "draw_leaf_core.h"
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
+#include "draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "cars_after_pads.h"   /* own types at this point */
+#include "draw_leaf_b_pixmap.h"
+#include "draw_leaf_c_cache.h"
+#include "draw_leaf_d_carvertex.h"
 #include "copspeak_types.h"
 #endif
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_CARS_EARLY_DONE)   /* second pass, from color_types.h */

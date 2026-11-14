@@ -1,10 +1,20 @@
 #if !defined(NFS4_GAME_COMMON_OBJECT_TYPES_H)   /* first pass; object.obj's exact source-visible type surface reconstructed from SYM */
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "object_after_carvertex.h"   /* retail: track object types right after Draw_CarVertex */
 #define NFS4_COLOR_GROUP_LATE   /* retail type order (game/common/color_types.h) */
 #define NFS4_AIHIGH_TRAFFIC_AFTER_HUMANCOP   /* aihigh.h: AIHigh_Traffic right after BTC_HumanCop (retail object.obj, AIHIGH.H 527/584) */
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "draw_leaf_core.h"
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
+#include "draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "draw_leaf_b_pixmap.h"
+#include "draw_leaf_c_cache.h"
+#include "shared/Draw_DCache.h"   /* own types at this point */
+#include "draw_leaf_d_carvertex.h"
+#include "object_after_carvertex.h"   /* own types at this point */
 #include "link_stripped.h"
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 #include "sim_types.h"

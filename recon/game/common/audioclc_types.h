@@ -1,8 +1,6 @@
 #if !defined(NFS4_GAME_COMMON_AUDIOCLC_TYPES_H)
 #define NFS4_GAME_COMMON_AUDIOCLC_TYPES_H   /* audioclc.obj's exact source-visible delta over the shared color graph. */
-#ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE   /* speech.obj omits Sched_tSchedule */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#endif
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
@@ -61,7 +59,6 @@
 
 #include "shared/Track_tMaterial.h"
 
-#if !defined(NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES) && !defined(NFS4_AUDIOCLC_LATE_SYS)
 #include "shared/SNDSYSCAP.h"
 
 
@@ -83,25 +80,20 @@
 #include "shared/forceFocus_t.h"
 #define NFS4_FORCE_FOCUS_DONE
 #endif
-#endif
 
-#ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE
 #include "shared/Sched_tSchedule.h"
 
-#endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #include "shared/Trk_AnimateInst.h"
 
 #endif
 
-#ifndef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #include "shared/SceneElem.h"
 
 
 
 #include "shared/SceneSortedElem.h"
-#endif
 #if !defined(NFS4_AUDIOCLC_LATE_SYS) && !defined(NFS4_AUDIOCLC_LATE_KERNEL)   /* speech: after the Speech classes; cars/audiocmn: after tfrontEnd (audiocmn_types.h) */
 #include "shared/TCB.h"
 
@@ -180,7 +172,6 @@
 
 
 
-#ifndef NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
 #include "shared/camera_info.h"
 
 
@@ -210,11 +201,8 @@
 
 
 
-#endif
 #include "audioclc_types_d2.h"
-#ifndef NFS4_AUDIOCLC_OMIT_CARLOGIC_OBSERVATIONS
 #include "audioclc_types_d3.h"
-#endif
 #ifndef NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
 #include "audioclc_types_d4.h"
 #endif

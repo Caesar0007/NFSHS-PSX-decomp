@@ -42,9 +42,14 @@ def write(drop):
     dn = set(v for k, v in drop if k == 'D')
     di = set(v for k, v in drop if k == 'I')
     out = []
+    skipping = False
     for i, x in enumerate(L):
+        if skipping:                      # continuation lines of a dropped multi-line #define
+            skipping = x.rstrip().endswith(chr(92))
+            continue
         m = re.match(r'\s*#\s*(define|undef)\s+(NFS4_\w+)', x)
         if m and m.group(2) in dn:
+            skipping = x.rstrip().endswith(chr(92))
             continue
         if i in di:
             continue

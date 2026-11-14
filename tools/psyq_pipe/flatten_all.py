@@ -10,6 +10,8 @@ import sys
 IB = 'C:/Temp/ibase'
 users = {}
 for p in glob.glob(IB + '/recon/**/*.i', recursive=True):
+    if p.endswith('.preorigin.i'):
+        continue
     tu = p[len(IB) + 1:-2].replace(chr(92), '/')
     seen = set()
     for line in open(p, encoding='latin-1'):

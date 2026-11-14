@@ -85,8 +85,6 @@ struct BO_tNewtonObj;
 #include "shared/dashhud_info.h"
 #include "shared/Trk_NewSlice.h"
 #include "shared/AICop_RoadBlockState.h"
-#define RaceType_HotPursuit 1
-#define RaceType_Id5 5
 typedef int CarLogic_tObservations[1][3];
 typedef long (*ReparmFuncPtr)();
 typedef long (*SampleRequestFuncPtr)();

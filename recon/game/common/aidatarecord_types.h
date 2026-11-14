@@ -58,7 +58,7 @@ struct BO_tNewtonObj;
 #include "shared/Sched_tSchedule.h"
 #include "game/common/color_p8_car.h"
 #include "game/common/color_p9_tail.h"
-#include "link_stripped.h"
+#define LINK_STRIPPED __attribute__((section(".text.strip")))
 #line 1 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
 #include "game/common/aidatarecord_classes.h"
 typedef int CarLogic_tObservations[1][3];

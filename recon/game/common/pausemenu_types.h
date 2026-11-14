@@ -2,45 +2,10 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_PAUSEMENU_TYPES_H
 #define NFS4_FLAT_PAUSEMENU_TYPES_H
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/MATRIX.h"
-#include "nfs4_core_1_gpu_d1.h"
-#include "shared/RECT.h"
-#include "nfs4_core_1_gpu_d2.h"
-#include "nfs4_core_1_gpu_d3.h"
+#include "lists/list_nfs4_core_0_kernel_d1__nfs4_core_1_gpu_d3.h"
 #include "shared/POLY_GT4.h"
-#include "shared/DR_MODE.h"
-#include "nfs4_core_2_shape_d3.h"
-#include "shared/coorddef.h"
-#include "nfs4_core_2_shape_d4.h"
-#include "shared/matrixtdef.h"
-#include "nfs4_core_2_shape_d5.h"
-#include "nfs4_core_3_cd_d1.h"
-#include "shared/linedef.h"
-#include "nfs4_core_4_tail_d1.h"
-#include "shared/SHAPETABLEENTRY.h"
-#include "shared/PCOORD16.h"
-#include "shared/COORD16.h"
-#include "shared/CCOORD16.h"
-#include "nfs4_core_4_tail_d3.h"
-#include "nfs4_core_4_tail_d5.h"
-#include "nfs4_core_4_tail_d6.h"
-#include "shared/PAD_PSX.h"
-#include "shared/PAD_NEGCON.h"
-#include "shared/PAD_ANALOG.h"
-#include "shared/PAD_MOUSE.h"
-#include "shared/PAD_COMMON.h"
-#include "game/common/pads_tail.h"
-#include "shared/Draw_tPixMap.h"
-#include "shared/DRender_tCalcView.h"
-#include "shared/Draw_SVertex.h"
-#include "shared/Draw_PrimStruct.h"
-#include "shared/Draw_tCacheHeader.h"
-#include "shared/Draw_CarVertex.h"
+#include "lists/list_DR_MODE__PAD_COMMON.h"
+#include "lists/list_pads_tail__Draw_CarVertex.h"
 #define LINK_STRIPPED __attribute__((section(".text.strip")))
 #define LINK_STRIPPED_RODATA __attribute__((section(".rodata.strip")))
 #define ASM_LINK_STRIPPED(name, body)                                          \
@@ -48,21 +13,9 @@
             "\t.globl " #name "\n\t.type " #name ",@function\n" #name ":\n"    \
             body                                                               \
             "\t.size " #name ",.-" #name "\n\t.set reorder\n\t.set at\n\t.text\n")
-#include "shared/Group.h"
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
-#include "shared/RelCoord16.h"
-#include "shared/tSaveSurface.h"
-#include "shared/BWorldSm_Pos.h"
+#include "lists/list_Group__BWorldSm_Pos.h"
 struct BO_tNewtonObj;
-#include "shared/BO_tNewtonCollisionInfo.h"
-#include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched_d1.h"
-#include "shared/Sched_tFunctionSchedule.h"
-#include "game/common/color_p8_car.h"
-#include "game/common/color_p9_tail.h"
+#include "lists/list_BO_tNewtonCollisionInfo__color_p9_tail.h"
 #include "shared/SndBnk_t.h"
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "frontend/common/fe_input_enums.h"
@@ -73,14 +26,7 @@ struct BO_tNewtonObj;
 struct tMenuCommand;
 struct tMenu;
 struct tScreen;
-#include "shared/fe_menu_game_surface.h"
-#include "shared/tCarModels.h"
-#include "shared/tCarInfo.h"
-#include "shared/tOwnedCarInfo.h"
-#include "shared/tCarNameLength.h"
-#include "frontend/common/fecars_manager.h"
-#include "shared/tPersonalities.h"
-#include "shared/tfrontEnd.h"
+#include "lists/list_fe_menu_game_surface__tfrontEnd.h"
 #include "shared/tPMenuCommandType.h"
 #include "frontend/common/fe_player_types.h"
 #include "game/common/mpause_types_d1.h"

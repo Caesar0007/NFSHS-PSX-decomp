@@ -9,16 +9,7 @@ typedef struct kernpair KERN;
 typedef struct charactertbl charactertbl;
 typedef struct charactertbl FONTFILECHAR;
 typedef struct charactertbl charactertbl;
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/MATRIX.h"
-#include "nfs4_core_1_gpu_d1.h"
-#include "shared/RECT.h"
-#include "nfs4_core_1_gpu_d2.h"
-#include "nfs4_core_1_gpu_d3.h"
+#include "lists/list_nfs4_core_0_kernel_d1__nfs4_core_1_gpu_d3.h"
 #include "shared/SPRT.h"
 #include "shared/DR_MODE.h"
 #include "nfs4_core_2_shape_d3.h"
@@ -53,12 +44,7 @@ typedef struct PAD_COMMON PAD_COMMON;
 struct {
     char bActive, time;
 };
-#include "shared/Draw_tPixMap.h"
-#include "shared/DRender_tCalcView.h"
-#include "shared/Draw_SVertex.h"
-#include "shared/Draw_PrimStruct.h"
-#include "shared/Draw_tCacheHeader.h"
-#include "shared/Draw_CarVertex.h"
+#include "lists/list_Draw_tPixMap__Draw_CarVertex.h"
 struct cluttbl {
     unsigned int type : 8;
     int next : 24;

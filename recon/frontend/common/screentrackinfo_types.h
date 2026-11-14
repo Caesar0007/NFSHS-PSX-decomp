@@ -41,12 +41,7 @@ struct tSaveTrackInfo;
 #define NFS4_FE_TRACK_IN_HOOK
 #include "frontend/common/screendisplay_carblock_iters.h"
 #undef NFS4_FE_TRACK_IN_HOOK
-#include "shared/tTierInfo.h"
-#include "shared/tTourneyInfo.h"
-#include "shared/tTrackInfo.h"
-#include "shared/tTournamentDefinition.h"
-#include "shared/tAwardInformation.h"
-#include "shared/tCompetitor.h"
+#include "lists/list_tTierInfo__tCompetitor.h"
 #include "frontend/common/fetourn_manager_class.h"
 #include "frontend/common/felist_tournament_iter.h"
 #include "shared/tVideoWall.h"

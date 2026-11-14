@@ -17,16 +17,7 @@
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
 #define NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_TYPES_H
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/MATRIX.h"
-#include "nfs4_core_1_gpu_d1.h"
-#include "shared/RECT.h"
-#include "nfs4_core_1_gpu_d2.h"
-#include "nfs4_core_1_gpu_d3.h"
+#include "lists/list_nfs4_core_0_kernel_d1__nfs4_core_1_gpu_d3.h"
 #include "shared/DR_MODE.h"
 #include "shared/DR_AREA.h"
 #include "nfs4_core_2_shape_d3.h"

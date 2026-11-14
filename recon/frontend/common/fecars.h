@@ -18,12 +18,7 @@
 struct tSaveTrackInfo;
 #include "shared/tTrackManager.h"
 #include "shared/tCarLineup.h"
-#include "shared/tTierInfo.h"
-#include "shared/tTourneyInfo.h"
-#include "shared/tTrackInfo.h"
-#include "shared/tTournamentDefinition.h"
-#include "shared/tAwardInformation.h"
-#include "shared/tCompetitor.h"
+#include "lists/list_tTierInfo__tCompetitor.h"
 #define uchar unsigned char
 #define RaceType_SingleRace 0
 #define RaceType_HotPursuit 1

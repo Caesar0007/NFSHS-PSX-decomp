@@ -2,16 +2,7 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_DEBUG_H
 #define NFS4_FLAT_DEBUG_H
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/PAD_PSX.h"
-#include "shared/PAD_NEGCON.h"
-#include "shared/PAD_ANALOG.h"
-#include "shared/PAD_MOUSE.h"
-#include "shared/PAD_COMMON.h"
+#include "lists/list_nfs4_core_0_kernel_d1__PAD_COMMON_2.h"
 #include "nfs4_core_1_gpu_d1.h"
 #include "shared/RECT.h"
 #include "nfs4_core_1_gpu_d2.h"

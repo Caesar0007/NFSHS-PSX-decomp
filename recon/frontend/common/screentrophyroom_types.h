@@ -8,37 +8,7 @@
 #define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup after tPersonalities (INV-B fe_core_cars hook) */
 #define NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_TYPES_H
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/MATRIX.h"
-#include "nfs4_core_1_gpu_d1.h"
-#include "shared/RECT.h"
-#include "nfs4_core_1_gpu_d2.h"
-#include "nfs4_core_1_gpu_d3.h"
-#include "shared/DR_MODE.h"
-#include "nfs4_core_2_shape_d3.h"
-#include "shared/coorddef.h"
-#include "nfs4_core_2_shape_d4.h"
-#include "shared/matrixtdef.h"
-#include "nfs4_core_2_shape_d5.h"
-#include "nfs4_core_3_cd_d1.h"
-#include "shared/linedef.h"
-#include "nfs4_core_4_tail_d1.h"
-#include "shared/SHAPETABLEENTRY.h"
-#include "shared/PCOORD16.h"
-#include "shared/COORD16.h"
-#include "shared/CCOORD16.h"
-#include "nfs4_core_4_tail_d3.h"
-#include "nfs4_core_4_tail_d5.h"
-#include "nfs4_core_4_tail_d6.h"
-#include "shared/PAD_PSX.h"
-#include "shared/PAD_NEGCON.h"
-#include "shared/PAD_ANALOG.h"
-#include "shared/PAD_MOUSE.h"
-#include "shared/PAD_COMMON.h"
+#include "lists/list_nfs4_core_0_kernel_d1__PAD_COMMON.h"
 #include "game/common/pads_tail.h"
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
 #include "frontend/common/fe_input_enums.h"
@@ -49,12 +19,7 @@ struct tMenu;
 #define NFS4_FE_CORE_CARS_LATE
 #include "frontend/common/fe_core_types.h"
 #include "frontend/common/screendisplay_menuitems.h"
-#include "shared/Draw_tPixMap.h"
-#include "shared/DRender_tCalcView.h"
-#include "shared/Draw_SVertex.h"
-#include "shared/Draw_PrimStruct.h"
-#include "shared/Draw_tCacheHeader.h"
-#include "shared/Draw_CarVertex.h"
+#include "lists/list_Draw_tPixMap__Draw_CarVertex.h"
 #define NFS4_GAME_COMMON_DRAW_LEAF_TYPES_H
 #include "frontend/common/felines_types.h"
 #include "shared/tActiveLine.h"
@@ -77,21 +42,9 @@ struct tGlobalMenuDefs;   /* incomplete here: owner object records it; members r
 #elif !defined(NFS4_FLAT_SCREENTROPHYROOM_TYPES_H_2)   /* entry 2 of this header (it is included again later in this object) */
 #define NFS4_FLAT_SCREENTROPHYROOM_TYPES_H_2
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* retail: tMenu (+ tScreen forward copy) after tMenuItemGoToMenuButton (screendisplay_menuitems.h) */
-#include "shared/Group.h"
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
-#include "shared/RelCoord16.h"
-#include "shared/tSaveSurface.h"
-#include "shared/BWorldSm_Pos.h"
+#include "lists/list_Group__BWorldSm_Pos.h"
 struct BO_tNewtonObj;
-#include "shared/BO_tNewtonCollisionInfo.h"
-#include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched_d1.h"
-#include "shared/Sched_tFunctionSchedule.h"
-#include "game/common/color_p8_car.h"
-#include "game/common/color_p9_tail.h"
+#include "lists/list_BO_tNewtonCollisionInfo__color_p9_tail.h"
 #include "shared/AudioMus_tSongEntry.h"
 #elif !defined(NFS4_FLAT_SCREENTROPHYROOM_TYPES_H_3)   /* entry 3 of this header (it is included again later in this object) */
 #define NFS4_FLAT_SCREENTROPHYROOM_TYPES_H_3

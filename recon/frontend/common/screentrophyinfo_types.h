@@ -33,12 +33,7 @@ struct tMenu;
 #include "shared/tTrackInformation.h"
 struct tSaveTrackInfo;
 #include "shared/tTrackManager.h"
-#include "shared/tTierInfo.h"
-#include "shared/tTourneyInfo.h"
-#include "shared/tTrackInfo.h"
-#include "shared/tTournamentDefinition.h"
-#include "shared/tAwardInformation.h"
-#include "shared/tCompetitor.h"
+#include "lists/list_tTierInfo__tCompetitor.h"
 #define byte unsigned char
 #define uint unsigned int
 #include "shared/tMenuTextType.h"
@@ -47,21 +42,9 @@ struct tSaveTrackInfo;
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #undef NFS4_CORE_CCOORD16
 #include "shared/CCOORD16.h"
-#include "shared/Group.h"
-#include "shared/Trk_Quad.h"
-#include "shared/Trk_NewStrip.h"
-#include "shared/Trk_NewSimQuad.h"
-#include "shared/Trk_NewSimSlice.h"
-#include "shared/RelCoord16.h"
-#include "shared/tSaveSurface.h"
-#include "shared/BWorldSm_Pos.h"
+#include "lists/list_Group__BWorldSm_Pos.h"
 struct BO_tNewtonObj;
-#include "shared/BO_tNewtonCollisionInfo.h"
-#include "shared/BO_tNewtonObj.h"
-#include "game/common/color_p7_sched_d1.h"
-#include "shared/Sched_tFunctionSchedule.h"
-#include "game/common/color_p8_car.h"
-#include "game/common/color_p9_tail.h"
+#include "lists/list_BO_tNewtonCollisionInfo__color_p9_tail.h"
 #include "frontend/common/femenuextended_classes.h"
 #include "frontend/common/screentrophyroom.h"
 #endif

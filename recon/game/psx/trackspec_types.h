@@ -3,13 +3,7 @@
 #ifndef NFS4_FLAT_TRACKSPEC_TYPES_H
 #define NFS4_FLAT_TRACKSPEC_TYPES_H
 #include "game/common/gamesetup_leaf_types.h"
-#include "shared/CHorizonSpec.h"
-#include "shared/CSkySpec.h"
-#include "shared/CNightSpec.h"
-#include "shared/CWeatherSpec.h"
-#include "shared/CFogSpec.h"
-#include "shared/CDepthCueSpec.h"
-#include "shared/CWorldColor.h"
+#include "lists/list_CHorizonSpec__CWorldColor.h"
 typedef struct CTrackSpecHeader { int version, num_spec; } CTrackSpecHeader;
 #include "shared/CTrackSpec.h"
 #include "shared/kernpair.h"

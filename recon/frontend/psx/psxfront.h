@@ -8,16 +8,7 @@
 #define NFS4_COLOR_HOOK_AFTER_CAR "../../frontend/psx/psxfront_screen_late.h"
 #define NFS4_FE_LIST_NO_INDEXED   /* retail psxfront object: tListIterator + Range only */
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
-#include "nfs4_core_0_kernel_d1.h"
-#include "shared/u_long.h"
-#include "nfs4_core_0_kernel_d2.h"
-#include "nfs4_core_0_kernel_d3.h"
-#include "nfs4_core_0_kernel_d4.h"
-#include "shared/PAD_PSX.h"
-#include "shared/PAD_NEGCON.h"
-#include "shared/PAD_ANALOG.h"
-#include "shared/PAD_MOUSE.h"
-#include "shared/PAD_COMMON.h"
+#include "lists/list_nfs4_core_0_kernel_d1__PAD_COMMON_2.h"
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
@@ -48,13 +39,7 @@
 #include "nfs4_core_4_tail_d3.h"
 #include "nfs4_core_4_tail_d5.h"
 #include "nfs4_core_4_tail_d6.h"
-#include "game/common/pads_tail.h"
-#include "shared/Draw_tPixMap.h"
-#include "shared/DRender_tCalcView.h"
-#include "shared/Draw_SVertex.h"
-#include "shared/Draw_PrimStruct.h"
-#include "shared/Draw_tCacheHeader.h"
-#include "shared/Draw_CarVertex.h"
+#include "lists/list_pads_tail__Draw_CarVertex.h"
 #include "frontend/psx/psxfront_types.h"
 void Quick_DD(int a,int b,int c);
 void PSXFront_AllocateDrawMemory(void);

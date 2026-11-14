@@ -3,24 +3,7 @@
 #ifndef NFS4_FLAT_AUDIOCLC_EXTERNS_H
 #define NFS4_FLAT_AUDIOCLC_EXTERNS_H
 extern "C" {
-#include "eaclib/psx/eacpsxz/asinfunc.h"
-#include "eaclib/psx/eacpsxz/asintbl.h"
-#include "eaclib/psx/eacpsxz/atanfunc.h"
-#include "eaclib/psx/eacpsxz/atantbl.h"
-#include "eaclib/psx/eacpsxz/fatantbl.h"
-#include "eaclib/psx/eacpsxz/fixdatan.h"
-#include "eaclib/psx/eacpsxz/fixddiv.h"
-#include "eaclib/psx/eacpsxz/fixdinv.h"
-#include "eaclib/psx/eacpsxz/fixdmult.h"
-#include "eaclib/psx/eacpsxz/fixdsin.h"
-#include "eaclib/psx/eacpsxz/fixdsqrt.h"
-#include "eaclib/psx/eacpsxz/fsincos.h"
-#include "eaclib/psx/eacpsxz/isincos.h"
-#include "eaclib/psx/eacpsxz/isqrt.h"
-#include "eaclib/psx/eacpsxz/isqrttbl.h"
-#include "eaclib/psx/eacpsxz/math64a.h"
-#include "eaclib/psx/eacpsxz/sinfunc.h"
-#include "eaclib/psx/eacpsxz/sintbl.h"
+#include "lists/list_asinfunc__sintbl.h"
 }
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */

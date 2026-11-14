@@ -3,12 +3,24 @@
 #if !defined(NFS4_GAME_COMMON_AUDIOTRK_TYPES_H)
 #define NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
 #define NFS4_CORE_HOOK_AFTER_CD "game/common/audiotrk_types.h"   /* retail audiotrk.obj: SND* + scheduler right after the CD stream */
-#define NFS4_COLOR_HOOK_AFTER_BWSM "audiotrk_types.h"   /* retail: SceneElem SceneSortedElem AudioElem CAudioList after BWorldSm_Pos */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
-#include "color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#include "color_p0_draw.h"
+#include "color_p1_pregroup.h"
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#include "color_p4_save.h"
+#include "color_p5_bwsm.h"
+#define NFS4_COLOR_IN_BWSM
+#include "audiotrk_types.h"   /* this header again: its NFS4_COLOR_IN_BWSM branch */
+#undef NFS4_COLOR_IN_BWSM
+#include "color_p6_bo.h"
+#include "color_p7_sched.h"
+#include "color_p8_car.h"
+#include "color_p9_tail.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 /* GameSetup_tData: not in retail audiotrk.obj (GameSetup_gData is read through its word view) */
 #include "shared/POLY_GT4.h"

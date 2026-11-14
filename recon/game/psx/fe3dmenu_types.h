@@ -6,9 +6,19 @@
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_CarCache.h"   /* retail: Draw_CarCache right after Draw_CarVertex */
-#define NFS4_COLOR_HOOK_AFTER_SAVE "../psx/fe3dmenu_after_save.h"   /* retail: skidmark records after tSaveSurface */
-#define NFS4_COLOR_HOOK_AFTER_BO "../psx/fe3dmenu_after_bo.h"   /* retail: forceFocus_t after the BO types */
-#include "../common/color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#include "../common/color_p0_draw.h"
+#include "../common/color_p1_pregroup.h"
+#include "../common/color_p2_group_trk.h"
+#include "../common/color_p3_trkobj.h"
+#include "../common/color_p4_save.h"
+#include "../psx/fe3dmenu_after_save.h"   /* own types at this point of the retail record order */
+#include "../common/color_p5_bwsm.h"
+#include "../common/color_p6_bo.h"
+#include "../psx/fe3dmenu_after_bo.h"   /* own types at this point of the retail record order */
+#include "../common/color_p7_sched.h"
+#include "../common/color_p8_car.h"
+#include "../common/color_p9_tail.h"
 #include "shared/POLY_GT4.h"
 
 

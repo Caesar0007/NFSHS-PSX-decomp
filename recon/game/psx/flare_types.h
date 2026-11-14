@@ -12,9 +12,21 @@
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
-#define NFS4_COLOR_HOOK_AFTER_BO "../psx/flare_types.h"   /* retail: forceFocus/FLARE/C*Spec right after the BO types (second pass below) */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_FlareCache.h"   /* retail: Draw_FlareCache right after Draw_tCacheHeader */
-#include "../common/color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#include "../common/color_p0_draw.h"
+#include "../common/color_p1_pregroup.h"
+#include "../common/color_p2_group_trk.h"
+#include "../common/color_p3_trkobj.h"
+#include "../common/color_p4_save.h"
+#include "../common/color_p5_bwsm.h"
+#include "../common/color_p6_bo.h"
+#define NFS4_COLOR_IN_HOOK
+#include "../psx/flare_types.h"   /* this header again: its NFS4_COLOR_IN_HOOK branch */
+#undef NFS4_COLOR_IN_HOOK
+#include "../common/color_p7_sched.h"
+#include "../common/color_p8_car.h"
+#include "../common/color_p9_tail.h"
 #endif
 #if defined(NFS4_COLOR_IN_HOOK) && !defined(NFS4_FLARE_EARLY_DONE)   /* second pass, from color_types.h */
 #define NFS4_FLARE_EARLY_DONE

@@ -6,8 +6,18 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_FIRST   /* retail souffle.obj: scheduler types after RelCoord16, before Group */
 #define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Souffle_tISouffle.h"   /* retail: right after Draw_CarVertex */
-#define NFS4_COLOR_HOOK_BEFORE_GROUP "souffle_before_group.h"   /* retail: TCB/EXEC/DIRENTRY before Group */
-#include "color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#include "color_p0_draw.h"
+#include "color_p1_pregroup.h"
+#include "souffle_before_group.h"   /* own types at this point of the retail record order */
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#include "color_p4_save.h"
+#include "color_p5_bwsm.h"
+#include "color_p6_bo.h"
+#include "color_p7_sched.h"
+#include "color_p8_car.h"
+#include "color_p9_tail.h"
 #include "shared/DRender_tView.h"
 #include "shared/Souffle_tISouffle.h"
 

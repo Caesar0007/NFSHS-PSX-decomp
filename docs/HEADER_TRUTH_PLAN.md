@@ -136,21 +136,37 @@ Method (proven on the AI objects in 9a, gate-identical every time):
 Every object's token stream is unchanged by construction, so bytes, census and inversions cannot move; the gate
 confirms it each time.
 
-Done: the AI hierarchy is hook-free (9a, 9b). `color_types.h`: 6 of 9 hooks removed (9c, 9d); 16 objects list the
-parts themselves.
+Done (9a-9i): the AI hierarchy header, `color_types.h` (8 of 9 hooks) and `draw_leaf_types.h` (all 4 hooks) are
+plain part lists. Computed includes tree-wide: 53 at the start of phase 9, 42 now; hook definitions
+(`#define NFS4_*HOOK* "file"`): 109.
+
+Fast check used for every step: `tools/psyq_pipe/ichk.sh <tu...>` recompiles on the debug lane and compares the
+preprocessed source with a snapshot of a gate-passed state. Identical token stream = identical bytes, records and
+record order; about 5 s per object. The full gate still runs once per batch before landing.
+
+Pitfalls met:
+- `NFS4_CORE_CCOORD16` is read by the core header as well as by the draw leaf: define it before `draw_leaf_core.h`.
+- A hook macro was also used as a "which object am I" test (`#ifndef NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX` in
+  psxcontroller_types.h). Removing a hook definition can flip such a test; look for `#ifdef`/`#ifndef` of the hook
+  name outside the aggregator first.
+- A hook defined inside `#ifndef <OMIT switch>` belongs to the standalone object only: the listed include must keep
+  that condition (mpause/pausemenu).
+- Objects that reach the aggregator through a chain set core switches on the way (`NFS4_CORE_POLY_GT4`,
+  `NFS4_CORE_SUBDIV_TRKART`); a list placed earlier must set them first (cars, object).
 
 Left, in this order:
 | Item | Users | Note |
 |---|---|---|
-| `NFS4_COLOR_HOOK_AFTER_SAVE`, `_AFTER_BO` | drawc_types.h (also read by r3dcar) | reaches color_types.h through psxcontroller_types.h -> gmesetup_types.h; needs the chain flattened into a per-object list |
-| `NFS4_COLOR_HOOK_AFTER_CAR` | hud, drawc, audioclc, audiocmn, copspeak, cars, nfs3, femenuoptions.h, screencontroller_keys.h, psxfront.h | chains cars -> copspeak -> audiocmn -> audioclc and nfs3 -> copspeak; three frontend headers |
-| draw-leaf hooks (`NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX`, `_AFTER_CACHEHEADER`), pad hooks (`NFS4_PADS_HOOK_AFTER`, `_BEFORE`) | bworld, object, souffle, psxcontroller, sim, ... | same method on draw_leaf_types.h and the pad header |
-| frontend `NFS4_SCREENDISPLAY_*HOOK*`, `*_SURFACE` switches | the screen objects | same method on screendisplay_types.h |
-| self-include second passes (`#include "<own>_types.h"` under an IN marker) | audedit, collide, scene, audiotrk, draww, bworld, object, night, render, textureprocess, drawc, hud, ... | turn each branch into a small plain header (`<obj>_after_bo.h`, like `fe3dmenu_after_bo.h`) |
-| two-user branches created in 9d (night/render, draww/bworld, sim/object) | 3 shared types headers | disappear when the second user gets its own list instead of including the first user's header |
+| pad hooks `NFS4_PADS_HOOK_AFTER` / `_BEFORE` | 17 headers (anim, chunk, clock, gmesetup, input, minfront, nfs3, physics, replay, simqueue, sim, track, draw, loading, overlays, psxcontroller) | the pad header is reached from draw_leaf_a_pads.h and from game_common_min_types.h; read both before cutting |
+| core hooks in nfs4_types.h (`NFS4_CORE_HOOK_AFTER_CD`, `_BEFORE_CD`, `_AFTER_DRMODE`, `_AFTER_PADS`) | device, drawdbg, ... | root aggregator; same method |
+| `NFS4_COLOR_HOOK_AFTER_CAR` | femenuoptions.h, screencontroller_keys.h, psxfront.h | last color_types.h hook; goes with the frontend work |
+| chunk_types.h (3), audiocmn_types.h (3), gmesetup_types.h (1), aihigh.h (1), Transformer_z.h (1), fe_menu_game_surface.h (2) | few users each | |
+| frontend: screendisplay_types.h (11), fe_core_cars.h (4), screencarselect (3), screendisplay_carblock_iters.h (2), fe_core_types.h, fe_track_types.h, screencongrats_tt.h, femenuoptions.h | the screen objects | largest remaining block |
+| self-include second passes (`#include "<own>_types.h"` under an IN marker) | audedit, collide, scene, audiotrk, draww, bworld, object, night, render, textureprocess, drawc, hud, cars, nfs3, copspeak, audiocmn, audioclc, psxcontroller, screentrophyroom | turn each branch into a small plain header (`<obj>_after_bo.h`) |
+| multi-user branches created in 9d-9i (night/render, draww/bworld, sim/object, gmesetup chain, audioclc chain) | 5 shared types headers | disappear when each object gets its own list instead of including another object's types header |
 
-Counter note: 9d raised `header_conditionals_all` by 5 because three computed includes became explicit two-user
-branches. They are tracked and fall away with the last table row.
+Counter note: the explicit branches raised `header_conditionals_all` from 581 to 597 and `per_object_conditionals`
+from 145 to 152 during 9d-9i. They replace hidden computed includes one for one and fall away with the last row.
 
 ## Deep analysis 2026-11-13 and revised roadmap
 

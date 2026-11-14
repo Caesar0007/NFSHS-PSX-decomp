@@ -131,15 +131,16 @@ struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
 #line 281 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
-#ifndef NFS4_AIHIGH_BLOCKADE_HEAD   /* Cop definitions: retail destructor records also identify AIHIGH.H; method bodies and data-type dependencies are unchanged. */
-#define NFS4_AIHIGH_BLOCKADE_HEAD "shared/blockadeMode_t.h"   /* aih_btcperp.obj: its AIHigh_BTC_AIPerp first (aih_btcperp_types.h) */
-#endif
 #ifdef NFS4_GAME_COMMON_AIH_BTCCOP_TYPES_H   /* AIH_BTCCop.obj (key object of the BTC cop classes) emits standalone copies of their inline members; the retail link removed them */
 #define NFS4_AIHIGH_BTCCOP_STRIP LINK_STRIPPED
 #else
 #define NFS4_AIHIGH_BTCCOP_STRIP
 #endif
-#include NFS4_AIHIGH_BLOCKADE_HEAD
+#ifdef NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H   /* aih_btcperp.obj: its AIHigh_BTC_AIPerp first */
+#include "aih_btcperp_types.h"
+#else
+#include "shared/blockadeMode_t.h"
+#endif
 #include "shared/blockade_t.h"
 #include "shared/AIHigh_tDriveAwayMode.h"
 typedef struct AIHigh_BasicCop : public AIHigh_Base {

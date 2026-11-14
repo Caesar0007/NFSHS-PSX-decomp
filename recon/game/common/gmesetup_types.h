@@ -101,9 +101,9 @@
 
 #endif
 
-#ifdef NFS4_GMESETUP_HOOK_BEFORE_FE   /* an includer's own types between Car_tObj and the frontend block (r3dcar.obj) */
+#ifdef NFS4_GAME_COMMON_R3DCAR_TYPES_H   /* an includer's own types between Car_tObj and the frontend block (r3dcar.obj) */
 #define NFS4_GMESETUP_IN_FE_HOOK
-#include NFS4_GMESETUP_HOOK_BEFORE_FE
+#include "r3dcar_types.h"
 #undef NFS4_GMESETUP_IN_FE_HOOK
 #endif
 #include "shared/tTexture_ShapeInfo.h"

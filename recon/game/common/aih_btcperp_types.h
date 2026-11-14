@@ -3,7 +3,6 @@
 #define NFS4_GAME_COMMON_AIH_BTCPERP_TYPES_H
 #define NFS4_COLOR_TRK_OBJ   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
-#define NFS4_AIHIGH_BLOCKADE_HEAD "aih_btcperp_types.h"   /* retail: AIHigh_BTC_AIPerp right after AIHigh_BTC_HumanPerp (aihigh.h, second pass below) */
 #include "aih_hierarchy_types.h"
 #include "shared/BW_tContext.h"
 

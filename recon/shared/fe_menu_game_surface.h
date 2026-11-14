@@ -26,8 +26,8 @@
 
 
 
-#ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own type right after tListIterator (nfs3.obj: tListIteratorIndexed) */
-#include NFS4_FE_SURFACE_HOOK
+#ifdef NFS4_GAME_COMMON_NFS3_TYPES_H   /* an owner's own type right after tListIterator (nfs3.obj: tListIteratorIndexed) */
+#include "../game/common/nfs3_types.h"
 #endif
 
 #ifndef NFS4_FE_CORE_TMENU_ALL_INLINES
@@ -98,8 +98,8 @@
 
 
 
-#ifdef NFS4_FE_SURFACE_HOOK   /* an owner's own types right after tMenuItemInteractive (nfs3.obj: tScreen) */
-#include NFS4_FE_SURFACE_HOOK
+#ifdef NFS4_GAME_COMMON_NFS3_TYPES_H   /* an owner's own types right after tMenuItemInteractive (nfs3.obj: tScreen) */
+#include "../game/common/nfs3_types.h"
 #endif
 
 

@@ -1,7 +1,6 @@
 /* Track.obj source-visible types; full supplied type-copy/order audit remains open. */
 #if !defined(NFS4_GAME_COMMON_TRACK_TYPES_H) && !defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_CHUNK_IN_HOOK)
 #define NFS4_GAME_COMMON_TRACK_TYPES_H
-#define NFS4_CHUNK_HOOK "track_types.h"   /* Trk_Material / TrackHeader / SaveSurface+tBoundingSphere inside chunk_types.h */
 #define NFS4_GROUP_KERNEL_LATE
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES

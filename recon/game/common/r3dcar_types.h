@@ -1,7 +1,6 @@
 /* R3DCar.obj's exact source-visible extension of the shared DrawC graph. */
 #if !defined(NFS4_GAME_COMMON_R3DCAR_TYPES_H)
 #define NFS4_GAME_COMMON_R3DCAR_TYPES_H
-#define NFS4_GMESETUP_HOOK_BEFORE_FE "r3dcar_types.h"   /* retail r3dcar.obj: forceFocus_t TCB EXEC DIRENTRY Skidmark_* right after Car_tObj */
 #define NFS4_DRAWC_R3DCAR_FF_EARLY
 
 #define NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES

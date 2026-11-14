@@ -32,9 +32,9 @@
 #include "shared/DRender_tView.h"
 #include "shared/Draw_SubdivStruct.h"
 #endif
-#ifdef NFS4_CHUNK_HOOK   /* track.obj: Trk_Material right after the draw leaf (owner second pass, 1..3) */
+#ifdef NFS4_GAME_COMMON_TRACK_TYPES_H   /* track.obj: Trk_Material right after the draw leaf (owner second pass, 1..3) */
 #define NFS4_CHUNK_IN_HOOK 1
-#include NFS4_CHUNK_HOOK
+#include "track_types.h"
 #undef NFS4_CHUNK_IN_HOOK
 #endif
 #include "shared/Trk_ObjectDef.h"
@@ -70,9 +70,9 @@
 #include "shared/Trk_NewSimSlice.h"
 #include "shared/Trk_SimObject.h"
 #include "shared/RelCoord16.h"
-#ifdef NFS4_CHUNK_HOOK   /* track.obj: TrackHeader between RelCoord16 and Chunk */
+#ifdef NFS4_GAME_COMMON_TRACK_TYPES_H   /* track.obj: TrackHeader between RelCoord16 and Chunk */
 #define NFS4_CHUNK_IN_HOOK 2
-#include NFS4_CHUNK_HOOK
+#include "track_types.h"
 #undef NFS4_CHUNK_IN_HOOK
 #endif
 #include "shared/Chunk.h"   /* one Chunk definition (header-truth 4o) */
@@ -90,9 +90,9 @@
 #include "shared/Track_tArtresource.h"
 #include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"
-#ifdef NFS4_CHUNK_HOOK   /* track.obj: SaveSurface, tBoundingSphere right after tSaveSurface */
+#ifdef NFS4_GAME_COMMON_TRACK_TYPES_H   /* track.obj: SaveSurface, tBoundingSphere right after tSaveSurface */
 #define NFS4_CHUNK_IN_HOOK 3
-#include NFS4_CHUNK_HOOK
+#include "track_types.h"
 #undef NFS4_CHUNK_IN_HOOK
 #endif
 #include "gamesetup_leaf_types.h"   /* retail: GameSetup right after tSaveSurface (chunk.obj, track.obj) */

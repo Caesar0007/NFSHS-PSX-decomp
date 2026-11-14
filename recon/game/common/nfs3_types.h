@@ -1,12 +1,9 @@
 #if !defined(NFS4_GAME_COMMON_NFS3_TYPES_H)
 #define NFS4_GAME_COMMON_NFS3_TYPES_H   /* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
 #define NFS4_AFTER_CAR_NFS3   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
-#define NFS4_AUDIOCMN_HOOK_BEFORE_FE "nfs3_types.h"   /* retail: Speech classes, tTexture_ShapeInfo, kernpair before the frontend block */
 #define NFS4_AUDIOCLC_LATE_KERNEL
 #define NFS4_AUDIOCMN_KERNEL_LATER
 #define NFS4_AUDIOCLC_KERNPAIR_LATE
-#define NFS4_AUDIOCMN_CAR_ORDER "nfs3_types.h"   /* retail: tCarClassType tCarNameLength after tOwnedCarInfo; tPersonalities tCarLineup after tCarManager */
-#define NFS4_FE_SURFACE_HOOK "../game/common/nfs3_types.h"   /* retail: tListIteratorIndexed after tListIterator, tScreen after tMenuItemInteractive */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 
 #define cheat_Roadster 0

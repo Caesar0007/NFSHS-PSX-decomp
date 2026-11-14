@@ -75,8 +75,8 @@ typedef enum s_type {
 
 
 #include "shared/tReplayInterface.h"
-#ifdef NFS4_AUDIOCMN_HOOK_BEFORE_FE   /* an includer's own types right before the frontend block (nfs3.obj: Speech classes, tTexture, kernpair) */
-#include NFS4_AUDIOCMN_HOOK_BEFORE_FE
+#ifdef NFS4_GAME_COMMON_NFS3_TYPES_H   /* an includer's own types right before the frontend block (nfs3.obj: Speech classes, tTexture, kernpair) */
+#include "nfs3_types.h"
 #endif
 #include "shared/tTexture_ShapeInfo.h"
 #if defined(NFS4_AUDIOCLC_KERNPAIR_LATE) && (!defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES) || defined(NFS4_COPSPEAK_KERNPAIR_AFTER_TEX))   /* retail audiocmn/copspeak: kernpair right after tTexture_ShapeInfo */
@@ -159,9 +159,9 @@ struct tScreen;
 
 #include "shared/tCarInfo.h"
 #include "shared/tOwnedCarInfo.h"
-#ifdef NFS4_AUDIOCMN_CAR_ORDER
+#ifdef NFS4_GAME_COMMON_NFS3_TYPES_H
 #define NFS4_AUDIOCMN_IN_CAR 1
-#include NFS4_AUDIOCMN_CAR_ORDER
+#include "nfs3_types.h"
 #undef NFS4_AUDIOCMN_IN_CAR
 #else   /* retail (every object): tCarNameLength right after tOwnedCarInfo, tPersonalities right after tCarManager */
 #include "shared/tCarNameLength.h"
@@ -188,9 +188,9 @@ struct tScreen;
 
 
 
-#ifdef NFS4_AUDIOCMN_CAR_ORDER
+#ifdef NFS4_GAME_COMMON_NFS3_TYPES_H
 #define NFS4_AUDIOCMN_IN_CAR 2
-#include NFS4_AUDIOCMN_CAR_ORDER
+#include "nfs3_types.h"
 #undef NFS4_AUDIOCMN_IN_CAR
 #else
 #include "shared/tPersonalities.h"

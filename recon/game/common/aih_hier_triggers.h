@@ -4,11 +4,6 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #include "color_types.h"
 #ifdef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES   /* sim/object: the scene types ahead of the triggers, the cop info after the AIState classes */
-#ifdef NFS4_AIH_HIERARCHY_HOOK_SCENE   /* sim.obj: its forceFocus_t / scene / AudioMus / BW_tContext run here (owner second pass) */
-#define NFS4_AIH_IN_SCENE_HOOK
-#include NFS4_AIH_HIERARCHY_HOOK_SCENE
-#undef NFS4_AIH_IN_SCENE_HOOK
-#endif
 #include "shared/SceneElem.h"
 #include "shared/SceneSortedElem.h"
 #endif

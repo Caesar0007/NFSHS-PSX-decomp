@@ -7,10 +7,23 @@
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* sim.obj itself, not object.obj */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_PADS_HOOK_AFTER "sim_types.h"   /* retail sim.obj: scheduler + Sim_tSim*Var right after PAD_COMMON */
-#define NFS4_AIH_HIERARCHY_HOOK_SCENE "sim_types.h"   /* retail sim.obj: forceFocus_t, scene pair, AudioMus, BW_tContext after Car_tObj */
+#endif
+#define NFS4_GAME_COMMON_AIH_HIERARCHY_TYPES_H   /* this object lists the hierarchy parts itself (retail record order) */
+#define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
+#include "color_types.h"
+#ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES   /* retail sim.obj: forceFocus_t, scene pair, AudioMus, BW_tContext right after Car_tObj */
+#include "shared/forceFocus_t.h"
+#include "shared/SceneElem.h"
+#include "shared/SceneSortedElem.h"
+#include "shared/AudioMus_tSongEntry.h"
+#include "shared/BW_tContext.h"
 #endif
 #define NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
-#include "aih_hierarchy_types.h"
+#include "aih_hier_triggers.h"
+#include "shared/Sched_tSchedule.h"
+#include "aih_hier_states.h"
+#include "shared/Wingman_Role.h"
+#include "aih_hier_classes.h"
 #undef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 #define gScratchLastWord (*(int *)0x1F8003FC)
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
@@ -126,15 +139,4 @@ typedef void (*Sched_tFunctionPt)(void *);
 #define NFS4_COLOR_SCHED_DONE
 #include "shared/Sim_tSimGlobalVar.h"
 #include "shared/Sim_tSimSystemVar.h"
-#elif defined(NFS4_AIH_IN_SCENE_HOOK) && !defined(NFS4_SIM_SCENE_DONE)
-#define NFS4_SIM_SCENE_DONE
-#include "shared/forceFocus_t.h"
-
-
-
-
-#include "shared/SceneElem.h"
-#include "shared/SceneSortedElem.h"
-#include "shared/AudioMus_tSongEntry.h"
-#include "shared/BW_tContext.h"
 #endif

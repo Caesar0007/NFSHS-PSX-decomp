@@ -55,6 +55,12 @@
 #undef NFS4_COLOR_IN_HOOK
 #endif
 #include "color_p7_sched.h"
+#ifdef NFS4_GAME_COMMON_R3DCAR_TYPES_H   /* r3dcar.obj: Transformer_zScene right after Transformer_zOverlay */
+#include "shared/Transformer_z.h"
+#define NFS4_TRANSFORMER_IN_HOOK
+#include "r3dcar_types.h"
+#undef NFS4_TRANSFORMER_IN_HOOK
+#endif
 #include "color_p8_car.h"
 #if defined(NFS4_DRAWC_HOOKS)   /* drawc.obj: FLARE_PIECE_DEF, BW_tContext, kernpair right after Car_tObj */
 #define NFS4_COLOR_IN_HOOK2

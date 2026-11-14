@@ -1,11 +1,24 @@
 #if !defined(NFS4_GAME_COMMON_AISPEEDS_TYPES_H)
 #define NFS4_GAME_COMMON_AISPEEDS_TYPES_H   /* aispeeds.obj's exact source-visible delta over the shared color graph. */
-#define NFS4_TRANSFORMER_Z_HOOK "../game/common/aispeeds_types.h"   /* retail aispeeds.obj: Udff types right after Transformer_zOverlay */
 #define NFS4_COLOR_CAR_STRUCT_ONLY   /* retail: one TPDEF Car_tObj (color_types.h) */
 #define NFS4_COLOR_GS_AFTER_BO   /* retail type order (game/common/color_types.h) */
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
-#include "color_types.h"
+#define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#include "color_p0_draw.h"
+#include "color_p1_pregroup.h"
+#include "color_p2_group_trk.h"
+#include "color_p3_trkobj.h"
+#include "color_p4_save.h"
+#include "color_p5_bwsm.h"
+#include "color_p6_bo.h"
+#include "color_p7_sched.h"
+#include "shared/Transformer_z.h"
+#define NFS4_TRANSFORMER_IN_HOOK   /* own types right after Transformer_zOverlay */
+#include "aispeeds_types.h"   /* this header again: its NFS4_TRANSFORMER_IN_HOOK branch */
+#undef NFS4_TRANSFORMER_IN_HOOK
+#include "color_p8_car.h"
+#include "color_p9_tail.h"
 /* The canonical 2600-byte SYM-owned GameSetup aggregate, also used by AIPERSON.
  * Replace the import's false int[] type; original per-TU header/debug visibility
  * remains a separate audit question, not an excuse to misdeclare the object. */

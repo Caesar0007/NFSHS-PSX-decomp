@@ -19,9 +19,4 @@ typedef struct Transformer_zObj {
 
 typedef struct Transformer_zOverlay { short offset; u_char u, v; } Transformer_zOverlay;
 typedef COORD16 Transformer_zVertex;
-#ifdef NFS4_TRANSFORMER_Z_HOOK   /* an owner's own Transformer type right after Transformer_zOverlay (r3dcar.obj: Transformer_zScene) */
-#define NFS4_TRANSFORMER_IN_HOOK
-#include NFS4_TRANSFORMER_Z_HOOK
-#undef NFS4_TRANSFORMER_IN_HOOK
-#endif
 #endif

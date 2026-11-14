@@ -353,6 +353,7 @@ measured mismatch that cannot be explained is logged, never fitted.
 | 2026-11-12 | 5da57ed46 | Phase 8g: 4 of the 6 remaining member conditionals removed. aihigh.obj TPDEF Car_tObj extra 1 -> 2 (the declaration-only GetCarObj in the owner was a fit; logged). Kept: CAudioList::Elems (its owner audedit does not know AudioElem) and tUserNameMenuItem::SetUpP (feapp-only body) | 0 | 7 | 145 | 6 | 154 | 1331 |
 | 2026-11-12 | 2df22b753 | Phase 8h: the feapp-only SetUpP member had the same statements as SetPostGameNameData; feapp now calls that name and both recording objects (FEMenuDefs, FEApp) include one definition (usernameitem_postgame_inline.h). One member conditional left in the tree: CAudioList::Elems | 0 | 7 | 145 | 6 | 154 | 1331 |
 | 2026-11-12 | 12f9ef597 | Phase 9a (pilot): method proven on the AI objects - cut the shared header at each hook point into plain parts, the default wrapper lists them, an object with its own record order lists the parts itself with its types in between. The token stream of every object is unchanged, so inversions are equal by construction. NFS4_AIH_HIERARCHY_TRIGGERS_TAIL / _WINGMAN and both second passes are gone | 0 | 7 | 145 | 6 | 154 | 1331 |
+| 2026-11-12 | e62e1d260 | Phase 4y: enums were never deduplicated (the class counter did not see them). tools/psyq_pipe/enum_dedup.py moves identical copies to shared/<Name>.h, line-neutral. Left: VIDEOSTATE, crimeType, one tCarClassType copy (texts differ - to review) | 0 | 7 | 145 | 6 | 154 | 1331 |
 
 ## Open mismatches (left unexplained on purpose)
 

@@ -3,7 +3,18 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
-#define NFS4_PADS_HOOK_AFTER "anim_types.h"   /* retail anim.obj: tQuat, scheduler, Group right after PAD_COMMON; GameSetup after the Skidmark types */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#define NFS4_CORE_FULL   /* this object lists the start of the core itself (retail record order) */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_GAME_COMMON_PADS_TYPES_H
+#include "game_common_min_core.h"
+#include "pads_records.h"
+#define NFS4_PADS_IN_HOOK
+#include "anim_types.h"   /* this header again: its NFS4_PADS_IN_HOOK branch */
+#undef NFS4_PADS_IN_HOOK
+#include "pads_tail.h"
+#undef NFS4_CORE_FULL
+#undef NFS4_CORE_CCOORD16
 #include "draw_leaf_types.h"
 #endif
 #if defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_ANIM_PADS_DONE)   /* second pass: game_common_pads_types.h */

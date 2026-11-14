@@ -2,7 +2,14 @@
 #ifndef NFS4_GAME_PSX_DRAW_TYPES_H
 #define NFS4_GAME_PSX_DRAW_TYPES_H
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
-#define NFS4_PADS_HOOK_BEFORE "shared/dflip.h"   /* retail draw.obj: dflip right after COORD16 (game_common_pads_types.h) */
+#define NFS4_CORE_FULL   /* this object lists the start of the core itself (retail record order) */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_GAME_COMMON_PADS_TYPES_H
+#include "../common/game_common_min_core.h"
+#include "shared/dflip.h"   /* own types at this point */
+#include "../common/pads_records.h"
+#include "../common/pads_tail.h"
+#undef NFS4_CORE_FULL
 #include "../common/draw_leaf_core.h"
 #define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
 #include "../common/draw_leaf_a_pads.h"

@@ -1,7 +1,5 @@
 #if !defined(NFS4_GAME_COMMON_NFS3_TYPES_H)
 #define NFS4_GAME_COMMON_NFS3_TYPES_H   /* nfs3.obj's exact source-visible delta over the shared CopSpeak graph. */
-#define NFS4_PADS_HOOK_AFTER "nfs3_types.h"   /* retail nfs3.obj: scheduler + GameSetup records right after PAD_COMMON */
-#define NFS4_PADS_HOOK_BEFORE "nfs3_types.h"   /* retail: tNfsSystemInfo right after CCOORD16, before the pads */
 #define NFS4_AFTER_CAR_NFS3   /* this object's own types come right after Car_tObj (audioclc_types.h lists the common graph) */
 #define NFS4_AUDIOCMN_HOOK_BEFORE_FE "nfs3_types.h"   /* retail: Speech classes, tTexture_ShapeInfo, kernpair before the frontend block */
 #define NFS4_AUDIOCLC_LATE_KERNEL
@@ -22,6 +20,23 @@
 #define NFS4_COPSPEAK_KEEP_FORCE_FOCUS
 #define NFS4_COPSPEAK_KEEP_BW_CONTEXT
 #define NFS4_AUDIOCMN_KEEP_INPUT_DEVICE_CALL
+#define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
+#define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#define NFS4_CORE_FULL   /* this object lists the start of the core itself (retail record order) */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_GAME_COMMON_PADS_TYPES_H
+#include "game_common_min_core.h"
+#define NFS4_PADS_IN_HOOK_BEFORE
+#include "nfs3_types.h"   /* this header again: its NFS4_PADS_IN_HOOK_BEFORE branch */
+#undef NFS4_PADS_IN_HOOK_BEFORE
+#include "pads_records.h"
+#define NFS4_PADS_IN_HOOK
+#include "nfs3_types.h"   /* this header again: its NFS4_PADS_IN_HOOK branch */
+#undef NFS4_PADS_IN_HOOK
+#include "pads_tail.h"
+#undef NFS4_CORE_FULL
+#undef NFS4_CORE_CCOORD16
 #include "copspeak_types.h"
 #undef NFS4_AUDIOCMN_KEEP_INPUT_DEVICE_CALL
 #undef NFS4_COPSPEAK_KEEP_BW_CONTEXT

@@ -3,30 +3,7 @@
  * unrelated declarations in nfs4_types.h. */
 #ifndef NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_GAME_COMMON_MIN_TYPES_H
-
-#define NFS4_CORE_EA
-#include "nfs4_types.h"
-#undef NFS4_CORE_EA
-
-#include "shared/coorddef.h"
-
-
-#ifndef NFS4_HAVE_LIBCOORD
-typedef struct coorddef LIBCOORD;
-#endif
-
-#ifndef NFS4_CORE_LINEDEF_LATE   /* else: the owner emits linedef, LINE, SHAPETABLEENTRY later (nfs4_types.h key; FEMenuDefs) */
-#include "shared/linedef.h"
-#endif
-#if !defined(NFS4_HAVE_LINE) && !defined(NFS4_CORE_LINEDEF_LATE)
-typedef struct linedef LINE;
-#endif
-#ifndef NFS4_CORE_LINEDEF_LATE
-#include "shared/SHAPETABLEENTRY.h"
-#endif
-
-
-
+#include "game_common_min_core.h"
 #ifndef NFS4_DRAW_LEAF_CORE_ONLY   /* CORE_ONLY: draw_leaf_types.h phase 2 includes it */
 #include "game_common_pads_types.h"
 #endif

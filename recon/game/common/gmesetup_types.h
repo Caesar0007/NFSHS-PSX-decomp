@@ -1,13 +1,25 @@
 /* gmesetup.obj source-visible types; full supplied type-copy/order audit remains open. */
 #if !defined(NFS4_GAME_COMMON_GMESETUP_TYPES_H) && !defined(NFS4_PADS_IN_HOOK)
 #define NFS4_GAME_COMMON_GMESETUP_TYPES_H
-#ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS   /* retail gmesetup.obj: GameSetup records, FEI_tList, Transformer_* right after PAD_COMMON */
-#define NFS4_PADS_HOOK_AFTER "gmesetup_types.h"
-#endif
 
 #ifndef NFS4_GAME_COMMON_COLOR_TYPES_H   /* the parts of the common type graph, listed here: drawc.obj and hud.obj have their own types between them */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H
 #define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#define NFS4_CORE_FULL   /* the start of the core, listed here: psxcontroller.obj and gmesetup.obj have their own types around the pads */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_GAME_COMMON_PADS_TYPES_H
+#include "game_common_min_core.h"
+#ifdef NFS4_PSXCONTROLLER_HOOKS   /* psxcontroller.obj: GameSetup records right before the pads */
+#include "gamesetup_leaf_types.h"
+#endif
+#include "pads_records.h"
+#ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS   /* gmesetup.obj: GameSetup records, FEI_tList, Transformer_* right after PAD_COMMON */
+#define NFS4_PADS_IN_HOOK
+#include "gmesetup_types.h"
+#undef NFS4_PADS_IN_HOOK
+#endif
+#include "pads_tail.h"
+#undef NFS4_CORE_FULL
 #include "draw_leaf_core.h"
 #define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* the draw leaf, listed here: drawc/r3dcar, hud and psxcontroller have their own types in it */
 #include "draw_leaf_a_pads.h"

@@ -9,7 +9,7 @@
  "goto_statements": 245,
  "header_conditionals_all": 597,
  "header_conditionals_member_visibility": 78,
- "header_conditionals_omit_type": 104,
+ "header_conditionals_omit_type": 105,
  "inferred_markers": 7,
  "link_stripped_rows_non_sdk": 154,
  "opaque_storage_views": 0,

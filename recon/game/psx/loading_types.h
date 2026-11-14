@@ -2,7 +2,14 @@
 #ifndef NFS4_GAME_PSX_LOADING_TYPES_H
 #define NFS4_GAME_PSX_LOADING_TYPES_H
 
-#define NFS4_PADS_HOOK_AFTER "gamesetup_leaf_types.h"   /* retail loading.obj: GameSetup records right after PAD_COMMON */
+#define NFS4_CORE_FULL   /* this object lists the start of the core itself (retail record order) */
+#define NFS4_GAME_COMMON_MIN_TYPES_H
+#define NFS4_GAME_COMMON_PADS_TYPES_H
+#include "../common/game_common_min_core.h"
+#include "../common/pads_records.h"
+#include "../common/gamesetup_leaf_types.h"   /* own types at this point */
+#include "../common/pads_tail.h"
+#undef NFS4_CORE_FULL
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 

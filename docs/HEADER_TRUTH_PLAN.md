@@ -168,6 +168,22 @@ Left, in this order:
 Counter note: the explicit branches raised `header_conditionals_all` from 581 to 597 and `per_object_conditionals`
 from 145 to 152 during 9d-9i. They replace hidden computed includes one for one and fall away with the last row.
 
+### Frontend block: flatten by trace (design, 2026-11-14)
+`frontend/common/screendisplay_types.h` is a script of the whole frontend graph: 535 lines, about 30 order switches,
+11 hooks, re-entered for a second pass. ~35 screen objects steer it. Cutting it by hand object by object is slow.
+Measured: making the list-iterator header the default include after tCarManager / tTrackManager (what 33 of 37 hook
+definitions ask for) changes 18 objects - retail really has two groups, so the hooks cannot simply be folded away.
+
+Planned method: the debug-lane `.i` of an object already records, in its `# line "file"` markers, the exact sequence
+of header regions that contribute tokens. So:
+1. move every block of inline definitions that still lives inside an aggregator into its own plain header (the
+   aggregators then contain only includes and conditionals);
+2. for one object, read the include sequence from its `.i` and write it out as that object's explicit list;
+3. check with `ichk.sh` (identical preprocessed source), gate once per batch;
+4. when no object uses an aggregator's switches any more, the aggregator is a plain default list or is deleted.
+Content switches (a region that exists only under a switch, e.g. `NFS4_CORE_FULL`) become separate small headers
+that the list names or omits. Prototype on one screen object first (screenmain), then the rest by script.
+
 ## Deep analysis 2026-11-13 and revised roadmap
 
 Scope measured: recon/game, recon/frontend, recon/shared = 831 headers (35.7k lines) and 181 sources (146.7k lines).

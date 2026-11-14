@@ -5,7 +5,17 @@
 #define NFS4_FE_COLOR_LATE   /* retail type order: frontend graph before color.obj's graph */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
-#define NFS4_CORE_HOOK_AFTER_DRMODE "frontend/psx/drawshp_linef2.h"   /* retail: LINE_F2 in the core next to DR_MODE */
+#define NFS4_CORE_FULL
+#define NFS4_CORE_EA
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "nfs4_core_1_gpu.h"
+#include "frontend/psx/drawshp_linef2.h"   /* own types at this point */
+#include "nfs4_core_2_shape.h"
+#include "nfs4_core_3_cd.h"
+#include "nfs4_core_4_tail.h"
+#undef NFS4_CORE_EA
+#undef NFS4_CORE_FULL
 #include "../../game/common/draw_leaf_core.h"
 #define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
 #include "../../game/common/draw_leaf_a_pads.h"

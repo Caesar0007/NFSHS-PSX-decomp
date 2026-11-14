@@ -6,8 +6,18 @@
  * from nfs4_types.h through this graph. */
 #ifndef _GAME_PSX_DRAWDBG_H_
 #define _GAME_PSX_DRAWDBG_H_
-#define NFS4_CORE_HOOK_AFTER_DRMODE "game/psx/drawdbg_early.h"
 #define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#define NFS4_CORE_FULL
+#define NFS4_CORE_EA
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "nfs4_core_1_gpu.h"
+#include "game/psx/drawdbg_early.h"   /* own types at this point */
+#include "nfs4_core_2_shape.h"
+#include "nfs4_core_3_cd.h"
+#include "nfs4_core_4_tail.h"
+#undef NFS4_CORE_EA
+#undef NFS4_CORE_FULL
 #include "../common/draw_leaf_core.h"
 #define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H   /* this object lists the draw leaf itself (retail record order) */
 #include "../common/draw_leaf_a_pads.h"

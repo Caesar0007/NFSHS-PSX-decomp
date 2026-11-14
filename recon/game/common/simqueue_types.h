@@ -2,11 +2,19 @@
 #ifndef NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
 #define NFS4_GAME_COMMON_SIMQUEUE_TYPES_H
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
-#define NFS4_CORE_HOOK_AFTER_PADS "shared/Input_tResults.h"   /* retail simqueue.obj: Input_tResults ahead of MATRIX (nfs4_types.h) */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
 #define NFS4_CORE_FULL   /* this object lists the start of the core itself (retail record order) */
 #define NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_GAME_COMMON_PADS_TYPES_H
+#define NFS4_CORE_EA
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "shared/Input_tResults.h"   /* own types at this point */
+#include "nfs4_core_1_gpu.h"
+#include "nfs4_core_2_shape.h"
+#include "nfs4_core_3_cd.h"
+#include "nfs4_core_4_tail.h"
+#undef NFS4_CORE_EA
 #include "game_common_min_core.h"
 #include "pads_records.h"
 #include "gamesetup_leaf_types.h"   /* own types at this point */

@@ -3,7 +3,6 @@
  * unrelated game declarations into FONT.CPP's full-debug stream. */
 #ifndef NFS4_GAME_PSX_FONT_OBJ_TYPES_H
 #define NFS4_GAME_PSX_FONT_OBJ_TYPES_H
-#define NFS4_CORE_HOOK_BEFORE_CD "game/psx/font_before_cd.h"   /* retail font.obj: coorddef, matrixtdef before the CD stream */
 #include "shared/kernpair.h"
 
 
@@ -26,6 +25,13 @@ typedef struct charactertbl charactertbl;
 /* PsyQ SYS/TYPES.H, LIBGTE.H, and LIBGPU.H declarations retained by font.obj. */
 #define NFS4_CORE_FULL   /* retail font.obj: MATRIX first, SPRT + DR_MODE right after DISPENV (nfs4_types.h) */
 #define NFS4_PRIM_SPRT
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "nfs4_core_1_gpu.h"
+#include "nfs4_core_2_shape.h"
+#include "game/psx/font_before_cd.h"   /* own types at this point */
+#include "nfs4_core_3_cd.h"
+#include "nfs4_core_4_tail.h"
 #include "nfs4_types.h"
 #undef NFS4_CORE_FULL
 

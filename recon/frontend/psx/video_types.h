@@ -1,7 +1,13 @@
 /* video.obj-owned records layered on the reduced frontend/PSX platform set. */
 #ifndef NFS4_FRONTEND_PSX_VIDEO_TYPES_H
 #define NFS4_FRONTEND_PSX_VIDEO_TYPES_H
-#define NFS4_CORE_HOOK_BEFORE_CD "frontend/psx/video_before_cd.h"   /* retail video.obj: windowtbl before the CD stream */
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "nfs4_core_1_gpu.h"
+#include "nfs4_core_2_shape.h"
+#include "frontend/psx/video_before_cd.h"   /* own types at this point */
+#include "nfs4_core_3_cd.h"
+#include "nfs4_core_4_tail.h"
 #include "nfs4_types.h"
 
 /* struct windowtbl: frontend/psx/video_before_cd.h (included by nfs4_types.h before the CD stream) */

@@ -2,12 +2,24 @@
 #define NFS4_COLOR_SCHED_SCHEDULE   /* retail type order (game/common/color_types.h) */
 #if !defined(NFS4_GAME_COMMON_AUDIOTRK_TYPES_H)
 #define NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
-#define NFS4_CORE_HOOK_AFTER_CD "game/common/audiotrk_types.h"   /* retail audiotrk.obj: SND* + scheduler right after the CD stream */
 #define NFS4_COLOR_SCHED_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_CORE_POLY_GT4   /* POLY_GT4 at its retail place (after DISPENV; nfs4_types.h) */
 #define NFS4_CORE_SUBDIV_TRKART   /* retail: Draw_SubdivStruct after Draw_SVertex, Track_tArt/Material after RelCoord16 */
 #define NFS4_COLOR_TRK_ANIM   /* retail type order (game/common/color_types.h) */
 #define NFS4_GAME_COMMON_COLOR_TYPES_H   /* this object lists the parts of the common type graph itself (retail record order) */
+#define NFS4_CORE_CCOORD16
+#define NFS4_CORE_FULL
+#define NFS4_CORE_EA
+#define NFS4_TYPES_H   /* this object lists the root type graph itself (retail record order) */
+#include "nfs4_core_0_kernel.h"
+#include "nfs4_core_1_gpu.h"
+#include "nfs4_core_2_shape.h"
+#include "nfs4_core_3_cd.h"
+#include "game/common/audiotrk_types.h"   /* own types at this point */
+#include "nfs4_core_4_tail.h"
+#undef NFS4_CORE_EA
+#undef NFS4_CORE_FULL
+#undef NFS4_CORE_CCOORD16
 #include "color_p0_draw.h"
 #include "color_p1_pregroup.h"
 #include "color_p2_group_trk.h"

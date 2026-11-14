@@ -123,6 +123,35 @@ i.e. phase 9 material, pilot on the AI objects); phase 10 (bodies); phase 11 (un
 left open: the 16 scalars declared as unsized arrays in psxfront/front/screencarselect (those objects are already
 `-G0`, so a per-object `-G` is not the explanation); EA-library prototypes.
 
+## Phase 9 status (2026-11-14) - how the order hooks are being removed
+
+Method (proven on the AI objects in 9a, gate-identical every time):
+1. Cut the shared aggregator header at each hook point into plain, include-guarded parts
+   (`aih_hier_triggers.h` / `_states.h` / `_classes.h`; `color_p0_draw.h` ... `color_p9_tail.h`).
+2. The old header becomes the default list of its parts.
+3. An object whose retail record order has its own types between two parts defines the aggregator's include guard
+   and lists the parts itself, with its own header at that point (`tools/psyq_pipe/colorlist.py` does this for
+   `color_types.h`). No `#include MACRO`, no "IN_HOOK" state in the aggregator.
+4. When a hook has no user left its lines are deleted from the default list.
+Every object's token stream is unchanged by construction, so bytes, census and inversions cannot move; the gate
+confirms it each time.
+
+Done: the AI hierarchy is hook-free (9a, 9b). `color_types.h`: 6 of 9 hooks removed (9c, 9d); 16 objects list the
+parts themselves.
+
+Left, in this order:
+| Item | Users | Note |
+|---|---|---|
+| `NFS4_COLOR_HOOK_AFTER_SAVE`, `_AFTER_BO` | drawc_types.h (also read by r3dcar) | reaches color_types.h through psxcontroller_types.h -> gmesetup_types.h; needs the chain flattened into a per-object list |
+| `NFS4_COLOR_HOOK_AFTER_CAR` | hud, drawc, audioclc, audiocmn, copspeak, cars, nfs3, femenuoptions.h, screencontroller_keys.h, psxfront.h | chains cars -> copspeak -> audiocmn -> audioclc and nfs3 -> copspeak; three frontend headers |
+| draw-leaf hooks (`NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX`, `_AFTER_CACHEHEADER`), pad hooks (`NFS4_PADS_HOOK_AFTER`, `_BEFORE`) | bworld, object, souffle, psxcontroller, sim, ... | same method on draw_leaf_types.h and the pad header |
+| frontend `NFS4_SCREENDISPLAY_*HOOK*`, `*_SURFACE` switches | the screen objects | same method on screendisplay_types.h |
+| self-include second passes (`#include "<own>_types.h"` under an IN marker) | audedit, collide, scene, audiotrk, draww, bworld, object, night, render, textureprocess, drawc, hud, ... | turn each branch into a small plain header (`<obj>_after_bo.h`, like `fe3dmenu_after_bo.h`) |
+| two-user branches created in 9d (night/render, draww/bworld, sim/object) | 3 shared types headers | disappear when the second user gets its own list instead of including the first user's header |
+
+Counter note: 9d raised `header_conditionals_all` by 5 because three computed includes became explicit two-user
+branches. They are tracked and fall away with the last table row.
+
 ## Deep analysis 2026-11-13 and revised roadmap
 
 Scope measured: recon/game, recon/frontend, recon/shared = 831 headers (35.7k lines) and 181 sources (146.7k lines).

@@ -3,7 +3,19 @@
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES   /* mpause.obj itself, not pausemenu.obj */
 #define NFS4_COLOR_GS_FIRST   /* retail type order (game/common/color_types.h) */
 #define NFS4_MPAUSE_SND_LATE   /* retail: kernpair, AudioMus, SND* right before tPauseMenuDefs */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/tPMenuCommandType.h"   /* retail: tPMenuCommandType right after Draw_CarVertex */
+#endif
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "draw_leaf_core.h"
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "draw_leaf_b_pixmap.h"
+#include "draw_leaf_c_cache.h"
+#include "draw_leaf_d_carvertex.h"
+#ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES   /* mpause.obj itself: tPMenuCommandType right after Draw_CarVertex */
+#include "shared/tPMenuCommandType.h"
+#endif
 #endif
 #include "link_stripped.h"   /* SLINK /strip removed the standalone copies of the inlines below (no #pragma) */
 #include "color_types.h"

@@ -6,7 +6,15 @@
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail core place (color_types.h does the same) */
 #define NFS4_PRIM_POLY_G4   /* retail: libgpu primitive right after DISPENV (nfs4_types.h) */
 #define NFS4_CORE_HOOK_AFTER_DRMODE "frontend/psx/drawshp_linef2.h"   /* retail: LINE_F2 in the core next to DR_MODE */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "../../frontend/psx/drawshp_after_carvertex.h"   /* retail: after Draw_CarVertex */
+#include "../../game/common/draw_leaf_core.h"
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "../../game/common/draw_leaf_a_pads.h"
+#include "../../game/common/draw_leaf_b_pixmap.h"
+#include "../../game/common/draw_leaf_c_cache.h"
+#include "../../game/common/draw_leaf_d_carvertex.h"
+#include "../../frontend/psx/drawshp_after_carvertex.h"   /* own types at this point */
+#endif
 #include "../../game/common/draw_leaf_types.h"
 #include "drawshp_types.h"
 #include "../../game/common/color_types.h"

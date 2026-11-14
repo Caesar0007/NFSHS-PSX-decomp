@@ -2,7 +2,15 @@
 #define NFS4_GAME_PSX_TRSPROJ_TYPES_H   /* TrsProj.obj's exact source-visible type surface reconstructed from SYM. */
 #define NFS4_CORE_DRVIEW   /* retail: DRender_tView right after DRender_tCalcView (draw_leaf_types.h) */
 #define NFS4_CORE_CCOORD16   /* CCOORD16 at its retail place (after COORD16, before the pads) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_PIXMAP "shared/Draw_tVertex.h"   /* retail trsproj.obj: Draw_tVertex right after Draw_tPixMap */
+#include "../common/draw_leaf_core.h"
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "../common/draw_leaf_a_pads.h"
+#include "../common/draw_leaf_b_pixmap.h"
+#include "shared/Draw_tVertex.h"   /* own types at this point */
+#include "../common/draw_leaf_c_cache.h"
+#include "../common/draw_leaf_d_carvertex.h"
+#endif
 #include "../common/draw_leaf_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */

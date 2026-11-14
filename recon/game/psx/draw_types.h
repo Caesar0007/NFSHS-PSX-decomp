@@ -1,10 +1,18 @@
 /* draw.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_DRAW_TYPES_H
 #define NFS4_GAME_PSX_DRAW_TYPES_H
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CACHEHEADER "shared/Draw_DCache.h"   /* retail: Draw_DCache right after Draw_tCacheHeader (draw_leaf_types.h) */
 #define NFS4_CORE_KERNEL_PADS_FIRST   /* retail: kernel/pad types ahead of the core (nfs4_types.h) */
 #define NFS4_PADS_HOOK_BEFORE "shared/dflip.h"   /* retail draw.obj: dflip right after COORD16 (game_common_pads_types.h) */
-#define NFS4_DRAW_LEAF_HOOK_AFTER_CARVERTEX "shared/Draw_tView.h"   /* retail: Draw_tView right after Draw_CarVertex */
+#include "../common/draw_leaf_core.h"
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "../common/draw_leaf_a_pads.h"
+#include "../common/draw_leaf_b_pixmap.h"
+#include "../common/draw_leaf_c_cache.h"
+#include "shared/Draw_DCache.h"   /* own types at this point */
+#include "../common/draw_leaf_d_carvertex.h"
+#include "shared/Draw_tView.h"   /* own types at this point */
+#endif
 #include "../common/draw_leaf_types.h"
 #include "../common/gamesetup_leaf_types.h"
 /* Canonical gmesetup.obj aggregate used by this translation unit. */

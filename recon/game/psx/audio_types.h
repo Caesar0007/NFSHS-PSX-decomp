@@ -1,7 +1,17 @@
 /* audio.obj's exact source-visible type surface reconstructed from SYM. */
 #ifndef NFS4_GAME_PSX_AUDIO_TYPES_H
 #define NFS4_GAME_PSX_AUDIO_TYPES_H
-#define NFS4_DRAW_LEAF_HOOK_AFTER_PADS "../psx/audio_snd_early.h"
+#define NFS4_CORE_CCOORD16   /* CCOORD16 right after COORD16 */
+#include "../common/draw_leaf_core.h"
+#if !defined(NFS4_DRAW_LEAF_CORE_ONLY) && !defined(NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H)   /* this object lists the draw leaf itself (retail record order) */
+#define NFS4_GAME_COMMON_DRAW_LEAF_PHASE2_H
+#include "../common/draw_leaf_a_pads.h"
+#undef NFS4_CORE_CCOORD16
+#include "../psx/audio_snd_early.h"   /* own types at this point */
+#include "../common/draw_leaf_b_pixmap.h"
+#include "../common/draw_leaf_c_cache.h"
+#include "../common/draw_leaf_d_carvertex.h"
+#endif
 #include "../common/color_types.h"
 #include "shared/SndBnk_t.h"
 

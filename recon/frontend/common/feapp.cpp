@@ -1075,16 +1075,16 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 
         if ((wasSubMenu != 0) && (this->fTransitionToScreen[0] == (tScreen *)0x0)) {
-          doRedraw = false;
+          
           this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
-        }
+          doRedraw = false; }
         else {
 
 
           this->fCurrentMenu[(u_char)this->fPlayer]->TransitionOn();
           if (needToSetChildMenu) {
 
-            this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->fChildMenu);
+            this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->ChildMenu());
             needToSetChildMenu = false; } } demoLoopLastInputTick = FE_Ticks();
       } }
 
@@ -1120,26 +1120,26 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
         (this->fCurrentScreen[(u_char)this->fPlayer])->TransitionOn(kScreen_TransitionTypeScreen, (tMenu *)0x0);
       }
 
-      bool perPlayer = false; if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-
+      if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0)
+      {
 
         inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
         inputStartPlayer = inputEndPlayer;
-        if (((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x10) != 0) ||
-           ((FrontEnd().gameMode == kPlayerTwo && ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 8) == 0)))) { perPlayer = true; } if (perPlayer) {
+        if (this->fCurrentMenu[(u_char)this->fPlayer]->HasFlag(0x10) ||
+           ((frontEnd.gameMode == kPlayerTwo) && !this->fCurrentMenu[(u_char)this->fPlayer]->HasFlag(8))) {
 
           inputStartPlayer = kPlayerOne;
           inputEndPlayer = kPlayerTwo;
         }
-        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x20) != 0) {
+        if (this->fCurrentMenu[(u_char)this->fPlayer]->HasFlag(0x20)) {
 
           inputStartPlayer = (tPlayer)(u_char)this->fInputPlayer; inputEndPlayer = inputStartPlayer;
         }
-        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x40) != 0) {
+        if (this->fCurrentMenu[(u_char)this->fPlayer]->HasFlag(0x40)) {
 
           inputEndPlayer = kPlayerOne; inputStartPlayer = kPlayerOne;
         }
-        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x80) != 0) {
+        if (this->fCurrentMenu[(u_char)this->fPlayer]->HasFlag(0x80)) {
 
           inputEndPlayer = kPlayerTwo; inputStartPlayer = kPlayerTwo;
         }

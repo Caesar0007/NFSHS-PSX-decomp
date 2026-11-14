@@ -42,6 +42,7 @@ typedef struct tMenu {
        records the bodies, not their names). */
     inline short CurrentItem() TMENU_KEY_STRIP;
     inline void SetChildMenu(tMenu *child) TMENU_KEY_STRIP;
+    inline tMenu *ChildMenu() TMENU_KEY_STRIP;   /* ORIGINAL-NAME-UNRESOLVED: retail MainLoop records an inline pair with a tMenu `this` at its fChildMenu read (line 648); with it every includer has retail's 16 tMenu TPDEFs */
     inline void SetVerticalHelp(short help) TMENU_KEY_STRIP;
     inline bool HasFlag(unsigned int flag) TMENU_KEY_STRIP;
     inline tMenuItem *Item(int n) TMENU_KEY_STRIP;
@@ -54,6 +55,7 @@ typedef struct tMenu {
 } tMenu;
 inline short tMenu::CurrentItem() { return fCurrentItem; }
 inline void tMenu::SetChildMenu(tMenu *child) { fChildMenu = child; }
+inline tMenu *tMenu::ChildMenu() { return fChildMenu; }
 inline void tMenu::SetVerticalHelp(short help) { VertHelp = help; }
 inline bool tMenu::HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
 inline tMenuItem *tMenu::Item(int n) { return fItemList[n]; }

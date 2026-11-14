@@ -124,7 +124,7 @@
 #endif
 #include "shared/BW_tContext.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES   /* retail draww: tBuildEntry right after BW_tContext */
-typedef struct { short chunkInd; char geomRez, enableBits; } tBuildEntry;
+#include "draww_types_d1.h"
 #endif
 
 
@@ -378,22 +378,8 @@ struct Draw_DCache;
 #include "shared/tBoundingSphere.h"
 #include "shared/tQuat.h"
 #include "shared/kernpair.h"
-typedef kernpair KERN;
-typedef struct {
-    Trk_SimObject *simObjs;
-    Group *objInstanceBuf;
-    int doFrustumClip, zClipSq, offset;
-    short *visList;
-} ChunkObjectInfo;
-typedef void (*fontblit)();
-typedef int (*getcode)();
-typedef void (*fontblitbegin)();
-typedef void (*fontblitend)();
-typedef void (*adjustchar)();
-typedef tQuat Quatern_quat;
+#include "draww_types_d2.h"
 #endif
-typedef u_char Night_tLightingTable[256][16];
-typedef u_char Night_tWeatherLightingTable[256];
-typedef u_char Night_tCopLightingTable[256][8];
+#include "draww_types_d3.h"
 
 #endif

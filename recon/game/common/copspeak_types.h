@@ -62,17 +62,10 @@
 #ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 #include "shared/SNDSTREAMSTATUS.h"
 #endif
-extern "C" {
-}
+#include "copspeak_types_d1.h"
 #include "speech_class.h"   /* NFS3.CPP constructs Speech and its undefined Speaker */
 #ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES   /* retail: the bank types after the Speech classes */
-struct CopSpeak_tFileIndex { long offset; long size; };
-struct CopSpeak_tBankHeader { int id; u_char ver; };
-struct CopSpeak_tBank {
-    int FileHandle, FileOpen;
-    CopSpeak_tFileIndex *Index;
-    int Count;
-};
+#include "copspeak_types_d2.h"
 #endif
 
 #endif

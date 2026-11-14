@@ -25,14 +25,7 @@
 #if defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES) && !defined(NFS4_AUDIOCMN_EARLY_DONE)   /* owner pass from color_types.h (after Car_tObj) */
 #define NFS4_AUDIOCMN_EARLY_DONE
 #include "shared/SndBnk_t.h"
-typedef struct Channels_t { int Partial, SFXnum; } Channels_t; /* Completed C/C++ alias restores the owning SYM producer,not a pointer-use workaround;see build/nc12/playsfx_roles_20261027/. */
-typedef enum s_type {
-    kAsphalt = 0, kCarBody = 1, kTires = 2, kGravel = 3, kWall = 4,
-    kSign = 5, kBush = 6, kBlowOut = 7, kBackFire = 8, kHorn = 9,
-    kGearShift = 10, kSnow = 11, kGrass = 12, kWoodWall = 13,
-    kGrassWall = 14, kWallSpark = 15, kWetAsphalt = 16,
-    kRaceTireOnAsphalt = 17, kRainTireOnAsphalt = 18
-} s_type;
+#include "audiocmn_types_d1.h"
 #include "shared/AudioMus_tSongEntry.h"
 #endif
 #if !defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCMN_TAIL_DONE)   /* first pass, after audioclc_types.h */
@@ -81,7 +74,7 @@ typedef enum s_type {
 #include "shared/tTexture_ShapeInfo.h"
 #if defined(NFS4_AUDIOCLC_KERNPAIR_LATE) && (!defined(NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES) || defined(NFS4_COPSPEAK_KERNPAIR_AFTER_TEX))   /* retail audiocmn/copspeak: kernpair right after tTexture_ShapeInfo */
 #include "shared/kernpair.h"
-typedef kernpair KERN;
+#include "audiocmn_types_d2.h"
 #endif
 
 
@@ -226,18 +219,7 @@ struct tScreen;
 #include "shared/Skidmark_Chunk.h"
 #endif
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES   /* retail: after the kernel/skidmark types */
-struct AudioCmn_tReTrig {
-    int count, pan;
-    short delay, nextd;
-    int patch;
-    char bend, amp;
-    coorddef pos;
-};
-
-struct AudioCmn_tAsyncSfxSlot {
-    int bank, patch, handle, ticks, addr;
-    char *header;
-};
+#include "audiocmn_types_d3.h"
 #endif
 
 
@@ -266,14 +248,8 @@ struct AudioCmn_tAsyncSfxSlot {
  * that completed tag elsewhere. */
 #ifndef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
 #include "shared/tRecordBuffer.h"
-typedef tRecordBuffer tSaveRecords[187];
+#include "audiocmn_types_d4.h"
 #endif
-typedef long (*SampleRequestFuncPtr)();
-typedef long (*TestSentenceRuleFuncPtr)();
-typedef void (*SetSentenceRuleFuncPtr)();
-typedef char *(*MemAllocFuncPtr)();
-typedef void (*MemFreeFuncPtr)();
-typedef long (*ReparmFuncPtr)();
-typedef long (*TraceFuncPtr)();
+#include "audiocmn_types_d5.h"
 
 #endif

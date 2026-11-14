@@ -97,7 +97,7 @@
 #endif
 #include "gamesetup_leaf_types.h"   /* retail: GameSetup right after tSaveSurface (chunk.obj, track.obj) */
 #ifdef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES   /* retail track.obj: the scheduler types right after GameSetup */
-typedef void (*Sched_tFunctionPt)(void *);
+#include "chunk_types_d1.h"
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"
 #endif
@@ -209,8 +209,6 @@ struct Draw_DCache;
 
 
 
-typedef void Trk_Chunk;
-typedef void *lpTrk_Chunk;
-typedef short (*tPA32)[32];
+#include "chunk_types_d2.h"
 
 #endif

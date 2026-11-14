@@ -76,7 +76,6 @@ struct BO_tNewtonObj;
 #include "game/common/aih_hier_states.h"
 #include "shared/Wingman_Role.h"
 #include "game/common/aih_hier_classes.h"
-#include "link_stripped.h"
 #define NFS4_AIHIGH_TYPE_PART 1
 #include "game/common/aihigh.h"
 #undef NFS4_AIHIGH_TYPE_PART

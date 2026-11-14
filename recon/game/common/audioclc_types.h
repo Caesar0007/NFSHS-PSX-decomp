@@ -156,19 +156,7 @@
 
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
-typedef struct {
-    Car_tObj *car;
-    int distToCamera, dopplerShift, relVelocity, gameTicks, distSq;
-    int frequency, channel, horn, hornOn, hornOff, hornCount, pursuit, yelled;
-} AudioClc_tSource;
-
-typedef struct {
-    int cameraMode, gameTicks, warnings;
-    coorddef lastview;
-    AudioClc_tSource source;
-} AudioClc_tPlayer;
-
-struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
+#include "audioclc_types_d1.h"
 #endif
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
@@ -223,24 +211,17 @@ struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
 
 
 #endif
-struct CARDINFO_def;
-typedef struct CARDINFO_def CARDINFO_def;
-struct Trk_NewSlice;
-typedef struct Trk_NewSlice Trk_NewSlice;
+#include "audioclc_types_d2.h"
 #ifndef NFS4_AUDIOCLC_OMIT_CARLOGIC_OBSERVATIONS
-typedef int CarLogic_tObservations[1][3];
+#include "audioclc_types_d3.h"
 #endif
 #ifndef NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
-typedef int Input_tDeviceCall();
+#include "audioclc_types_d4.h"
 #endif
 #if !defined(NFS4_AUDIOCLC_LATE_SYS) && !defined(NFS4_AUDIOCLC_KERNPAIR_LATE)   /* speech_types.h declares KERN after kernpair; nfs3 in its FE pass */
-typedef kernpair KERN;
+#include "audioclc_types_d5.h"
 #endif
-typedef void (*fontblit)();
-typedef int (*getcode)();
-typedef void (*fontblitbegin)();
-typedef void (*fontblitend)();
-typedef void (*adjustchar)();
+#include "audioclc_types_d6.h"
 
 #elif defined(NFS4_COLOR_IN_HOOK2) && !defined(NFS4_AUDIOCLC_CAR_DONE)   /* second pass: color_types.h AFTER_CAR */
 #define NFS4_AUDIOCLC_CAR_DONE

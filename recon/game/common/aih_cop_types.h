@@ -5,7 +5,13 @@
 #define NFS4_AIHIGH_PLAYER_PLAIN   /* aihigh.h: AIHigh_Player stays a plain struct here (retail TPDEF count) */
 #define NFS4_AIHIGH_COP_AFTER_BASICCOP   /* aihigh.h: AIHigh_Cop right after AIHigh_BasicCop (retail AIHIGH.H order 414/448/471) */
 #define NFS4_AIH_COP_OWNER   /* aihigh.h: AIHigh_Cop inline copies LINK_STRIPPED */
-#include "link_stripped.h"
+#define LINK_STRIPPED __attribute__((section(".text.strip")))
+#define LINK_STRIPPED_RODATA __attribute__((section(".rodata.strip")))
+#define ASM_LINK_STRIPPED(name, body)                                          \
+    __asm__("\t.section .text.strip,\"ax\",@progbits\n\t.set\tnoreorder\n\t.set noreorder\n" /* tab form = for maspsx (consumed), space form = for gas */ \
+            "\t.globl " #name "\n\t.type " #name ",@function\n" #name ":\n"    \
+            body                                                               \
+            "\t.size " #name ",.-" #name "\n\t.set reorder\n\t.set at\n\t.text\n")
 #include "nfs4_core_0_kernel_d1.h"
 #include "shared/u_long.h"
 #include "nfs4_core_0_kernel_d2.h"

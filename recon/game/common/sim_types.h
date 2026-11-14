@@ -159,9 +159,9 @@
 #include "shared/Clock_tGameClock.h"
 #endif
 
-typedef int CarLogic_tObservations[1][3];
+#include "sim_types_d1.h"
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-typedef int Input_tDeviceCall();
+#include "sim_types_d2.h"
 #endif
 
 #define RaceType_HotPursuit 1
@@ -169,7 +169,7 @@ typedef int Input_tDeviceCall();
 
 #elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_SIM_PADS_DONE)
 #define NFS4_SIM_PADS_DONE
-typedef void (*Sched_tFunctionPt)(void *);
+#include "sim_types_d3.h"
 #include "shared/Sched_tFunctionSchedule.h"
 #include "shared/Sched_tSchedule.h"
 #define NFS4_COLOR_SCHED_DONE

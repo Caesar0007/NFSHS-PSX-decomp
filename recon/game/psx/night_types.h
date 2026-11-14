@@ -165,13 +165,10 @@
 
 
 #ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES
-struct tCompRGB { char r, g, b; };
-struct tNightInitCache { tCompRGB table[257]; };
+#include "night_types_d1.h"
 #endif
 
-typedef u_char Night_tLightingTable[256][16];
-typedef u_char Night_tWeatherLightingTable[256];
-typedef u_char Night_tCopLightingTable[256][8];
+#include "night_types_d2.h"
 
 #elif defined(NFS4_COLOR_IN_HOOK) && defined(NFS4_COLOR_HOOK_AFTER_BO_NIGHT_OWNER) && !defined(NFS4_NIGHT_BO_DONE)   /* second pass: color_types.h AFTER_BO */
 #define NFS4_NIGHT_BO_DONE

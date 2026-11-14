@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_NIGHT_EXTERNS_H
 #define NFS4_FLAT_NIGHT_EXTERNS_H
-#include "game/psx/night_types.h"
 extern int GameSetup_gData[650]; /* word view (2600 bytes): retail night.obj records no GameSetup_tData */
 extern Sim_tSimGlobalVar simGlobal;
 extern CTrackSpec TrackSpec_gSpec;

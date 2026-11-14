@@ -100,128 +100,17 @@
 
 
 
-struct tPMenu;
-struct tPMenuCommand { tPMenuCommandType type; tPMenu *nextMenu; };
-
-typedef struct tPListIterator {
-    short *fSelectionList;
-    int *fValue;
-    /* real virtuals since 2026-09-19 (vptr after the data members, where `_vf` was) */
-    tPListIterator(short *, int *);
-    virtual ~tPListIterator();
-    virtual char Value(tPlayer);
-    virtual short TextValue(tPlayer);
-    virtual void Increment(tPlayer);
-    virtual void Decrement(tPlayer);
-} tPListIterator;
-struct tPListIteratorIndexed : public tPListIterator {
-    char *fIndex;
-    tPListIteratorIndexed(short *, int *, char *);
-    ~tPListIteratorIndexed();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-};
-
-struct tPMenuItem {
-    unsigned int fFlags, fTextDescription;
-    tPMenuItem(unsigned int);
-    virtual ~tPMenuItem();
-    virtual tPMenu *NextMenu();
-    virtual bool Debounce();
-    virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    virtual bool IsNavigable() = 0;
-    virtual void Draw(bool) = 0;
-    bool IsEnabled();
-    bool IsDisabled();
-    void Enable() LINK_STRIPPED; /* inferred member spelling, also used by sibling tMenuItem */
-    void Disable() LINK_STRIPPED; /* inferred member spelling, also used by sibling tMenuItem */
-    unsigned int TextDescription() LINK_STRIPPED; /* inferred getter: retail nests this item receiver in the menu getter */
-    void SetTextDescription(unsigned int) LINK_STRIPPED; /* sibling tMenuItem uses this setter spelling */
-};
+#include "mpause_types_d1.h"
 #if defined(NFS4_TU_MPAUSE)   /* owner object: retail records the C-style `typedef struct tPMenuItem {..} tPMenuItem;` form (TPDEF twice) */
-typedef struct tPMenuItem tPMenuItem;
+#include "mpause_types_d2.h"
 #endif
-struct tPMenuItemNonInteractiveText : public tPMenuItem {
-    tPMenuItemNonInteractiveText(unsigned int);
-    ~tPMenuItemNonInteractiveText();
-    void Draw(bool);
-    bool IsNavigable();
-};
-struct tPMenuItemInteractive : public tPMenuItem {
-    tPMenuItemInteractive(unsigned int);
-    ~tPMenuItemInteractive();
-    void Draw(bool);
-    bool IsNavigable();
-};
-struct tPMenuItemLeftRightChoice : public tPMenuItemInteractive {
-    tPListIterator *fData;
-    tPMenuItemLeftRightChoice(unsigned int, tPListIterator *);
-    ~tPMenuItemLeftRightChoice();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    void Draw(bool);
-};
-struct tPMenuItemLeftRightSlider : public tPMenuItemInteractive {
-    int *fData;
-    char fMaxVal;
-    tPMenuItemLeftRightSlider(unsigned int, int *, char);
-    ~tPMenuItemLeftRightSlider();
-    bool Debounce();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    void Draw(bool);
-};
-struct tPMenuItemLeftRightSliderIndexed : public tPMenuItemLeftRightSlider {
-    char *fIndex;
-    tPMenuItemLeftRightSliderIndexed(unsigned int, int *, char, char *);
-    ~tPMenuItemLeftRightSliderIndexed();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    void Draw(bool);
-};
-struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {
-    tPMenu *fNewMenu;
-    void (*fOnButtonPress)(tPMenuCommand &);
-    tPMenuItemGoToMenuButton(unsigned int, tPMenu *, void (*)(tPMenuCommand &));
-    ~tPMenuItemGoToMenuButton();
-    tPMenu *NextMenu();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-};
-typedef struct tPMenuItemCommandButton : public tPMenuItemInteractive {
-    tPMenuCommandType fCommand;
-    void SetCommand(tPMenuCommandType) LINK_STRIPPED; /* inferred setter for the confirmation command */
-    void SetConfirmation(bool) LINK_STRIPPED; /* inferred: kMPause_CommandConfirmationFlag controls the confirmation path */
-    tPMenuItemCommandButton(unsigned int, tPMenuCommandType);
-    ~tPMenuItemCommandButton();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-} tPMenuItemCommandButton;
-typedef tPMenuItem *tPItemList[16];
+#include "mpause_types_d3.h"
 #ifndef NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL
-typedef int Input_tDeviceCall();
+#include "mpause_types_d4.h"
 #endif
-struct tPMenu {
-    int fCurrentItem;
-    bool fHighlight;
-    tPMenuItem *fItemList[16];
-    tPMenu *fNextMenu;
-    int fNumItems;
-    tPMenu(tPMenuItem *, ...);
-    virtual ~tPMenu();
-    void tPMenuConstructor(tPMenuItem *, void *);
-    virtual void Initialize();
-    bool Debounce();
-    void CheckForDisabled();
-    virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    virtual void Draw();
-    int CurrentItem() LINK_STRIPPED; /* inferred accessor: retail records this at the current-item reads */
-    unsigned int CurrentItemText() LINK_STRIPPED; /* inferred getter for the selected item's description */
-    void SetCurrentItem(int) LINK_STRIPPED; /* inferred setter: retail records the confirmation-menu receiver */
-    void SetHighlight(bool) LINK_STRIPPED; /* inferred setter: retail records this in both highlight arms */
-    int NumItems() LINK_STRIPPED; /* inferred inline count getter: retail records this at both count reads */
-    int NumEnabledItems();
-    int ItemEnabledNum(int);
-};
+#include "mpause_types_d5.h"
 #if defined(NFS4_TU_PAUSEMENU)   /* owner object: retail records the C-style `typedef struct tPMenu {..} tPMenu;` form (TPDEF twice) */
-typedef struct tPMenu tPMenu;
+#include "mpause_types_d6.h"
 #endif
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 #ifdef NFS4_MPAUSE_SND_LATE   /* retail mpause.obj: kernpair, AudioMus, SND* right before tPauseMenuDefs */
@@ -232,65 +121,11 @@ typedef struct tPMenu tPMenu;
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 #endif
-struct tPauseMenuDefs {
-    tPauseMenuDefs();
-    ~tPauseMenuDefs();
-    tPMenuItemNonInteractiveText itemGamePaused; tPMenuItemCommandButton itemContinue, itemRestart; tPMenuItemGoToMenuButton itemOptions; tPMenuItemCommandButton itemQuitRace, itemForfeitRace;
-    tPMenu menuPause; tPMenuItemNonInteractiveText itemOptionsTitle; tPMenuItemGoToMenuButton itemAudioSettings, itemControllerSettings; tPMenu menuOptions;
-    tPMenuItemNonInteractiveText itemAudioSettingsTitle; tPListIterator iteratorAudioMode;
-    tPMenuItemLeftRightChoice itemAudioSettingsAudioMode; tPMenuItemLeftRightSlider itemAudioSettingsMusicVolume, itemAudioSettingsFXVolume;
-    tPMenuItemLeftRightSlider itemAudioSettingsSpeechVolume, itemAudioSettingsEngineVolume; tPMenuItemLeftRightSlider itemAudioSettingsAmbientVolume;
-    tPMenu menuAudioSettings; tPListIteratorIndexed iteratorConfig;
-    tPMenuItemNonInteractiveText itemControllerSettingsTitle;
-    tPMenuItemLeftRightChoice itemControllerConfig;
-    tPMenuItemLeftRightSliderIndexed itemControllerShockMode, itemControllerShockImpact;
-    tPMenu menuControllerConfig;
-    tPMenuItemNonInteractiveText itemConfirmTitle, itemConfirmAreYouSure;
-    tPMenuItemCommandButton itemConfirmNo, itemConfirmYes;
-    tPMenu menuConfirmYesNo;
-};
+#include "mpause_types_d7.h"
 #elif defined(NFS4_MPAUSE_PAUSEMENU_ORDER)
 #include "shared/AudioMus_tSongEntry.h"
 #endif
 #include "shared/kernpair.h"
-typedef kernpair KERN;
-typedef void (*fontblit)();
-typedef int (*getcode)();
-typedef void (*fontblitbegin)();
-typedef void (*fontblitend)();
-typedef void (*adjustchar)();
-/* The inline receiver pairs at NumEnabledItems' two count reads establish a getter on tPMenu. Its spelling is inferred; the interface definition retains the debug scopes without an extra standalone body.  (no #pragma: user ruling 2026-11-07) */
-inline int tPMenu::NumItems() { return fNumItems; }
-inline int tPMenu::CurrentItem() { return fCurrentItem; }
-inline void tPMenu::SetHighlight(bool highlight) { fHighlight = highlight; }
-inline unsigned int tPMenuItem::TextDescription() { return fTextDescription; }
-inline void tPMenuItem::SetTextDescription(unsigned int text) { fTextDescription = text; }
-/* Enable/Disable are header inlines: retail records their scopes at the caller's line in
-   MPause_ControllerLogic / MPause_StartPauseMenu (a same-.cpp inline clamps them to line 1). */
-extern bool ChangedEnabling;   /* PauseMenu.obj */
-inline void tPMenuItem::Enable()
-{
-  if (this->IsDisabled()) {
-    ChangedEnabling = 1;
-    this->fFlags &= ~1U;
-  }
-}
-inline void tPMenuItem::Disable()
-{
-  if (this->IsEnabled()) {
-    ChangedEnabling = 1;
-    this->fFlags |= 1;
-  }
-}
-inline void tPMenuItemCommandButton::SetCommand(tPMenuCommandType command) { fCommand = command; }
-inline void tPMenuItemCommandButton::SetConfirmation(bool confirmation) {
-    if (!confirmation) {
-        fCommand = (tPMenuCommandType)(fCommand & ~kMPause_CommandConfirmationFlag);
-    } else {
-        fCommand = (tPMenuCommandType)(fCommand | kMPause_CommandConfirmationFlag);
-    }
-}
-inline unsigned int tPMenu::CurrentItemText() { return fItemList[fCurrentItem]->TextDescription(); }
-inline void tPMenu::SetCurrentItem(int item) { fCurrentItem = item; }
+#include "mpause_types_d8.h"
 
 #endif

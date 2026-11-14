@@ -38,6 +38,13 @@ def code(line, st):
 
 st = [False]
 C = [code(x, st) for x in L]
+# a directive continued with a backslash owns the following physical lines: mark them as directive lines
+cont = False
+for q in range(len(C)):
+    was = cont
+    cont = (C[q].rstrip().endswith(chr(92)) and (C[q].lstrip().startswith('#') or was))
+    if was:
+        C[q] = '#(continued) ' + C[q]
 runs = []
 i = 0
 n = len(L)

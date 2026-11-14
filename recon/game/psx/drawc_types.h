@@ -21,10 +21,7 @@
 #include "psxcontroller_types.h"
 #undef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
-typedef int CarLogic_tObservations[1][3];
-typedef u_char Night_tLightingTable[256][16];
-typedef u_char Night_tWeatherLightingTable[256];
-typedef u_char Night_tCopLightingTable[256][8];
+#include "drawc_types_d1.h"
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
 #include "shared/DIRENTRY.h"
@@ -133,6 +130,5 @@ typedef u_char Night_tCopLightingTable[256][8];
 
 
 
-struct Udff_tInfo;
-typedef Udff_tInfo *Udff_tHandle;
+#include "drawc_types_d2.h"
 #endif

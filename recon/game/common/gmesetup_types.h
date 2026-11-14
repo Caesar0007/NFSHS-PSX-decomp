@@ -289,19 +289,15 @@ struct tScreen;
 
 
 
-typedef kernpair KERN;
+#include "gmesetup_types_d1.h"
 
 /* Some object owners retain the shared GameSetup graph but not this callback
  * typedef.  Narrow owner headers may suppress only this row while keeping the
  * remaining canonical surface unchanged. */
 #ifndef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
-typedef int Input_tDeviceCall();
+#include "gmesetup_types_d2.h"
 #endif
-typedef void (*fontblit)();
-typedef int (*getcode)();
-typedef void (*fontblitbegin)();
-typedef void (*fontblitend)();
-typedef void (*adjustchar)();
+#include "gmesetup_types_d3.h"
 
 #elif defined(NFS4_PADS_IN_HOOK) && !defined(NFS4_GMESETUP_PADS_DONE)
 #define NFS4_GMESETUP_PADS_DONE

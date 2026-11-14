@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_DRAWC_EXTERNS_H
 #define NFS4_FLAT_DRAWC_EXTERNS_H
-#include "game/psx/drawc_types.h"
 struct Draw_FlareCache;
 struct Texture_pal8bit;
 extern char Night_gDrawLightning;     /* @0x8013d9e0 (bss=0) */

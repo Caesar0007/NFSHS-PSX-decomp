@@ -22,7 +22,6 @@
 #define NFS4_FELINES_KERNPAIR_LATE
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "felines_kern.h"
 #define _FE_SCREENS_SCREENCONGRATS_H_   /* frontend/common/screencongrats.h - reconstructed decls for ScreenCongrats.obj (C++ TU) */
-#define NFS4_GAME_COMMON_MIN_TYPES_H
 #include "nfs4_core_0_kernel_d1.h"
 #include "shared/u_long.h"
 #include "nfs4_core_0_kernel_d2.h"
@@ -39,7 +38,6 @@
 #include "nfs4_core_2_shape_d4.h"
 #include "shared/matrixtdef.h"
 #include "nfs4_core_2_shape_d5.h"
-#define NFS4_HAVE_MATRIX3DT
 #include "nfs4_core_3_cd_d1.h"
 #include "shared/linedef.h"
 #include "nfs4_core_4_tail_d1.h"

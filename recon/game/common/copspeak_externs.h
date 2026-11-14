@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_COPSPEAK_EXTERNS_H
 #define NFS4_FLAT_COPSPEAK_EXTERNS_H
-#include "game/common/copspeak_types.h"
 extern "C" {
 #include "eaclib/psx/eacpsxz/cdfs.h"
 #include "eaclib/psx/eacpsxz/fileroot.h"

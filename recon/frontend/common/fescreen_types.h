@@ -14,7 +14,6 @@ struct tMenu;
 #include "shared/tActiveLine.h"
 #include "frontend/common/fescreen_transition.h"
 #include "shared/tShapeInformation.h"
-#include "link_stripped.h"
 #include "frontend/common/fescreen.h"
 #include "shared/tDrawShapeExtended.h"
 #include "frontend/common/fedialog.h"

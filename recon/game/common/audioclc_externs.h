@@ -2,7 +2,6 @@
    former switch-driven headers; identical preprocessed source). */
 #ifndef NFS4_FLAT_AUDIOCLC_EXTERNS_H
 #define NFS4_FLAT_AUDIOCLC_EXTERNS_H
-#include "game/common/audioclc_types.h"
 extern "C" {
 #include "eaclib/psx/eacpsxz/asinfunc.h"
 #include "eaclib/psx/eacpsxz/asintbl.h"

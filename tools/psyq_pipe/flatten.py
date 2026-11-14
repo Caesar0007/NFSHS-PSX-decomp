@@ -48,6 +48,7 @@ def pure_aggregator(path):
             return False
         s = re.sub(r'/\*.*?\*/', ' ', s, flags=re.S)
         s = re.sub(r'//[^\n]*', '', s)
+        s = re.sub(r'\\[ \t]*\r?\n', ' ', s)      # a directive continued with a backslash is one line
         ok = True
         for x in s.split('\n'):
             x = x.strip()

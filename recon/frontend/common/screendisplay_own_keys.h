@@ -9,10 +9,6 @@
 #define NFS4_SCREENDISPLAY_SCREEN_AFTER_ACTIVELINE
 #define NFS4_FELINES_KERNPAIR_LATE
 #define NFS4_SCREENDISPLAY_OWNER_AFTER_ACTIVELINE "screendisplay_owner_kern.h"
-#define NFS4_FE_CORE_CARS_CLASSTYPE   /* retail: tCarClassType after tOwnedCarInfo */
-#define NFS4_FE_CORE_CARS_LINEUP   /* retail: tCarLineup before tfrontEnd */
-#define NFS4_SCREENDISPLAY_TRACKS_AFTER_MENUS   /* retail: track/tournament records after the tMenuNFS4 family */
-#define NFS4_FE_CORE_CARS_HOOK_AFTER_MANAGER "screendisplay_carblock_iters.h"
 #include "nfs4_core_0_kernel_d1.h"
 #include "shared/u_long.h"
 #include "nfs4_core_0_kernel_d2.h"

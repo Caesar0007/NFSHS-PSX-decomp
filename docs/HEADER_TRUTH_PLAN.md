@@ -126,7 +126,7 @@ left open: the 16 scalars declared as unsized arrays in psxfront/front/screencar
 ## State after 2026-11-15 - the dirty SYM-tree functions and the dialog header
 
 Gate on HEAD: bytes 299819/299819, 0 masked, 0 stripped-list violations, linked SYM tree 2545 clean / 25 dirty
-(was 2537 / 33), SLINK census 1085 (was 1331). Header conditionals 388, per-object 110, 166 of 172 objects flattened.
+(was 2537 / 33), SLINK census 983 (was 1331; 1085 before `tMenu::ChildMenu()`). Header conditionals 388, per-object 110, 166 of 172 objects flattened.
 
 The 33 functions whose debug tree differed from retail were taken one by one, re-measuring every old receipt (most
 were written before the SYM lane existed). Clean now: Front_Menu, Front_EnableLocalSpeech,
@@ -173,6 +173,7 @@ record is:
 | `void SetString(char *mess)` | `this` + `mess` records (MenuExtended_AwardPinkSlipsCar) |
 | `SetChoices(int yes, int no, short)` only | parameter record `yes`; the 4-argument form had no caller left |
 | `tDialogHelp::SetVariant(int)` | `this` pair in `tFEApplication::DisplayHelp` |
+| `tMenu *tMenu::ChildMenu()` (FEMENU.H) | `this` tagged tMenu at the fChildMenu read in `tFEApplication::MainLoop`; with it TPDEF tMenu is retail's 16 in every includer (census -102) |
 
 Removed as unevidenced: the 3-argument `SetPosition`, `Text_PlayerName`, `Dialog_SetString`, the 4-argument
 `SetChoices`, the unused `CalculateDimensionsVirtual` / `ProcessInputVirtual` wrappers. A constructor body must be
@@ -184,7 +185,9 @@ vs .04908); retail keeps line notes inside compiler-generated constructors/destr
 destructor block lines in SavePinkSlips).
 
 Remaining dirty functions (25): allocator/carrier cases in DRAWW, DRAWC, AIH_COP, SPEECH, SIM, FLARE; MainLoop
-(94 of retail's 140 block records: many inline pairs still spelled as raw member access); the two DrawForeground;
+(block tree = retail from line 128 on; lines 39-96 nest differently - the `wasSubMenu` condition needs an
+instruction-level re-read - and the tail tick store keeps its `currentTicks` carrier: value in `$v0` in retail,
+`$t0` from every inline form tried); the two DrawForeground;
 Collide_TestObjectVertices and tScreenCarSelect::DrawForeground (retail has empty nested scopes whose declarations
 are not recoverable); AnimKeyPoints; Hud_BuildTach; tDialogHelp::Draw; Redraw; RaceStatistics; Paths_StartUp;
 tUserNameMenuItem::ProcessInput; R3DCar_InsertCarFacetMenu; DrawController.

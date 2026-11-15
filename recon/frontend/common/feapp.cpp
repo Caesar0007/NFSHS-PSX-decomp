@@ -1146,8 +1146,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
         wasSubMenu = false;
         if (((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
             (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) &&
-           (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0)) { wasSubMenu = this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0; } if (wasSubMenu) {
-          u_long debounce;
+           (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0)) { wasSubMenu = this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0; } if (wasSubMenu)
+        { u_long debounce;
           debounce = this->fCurrentMenu[(u_char)this->fPlayer]->DebounceKeys();
 
 
@@ -1167,8 +1167,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
           }
 
 
-          if (keyVal[i] != kInput_KeyType_NoKey) {
-
+          if (keyVal[i] != kInput_KeyType_NoKey)
+          {
             tDialogBase *dialog = (tDialogBase *)tDialogBase::GetTopMostDialog();
 
             demoLoopLastInputTick = tick; ticksAtLastInput[i] = tick;

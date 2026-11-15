@@ -536,6 +536,7 @@ measured mismatch that cannot be explained is logged, never fitted.
 | 2026-11-12 | 887091d51 | 33-dirty f: tFEApplication::MainLoop partial (7 -> 4 issues): pink-slips save block identical to retail (SetString(int)/IsFullyOpen/SetString(char*) members, for over players, && guard), race-start arm (frontEnd direct, FE_Ticks pairs, while form), return+break, FE_Ticks at lines 16/39/93. SLINK symtree 2545/25 | 0 | 7 | 110 | 6 | 155 | 1085 |
 | 2026-11-12 | c45c40470 | 33-dirty g + header truth: inline tMenu *tMenu::ChildMenu() (evidence: retail tMenu this-pair at MainLoop line 648 + the per-includer TPDEF count), MainLoop uses HasFlag() for the five flag tests, perPlayer carrier removed (MainLoop 4 -> 3 issues, block count now equal). SLINK symtree 2545/25 | 0 | 7 | 110 | 6 | 156 | 983 |
 | 2026-11-12 | fdf0f5467 | 33-dirty h: MainLoop braces on their own lines at 155 and 176; retail's block tree from line 128 to the end except the tail tick-store carrier. SLINK symtree 2545/25 | 0 | 7 | 110 | 6 | 156 | 983 |
+| 2026-11-12 | 27292ecd7 | 33-dirty i: MainLoop = do { decls; tick = FE_Ticks(); .. for (fPlayer..) { .. } } - retail's block prefix and closings; else/if braces 88/91; tick store on line 96. Left: the line-62 condition stays two nested ifs (a single && form loses retail's threaded branch - strict_branch), tail tick-store carrier. SLINK symtree 2545/25 | 0 | 7 | 110 | 6 | 156 | 983 |
 
 ## Open mismatches (left unexplained on purpose)
 

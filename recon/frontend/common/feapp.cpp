@@ -1030,8 +1030,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 
   this->SetMenu(0,newMenu);
-  {
-  tMenuCommand command [2]; tInputKeyType keyVal [2]; do { tick = FE_Ticks();
+  do
+  { tMenuCommand command [2]; tInputKeyType keyVal [2]; tick = FE_Ticks();
 
 
 
@@ -1051,7 +1051,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 
     doRedraw = true;
-    this->fPlayer = '\0'; while ((u_char)this->fPlayer < 2) {
+    for (this->fPlayer = '\0'; (u_char)this->fPlayer < 2; this->fPlayer = this->fPlayer + '\x01') {
 
 
       if (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0) { wasSubMenu = 0; if ((this->fCurrentMenu[(u_char)this->fPlayer] == (tMenu *)0x0) || ((this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) && (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) && ((wasSubMenu = (this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) != 0))) {
@@ -1078,17 +1078,17 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
           
           this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
           doRedraw = false; }
-        else {
+        else
 
-
+        {
           this->fCurrentMenu[(u_char)this->fPlayer]->TransitionOn();
-          if (needToSetChildMenu) {
-
+          if (needToSetChildMenu)
+          {
             this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->ChildMenu());
-            needToSetChildMenu = false; } } demoLoopLastInputTick = FE_Ticks();
-      } }
+            needToSetChildMenu = false; } }
 
 
+        demoLoopLastInputTick = FE_Ticks(); } }   /* retail: ONE condition with the brace on the next line (blocks {62 {63); every single-if spelling tried loses retail's threaded `A == 0` branch (strict_branch), so the two nested ifs stay */
 
 
 
@@ -1402,8 +1402,8 @@ this->SetMenu((u_short)(u_char)this->fPlayer, command[i].nextMenu);
           }
         }
       }
-this->fPlayer = this->fPlayer + '\x01';
     }
+
 
 
 
@@ -1419,7 +1419,7 @@ this->fPlayer = this->fPlayer + '\x01';
 
       this->RunDemoVideo(); int currentTicks = ::ticks;
       __asm__("" : : "r"(currentTicks)); demoLoopLastInputTick = currentTicks; } } while( true );
-  }
+
 }
 
 

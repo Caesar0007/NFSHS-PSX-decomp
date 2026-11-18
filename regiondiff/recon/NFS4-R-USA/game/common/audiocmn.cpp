@@ -176,7 +176,7 @@ void systemtask(int taskFlag) asm("systemtask");
 extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
 extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
- * come from lib/libfns.h already included via audiocmn_externs.h) */
+ * come from the shared owner headers already included via audiocmn_externs.h) */
 void CopSpeak_Server(void);
 int  AudioTrk_PreLoad(void);
 int  AudioMus_Buffered(void);

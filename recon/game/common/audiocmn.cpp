@@ -132,7 +132,7 @@ void AudioMus_StopSong(int fadeticks);
 
 
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
- * come from lib/libfns.h already included via audiocmn_externs.h) */
+ * come from the owner headers already included via audiocmn_externs.h) */
 void CopSpeak_Server(void);
 int  AudioTrk_PreLoad(void);
 int  AudioMus_Buffered(void);

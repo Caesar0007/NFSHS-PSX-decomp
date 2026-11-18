@@ -5,7 +5,7 @@
 #ifndef R3DCAR_EXTERNS_H
 #define R3DCAR_EXTERNS_H
 
-/* Pruned C-linkage boundary declarations, without libfns.h's project-wide
+/* Pruned C-linkage boundary declarations, without an umbrella header's
  * type surface. sprintf below uses the canonical PsyQ4.3 STDIO.H signature;
  * do not treat the remaining reconstructed boundaries as verified prototypes. */
 extern "C" int DrawSync(int mode);

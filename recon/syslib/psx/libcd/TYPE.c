@@ -1,7 +1,7 @@
 /* TYPE.c -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
  *   obj libcd.lib(TYPE.OBJ) [auth: nfs4-v7-funcs-only.xlsx -> nfs4\syslib\psx\TYPE.obj].
  *   The PsyQ libcd disc-status / disc-type probe.  Surfaced by the whole-tree link harness
- *   (declared in lib/libfns.h, called by cdfs.cpp + audiomus.cpp, never defined -- the
+ *   (called by eacpsxz/cdfs.c + audiomus.cpp via caller-local externs, never defined -- the
  *   EXE SLD marker mis-attributed these to RANDOM.ASM; the xlsx obj map is authoritative).
  *
  *     int CdDiskReady(int mode)  @0x800E8448  -- poll the drive until the disc is stable.

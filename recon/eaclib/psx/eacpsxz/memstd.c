@@ -4,7 +4,7 @@
  *   FULL reconstruction of the actual code (disasm-v3 MIPS); NOT stubs/thunks.
  *   No SYM debug info for these (LIB built without -g) -> param/field names reasoned from
  *   the MIPS + the EA memstd design; every field keeps a /* +0xNN *\/ byte-offset breadcrumb.
- *   C-linkage symbols (the .obj XDEFs these names); cross-obj callers resolve via lib/libfns.h.
+ *   C-linkage symbols (the .obj XDEFs these names); cross-obj callers resolve via memstd.h.
  *
  *   HEAP MODEL (recovered byte-for-byte from the disasm):
  *     Every allocation is prefixed by a 16-byte MemBlock header; the user pointer = hdr + 0x10.

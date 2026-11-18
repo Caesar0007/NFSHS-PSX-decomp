@@ -20,8 +20,8 @@
  *   instructions (the same "code-as-data island" shape as libsn's other genuine originals).
  *   Reconstructed as file-scope __asm__ (BIOS_THUNK / task #31 libsn precedent), byte-identical
  *   to all 3 oracle .s files -- a C model of $sp/$gp reassignment mid-function is not expressible
- *   portably anyway. `syslib.h` already forward-declares `stup2()/stup1()/stup0()` as 3 separate
- *   functions (not 1 combined `start()`), matching this shape.
+ *   portably anyway. Keeping `stup2()`/`stup1()`/`stup0()` as 3 separate entry labels (not 1
+ *   combined `start()`) matches the SYM dump and the oracle .s split.
  */
 
 /* ---- cross-TU call targets (jal targets decoded from EXE bytes; disasm-v3 mislabelled

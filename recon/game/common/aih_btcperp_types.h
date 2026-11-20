@@ -23,13 +23,13 @@ struct BO_tNewtonObj;
 #line 276 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 static inline void _btc_perp_dtor_ref(void *p) { ((AIHigh_BTC_Perp *)p)->~AIHigh_BTC_Perp(); }   /* DEVICE (exact-only): keeps the synthesized dtor's line-276 note; void* param so it adds no BTC_Perp TPDEF */
 #line 19 "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp_types.h"
-#include "C:/Temp/nfs4-decomp/recon/game/common/aistate.h"
-#include "C:/Temp/nfs4-decomp/recon/game/common/speech_class.h"
+#include "game/common/aistate.h"
+#include "game/common/speech_class.h"
 #include "shared/AnimScript.h"
 #include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;
-#include "C:/Temp/nfs4-decomp/recon/game/common/object_anim_classes.h"
+#include "game/common/object_anim_classes.h"
 #include "shared/AITune_BTC_t.h"
 #include "shared/Sim_tSimGlobalVar.h"
 #include "shared/camera_info.h"
